@@ -313,22 +313,31 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
           {/* COLUMN 2: VEDIC PANCHANG CARD (CLICKABLE -> OPENS MONTHLY TITHI CALENDAR) */}
           <div 
             onClick={() => setIsTithiModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsTithiModalOpen(true);
+              }
+            }}
             role="button"
             tabIndex={0}
-            title="Click to open Monthly Calendar of Tithis & Dharmashastra Rules"
-            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-orange-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative"
+            title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
+            aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
+            className="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#0e1629] to-[#0a101e] hover:from-[#131d36] hover:to-[#0e172a] border border-[#1e2942] hover:border-amber-500/80 hover:ring-2 hover:ring-amber-500/40 hover:shadow-xl hover:shadow-amber-500/15 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99]"
           >
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase">
-                  <Sun size={13} className="text-[#f59e0b]" />
+                  <Sun size={13} className="text-[#f59e0b] animate-spin-slow" />
                   <span>VEDIC PANCHANG</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-neutral-200 text-xs font-bold">
                     {panchang.dayOfWeekName}
                   </span>
-                  <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-orange-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <span className="p-1 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                    <ArrowUpRight size={13} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </span>
                 </div>
               </div>
 
@@ -359,11 +368,15 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               </div>
             </div>
 
-            <div className="flex items-center">
-              <div className="border border-[#233152] bg-[#0b1222] px-3 py-1.5 rounded-xl text-xs font-medium text-neutral-200 flex items-center gap-2 w-fit">
-                <Compass size={13} className="text-[#f59e0b]" />
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#1a2542]/70 mt-2">
+              <div className="border border-[#233152] bg-[#0b1222] px-2.5 py-1 rounded-xl text-[11px] font-medium text-neutral-300 flex items-center gap-1.5">
+                <Compass size={12} className="text-[#f59e0b]" />
                 <span>{panchang.paharCapsuleText}</span>
               </div>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-bold group-hover:bg-amber-500 group-hover:text-black transition-all shadow-sm">
+                <Calendar size={11} />
+                <span>Monthly Calendar ▸</span>
+              </span>
             </div>
           </div>
 
