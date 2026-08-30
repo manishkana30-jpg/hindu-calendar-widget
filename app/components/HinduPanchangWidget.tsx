@@ -332,19 +332,29 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                 </div>
               </div>
 
-              <div className="text-xl sm:text-2xl font-extrabold text-[#f59e0b] font-mono tracking-tight my-2 group-hover:text-amber-300 transition-colors">
+              <div className="text-xl sm:text-2xl font-extrabold text-[#f59e0b] font-mono tracking-tight my-1.5 group-hover:text-amber-300 transition-colors">
                 {panchang.ishtaKaal.ghatiFormatted}
               </div>
 
-              <div className="text-base font-bold text-white leading-tight">
-                {panchang.tithi.name}
+              <div className="flex items-center justify-between gap-1.5 my-1">
+                <div className="text-base font-bold text-white leading-tight">
+                  {panchang.tithi.name}
+                </div>
+                {panchang.tithi.index === 15 && <span className="text-base animate-pulse">🌕</span>}
+                {panchang.tithi.index === 30 && <span className="text-base animate-pulse">🌑</span>}
+                {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && <span className="text-xs text-emerald-400 font-bold">✨ Fast</span>}
+              </div>
+
+              <div className="text-[11px] text-amber-300 font-mono font-medium flex items-center gap-1">
+                <span>⏱️ Ends:</span>
+                <span>{panchang.tithi.endTime}</span>
               </div>
 
               <div className="text-xs text-neutral-300 mt-1">
                 Masa: <span className="font-semibold text-white">{panchang.masaDisplay}</span>
               </div>
 
-              <div className="text-[11px] text-neutral-400 mt-0.5 mb-3">
+              <div className="text-[11px] text-neutral-400 mt-0.5 mb-2.5">
                 Vikram Samvat {panchang.vikramSamvat} • Shaka Samvat {panchang.shakaSamvat}
               </div>
             </div>
@@ -762,6 +772,11 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
         isOpen={isTithiModalOpen}
         onClose={() => setIsTithiModalOpen(false)}
         location={selectedLocation}
+        onSelectDate={(d) => {
+          setIsLiveMode(false);
+          setSelectedDate(d);
+          setIsTithiModalOpen(false);
+        }}
       />
 
       <DailyMuhuratModal

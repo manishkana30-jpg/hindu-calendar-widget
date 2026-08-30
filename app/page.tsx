@@ -6,6 +6,7 @@ import {
   Share2
 } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
+import { MonthlyVedicCalendar } from './components/MonthlyVedicCalendar';
 import { PWAInstallModal } from './components/PWAInstallModal';
 import { ShareModal } from './components/ShareModal';
 
@@ -165,6 +166,23 @@ export default function LandingPage() {
           <ShieldCheck size={14} className="text-emerald-400" />
           <span>Installs directly to <strong>Windows</strong>, <strong>Android</strong> &amp; <strong>iOS</strong> without browser or antivirus warnings.</span>
         </p>
+
+        {/* ── Monthly Vedic Calendar Section ── */}
+        <div className="mt-14 pt-10 border-t border-[#162038] text-left">
+          <div className="mb-5 text-center sm:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold mb-2">
+              <Sparkles size={12} />
+              <span>Full Month View</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+              Vedic Monthly Calendar &amp; Udaya Tithi Almanac
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+              High-precision astronomical calendar with Purnima, Amavasya, Ekadashi highlights &amp; exact Tithi conclusion times.
+            </p>
+          </div>
+          <MonthlyVedicCalendar />
+        </div>
       </section>
 
       {/* ── Footer ── */}

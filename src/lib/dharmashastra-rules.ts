@@ -1,4 +1,10 @@
 // Dharmashastra Rules, Panchak Database, Muhurat Database, and Brief Bilingual Determination Engine
+import { 
+  getJulianDay, 
+  getSiderealMoonLongitude, 
+  getMonthVedicCalendar,
+  LocationCoordinates
+} from './vedic-astronomy';
 
 export interface PanchakEntry {
   id: string;
@@ -225,18 +231,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
 // ASTRONOMICAL DYNAMIC PANCHAK GENERATOR (CALCULATES FOR ANY YEAR)
 // ─────────────────────────────────────────────────────────────────────────────
 function getMoonSiderealDeg(date: Date): number {
-  const time = date.getTime();
-  const jd = time / 86400000 + 2440587.5;
-  const n = jd - 2451545.0;
-  const L0 = (218.316 + 13.176396 * n) % 360;
-  const M = ((134.963 + 13.064993 * n) % 360) * (Math.PI / 180);
-  const F = ((93.272 + 13.229350 * n) % 360) * (Math.PI / 180);
-  const lambda = (L0 + 6.289 * Math.sin(M) + 1.274 * Math.sin(2 * F - M) + 0.658 * Math.sin(2 * F)) % 360;
-  const moonTropical = (lambda + 360) % 360;
-  
-  const T = (jd - 2451545.0) / 36525.0;
-  const ayanamsha = 23.85 + 1.396 * T;
-  return (moonTropical - ayanamsha + 360) % 360;
+  const jd = getJulianDay(date);
+  return getSiderealMoonLongitude(jd);
 }
 
 export function generatePanchaksForYear(year: number): PanchakEntry[] {
@@ -244,7 +240,7 @@ export function generatePanchaksForYear(year: number): PanchakEntry[] {
   const startOfYear = new Date(year, 0, 1, 0, 0, 0);
   const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
-  const PANCHAK_START_DEG = 293.333333; // Dhanishta 3rd pada
+  const PANCHAK_START_DEG = 293.33333333; // Dhanishta 3rd pada boundary (293° 20')
 
   // Step across the year in 2-hour increments
   const stepMs = 2 * 3600 * 1000;
@@ -258,22 +254,29 @@ export function generatePanchaksForYear(year: number): PanchakEntry[] {
     const curDate = new Date(t);
     const deg = getMoonSiderealDeg(curDate);
 
-    if (!inPanchak && deg >= PANCHAK_START_DEG) {
-      let refined = t - stepMs;
-      while (refined < t) {
-        if (getMoonSiderealDeg(new Date(refined)) >= PANCHAK_START_DEG) break;
-        refined += 10 * 60 * 1000;
+    // Ingress into Panchak (Moon crossing 293.333° from Capricorn into Aquarius)
+    if (!inPanchak && deg >= PANCHAK_START_DEG && deg < 360) {
+      let low = t - stepMs;
+      let high = t;
+      for (let i = 0; i < 24; i++) {
+        const mid = (low + high) / 2;
+        const d = getMoonSiderealDeg(new Date(mid));
+        if (d < PANCHAK_START_DEG || d > 350) low = mid;
+        else high = mid;
       }
-      currentStartTs = refined;
+      currentStartTs = (low + high) / 2;
       inPanchak = true;
-    } else if (inPanchak && (deg < PANCHAK_START_DEG && deg >= 0.5 && deg <= 180)) {
-      let refined = t - stepMs;
-      while (refined < t) {
-        const d = getMoonSiderealDeg(new Date(refined));
-        if (d < PANCHAK_START_DEG && d >= 0.5 && d <= 180) break;
-        refined += 10 * 60 * 1000;
+    } else if (inPanchak && (deg < PANCHAK_START_DEG && deg < 180)) {
+      // Egress from Panchak (Moon crossing 0°/360° from Pisces Revati into Aries Ashwini)
+      let low = t - stepMs;
+      let high = t;
+      for (let i = 0; i < 24; i++) {
+        const mid = (low + high) / 2;
+        const d = getMoonSiderealDeg(new Date(mid));
+        if (d >= PANCHAK_START_DEG || d > 350) low = mid;
+        else high = mid;
       }
-      const endTs = refined;
+      const endTs = (low + high) / 2;
       inPanchak = false;
 
       const startDate = new Date(currentStartTs);
@@ -522,17 +525,26 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. MONTHLY TITHI CALENDAR GENERATOR
+// 4. MONTHLY TITHI CALENDAR GENERATOR (USING HIGH-PRECISION EPHEMERIS)
 // ─────────────────────────────────────────────────────────────────────────────
 export interface MonthTithiDay {
   dayNumber: number;
   date: Date;
   dateFormatted: string;
   dayOfWeek: string;
+  dayOfWeekShort: string;
   tithiName: string;
   pureTithi: string;
   paksha: 'Shukla' | 'Krishna';
+  tithiIndex: number;
+  tithiEndTime: string;
+  isPurnima: boolean;
+  isAmavasya: boolean;
+  isEkadashi: boolean;
+  isToday: boolean;
   nakshatra: string;
+  nakshatraDevanagari: string;
+  nakshatraLord: string;
   yoga: string;
   karana: string;
   sunrise: string;
@@ -545,67 +557,52 @@ export interface MonthTithiDay {
   };
 }
 
-export function generateMonthTithiCalendar(year: number, month: number, lat: number, lng: number, tz: number): MonthTithiDay[] {
-  const days: MonthTithiDay[] = [];
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+export function generateMonthTithiCalendar(
+  year: number,
+  month: number,
+  lat: number,
+  lng: number,
+  tz: number,
+  locationName: string = 'Current Location'
+): MonthTithiDay[] {
+  const location: LocationCoordinates = {
+    name: locationName,
+    country: '',
+    latitude: lat,
+    longitude: lng,
+    timezone: tz,
+    regionName: locationName
+  };
 
-  const tithiNames = [
-    'Pratipada (1)', 'Dwitiya (2)', 'Tritiya (3)', 'Chaturthi (4)', 'Panchami (5)',
-    'Shashthi (6)', 'Saptami (7)', 'Ashtami (8)', 'Navami (9)', 'Dashami (10)',
-    'Ekadashi (11)', 'Dwadashi (12)', 'Trayodashi (13)', 'Chaturdashi (14)', 'Purnima (15)',
-    'Pratipada (1)', 'Dwitiya (2)', 'Tritiya (3)', 'Chaturthi (4)', 'Panchami (5)',
-    'Shashthi (6)', 'Saptami (7)', 'Ashtami (8)', 'Navami (9)', 'Dashami (10)',
-    'Ekadashi (11)', 'Dwadashi (12)', 'Trayodashi (13)', 'Chaturdashi (14)', 'Amavasya (30)'
-  ];
+  const calDays = getMonthVedicCalendar(year, month, location);
 
-  const nakshatraNames = [
-    'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashirsha', 'Ardra',
-    'Punarvasu', 'Pushya', 'Ashlesha', 'Magha', 'Purva Phalguni', 'Uttara Phalguni',
-    'Hasta', 'Chitra', 'Swati', 'Vishakha', 'Anuradha', 'Jyeshtha',
-    'Mula', 'Purva Ashadha', 'Uttara Ashadha', 'Shravana', 'Dhanishta', 'Shatabhisha',
-    'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
-  ];
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const targetDate = new Date(year, month, d, 6, 0, 0);
-    const dayOfWeek = targetDate.toLocaleDateString('en-US', { weekday: 'long' });
-    const dayFormatted = targetDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    const tIndex = (d + 11) % 30;
-    const paksha: 'Shukla' | 'Krishna' = tIndex < 15 ? 'Shukla' : 'Krishna';
-    const nakIndex = (d * 3 + 7) % 27;
-
-    let fest: string | undefined = undefined;
-    if (tIndex === 10) fest = 'Shukla Ekadashi Vrat';
-    else if (tIndex === 25) fest = 'Krishna Ekadashi Vrat';
-    else if (tIndex === 12) fest = 'Shukla Pradosh Vrat';
-    else if (tIndex === 27) fest = 'Krishna Pradosh Vrat';
-    else if (tIndex === 14) fest = 'Shravana Purnima / Rakhi';
-    else if (tIndex === 29) fest = 'Amavasya (पितृ तर्पण)';
-
-    const tithiStr = `${paksha} ${tithiNames[tIndex]}`;
-
-    days.push({
-      dayNumber: d,
-      date: targetDate,
-      dateFormatted: dayFormatted,
-      dayOfWeek,
-      tithiName: tithiStr,
-      pureTithi: tithiNames[tIndex],
-      paksha,
-      nakshatra: nakshatraNames[nakIndex],
-      yoga: 'Saubhagya / Shobhana',
-      karana: 'Bava / Balava',
-      sunrise: '05:55 AM',
-      sunset: '06:51 PM',
-      isUdayaTithi: true,
-      festival: fest,
-      briefRule: {
-        hindi: 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित तिथि (औदयिक तिथि) ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।',
-        english: 'Surya Siddhanta: The Tithi prevailing at local Sunrise (Udaya Tithi) governs all religious rituals and civil duties for the solar day.'
-      }
-    });
-  }
-
-  return days;
+  return calDays.map(d => ({
+    dayNumber: d.dayNumber,
+    date: d.date,
+    dateFormatted: d.dateFormatted,
+    dayOfWeek: d.dayOfWeek,
+    dayOfWeekShort: d.dayOfWeekShort,
+    tithiName: d.udayaTithi.name,
+    pureTithi: d.udayaTithi.pureName,
+    paksha: d.udayaTithi.paksha,
+    tithiIndex: d.udayaTithi.index,
+    tithiEndTime: d.tithiEndTime,
+    isPurnima: d.udayaTithi.isPurnima,
+    isAmavasya: d.udayaTithi.isAmavasya,
+    isEkadashi: d.udayaTithi.isEkadashi,
+    isToday: d.isToday,
+    nakshatra: d.nakshatra.name,
+    nakshatraDevanagari: d.nakshatra.devanagari,
+    nakshatraLord: d.nakshatra.lord,
+    yoga: d.yoga.name,
+    karana: d.karana.name,
+    sunrise: d.sunrise,
+    sunset: d.sunset,
+    isUdayaTithi: true,
+    festival: d.festival,
+    briefRule: {
+      hindi: 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित तिथि (औदयिक तिथि) ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।',
+      english: 'Surya Siddhanta: The Tithi prevailing at local Sunrise (Udaya Tithi) governs all religious rituals and civil duties for the solar day.'
+    }
+  }));
 }
