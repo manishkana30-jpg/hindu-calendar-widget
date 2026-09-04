@@ -1,5 +1,5 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (v4 - Network First Strategy)
-const CACHE_NAME = 'vedic-panchang-pwa-v4';
+// Service Worker for Hindu Calendar & Live Panchang PWA (v5 - SWR + Offline Cache)
+const CACHE_NAME = 'vedic-panchang-pwa-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
@@ -43,16 +43,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets, try Network then fallback to Cache
+  // For static assets & Next.js chunks, serve Cache-First with Background Revalidation
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+        return networkResponse;
+      }).catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
+    })
   );
 });

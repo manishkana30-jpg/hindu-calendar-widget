@@ -39,13 +39,15 @@ function formatMinutesToTime(totalMins: number): string {
   return `${pad(hours)}:${pad(mins)} ${period}`;
 }
 
+type MuhuratTabType = 'all30' | 'choghadiya' | 'shubhAshubh';
+
 export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
-  const [activeTab, setActiveTab] = useState<'all30' | 'choghadiya' | 'shubhAshubh'>('all30');
+  const [activeTab, setActiveTab] = useState<MuhuratTabType>('all30');
 
   if (!isOpen) return null;
 
-  // Calculate current time in minutes
-  const now = new Date();
+  // Calculate current time in minutes using deterministic panchang date reference
+  const now = panchang.date || new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   // Parse sunrise & sunset
@@ -185,7 +187,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                     ? 'text-yellow-300'
                     : 'text-rose-400'
                 }`}>
-                  CURRENTLY ACTIVE MUHURAT &amp; TIMING
+                  CURRENTLY ACTIVE MUHURAT & TIMING
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
                   panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
@@ -237,7 +239,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as MuhuratTabType)}
                 className={`py-2 px-3 rounded-xl text-xs font-extrabold transition-all text-center flex flex-col items-center justify-center cursor-pointer active:scale-98 ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/25 ring-1 ring-orange-400'
@@ -300,7 +302,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                           <th className="p-3 font-bold">Muhurat Name</th>
                           <th className="p-3 font-bold">Presiding Deity</th>
                           <th className="p-3 font-bold">Nature</th>
-                          <th className="p-3 font-bold">Activity &amp; Guidance</th>
+                          <th className="p-3 font-bold">Activity & Guidance</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#18233c] text-neutral-300">
@@ -383,7 +385,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                           <th className="p-3 font-bold">Muhurat Name</th>
                           <th className="p-3 font-bold">Presiding Deity</th>
                           <th className="p-3 font-bold">Nature</th>
-                          <th className="p-3 font-bold">Activity &amp; Guidance</th>
+                          <th className="p-3 font-bold">Activity & Guidance</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#18233c] text-neutral-300">
@@ -588,7 +590,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
 
         {/* ── Footer ── */}
         <div className="p-4 bg-[#0c1222] border-t border-[#1e2942] flex items-center justify-between text-xs text-neutral-400">
-          <div>Authority: <strong>Muhurta Chintamani &amp; Choghadiya Shastra</strong></div>
+          <div>Authority: <strong>Muhurta Chintamani & Choghadiya Shastra</strong></div>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors"

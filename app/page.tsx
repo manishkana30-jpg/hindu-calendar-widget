@@ -84,7 +84,7 @@ export default function LandingPage() {
             <span className="text-2xl drop-shadow-md">🕉️</span>
             <div>
               <span className="text-sm sm:text-base font-extrabold tracking-tight text-white block leading-tight">
-                Hindu Calendar &amp; Live Panchang
+                Hindu Calendar & Live Panchang
               </span>
               <span className="text-[10px] text-orange-400 font-mono tracking-wider uppercase">
                 High-Precision Vedic Astrometry
@@ -149,7 +149,7 @@ export default function LandingPage() {
             className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-7 py-3.5 rounded-2xl font-extrabold text-sm hover:scale-[1.02] active:scale-95 shadow-xl shadow-emerald-500/20 transition-all cursor-pointer"
           >
             <ArrowDownToLine size={18} />
-            <span>Install Web App (PWA) &amp; View Guide</span>
+            <span>Install Web App (PWA) & View Guide</span>
           </button>
 
           <button 
@@ -163,7 +163,7 @@ export default function LandingPage() {
 
         <p className="text-xs text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
           <ShieldCheck size={14} className="text-emerald-400" />
-          <span>Installs directly to <strong>Windows</strong>, <strong>Android</strong> &amp; <strong>iOS</strong> without browser or antivirus warnings.</span>
+          <span>Installs directly to <strong>Windows</strong>, <strong>Android</strong> & <strong>iOS</strong> without browser or antivirus warnings.</span>
         </p>
       </section>
 
@@ -172,11 +172,11 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span>🕉️</span>
-            <span className="font-semibold text-neutral-300">Hindu Calendar &amp; Live Panchang</span>
+            <span className="font-semibold text-neutral-300">Hindu Calendar & Live Panchang</span>
             <span>• Progressive Web App</span>
           </div>
           <div>
-            Built with Swiss Ephemeris astronomical algorithms. Offline-first &amp; ultra-lightweight.
+            Built with Swiss Ephemeris astronomical algorithms. Offline-first & ultra-lightweight.
           </div>
         </div>
       </footer>

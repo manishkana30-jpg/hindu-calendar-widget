@@ -51,7 +51,7 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
                   Install Hindu Calendar Web App (PWA)
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  100% Free &amp; Secure
+                  100% Free & Secure
                 </span>
               </div>
               <p className="text-xs text-neutral-400 mt-0.5">
@@ -77,7 +77,7 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActivePlatform(tab.id as any)}
+              onClick={() => setActivePlatform(tab.id as 'windows' | 'android' | 'ios')}
               className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
                 activePlatform === tab.id
                   ? 'border-emerald-500 text-emerald-400'
@@ -213,7 +213,7 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
           {activePlatform === 'ios' && (
             <div className="space-y-4">
               <div className="text-xs font-bold text-neutral-200 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📋 iPhone &amp; iPad Safari Installation Guide</span>
+                <span>📋 iPhone & iPad Safari Installation Guide</span>
               </div>
 
               <div className="space-y-2.5 text-xs text-neutral-300">

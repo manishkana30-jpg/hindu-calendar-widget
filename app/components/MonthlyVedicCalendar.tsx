@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
   Sparkles, Sun, Moon, LayoutGrid, List, Info, Clock, 
@@ -52,11 +52,15 @@ export function MonthlyVedicCalendar({
   const daysOfWeekShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const daysOfWeekHindi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
 
-  // High-precision calendar days calculation for the month
-  const calendarDays = getMonthVedicCalendar(currentYear, currentMonth, location);
+  // High-precision calendar days calculation for the month (memoized)
+  const calendarDays = useMemo(() => {
+    return getMonthVedicCalendar(currentYear, currentMonth, location);
+  }, [currentYear, currentMonth, location]);
 
   // Calculate day-of-week offset for the 1st of the month (0 = Sunday, 1 = Monday, etc.)
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const firstDayOfMonth = useMemo(() => {
+    return new Date(currentYear, currentMonth, 1).getDay();
+  }, [currentYear, currentMonth]);
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
@@ -255,7 +259,7 @@ export function MonthlyVedicCalendar({
             <span>Canonical Udaya Tithi Determination Rule (औदयिक तिथि शास्त्र नियम)</span>
           </div>
           <p className="text-neutral-300 leading-relaxed text-[11px]">
-            <strong className="text-orange-400">Surya Siddhanta &amp; Nirnayasindhu:</strong> The Tithi prevailing at local Sunrise (<span className="text-amber-300 font-semibold">Udaya Tithi</span>) governs the entire religious and civil day. The exact Tithi End Time indicates when the Moon-Sun angle traverses the 12° threshold.
+            <strong className="text-orange-400">Surya Siddhanta & Nirnayasindhu:</strong> The Tithi prevailing at local Sunrise (<span className="text-amber-300 font-semibold">Udaya Tithi</span>) governs the entire religious and civil day. The exact Tithi End Time indicates when the Moon-Sun angle traverses the 12° threshold.
           </p>
         </div>
       </div>
@@ -411,7 +415,7 @@ export function MonthlyVedicCalendar({
             <table className="w-full text-left text-xs">
               <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                 <tr>
-                  <th className="p-3 font-bold">Date &amp; Day</th>
+                  <th className="p-3 font-bold">Date & Day</th>
                   <th className="p-3 font-bold">Prevailing Udaya Tithi</th>
                   <th className="p-3 font-bold">Tithi End Time</th>
                   <th className="p-3 font-bold">Nakshatra</th>
@@ -575,7 +579,7 @@ export function MonthlyVedicCalendar({
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[11px] text-orange-200">
                 <div className="font-bold mb-0.5 flex items-center gap-1">
                   <BookOpen size={12} />
-                  <span>Surya Siddhanta &amp; Nirnayasindhu Shastra Rule:</span>
+                  <span>Surya Siddhanta & Nirnayasindhu Shastra Rule:</span>
                 </div>
                 The Udaya Tithi at local sunrise ({selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious duties.
               </div>

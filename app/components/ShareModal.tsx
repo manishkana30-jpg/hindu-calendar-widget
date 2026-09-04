@@ -63,10 +63,10 @@ export function ShareModal({ isOpen, onClose }: Props) {
             </div>
             <div>
               <h2 className="text-base font-extrabold text-white">
-                Share Hindu Calendar &amp; Panchang
+                Share Hindu Calendar & Panchang
               </h2>
               <p className="text-xs text-neutral-400 mt-0.5">
-                Share via Bluetooth, WhatsApp, LINE, Telegram &amp; more
+                Share via Bluetooth, WhatsApp, LINE, Telegram & more
               </p>
             </div>
           </div>

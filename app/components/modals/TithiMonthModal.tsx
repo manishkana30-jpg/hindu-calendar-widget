@@ -57,7 +57,7 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
 
             <span className="hidden md:inline-flex items-center gap-2 text-xs font-bold text-orange-400 uppercase tracking-wider">
               <Calendar size={13} />
-              <span>Monthly Vedic Calendar &amp; Udaya Tithi Almanac</span>
+              <span>Monthly Vedic Calendar & Udaya Tithi Almanac</span>
             </span>
           </div>
 
@@ -90,7 +90,7 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
 
         {/* Modal Footer */}
         <div className="p-3 px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400">
-          <div>Authority: <strong>Surya Siddhanta &amp; Nirnayasindhu</strong> (Lahiri Sidereal Ayanamsha)</div>
+          <div>Authority: <strong>Surya Siddhanta & Nirnayasindhu</strong> (Lahiri Sidereal Ayanamsha)</div>
           <button
             onClick={onClose}
             className="w-full sm:w-auto px-6 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors cursor-pointer shadow-md shadow-orange-500/20 active:scale-95"

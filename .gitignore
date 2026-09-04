@@ -26,9 +26,16 @@ yarn-error.log*
 .env*.local
 .env
 
+# Scratch & Temp
+scratch/
+.tmp.*
+*.log
+
 # Vercel
 .vercel
 
 # TypeScript
 *.tsbuildinfo
+tsconfig.tsbuildinfo
 next-env.d.ts
+

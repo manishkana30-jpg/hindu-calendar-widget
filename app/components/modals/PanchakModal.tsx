@@ -29,7 +29,7 @@ export function PanchakModal({ isOpen, onClose }: Props) {
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2">
-                <span>Vedic Panchak Calendar &amp; Rules (पञ्चक विचार)</span>
+                <span>Vedic Panchak Calendar & Rules (पञ्चक विचार)</span>
                 <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
                   panchakStatus.isActive 
                     ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' 
@@ -39,7 +39,7 @@ export function PanchakModal({ isOpen, onClose }: Props) {
                 </span>
               </h2>
               <p className="text-xs text-neutral-400 mt-0.5">
-                Moon in Dhanishta (Uttaraardha), Shatabhisha, Purva Bhadrapada, Uttara Bhadrapada &amp; Revati.
+                Moon in Dhanishta (Uttaraardha), Shatabhisha, Purva Bhadrapada, Uttara Bhadrapada & Revati.
               </p>
             </div>
           </div>
@@ -85,14 +85,14 @@ export function PanchakModal({ isOpen, onClose }: Props) {
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#0e1629] to-orange-500/10 border border-amber-500/30 text-xs">
             <div className="flex items-center gap-2 text-amber-300 font-bold uppercase tracking-wider mb-1.5">
               <BookOpen size={15} />
-              <span>📜 Panchak Determination &amp; Prohibitions (पञ्चक शास्त्र नियम)</span>
+              <span>📜 Panchak Determination & Prohibitions (पञ्चक शास्त्र नियम)</span>
             </div>
             <div className="space-y-1 text-neutral-200">
               <p>
                 <strong className="text-amber-300">हिंदी:</strong> चन्द्रमा के धनिष्ठा से रेवती तक विचरण काल में पञ्चक होता है। इसमें छत ढालना, दक्षिण दिशा की यात्रा, तृण/काष्ठ संग्रह, खाट बनाना व बिना शान्ति दाह संस्कार वर्जित है (मुहूर्तचिन्तामणि व निर्णयसिन्धु)।
               </p>
               <p className="text-neutral-300">
-                <strong className="text-amber-300">English:</strong> Panchak occurs when the Moon transits from Dhanishta to Revati. Roof construction, southward travel, wood/grass collection, cot crafting, and un-sanctified cremation are canonically prohibited (Muhurta Chintamani &amp; Nirnayasindhu).
+                <strong className="text-amber-300">English:</strong> Panchak occurs when the Moon transits from Dhanishta to Revati. Roof construction, southward travel, wood/grass collection, cot crafting, and un-sanctified cremation are canonically prohibited (Muhurta Chintamani & Nirnayasindhu).
               </p>
             </div>
           </div>
@@ -185,8 +185,8 @@ export function PanchakModal({ isOpen, onClose }: Props) {
                     <tr>
                       <th className="p-3 font-bold">#</th>
                       <th className="p-3 font-bold">Panchak Type</th>
-                      <th className="p-3 font-bold">Starts (Date &amp; Time)</th>
-                      <th className="p-3 font-bold">Ends (Date &amp; Time)</th>
+                      <th className="p-3 font-bold">Starts (Date & Time)</th>
+                      <th className="p-3 font-bold">Ends (Date & Time)</th>
                       <th className="p-3 font-bold">Commencing Day</th>
                       <th className="p-3 font-bold">Auspiciousness</th>
                       <th className="p-3 font-bold">Brief Shastra Effect</th>
@@ -234,7 +234,7 @@ export function PanchakModal({ isOpen, onClose }: Props) {
 
         {/* Footer */}
         <div className="p-4 bg-[#0c1222] border-t border-[#1e2942] flex items-center justify-between text-xs text-neutral-400">
-          <div>Authority: <strong>Muhurta Chintamani &amp; Dharmasindhu</strong></div>
+          <div>Authority: <strong>Muhurta Chintamani & Dharmasindhu</strong></div>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors"

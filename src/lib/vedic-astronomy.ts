@@ -1,6 +1,8 @@
 // High-Precision Vedic Astronomy and Panchang Calculation Engine
 // Built with Jean Meeus (VSOP87 / ELP2000-82) astronomical series and Lahiri (Chitra Paksha) Nirayana Ayanamsha
 
+import { getFestivalForDate, findUpcomingMajorFestival } from './festivals';
+
 export interface LocationCoordinates {
   name: string;
   country: string;
@@ -406,11 +408,34 @@ export interface PanchangData {
   todayFestival: {
     title: string;
     description: string;
+    icon?: string;
+    isMajor?: boolean;
+    badge?: string;
+    shortName?: string;
+    hindiName?: string;
+    briefRule?: {
+      hindi: string;
+      english: string;
+    };
+    shastraReferences?: string[];
   };
   upcomingFestival: {
     badge: string;
     title: string;
     description: string;
+    icon?: string;
+    isMajor?: boolean;
+    dateFormatted?: string;
+    dayOfWeek?: string;
+    daysRemaining?: number;
+    daysText?: string;
+    shortName?: string;
+    hindiName?: string;
+    briefRule?: {
+      hindi: string;
+      english: string;
+    };
+    shastraReferences?: string[];
   };
   festivals: string[];
 }
@@ -1492,44 +1517,36 @@ export function calculatePanchang(targetDate: Date, location: LocationCoordinate
   // High-precision Moonrise and Moonset calculation
   const { moonrise, moonset } = calculateMoonTimes(targetDate, location.latitude, location.longitude, currentTz);
 
-  // Dynamic Festival / Observance assignment
-  let festivalTitle = 'Nitya Panchang (नित्य पञ्चाङ्ग)';
-  let festivalDesc = 'Daily Sacred Vedic Observance';
-  if (udayaTithiIndex === 11) {
-    festivalTitle = 'Shukla Ekadashi Vrat (एकादशी व्रत)';
-    festivalDesc = 'Sacred Vishnu fast & spiritual vigil';
-  } else if (udayaTithiIndex === 26) {
-    festivalTitle = 'Krishna Ekadashi Vrat (एकादशी व्रत)';
-    festivalDesc = 'Sacred Vishnu fast & spiritual vigil';
-  } else if (udayaTithiIndex === 13) {
-    festivalTitle = 'Shukla Pradosh Vrat (प्रदोष व्रत)';
-    festivalDesc = 'Lord Shiva twilight worship';
-  } else if (udayaTithiIndex === 28) {
-    festivalTitle = 'Krishna Pradosh Vrat (प्रदोष व्रत)';
-    festivalDesc = 'Lord Shiva twilight worship';
-  } else if (udayaTithiIndex === 15) {
-    festivalTitle = 'Purnima / Full Moon (पूर्णिमा व्रत)';
-    festivalDesc = 'Satyanarayan Puja & sacred lunar snana';
-  } else if (udayaTithiIndex === 30) {
-    festivalTitle = 'Amavasya / New Moon (दर्श अमावस्या)';
-    festivalDesc = 'Pitri Tarpana, charity & ancestral peace';
-  } else if (udayaTithiIndex === 4) {
-    festivalTitle = 'Vinayaka Chaturthi (विनायक चतुर्थी)';
-    festivalDesc = 'Lord Ganesha sacred fast & modak arpan';
-  } else if (udayaTithiIndex === 19) {
-    festivalTitle = 'Sankashti Chaturthi (संकष्टी चतुर्थी)';
-    festivalDesc = 'Moonrise Ganesha arghya & obstacle removal';
-  }
+  // High-precision dynamic Vedic festival & observance assignment
+  const todayFest = getFestivalForDate(targetDate, location);
+  const upcomingFest = findUpcomingMajorFestival(targetDate, location);
 
   const todayFestival = {
-    title: festivalTitle,
-    description: festivalDesc
+    title: todayFest.name,
+    description: todayFest.description,
+    icon: todayFest.icon,
+    isMajor: todayFest.isMajor,
+    badge: todayFest.badge,
+    shortName: todayFest.shortName,
+    hindiName: todayFest.hindiName,
+    briefRule: todayFest.briefRule,
+    shastraReferences: todayFest.shastraReferences
   };
 
   const upcomingFestival = {
-    badge: 'Vrat / Fast',
-    title: udayaTithiIndex <= 11 ? 'Shukla Ekadashi Vrat (Fast)' : (udayaTithiIndex <= 15 ? 'Shukla Purnima Snana' : (udayaTithiIndex <= 26 ? 'Krishna Ekadashi Vrat' : 'Krishna Amavasya Tarpana')),
-    description: 'Canonical Vedic Observance'
+    badge: upcomingFest.badge,
+    title: upcomingFest.name,
+    description: `${upcomingFest.dateFormatted} • ${upcomingFest.description.split(' • ').slice(1).join(' • ') || upcomingFest.description}`,
+    icon: upcomingFest.icon,
+    isMajor: upcomingFest.isMajor,
+    dateFormatted: upcomingFest.dateFormatted,
+    dayOfWeek: upcomingFest.dayOfWeek,
+    daysRemaining: upcomingFest.daysRemaining,
+    daysText: upcomingFest.daysText,
+    shortName: upcomingFest.shortName,
+    hindiName: upcomingFest.hindiName,
+    briefRule: upcomingFest.briefRule,
+    shastraReferences: upcomingFest.shastraReferences
   };
 
   return {
@@ -1741,16 +1758,9 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
     const isAmavasya = udayaTithiIndex === 30;
     const isEkadashi = udayaTithiIndex === 11 || udayaTithiIndex === 26;
 
-    // Festival detector
-    let festival: string | undefined = undefined;
-    if (isPurnima) festival = 'Purnima Vrat (पूर्णिमा)';
-    else if (isAmavasya) festival = 'Amavasya (पितृ तर्पण)';
-    else if (udayaTithiIndex === 11) festival = 'Shukla Ekadashi (एकादशी)';
-    else if (udayaTithiIndex === 26) festival = 'Krishna Ekadashi (एकादशी)';
-    else if (udayaTithiIndex === 13) festival = 'Shukla Pradosh Vrat';
-    else if (udayaTithiIndex === 28) festival = 'Krishna Pradosh Vrat';
-    else if (udayaTithiIndex === 4) festival = 'Vinayaka Chaturthi';
-    else if (udayaTithiIndex === 19) festival = 'Sankashti Chaturthi';
+    // High-precision dynamic Festival detector
+    const dayFest = getFestivalForDate(targetDate, location);
+    const festival = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest.name : undefined;
 
     days.push({
       dayNumber: d,

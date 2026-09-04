@@ -27,9 +27,10 @@ interface HinduPanchangWidgetProps {
 export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps = {}) {
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(PRESET_LOCATIONS[0]);
   const [isLiveMode, setIsLiveMode] = useState<boolean>(true);
+  type WidgetTabType = 'panchang' | 'choghadiya' | 'muhurat' | 'astrometry';
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'panchang' | 'choghadiya' | 'muhurat' | 'astrometry'>('panchang');
+  const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
@@ -383,7 +384,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="text-neutral-400 text-[11px] font-bold tracking-wider uppercase group-hover:text-neutral-300 transition-colors">
-                  ACTIVE MUHURAT &amp; TIMING
+                  ACTIVE MUHURAT & TIMING
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className={`border px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
@@ -447,19 +448,38 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
             role="button"
             tabIndex={0}
             title="Click to view Udaya Time, Starts, Ends & Dharmashastra Determination Rule"
-            className="bg-[#0e1629]/70 hover:bg-[#121c33] border border-[#1e2942] hover:border-amber-500/60 rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-all group"
+            className={`bg-[#0e1629]/70 hover:bg-[#121c33] border ${
+              panchang.todayFestival.isMajor 
+                ? 'border-amber-500/60 hover:border-amber-400 bg-gradient-to-r from-[#1c1408]/60 via-[#0e1629]/80 to-[#1c1408]/40 shadow-amber-500/5'
+                : 'border-[#1e2942] hover:border-amber-500/60'
+            } rounded-2xl p-4 flex items-center gap-3.5 shadow-sm cursor-pointer transition-all group`}
           >
-            <div className="rounded-xl bg-[#1c1810] border border-[#f59e0b]/40 p-3 text-[#f59e0b] flex-shrink-0 group-hover:scale-105 transition-transform">
-              <Calendar size={22} />
+            <div className={`rounded-xl ${
+              panchang.todayFestival.isMajor
+                ? 'bg-[#2b1b06] border border-amber-500/50 text-amber-300 shadow-sm'
+                : 'bg-[#1c1810] border border-[#f59e0b]/40 text-[#f59e0b]'
+            } p-2.5 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-12 h-12`}>
+              {panchang.todayFestival.icon ? (
+                <span className="text-2xl leading-none select-none">{panchang.todayFestival.icon}</span>
+              ) : (
+                <Calendar size={22} />
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <div className="text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase">
-                  TODAY&apos;S FESTIVAL / VRAT
+              <div className="flex items-center justify-between gap-1">
+                <div className="text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 truncate">
+                  <span>TODAY&apos;S FESTIVAL / VRAT</span>
+                  {panchang.todayFestival.isMajor && (
+                    <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase flex-shrink-0">
+                      Festive
+                    </span>
+                  )}
                 </div>
-                <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-amber-400 transition-colors" />
+                <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-amber-400 transition-colors flex-shrink-0" />
               </div>
-              <div className="text-base font-bold text-white mt-0.5 truncate group-hover:text-amber-300 transition-colors">
+              <div className={`text-base font-bold mt-0.5 truncate transition-colors ${
+                panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
+              }`}>
                 {panchang.todayFestival.title}
               </div>
               <div className="text-xs text-neutral-400 mt-0.5 truncate">
@@ -553,30 +573,44 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
             role="button"
             tabIndex={0}
             title="Click to open Monthly Calendar of Upcoming Festivals & Dharmashastra Rules"
-            className="bg-[#0e1629]/70 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 rounded-2xl p-4 flex items-start justify-between gap-3 shadow-sm cursor-pointer transition-all group"
+            className="bg-[#0e1629]/70 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm cursor-pointer transition-all group"
           >
-            <div className="flex items-start gap-3 min-w-0 flex-1">
-              <div className="rounded-xl bg-[#092220] border border-emerald-500/40 p-3 text-emerald-400 flex-shrink-0 group-hover:scale-105 transition-transform">
-                <Moon size={22} />
+            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              <div className="rounded-xl bg-[#092220] border border-emerald-500/40 p-2.5 text-emerald-400 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-12 h-12">
+                {panchang.upcomingFestival.icon ? (
+                  <span className="text-2xl leading-none select-none">{panchang.upcomingFestival.icon}</span>
+                ) : (
+                  <Moon size={22} />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase flex items-center justify-between">
                   <span>UPCOMING OBSERVANCE</span>
-                  <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-emerald-400 transition-colors" />
+                  <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
                 </div>
                 <div className="text-sm font-bold text-white mt-0.5 leading-snug truncate group-hover:text-emerald-300 transition-colors">
                   {panchang.upcomingFestival.title}
                 </div>
                 <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                  {panchang.upcomingFestival.description}
+                  {panchang.upcomingFestival.dateFormatted ? (
+                    <span>
+                      <strong className="text-emerald-400 font-medium">{panchang.upcomingFestival.dateFormatted}</strong>
+                      {panchang.upcomingFestival.description && (
+                        <span> • {panchang.upcomingFestival.description.replace(/^[^•]+•\s*/, '')}</span>
+                      )}
+                    </span>
+                  ) : (
+                    panchang.upcomingFestival.description
+                  )}
                 </div>
               </div>
             </div>
 
-            <span className="bg-[#0c2422] border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold flex-shrink-0">
-              {panchang.upcomingFestival.badge}
+            <span className="bg-[#0c2422] border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold flex-shrink-0 shadow-sm">
+              {panchang.upcomingFestival.daysText || panchang.upcomingFestival.badge}
             </span>
           </div>
+
 
         </div>
 
@@ -608,7 +642,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as WidgetTabType)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
@@ -804,6 +838,8 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
       <UpcomingFestivalsModal
         isOpen={isUpcomingFestivalsModalOpen}
         onClose={() => setIsUpcomingFestivalsModalOpen(false)}
+        location={selectedLocation}
+        currentDate={selectedDate}
       />
     </>
   );
