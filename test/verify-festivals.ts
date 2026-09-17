@@ -53,7 +53,8 @@ assert(shivFest.isMajor === true, 'Marked as major festival');
 
 // 4. HOLI & HOLIKA DAHAN
 console.log('\n▸ 4. Verifying Holika Dahan & Rangwali Holi (Phalguna Purnima & Chaitra Pratipada):');
-const holikaPanchang = calculatePanchang(new Date(2026, 2, 3, 6, 0, 0), delhi);
+// Nirnayasindhu: Holika Dahan requires Purnima active during Pradosha twilight (2 Mar 2026)
+const holikaPanchang = calculatePanchang(new Date(2026, 2, 2, 6, 0, 0), delhi);
 assert(holikaPanchang.todayFestival.title.includes('Holika Dahan'), 'Phalguna Purnima is Holika Dahan');
 assert(holikaPanchang.todayFestival.icon === '🔥', 'Holika Dahan icon is 🔥');
 
@@ -71,7 +72,8 @@ assert(ramPanchang.todayFestival.isMajor === true, 'Ram Navami marked as major f
 
 // 6. GANESH CHATURTHI
 console.log('\n▸ 6. Verifying Ganesh Chaturthi (Bhadrapada Shukla Chaturthi):');
-const ganeshPanchang = calculatePanchang(new Date(2026, 8, 15, 6, 0, 0), delhi);
+// Dharmasindhu: Ganesh Murti Sthapana requires Shukla Chaturthi in Madhyahna (14 Sep 2026)
+const ganeshPanchang = calculatePanchang(new Date(2026, 8, 14, 6, 0, 0), delhi);
 assert(ganeshPanchang.todayFestival.title.includes('Ganesh Chaturthi'), 'Shukla Chaturthi is Ganesh Chaturthi');
 assert(ganeshPanchang.todayFestival.icon === '🌺', 'Ganesh Chaturthi icon is 🌺');
 assert(ganeshPanchang.todayFestival.isMajor === true, 'Ganesh Chaturthi marked as major festival');
