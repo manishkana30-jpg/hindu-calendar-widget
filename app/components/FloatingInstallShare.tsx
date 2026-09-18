@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   ArrowDownToLine, Share2, X, Check, 
-  Sparkles, ShieldCheck, Smartphone
+  Sparkles, ShieldCheck, Smartphone, Bell
 } from 'lucide-react';
 import { PWAInstallModal } from './PWAInstallModal';
+import { pushTestTithiNotification } from '@/src/lib/notifications/client-trigger';
 
 interface FloatingInstallShareProps {
   className?: string;
@@ -16,6 +17,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [notificationStatus, setNotificationStatus] = useState<'idle' | 'sending' | 'sent' | 'denied' | 'error'>('idle');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 1. Capture beforeinstallprompt event for PWA installation
@@ -120,6 +122,22 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
     }
   }, []);
 
+  // Handle Direct Live Tithi Test Notification
+  const handleNotificationTest = useCallback(async () => {
+    setNotificationStatus('sending');
+    const result = await pushTestTithiNotification();
+    if (result.success) {
+      setNotificationStatus('sent');
+      setTimeout(() => setNotificationStatus('idle'), 4000);
+    } else if (result.error === 'PERMISSION_DENIED') {
+      setNotificationStatus('denied');
+      setTimeout(() => setNotificationStatus('idle'), 4500);
+    } else {
+      setNotificationStatus('error');
+      setTimeout(() => setNotificationStatus('idle'), 4000);
+    }
+  }, []);
+
   return (
     <>
       <aside 
@@ -148,7 +166,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                     Vedic Panchang Actions
                   </h3>
                   <p className="text-[10px] text-orange-400 font-mono uppercase tracking-wider">
-                    Offline App & Sharing
+                    Offline App, Sharing & Alerts
                   </p>
                 </div>
               </div>
@@ -193,7 +211,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
             </div>
 
             {/* Option B: Share with Friends & Family */}
-            <div>
+            <div className="mb-2.5">
               <button
                 onClick={handleShareClick}
                 className="w-full text-left p-3 rounded-xl bg-[#11192e] hover:bg-[#182442] border border-[#233152] hover:border-orange-500/50 transition-all group cursor-pointer shadow-md active:scale-[0.98]"
@@ -210,6 +228,45 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                     </div>
                     <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
                       {isCopied ? "Panchang URL copied to clipboard" : "Send via WhatsApp, SMS, or social"}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Option C: Push Test Tithi Notification */}
+            <div>
+              <button
+                onClick={handleNotificationTest}
+                className="w-full text-left p-3 rounded-xl bg-gradient-to-r from-[#1d1608] to-[#141d2f] hover:from-[#291e0a] hover:to-[#1b2844] border border-amber-500/40 hover:border-amber-400 transition-all group cursor-pointer shadow-md active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                    {notificationStatus === 'sent' ? (
+                      <Check size={18} className="text-emerald-400" />
+                    ) : (
+                      <Bell size={18} className={notificationStatus === 'sending' ? 'animate-spin' : 'animate-pulse'} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-white group-hover:text-amber-300 transition-colors">
+                        {notificationStatus === 'sent'
+                          ? "Notification Pushed! 🔔"
+                          : notificationStatus === 'denied'
+                          ? "Permission Blocked ⚠️"
+                          : "Push Test Tithi Alert"}
+                      </span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 uppercase">
+                        {notificationStatus === 'sending' ? 'Sending...' : 'Test'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
+                      {notificationStatus === 'sent'
+                        ? "Check your device screen right now!"
+                        : notificationStatus === 'denied'
+                        ? "Enable notifications in browser settings"
+                        : "Pushes today's live Tithi alert to your screen"}
                     </p>
                   </div>
                 </div>
@@ -249,15 +306,15 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
 
             {/* Microcopy */}
             <span className="text-xs font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              <span>Get App & Share</span>
+              <span>Get App & Alerts</span>
             </span>
 
             {/* Divider */}
             <span className="w-px h-3.5 bg-[#25375d]" />
 
-            {/* Share Icon */}
-            <div className="w-6 h-6 rounded-full bg-orange-500/15 text-orange-400 flex items-center justify-center flex-shrink-0">
-              <Share2 size={12} />
+            {/* Notification Bell Icon */}
+            <div className="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <Bell size={12} className="animate-pulse" />
             </div>
 
             {/* Live Indicator Ping */}

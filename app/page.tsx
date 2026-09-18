@@ -1,16 +1,34 @@
 "use client";
 
-import React, { useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Sparkles, Bell, Check } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
+import { pushTestTithiNotification } from '@/src/lib/notifications/client-trigger';
 
 export default function LandingPage() {
+  const [testNotificationState, setTestNotificationState] = useState<'idle' | 'sending' | 'sent' | 'denied' | 'error'>('idle');
+
   useEffect(() => {
     // Register Service Worker for offline PWA
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/sw.js').catch((err) => {
         console.log('SW registration error:', err);
       });
+    }
+  }, []);
+
+  const handleHeaderTestNotification = useCallback(async () => {
+    setTestNotificationState('sending');
+    const res = await pushTestTithiNotification();
+    if (res.success) {
+      setTestNotificationState('sent');
+      setTimeout(() => setTestNotificationState('idle'), 4000);
+    } else if (res.error === 'PERMISSION_DENIED') {
+      setTestNotificationState('denied');
+      setTimeout(() => setTestNotificationState('idle'), 4500);
+    } else {
+      setTestNotificationState('error');
+      setTimeout(() => setTestNotificationState('idle'), 4000);
     }
   }, []);
 
@@ -24,7 +42,7 @@ export default function LandingPage() {
         <div className="absolute top-[1200px] left-[-100px] w-[500px] h-[500px] bg-indigo-600/5 blur-[160px] rounded-full" />
       </div>
 
-      {/* ── Navbar: Clean brand & live status indicator only ── */}
+      {/* ── Navbar: Brand, Push Test Notification & live status indicator ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#070b16]/85 backdrop-blur-xl border-b border-[#162038]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -39,11 +57,30 @@ export default function LandingPage() {
             </div>
           </div>
           
-          {/* Top Right: Status Badge */}
+          {/* Top Right: One-tap Push Test Notification & Status Badge */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#11192e] border border-[#233152] text-xs font-medium text-neutral-300 shadow-sm">
+            <button
+              onClick={handleHeaderTestNotification}
+              title="Push live Tithi test notification to your screen right now"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-bold text-amber-300 hover:text-amber-200 transition-all shadow-sm cursor-pointer active:scale-95"
+            >
+              {testNotificationState === 'sent' ? (
+                <Check size={13} className="text-emerald-400" />
+              ) : (
+                <Bell size={13} className={testNotificationState === 'sending' ? 'animate-spin' : 'animate-bounce text-amber-400'} />
+              )}
+              <span>
+                {testNotificationState === 'sent'
+                  ? 'Pushed to Screen! 🔔'
+                  : testNotificationState === 'denied'
+                  ? 'Permission Blocked ⚠️'
+                  : 'Push Test Tithi'}
+              </span>
+            </button>
+
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#11192e] border border-[#233152] text-xs font-medium text-neutral-300 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-mono text-[11px] text-neutral-300 hidden sm:inline">Live Astrometry</span>
+              <span className="font-mono text-[11px] text-neutral-300">Live Astrometry</span>
             </div>
           </div>
         </div>
