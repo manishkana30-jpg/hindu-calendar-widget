@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Sparkles, ShieldCheck, ArrowDownToLine, 
-  Share2
+  Share2, X
 } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { PWAInstallModal } from './components/PWAInstallModal';
@@ -14,6 +14,7 @@ export default function LandingPage() {
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isFloatingBannerDismissed, setIsFloatingBannerDismissed] = useState(false);
 
   useEffect(() => {
     // Listen for the native PWA beforeinstallprompt event
@@ -25,6 +26,11 @@ export default function LandingPage() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    // Contextual engagement trigger for iOS and browsers without beforeinstallprompt
+    const installTimer = setTimeout(() => {
+      setIsInstallable(true);
+    }, 4000);
+
     // Register Service Worker for offline PWA
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker.register('/sw.js').catch((err) => {
@@ -32,7 +38,10 @@ export default function LandingPage() {
       });
     }
 
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      clearTimeout(installTimer);
+    };
   }, []);
 
   const handleInstallClick = async () => {
@@ -194,6 +203,39 @@ export default function LandingPage() {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
       />
+
+      {/* ── Floating Contextual PWA Action Bar ── */}
+      {isInstallable && !isFloatingBannerDismissed && (
+        <aside 
+          aria-label="App Installation Banner"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-lg bg-[#0e1629]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl rounded-2xl p-3 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 flex-shrink-0">
+              <ArrowDownToLine size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate">Install Hindu Calendar App</p>
+              <p className="text-[10px] text-neutral-300 truncate">100% Offline • Real-Time Vedic Astrometry</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              onClick={handleInstallClick}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-extrabold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              Install Free
+            </button>
+            <button
+              onClick={() => setIsFloatingBannerDismissed(true)}
+              aria-label="Dismiss Install Banner"
+              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </aside>
+      )}
 
     </div>
   );

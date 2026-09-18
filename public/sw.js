@@ -58,3 +58,59 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WEB PUSH & NOTIFICATION DISPLAY
+// ─────────────────────────────────────────────────────────────────────────────
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let payload = {
+    title: "Today's Panchang",
+    body: 'Vedic Panchang & Daily Observance updated.',
+    icon: '/icon-192.svg',
+    badge: '/icon-192.svg',
+    data: { url: '/' }
+  };
+
+  try {
+    payload = event.data.json();
+  } catch (err) {
+    payload.body = event.data.text();
+  }
+
+  const options = {
+    body: payload.body,
+    icon: payload.icon || '/icon-192.svg',
+    badge: payload.badge || '/icon-192.svg',
+    vibrate: [200, 100, 200],
+    data: payload.data || { url: '/' },
+    tag: 'daily-panchang-notification',
+    renotify: true
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || "Today's Panchang", options)
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If a tab is already open with the app, focus it
+      for (const client of clientList) {
+        if (client.url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Otherwise open a new window to the widget
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});

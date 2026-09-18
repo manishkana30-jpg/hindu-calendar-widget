@@ -114,13 +114,19 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
         {/* ── Top Bar ── */}
         <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#161f36]">
           
-          {/* Left Badges */}
+          {/* Left Badges & Trust Signals */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             
             {/* Vedic Live Engine Pill */}
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#11192e] border border-[#233152] text-[#f59e0b] text-xs font-semibold tracking-tight shadow-sm">
               <Sparkles size={13} className="text-[#f59e0b] animate-pulse" />
-              <span>Vedic Astronomical Engine</span>
+              <span>Vedic Astrometry Engine</span>
+            </div>
+
+            {/* Astrometric Authority & Offline Badge */}
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0e1629] border border-emerald-500/30 text-emerald-300 text-[11px] font-mono shadow-sm">
+              <ShieldCheck size={12} className="text-emerald-400" />
+              <span>Drik Ganita • 100% Offline</span>
             </div>
 
             {/* Location Dropdown Pill */}
@@ -133,7 +139,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                   const loc = PRESET_LOCATIONS.find(l => l.name === e.target.value);
                   if (loc) setSelectedLocation(loc);
                 }}
-                className="pl-8 pr-7 py-1 bg-[#11192e] hover:bg-[#16213d] border border-[#233152] rounded-full text-xs font-medium text-neutral-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all shadow-sm"
+                className="pl-8 pr-7 py-1.5 bg-[#11192e] hover:bg-[#16213d] border border-[#233152] rounded-full text-xs font-medium text-neutral-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all shadow-sm min-h-[36px]"
               >
                 {PRESET_LOCATIONS.map((loc) => (
                   <option key={loc.name} value={loc.name} className="bg-[#0e1629] text-white">
@@ -145,22 +151,22 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
             </div>
 
             {/* Subtitle / Center Coordinates info */}
-            <span className="hidden md:inline-block text-neutral-400 text-xs font-normal">
+            <span className="hidden xl:inline-block text-neutral-400 text-xs font-normal">
               Center ({selectedLocation.latitude > 0 ? `${selectedLocation.latitude}°N` : `${Math.abs(selectedLocation.latitude)}°S`}, {selectedLocation.longitude > 0 ? `${selectedLocation.longitude}°E` : `${Math.abs(selectedLocation.longitude)}°W`})
             </span>
 
           </div>
 
-          {/* Right Menu & Close Controls */}
+          {/* Right Menu & Close Controls (Enlarged 40x40px Touch Targets) */}
           <div className="flex items-center gap-2">
             {onShareClick && (
               <button
                 onClick={onShareClick}
                 title="Share Widget"
                 aria-label="Share Widget"
-                className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
               >
-                <Share2 size={13} />
+                <Share2 size={15} />
               </button>
             )}
 
@@ -169,40 +175,40 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 title="More Options"
                 aria-label="More Options"
-                className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
               >
-                <MoreVertical size={13} />
+                <MoreVertical size={15} />
               </button>
               
               {isMenuOpen && (
-                <div className="absolute right-0 top-10 w-56 bg-[#0e1629] border border-[#233152] rounded-2xl shadow-2xl py-2 z-30 text-xs animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 top-11 w-60 bg-[#0e1629] border border-[#233152] rounded-2xl shadow-2xl py-2 z-30 text-xs animate-in fade-in zoom-in-95 duration-150">
                   <button
                     onClick={() => { setIsTithiModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 cursor-pointer"
                   >
-                    <Calendar size={14} className="text-orange-400" />
-                    Monthly Tithi Almanac
+                    <Calendar size={15} className="text-orange-400" />
+                    <span>Monthly Tithi Almanac</span>
                   </button>
                   <button
                     onClick={() => { setIsMuhuratModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 cursor-pointer"
                   >
-                    <Clock size={14} className="text-emerald-400" />
-                    Daily 24h Muhurat Matrix
+                    <Clock size={15} className="text-emerald-400" />
+                    <span>Daily 24h Muhurat Matrix</span>
                   </button>
                   <button
                     onClick={() => { setIsPanchakModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 cursor-pointer"
                   >
-                    <ShieldAlert size={14} className="text-amber-400" />
-                    Panchak Calendar for Any Year
+                    <ShieldAlert size={15} className="text-amber-400" />
+                    <span>Panchak Calendar for Any Year</span>
                   </button>
                   <button
                     onClick={() => { setShowDetails(!showDetails); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2 border-t border-[#1a2542] mt-1 pt-2"
+                    className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 border-t border-[#1a2542] mt-1 pt-2 cursor-pointer"
                   >
-                    <Layers size={14} className="text-orange-400" />
-                    {showDetails ? 'Collapse Detailed View' : 'Expand Detailed View'}
+                    <Layers size={15} className="text-orange-400" />
+                    <span>{showDetails ? 'Collapse Detailed View' : 'Expand Detailed View'}</span>
                   </button>
                 </div>
               )}
@@ -212,9 +218,9 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               onClick={() => setIsDismissed(true)}
               title="Minimize Widget"
               aria-label="Close Widget"
-              className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
             >
-              <X size={14} />
+              <X size={15} />
             </button>
           </div>
 
@@ -276,6 +282,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4">
           
           {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
+          {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
           <div className="p-4 sm:p-5 rounded-2xl bg-[#090e1a] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
@@ -290,8 +297,13 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                 )}
               </div>
 
-              <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight my-2">
-                {isLiveMode ? panchang.timeFormatted : (selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) || '06:00 AM')}
+              <div 
+                className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight my-2"
+                aria-label={`Current time: ${isLiveMode ? panchang.timeFormatted : '06:00 AM'}`}
+              >
+                <span aria-hidden="true">
+                  {isLiveMode ? panchang.timeFormatted : (selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) || '06:00 AM')}
+                </span>
               </div>
 
               <div className="text-neutral-300 text-sm font-medium mb-4">
@@ -322,64 +334,89 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
             }}
             role="button"
             tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={isTithiModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
             className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-amber-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99]"
           >
             <div>
+              {/* Card Header with Affordance Cue */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase">
                   <Sun size={13} className="text-[#f59e0b]" />
                   <span>VEDIC PANCHANG</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-bold text-neutral-200">
-                  <span>{panchang.dayOfWeekName}</span>
-                  <ArrowUpRight size={13} className="text-neutral-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <div className="flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:text-amber-300">
+                  <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-semibold opacity-90">{panchang.dayOfWeekName} • Almanac</span>
+                  <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
-              <div className="text-xl sm:text-2xl font-extrabold text-[#f59e0b] font-mono tracking-tight my-1.5 group-hover:text-amber-300 transition-colors">
-                {panchang.ishtaKaal.ghatiFormatted}
-              </div>
-
-              <div className="flex items-center justify-between gap-1.5 my-1">
-                <div className="text-base font-bold text-white leading-tight">
-                  {panchang.tithi.name}
+              {/* Primary Glanceable Element: Tithi Name & Status */}
+              <div className="my-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight group-hover:text-amber-100 transition-colors">
+                    {panchang.tithi.name}
+                  </h3>
+                  {panchang.tithi.index === 15 && <span className="text-lg animate-pulse" title="Purnima">🌕</span>}
+                  {panchang.tithi.index === 30 && <span className="text-lg animate-pulse" title="Amavasya">🌑</span>}
+                  {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                      ✨ Ekadashi Vrat
+                    </span>
+                  )}
                 </div>
-                {panchang.tithi.index === 15 && <span className="text-base animate-pulse">🌕</span>}
-                {panchang.tithi.index === 30 && <span className="text-base animate-pulse">🌑</span>}
-                {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && <span className="text-xs text-emerald-400 font-bold">✨ Fast</span>}
+
+                <div className="text-xs text-amber-300/95 font-mono font-medium flex items-center gap-1 mt-1">
+                  <span>⏱️ Active Until:</span>
+                  <span className="font-bold text-white">{panchang.tithi.endTime}</span>
+                </div>
               </div>
 
-              <div className="text-[11px] text-amber-300 font-mono font-medium flex items-center gap-1">
-                <span>⏱️ Ends:</span>
-                <span>{panchang.tithi.endTime}</span>
+              {/* Secondary Details: Masa & Samvat */}
+              <div className="text-xs text-neutral-300 mt-1 flex items-center gap-1.5">
+                <span>Masa:</span>
+                <span className="font-semibold text-white">{panchang.masaDisplay}</span>
+                <span className="text-neutral-500">•</span>
+                <span className="text-neutral-400">VS {panchang.vikramSamvat}</span>
               </div>
 
-              <div className="text-xs text-neutral-300 mt-1">
-                Masa: <span className="font-semibold text-white">{panchang.masaDisplay}</span>
-              </div>
-
-              <div className="text-[11px] text-neutral-400 mt-0.5 mb-2.5">
-                Vikram Samvat {panchang.vikramSamvat} • Shaka Samvat {panchang.shakaSamvat}
+              {/* Tertiary Ishta Kaal Sub-Panel */}
+              <div className="mt-2.5 pt-2 border-t border-[#1a2542] flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                <span>Ishta Kaal:</span>
+                <span className="text-amber-400 font-semibold">{panchang.ishtaKaal.ghatiFormatted}</span>
               </div>
             </div>
 
-            <div className="flex items-center">
-              <div className="border border-[#233152] bg-[#0b1222] px-3 py-1.5 rounded-xl text-xs font-medium text-neutral-200 flex items-center gap-2 w-fit">
-                <Compass size={13} className="text-[#f59e0b]" />
+            {/* Footer: Pahar Capsule & Interactive Tap Pill */}
+            <div className="flex items-center justify-between mt-3 pt-2">
+              <div className="border border-[#233152] bg-[#0b1222] px-2.5 py-1 rounded-xl text-[11px] font-medium text-neutral-300 flex items-center gap-1.5">
+                <Compass size={12} className="text-[#f59e0b]" />
                 <span>{panchang.paharCapsuleText}</span>
               </div>
+              <span className="text-[10px] text-amber-400/90 font-bold group-hover:text-amber-300 transition-colors flex items-center gap-0.5">
+                30-Day Almanac →
+              </span>
             </div>
           </div>
 
           {/* COLUMN 3: ACTIVE MUHURAT & TIMING CARD (CLICKABLE -> OPENS COMPLETE DAILY MUHURAT) */}
           <div 
             onClick={() => setIsMuhuratModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsMuhuratModalOpen(true);
+              }
+            }}
             role="button"
             tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={isMuhuratModalOpen}
             title="Click to open Daily Muhurat for Complete Day & Dharmashastra Rules"
-            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative"
+            aria-label="Open Daily Muhurat Timetable and Choghadiya Matrix"
+            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99]"
           >
             <div>
               <div className="flex items-center justify-between gap-2">
@@ -403,7 +440,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                     )}
                     <span>{panchang.currentChoghadiya?.nature || 'AUSPICIOUS'}</span>
                   </span>
-                  <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
@@ -426,13 +463,13 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-2">
               <div className="text-sm font-bold text-[#f59e0b] flex items-center gap-1.5">
                 <Hourglass size={14} className="text-[#f59e0b] animate-spin" style={{ animationDuration: '6s' }} />
                 <span>Remaining: <span className="font-mono">{panchang.currentChoghadiya?.remainingString || '77m 12s'}</span></span>
               </div>
-              <span className="text-[10px] text-emerald-400/80 font-semibold group-hover:text-emerald-300 transition-colors">
-                ⏳ 24h Muhurats →
+              <span className="text-[10px] text-emerald-300 font-semibold group-hover:text-emerald-200 transition-colors">
+                ⏳ Full 24h Timetable →
               </span>
             </div>
           </div>
@@ -445,14 +482,23 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT (CLICKABLE -> OPENS UDAYA TIME, STARTS, ENDS, SHASTRA RULE) */}
           <div 
             onClick={() => setIsTodayFestivalModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsTodayFestivalModalOpen(true);
+              }
+            }}
             role="button"
             tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={isTodayFestivalModalOpen}
             title="Click to view Udaya Time, Starts, Ends & Dharmashastra Determination Rule"
+            aria-label="View Today's Festival and Observance Details"
             className={`bg-[#0e1629]/70 hover:bg-[#121c33] border ${
               panchang.todayFestival.isMajor 
                 ? 'border-amber-500/60 hover:border-amber-400 bg-gradient-to-r from-[#1c1408]/60 via-[#0e1629]/80 to-[#1c1408]/40 shadow-amber-500/5'
                 : 'border-[#1e2942] hover:border-amber-500/60'
-            } rounded-2xl p-4 flex items-center gap-3.5 shadow-sm cursor-pointer transition-all group`}
+            } rounded-2xl p-4 flex items-center gap-3.5 shadow-sm cursor-pointer transition-all group active:scale-[0.99]`}
           >
             <div className={`rounded-xl ${
               panchang.todayFestival.isMajor
@@ -475,25 +521,37 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                     </span>
                   )}
                 </div>
-                <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-amber-400 transition-colors flex-shrink-0" />
+                <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-amber-400 transition-colors flex-shrink-0" />
               </div>
               <div className={`text-base font-bold mt-0.5 truncate transition-colors ${
                 panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
               }`}>
                 {panchang.todayFestival.title}
               </div>
-              <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                {panchang.todayFestival.description}
+              <div className="text-xs text-neutral-400 mt-0.5 truncate flex items-center justify-between">
+                <span>{panchang.todayFestival.description}</span>
+                <span className="hidden sm:inline text-[10px] text-amber-400/80 font-semibold group-hover:text-amber-300 transition-colors ml-1 flex-shrink-0">
+                  Rules →
+                </span>
               </div>
             </div>
           </div>
 
-          {/* MIDDLE: PANCHAK CARD (DYNAMIC ACTIVE CHECKER: ONLY SHOWS ACTIVE PANCHAK WITH DATES/TIMES, OTHERWISE 'No active panchak') */}
+          {/* MIDDLE: PANCHAK CARD */}
           <div 
             onClick={() => setIsPanchakModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsPanchakModalOpen(true);
+              }
+            }}
             role="button"
             tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={isPanchakModalOpen}
             title="Click to open Calendar of Panchaks for Upcoming Months & Years and Dharmashastra Rules"
+            aria-label="View Multi-Year Panchak Calendar and Guidelines"
             className={`bg-[#0e1629]/70 hover:bg-[#121c33] border ${
               panchakStatus.isActive 
                 ? (panchakStatus.panchak?.auspiciousness === 'Auspicious' 
@@ -502,7 +560,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
                     ? 'border-yellow-500/50 hover:border-yellow-500/80'
                     : 'border-rose-500/50 hover:border-rose-500/80')
                 : 'border-emerald-500/30 hover:border-emerald-500/60'
-            } rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-all group relative`}
+            } rounded-2xl p-4 flex items-center gap-4 shadow-sm cursor-pointer transition-all group relative active:scale-[0.99]`}
           >
             <div className={`rounded-xl ${
               panchakStatus.isActive 
@@ -556,24 +614,38 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               </div>
 
               {/* Subtitle: Shows exact start & end date-times if active, or next panchak timing if inactive */}
-              <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                {panchakStatus.isActive && panchakStatus.panchak
-                  ? `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`
-                  : panchakStatus.nextPanchak 
-                    ? `Next: ${panchakStatus.nextPanchak.type} (${panchakStatus.nextPanchak.startDate}, ${panchakStatus.nextPanchak.startTime})`
-                    : 'No panchak in progress • Shastra Calendar →'
-                }
+              <div className="text-xs text-neutral-400 mt-0.5 truncate flex items-center justify-between">
+                <span>
+                  {panchakStatus.isActive && panchakStatus.panchak
+                    ? `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`
+                    : panchakStatus.nextPanchak 
+                      ? `Next: ${panchakStatus.nextPanchak.type} (${panchakStatus.nextPanchak.startDate}, ${panchakStatus.nextPanchak.startTime})`
+                      : 'No panchak in progress • Auspicious'
+                  }
+                </span>
+                <span className="hidden sm:inline text-[10px] text-emerald-300 font-semibold group-hover:text-emerald-200 transition-colors ml-1 flex-shrink-0">
+                  Calendar →
+                </span>
               </div>
             </div>
           </div>
 
-          {/* BOTTOM RIGHT: UPCOMING FESTIVAL / OBSERVANCE (CLICKABLE -> OPENS MONTHLY FESTIVAL CALENDAR) */}
+          {/* BOTTOM RIGHT: UPCOMING FESTIVAL / OBSERVANCE */}
           <div 
             onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsUpcomingFestivalsModalOpen(true);
+              }
+            }}
             role="button"
             tabIndex={0}
+            aria-haspopup="dialog"
+            aria-expanded={isUpcomingFestivalsModalOpen}
             title="Click to open Monthly Calendar of Upcoming Festivals & Dharmashastra Rules"
-            className="bg-[#0e1629]/70 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm cursor-pointer transition-all group"
+            aria-label="View Upcoming Vedic Festivals and Observances"
+            className="bg-[#0e1629]/70 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm cursor-pointer transition-all group active:scale-[0.99]"
           >
             <div className="flex items-center gap-3.5 min-w-0 flex-1">
               <div className="rounded-xl bg-[#092220] border border-emerald-500/40 p-2.5 text-emerald-400 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-12 h-12">
@@ -586,7 +658,7 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
               <div className="min-w-0 flex-1">
                 <div className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase flex items-center justify-between">
                   <span>UPCOMING OBSERVANCE</span>
-                  <ArrowUpRight size={13} className="text-neutral-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                  <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
                 </div>
                 <div className="text-sm font-bold text-white mt-0.5 leading-snug truncate group-hover:text-emerald-300 transition-colors">
                   {panchang.upcomingFestival.title}
