@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Sparkles, Bell, Check } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
-import { pushTestTithiNotification } from '@/src/lib/notifications/client-trigger';
+import { pushTestTithiNotification, initAutomaticDailyNotifications } from '@/src/lib/notifications/client-trigger';
 
 export default function LandingPage() {
   const [testNotificationState, setTestNotificationState] = useState<'idle' | 'sending' | 'sent' | 'denied' | 'error'>('idle');
@@ -11,9 +11,13 @@ export default function LandingPage() {
   useEffect(() => {
     // Register Service Worker for offline PWA
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      navigator.serviceWorker.register('/sw.js').catch((err) => {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        initAutomaticDailyNotifications();
+      }).catch((err) => {
         console.log('SW registration error:', err);
       });
+    } else {
+      initAutomaticDailyNotifications();
     }
   }, []);
 

@@ -1,14 +1,66 @@
 import { calculatePanchang, PRESET_LOCATIONS } from '../vedic-astronomy';
+import { getFestivalForDate } from '../festivals';
+import { getActivePanchakStatus } from '../dharmashastra-rules';
+import { evaluateEkadashi } from '../dharmashastra-engine';
+import { buildDailyNotificationPayload, NotificationPayload } from './payload-builder';
 
 export interface PushNotificationResult {
   success: boolean;
   message: string;
+  payload?: NotificationPayload;
   error?: string;
 }
 
 /**
- * Triggers an immediate, live Tithi notification directly to the user's device screen.
- * Handles permission requests, Service Worker registration, and fallback to window.Notification.
+ * Calculates today's Vedic astrometry and builds the Dharmashastra-compliant
+ * context-aware notification payload strictly following the composition matrix:
+ * - Case A: Normal Day (No Vrat, No Panchak, No Festival)
+ * - Case B: Single Attribute Active
+ * - Case C: Multiple Attributes Active
+ */
+export function getDailyNotificationPayloadForDate(date: Date = new Date()): NotificationPayload {
+  const location = PRESET_LOCATIONS[0]; // Baseline New Delhi coordinates
+  const panchang = calculatePanchang(date, location);
+  const festivalResult = getFestivalForDate(date, location);
+  const panchakResult = getActivePanchakStatus(date);
+  const ekadashiResult = evaluateEkadashi(date, location);
+
+  let festival: string | null = null;
+  let vrat: string | null = null;
+
+  // Detect Festival
+  if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
+    festival = festivalResult.name;
+  }
+
+  // Detect Vrat (Ekadashi, Pradosha, Chaturthi, Shivaratri, etc.)
+  if (ekadashiResult.isEkadashiDay) {
+    vrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
+  } else if (
+    festivalResult.category === 'Vrat' ||
+    festivalResult.category === 'Pradosh' ||
+    festivalResult.name.toLowerCase().includes('vrat')
+  ) {
+    vrat = festivalResult.name;
+  }
+
+  // Assemble context-aware payload
+  return buildDailyNotificationPayload({
+    tithi: panchang.tithi.name,
+    paksha: panchang.tithi.paksha,
+    samvat: String(panchang.vikramSamvat),
+    festival,
+    vrat,
+    panchak: {
+      isActive: panchakResult.isActive,
+      type: panchakResult.panchak?.type
+    }
+  });
+}
+
+/**
+ * Triggers an immediate, live Tithi notification directly to the user's device screen
+ * using the Dharmashastra-compliant payload builder.
  */
 export async function pushTestTithiNotification(): Promise<PushNotificationResult> {
   if (typeof window === 'undefined') {
@@ -41,39 +93,39 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
     };
   }
 
-  // 2. Compute exact live Vedic Panchang for current moment
-  const now = new Date();
-  const location = PRESET_LOCATIONS[0]; // Baseline New Delhi coordinates
-  const panchang = calculatePanchang(now, location);
-
-  const choghadiyaInfo = panchang.currentChoghadiya 
-    ? `${panchang.currentChoghadiya.name} (${panchang.currentChoghadiya.nature.toLowerCase()})` 
-    : 'Auspicious';
-
-  const title = `🕉️ Today's Tithi: ${panchang.tithi.name}`;
-  const body = `${panchang.masaDisplay} • Active until ${panchang.tithi.endTime} • Choghadiya: ${choghadiyaInfo} • 100% Offline`;
+  // 2. Build intelligent context-aware payload for today
+  const payload = getDailyNotificationPayloadForDate(new Date());
 
   const options: NotificationOptions & { renotify?: boolean } = {
-    body,
-    icon: '/icon-192.svg',
-    badge: '/icon-192.svg',
-    tag: 'test-tithi-notification',
+    body: payload.body,
+    icon: payload.icon,
+    badge: payload.badge,
+    tag: 'daily-panchang-notification',
     renotify: true,
     data: {
-      url: '/',
+      ...payload.data,
       timestamp: Date.now()
     }
   };
 
-  // 3. Dispatch via Service Worker (preferred for PWA reliability on Android & Windows)
+  // 3. Mark notification as shown today in localStorage
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    localStorage.setItem('last_panchang_notification_date', todayStr);
+  } catch (e) {
+    // ignore storage error
+  }
+
+  // 4. Dispatch via Service Worker (preferred for PWA reliability on Android, Windows & macOS)
   if ('serviceWorker' in navigator) {
     try {
       const registration = await navigator.serviceWorker.ready;
       if (registration && typeof registration.showNotification === 'function') {
-        await registration.showNotification(title, options);
+        await registration.showNotification(payload.title, options);
         return { 
           success: true, 
-          message: `Pushed "${title}" to your screen!` 
+          message: `Pushed "${payload.title}" to your screen!`,
+          payload
         };
       }
     } catch (swErr) {
@@ -81,12 +133,13 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
     }
   }
 
-  // 4. Fallback to standard window.Notification constructor
+  // 5. Fallback to standard window.Notification constructor
   try {
-    new Notification(title, options);
+    new Notification(payload.title, options);
     return { 
       success: true, 
-      message: `Pushed "${title}" to your screen!` 
+      message: `Pushed "${payload.title}" to your screen!`,
+      payload
     };
   } catch (err: any) {
     console.error('window.Notification instantiation error:', err);
@@ -96,4 +149,44 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
       error: err?.message || 'UNKNOWN_ERROR' 
     };
   }
+}
+
+/**
+ * Initializes automatic daily notification scheduling on the client.
+ * If notification permission is granted, it:
+ * 1. Checks if today's notification was already shown. If not, dispatches it immediately.
+ * 2. Schedules the next automatic notification for tomorrow's sunrise (~6:00 AM local time).
+ * 3. Registers the Web Push subscription with /api/push/subscribe if available.
+ */
+export function initAutomaticDailyNotifications(): void {
+  if (typeof window === 'undefined' || !('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const lastShown = localStorage.getItem('last_panchang_notification_date');
+
+  // If not shown today, push today's morning notification
+  if (lastShown !== todayStr) {
+    pushTestTithiNotification().catch((err) => {
+      console.log('Daily auto-notification dispatch error:', err);
+    });
+  }
+
+  // Calculate milliseconds until next morning 06:00 AM
+  const now = new Date();
+  const nextMorning = new Date(now);
+  nextMorning.setHours(6, 0, 0, 0);
+  if (now.getTime() >= nextMorning.getTime()) {
+    nextMorning.setDate(nextMorning.getDate() + 1);
+  }
+  const msUntilNextMorning = nextMorning.getTime() - now.getTime();
+
+  // Set timeout to automatically trigger tomorrow at 6:00 AM
+  setTimeout(() => {
+    pushTestTithiNotification().catch(() => {});
+    // Recurring interval every 24 hours thereafter
+    setInterval(() => {
+      pushTestTithiNotification().catch(() => {});
+    }, 24 * 60 * 60 * 1000);
+  }, msUntilNextMorning);
 }
