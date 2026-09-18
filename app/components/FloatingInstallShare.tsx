@@ -173,9 +173,9 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Close action menu"
-                className="w-7 h-7 rounded-lg bg-[#141f38] hover:bg-[#1d2d52] text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-[#141f38] hover:bg-[#1d2d52] text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             </div>
 
@@ -202,8 +202,8 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                         Free
                       </span>
                     </div>
-                    <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
-                      Add to Home Screen on iOS, Android & PC
+                    <p className="text-[11px] text-neutral-300 mt-0.5">
+                      iOS: Tap Share ⎋ → Add to Home Screen ⊞
                     </p>
                   </div>
                 </div>

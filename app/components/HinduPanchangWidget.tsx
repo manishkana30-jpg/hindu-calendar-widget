@@ -5,7 +5,7 @@ import {
   Sparkles, MapPin, ChevronDown, MoreVertical, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight
+  ShieldAlert, ShieldCheck, ArrowUpRight, Lock
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -168,6 +168,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 ))}
               </select>
               <ChevronDown size={12} className="absolute right-2.5 text-neutral-400 pointer-events-none" />
+            </div>
+
+            {/* Geolocation Privacy Badge */}
+            <div className="hidden md:inline-flex items-center gap-1 text-[11px] text-emerald-400 font-mono bg-emerald-950/30 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shadow-sm">
+              <Lock size={10} />
+              <span>100% Client-Side • Zero GPS Logging</span>
             </div>
 
             {/* Subtitle / Center Coordinates info */}
@@ -387,26 +393,27 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="text-xs text-neutral-300 mt-1 flex items-center gap-1.5">
                 <span>Masa:</span>
                 <span className="font-semibold text-white">{panchang.masaDisplay}</span>
-                <span className="text-neutral-500">•</span>
-                <span className="text-neutral-400">VS {panchang.vikramSamvat}</span>
+                <span className="text-neutral-400">•</span>
+                <span className="text-neutral-300">VS {panchang.vikramSamvat}</span>
               </div>
 
               {/* Tertiary Ishta Kaal Sub-Panel */}
-              <div className="mt-2.5 pt-2 border-t border-[#1a2542] flex items-center justify-between text-[11px] font-mono text-neutral-400">
+              <div className="mt-2.5 pt-2 border-t border-[#1a2542] flex items-center justify-between text-[11px] font-mono text-neutral-300">
                 <span>Ishta Kaal:</span>
                 <span className="text-amber-400 font-semibold">{panchang.ishtaKaal.ghatiFormatted}</span>
               </div>
             </div>
 
             {/* Footer: Pahar Capsule & Interactive Tap Pill */}
-            <div className="flex items-center justify-between mt-3 pt-2">
+            <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#1a2542]">
               <div className="border border-[#233152] bg-[#0b1222] px-2.5 py-1 rounded-xl text-[11px] font-medium text-neutral-300 flex items-center gap-1.5">
                 <Compass size={12} className="text-[#f59e0b]" />
                 <span>{panchang.paharCapsuleText}</span>
               </div>
-              <span className="text-[10px] text-amber-400/90 font-bold group-hover:text-amber-300 transition-colors flex items-center gap-0.5">
-                30-Day Almanac →
-              </span>
+              <div className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-[11px] font-bold text-amber-300 group-hover:bg-amber-500/25 group-hover:border-amber-400 transition-all flex items-center gap-1">
+                <span>Open 30-Day Almanac</span>
+                <ArrowUpRight size={12} />
+              </div>
             </div>
           </div>
 
@@ -449,11 +456,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     )}
                     <span>{panchang.currentChoghadiya?.nature || 'AUSPICIOUS'}</span>
                   </span>
-                  <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={14} className="text-neutral-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
-              <div className={`text-2xl font-extrabold my-2 leading-tight transition-colors ${
+              <div className={`text-2xl font-extrabold my-1.5 leading-tight transition-colors ${
                 panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
                   ? 'text-white group-hover:text-emerald-300'
                   : panchang.currentChoghadiya?.nature === 'NEUTRAL'
@@ -463,7 +470,29 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 {panchang.currentChoghadiya?.displayName || 'Labh Choghadiya'}
               </div>
 
-              <div className="text-xs text-neutral-300 mb-3">
+              {/* Actionability Guidance Banner */}
+              <div className={`py-1 px-2.5 rounded-lg text-[11px] font-bold flex items-center justify-between border mb-2 ${
+                panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
+                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+                  : panchang.currentChoghadiya?.nature === 'NEUTRAL'
+                  ? 'bg-blue-950/40 border-blue-500/40 text-blue-300'
+                  : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+              }`}>
+                <div className="flex items-center gap-1.5">
+                  <span>
+                    {panchang.currentChoghadiya?.nature === 'AUSPICIOUS' ? '✅' : panchang.currentChoghadiya?.nature === 'NEUTRAL' ? '⚪' : '⚠️'}
+                  </span>
+                  <span className="truncate">
+                    {panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
+                      ? 'Auspicious: Favorable to Act'
+                      : panchang.currentChoghadiya?.nature === 'NEUTRAL'
+                      ? 'Neutral: Routine Activity'
+                      : 'Inauspicious: Delay Major Tasks'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-xs text-neutral-300 mb-2">
                 {panchang.currentChoghadiya?.periodType || 'Night'} Choghadiya ({panchang.currentChoghadiya?.planet || 'Mercury'})
               </div>
 
@@ -472,14 +501,15 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-2">
-              <div className="text-sm font-bold text-[#f59e0b] flex items-center gap-1.5">
+            <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#1a2542]">
+              <div className="text-xs font-bold text-[#f59e0b] flex items-center gap-1.5">
                 <Hourglass size={14} className="text-[#f59e0b] animate-spin" style={{ animationDuration: '6s' }} />
-                <span>Remaining: <span className="font-mono">{panchang.currentChoghadiya?.remainingString || '77m 12s'}</span></span>
+                <span>Expires in <span className="font-mono">{panchang.currentChoghadiya?.remainingString || '77m 12s'}</span></span>
               </div>
-              <span className="text-[10px] text-emerald-300 font-semibold group-hover:text-emerald-200 transition-colors">
-                ⏳ Full 24h Timetable →
-              </span>
+              <div className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-bold text-emerald-300 group-hover:bg-emerald-500/25 group-hover:border-emerald-400 transition-all flex items-center gap-1">
+                <span>View 24h Matrix</span>
+                <ArrowUpRight size={12} />
+              </div>
             </div>
           </div>
 
@@ -530,7 +560,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     </span>
                   )}
                 </div>
-                <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-amber-400 transition-colors flex-shrink-0" />
+                <ArrowUpRight size={14} className="text-neutral-400 group-hover:text-amber-400 transition-colors flex-shrink-0" />
               </div>
               <div className={`text-base font-bold mt-0.5 truncate transition-colors ${
                 panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
@@ -667,7 +697,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="min-w-0 flex-1">
                 <div className="text-emerald-400 text-[11px] font-bold tracking-wider uppercase flex items-center justify-between">
                   <span>UPCOMING OBSERVANCE</span>
-                  <ArrowUpRight size={14} className="text-neutral-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                  <ArrowUpRight size={14} className="text-neutral-400 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
                 </div>
                 <div className="text-sm font-bold text-white mt-0.5 leading-snug truncate group-hover:text-emerald-300 transition-colors">
                   {panchang.upcomingFestival.title}
@@ -705,7 +735,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             <span>{showDetails ? 'Hide Detailed Limbs & Timeline' : 'View Full 5-Limbs, Muhurats & 24h Choghadiya Timeline'}</span>
             <ChevronRight size={13} className={`transform transition-transform ${showDetails ? 'rotate-90' : ''}`} />
           </button>
-          <span className="text-[11px] text-neutral-500 font-mono">
+          <span className="text-[11px] text-neutral-400 font-mono">
             Swiss Ephemeris • Lahiri Ayanamsha
           </span>
         </div>

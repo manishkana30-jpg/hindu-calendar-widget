@@ -103,8 +103,39 @@ export default async function CityPanchangPage({ params }: PageProps) {
   // Cross-linking popular cities
   const popularCities = CITIES.filter((c) => c.slug !== city.slug).slice(0, 8);
 
+  const cityJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://vikram-samvat-widget.vercel.app/'
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Panchang',
+        item: 'https://vikram-samvat-widget.vercel.app/'
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: `${city.name} Panchang`,
+        item: `https://vikram-samvat-widget.vercel.app/panchang/${city.slug}`
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden">
+      
+      {/* ── Breadcrumb JSON-LD Schema for City Search Engine Visibility ── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(cityJsonLd) }}
+      />
       
       {/* Decorative ambient lighting */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">

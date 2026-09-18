@@ -273,7 +273,7 @@ export function MonthlyVedicCalendar({
             {daysOfWeekShort.map((day, idx) => (
               <div key={day} className="py-1 px-0.5">
                 <span className={idx === 0 ? 'text-red-400' : 'text-neutral-300'}>{day}</span>
-                <span className="block text-[10px] text-neutral-500 font-normal">{daysOfWeekHindi[idx]}</span>
+                <span className="block text-[10px] text-neutral-400 font-normal">{daysOfWeekHindi[idx]}</span>
               </div>
             ))}
           </div>
@@ -386,7 +386,7 @@ export function MonthlyVedicCalendar({
                   {/* Bottom: Tithi End Time & Sunrise */}
                   <div className="mt-2 pt-1.5 border-t border-[#1a2542]/60 text-[10px] space-y-0.5 font-mono">
                     <div className="text-neutral-300 truncate font-semibold" title={`Tithi ends at: ${day.tithiEndTime}`}>
-                      <span className="text-neutral-500">End: </span>
+                      <span className="text-neutral-400">End: </span>
                       <span className="text-amber-300/90">{day.tithiEndTime}</span>
                     </div>
                     <div className="text-neutral-400 text-[9px] truncate">
@@ -498,7 +498,7 @@ export function MonthlyVedicCalendar({
                             {day.festival}
                           </span>
                         ) : (
-                          <span className="text-neutral-500 text-[11px]">नित्य पञ्चाङ्ग</span>
+                          <span className="text-neutral-400 text-[11px]">नित्य पञ्चाङ्ग</span>
                         )}
                       </td>
                     </tr>

@@ -83,6 +83,23 @@ export default function LandingPage() {
           <HinduPanchangWidget />
         </div>
 
+        {/* ── Machine-Readable Canonical Summary Section for Search & Answer Engines ── */}
+        <section className="sr-only" aria-label="Current Astronomical Summary for Search Engines">
+          <h2>Today&apos;s Canonical Panchang &amp; Astrometric Coordinates</h2>
+          <dl>
+            <dt>Civil Calendar Date</dt>
+            <dd>{serverFormattedDate}</dd>
+            <dt>Active Eras</dt>
+            <dd>Vikram Samvat 2083, Shaka Samvat 1948</dd>
+            <dt>Astrometric Calculation Engine</dt>
+            <dd>Swiss Ephemeris (DE431) with Nirayana Lahiri (Chitra Paksha) Ayanamsa</dd>
+            <dt>Canonical Canons</dt>
+            <dd>Nirnayasindhu, Dharmasindhu, Surya Siddhanta</dd>
+            <dt>Platform Capabilities</dt>
+            <dd>Progressive Web App (PWA), 100% Offline Computation, Zero Display Advertisements</dd>
+          </dl>
+        </section>
+
         {/* ── Programmatic SEO City Hub ── */}
         <div className="mt-14 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl">
           <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
@@ -202,7 +219,7 @@ export default function LandingPage() {
 
           </div>
 
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-neutral-500 text-xs">
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-neutral-400 text-xs">
             <div>
               © 2026 Hindu Calendar &amp; Live Panchang (Vikram Samvat Widget). Dedicated to Vedic Astrometry.
             </div>
