@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useEffect } from 'react';
+import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
+import { VedicEditorialGuide } from './components/VedicEditorialGuide';
+import { FaqAccordion } from './components/FaqAccordion';
 import { initAutomaticDailyNotifications } from '@/src/lib/notifications/client-trigger';
 
 export default function LandingPage() {
@@ -82,19 +85,109 @@ export default function LandingPage() {
           <HinduPanchangWidget />
         </div>
 
+        {/* ── Authoritative Editorial Section (Directly Below Widget for Search Dominance) ── */}
+        <VedicEditorialGuide />
+
+        {/* ── Accessible FAQ Accordion ── */}
+        <FaqAccordion />
+
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="py-10 text-center text-xs text-neutral-500 border-t border-[#162038] bg-[#050811]">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span>🕉️</span>
-            <span className="font-semibold text-neutral-300">Hindu Calendar & Live Panchang</span>
-            <span>• Progressive Web App</span>
+      {/* ── Comprehensive Site Footer ── */}
+      <footer className="pt-16 pb-12 border-t border-[#162038] bg-[#050811] text-xs text-neutral-400">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-[#162038]">
+            
+            {/* Column 1: Brand & Description */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🕉️</span>
+                <span className="font-bold text-white text-sm">Hindu Calendar & Live Panchang</span>
+              </div>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                High-precision, ad-free Vedic astrometry platform delivering live Ghati/Pala timekeeping, Udaya Tithi, dynamic Choghadiya Muhurats, and Dharmashastra-compliant festival calculations.
+              </p>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#11192e] border border-emerald-500/30 text-[11px] text-emerald-300 font-mono">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>100% Offline PWA Ready</span>
+              </div>
+            </div>
+
+            {/* Column 2: Astrometric Foundation */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs">Astrometric Science</h3>
+              <ul className="space-y-2 text-neutral-400 text-xs">
+                <li>• Swiss Ephemeris (DE431)</li>
+                <li>• Lahiri (Chitra Paksha) Ayanamsa</li>
+                <li>• Sidereal Zodiac (Nirayana)</li>
+                <li>• Nirnayasindhu &amp; Dharmasindhu Canons</li>
+                <li>• Dynamic Topocentric Refraction</li>
+              </ul>
+            </div>
+
+            {/* Column 3: Trust & Compliance */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs">Compliance &amp; Trust</h3>
+              <ul className="space-y-2 text-xs">
+                <li>
+                  <Link href="/about" className="hover:text-amber-400 transition-colors">
+                    About Methodology &amp; Mission
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy-policy" className="hover:text-amber-400 transition-colors">
+                    Privacy Policy (GDPR / CCPA)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="hover:text-amber-400 transition-colors">
+                    Terms &amp; Calculation Disclaimers
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-amber-400 transition-colors">
+                    Contact &amp; Astrometry Inquiries
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Open Source & Diaspora */}
+            <div className="space-y-3">
+              <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs">Open Architecture</h3>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Built for the global Hindu diaspora with Next.js 15, React 19, and Tailwind CSS. Fully auditable on GitHub under open source licenses.
+              </p>
+              <div>
+                <a
+                  href="https://github.com/manishkana30-jpg/hindu-calendar-widget"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+                >
+                  <span>Inspect GitHub Repository →</span>
+                </a>
+              </div>
+            </div>
+
           </div>
-          <div>
-            Built with Swiss Ephemeris astronomical algorithms. Offline-first & ultra-lightweight.
+
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-neutral-500 text-xs">
+            <div>
+              © 2026 Hindu Calendar &amp; Live Panchang (Vikram Samvat Widget). Dedicated to Vedic Astrometry.
+            </div>
+            <div className="flex items-center gap-4 text-neutral-400">
+              <Link href="/privacy-policy" className="hover:text-white">Privacy</Link>
+              <span>•</span>
+              <Link href="/terms" className="hover:text-white">Terms</Link>
+              <span>•</span>
+              <Link href="/about" className="hover:text-white">Methodology</Link>
+              <span>•</span>
+              <Link href="/contact" className="hover:text-white">Contact</Link>
+            </div>
           </div>
+
         </div>
       </footer>
 
