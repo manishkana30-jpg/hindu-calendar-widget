@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://vikram-samvat-widget.vercel.app/sitemap.xml

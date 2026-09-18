@@ -50,10 +50,10 @@ export const metadata: Metadata = {
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
     images: [
       {
-        url: '/icon-512.svg',
-        width: 512,
-        height: 512,
-        alt: 'Hindu Calendar & Live Panchang Logo'
+        url: 'https://vikram-samvat-widget.vercel.app/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'Hindu Calendar & Live Panchang Preview Card'
       }
     ]
   },
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Hindu Calendar & Live Panchang | Today's Tithi & Muhurat",
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
-    images: ['/icon-512.svg']
+    images: ['https://vikram-samvat-widget.vercel.app/api/og']
   },
   alternates: {
     canonical: 'https://vikram-samvat-widget.vercel.app/'

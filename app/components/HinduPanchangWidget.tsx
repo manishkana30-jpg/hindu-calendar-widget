@@ -13,6 +13,7 @@ import {
   LocationCoordinates, 
   PanchangData 
 } from '../../src/lib/vedic-astronomy';
+import { CITIES } from '../../src/lib/cities';
 import { getActivePanchakStatus } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal } from './modals/TithiMonthModal';
 import { DailyMuhuratModal } from './modals/DailyMuhuratModal';
@@ -20,11 +21,34 @@ import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 
-export function HinduPanchangWidget() {
-  const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(PRESET_LOCATIONS[0]);
+const CITY_LOCATIONS: LocationCoordinates[] = CITIES.map(c => ({
+  name: `${c.name}`,
+  country: c.country,
+  latitude: c.latitude,
+  longitude: c.longitude,
+  timezone: c.timezone,
+  ianaTimezone: c.ianaTimezone,
+  regionName: c.state
+}));
+
+const ALL_LOCATIONS: LocationCoordinates[] = [
+  ...PRESET_LOCATIONS,
+  ...CITY_LOCATIONS.filter(cl => !PRESET_LOCATIONS.some(pl => pl.name.toLowerCase().startsWith(cl.name.toLowerCase())))
+];
+
+export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
+  const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
+    initialLocation || PRESET_LOCATIONS[0]
+  );
   const [isLiveMode, setIsLiveMode] = useState<boolean>(true);
   type WidgetTabType = 'panchang' | 'choghadiya' | 'muhurat' | 'astrometry';
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  useEffect(() => {
+    if (initialLocation) {
+      setSelectedLocation(initialLocation);
+    }
+  }, [initialLocation]);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -132,14 +156,14 @@ export function HinduPanchangWidget() {
                 aria-label="Select City Location"
                 value={selectedLocation.name}
                 onChange={(e) => {
-                  const loc = PRESET_LOCATIONS.find(l => l.name === e.target.value);
+                  const loc = ALL_LOCATIONS.find(l => l.name === e.target.value);
                   if (loc) setSelectedLocation(loc);
                 }}
                 className="pl-8 pr-7 py-1.5 bg-[#11192e] hover:bg-[#16213d] border border-[#233152] rounded-full text-xs font-medium text-neutral-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all shadow-sm min-h-[36px]"
               >
-                {PRESET_LOCATIONS.map((loc) => (
-                  <option key={loc.name} value={loc.name} className="bg-[#0e1629] text-white">
-                    {loc.name}
+                {ALL_LOCATIONS.map((loc) => (
+                  <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-[#0e1629] text-white">
+                    {loc.name} ({loc.country})
                   </option>
                 ))}
               </select>
