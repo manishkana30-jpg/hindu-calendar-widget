@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { 
-  Sparkles, ShieldCheck, ArrowDownToLine, 
+  Sparkles, ArrowDownToLine, 
   Share2, X
 } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
@@ -11,25 +11,18 @@ import { ShareModal } from './components/ShareModal';
 
 export default function LandingPage() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [isFloatingBannerDismissed, setIsFloatingBannerDismissed] = useState(false);
+  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
 
   useEffect(() => {
     // Listen for the native PWA beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    // Contextual engagement trigger for iOS and browsers without beforeinstallprompt
-    const installTimer = setTimeout(() => {
-      setIsInstallable(true);
-    }, 4000);
 
     // Register Service Worker for offline PWA
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
@@ -40,7 +33,6 @@ export default function LandingPage() {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      clearTimeout(installTimer);
     };
   }, []);
 
@@ -49,9 +41,8 @@ export default function LandingPage() {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        setIsInstallable(false);
+        setDeferredPrompt(null);
       }
-      setDeferredPrompt(null);
     }
     // Also open the installation modal guide
     setIsInstallModalOpen(true);
@@ -86,7 +77,7 @@ export default function LandingPage() {
         <div className="absolute top-[1200px] left-[-100px] w-[500px] h-[500px] bg-indigo-600/5 blur-[160px] rounded-full" />
       </div>
 
-      {/* ── Navbar ── */}
+      {/* ── Navbar: Clean brand & live status indicator only ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#070b16]/85 backdrop-blur-xl border-b border-[#162038]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -101,28 +92,12 @@ export default function LandingPage() {
             </div>
           </div>
           
-          {/* Top Right: Share & Install Buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            
-            {/* Share Button (Accesses Bluetooth, WhatsApp, LINE, etc.) */}
-            <button
-              onClick={handleShareClick}
-              title="Share App (Bluetooth, WhatsApp, LINE, etc.)"
-              aria-label="Share App"
-              className="px-3.5 py-2 rounded-full bg-[#11192e] hover:bg-[#1a2645] text-neutral-300 hover:text-white transition-all border border-[#233152] flex items-center gap-1.5 text-xs font-bold shadow-sm cursor-pointer active:scale-95"
-            >
-              <Share2 size={14} className="text-orange-400" />
-              <span className="hidden sm:inline">Share</span>
-            </button>
-
-            {/* Install Web App (PWA) Button */}
-            <button 
-              onClick={handleInstallClick}
-              className="text-xs font-bold px-4 py-2 rounded-full bg-emerald-500/15 hover:bg-emerald-500 text-emerald-300 hover:text-white transition-all border border-emerald-500/30 flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
-            >
-              <ArrowDownToLine size={14} className="text-emerald-400" />
-              <span>Install Web App (PWA)</span>
-            </button>
+          {/* Top Right: Status Badge */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#11192e] border border-[#233152] text-xs font-medium text-neutral-300 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono text-[11px] text-neutral-300 hidden sm:inline">Live Astrometry</span>
+            </div>
           </div>
         </div>
       </nav>
@@ -132,7 +107,7 @@ export default function LandingPage() {
         
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 text-orange-300 text-xs font-bold mb-4 backdrop-blur-md">
           <Sparkles size={14} className="text-amber-400 animate-pulse" />
-          <span>Vedic Time • 100% Warning-Free Web App (PWA)</span>
+          <span>Vedic Time • 100% Offline Web App (PWA)</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white mb-3 leading-tight">
@@ -146,34 +121,62 @@ export default function LandingPage() {
           High-precision Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra determination rules.
         </p>
 
-        {/* ── Main Panchang Widget ── */}
+        {/* ── Main Panchang Widget (Completely unobstructed, never covered by banners) ── */}
         <div className="my-6">
-          <HinduPanchangWidget onShareClick={handleShareClick} />
+          <HinduPanchangWidget />
         </div>
 
-        {/* ── Action Buttons (Install & Share) ── */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-          <button 
-            onClick={handleInstallClick}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-7 py-3.5 rounded-2xl font-extrabold text-sm hover:scale-[1.02] active:scale-95 shadow-xl shadow-emerald-500/20 transition-all cursor-pointer"
-          >
-            <ArrowDownToLine size={18} />
-            <span>Install Web App (PWA) & View Guide</span>
-          </button>
+        {/* ── Single Unified App Banner (Install & Share) - In-flow below widget so it NEVER hides events ── */}
+        {!isBannerDismissed && (
+          <div className="w-full max-w-3xl mx-auto mt-6 text-left">
+            <aside 
+              aria-label="App Installation & Share Banner"
+              className="bg-[#0e1629]/95 backdrop-blur-xl border border-emerald-500/30 hover:border-emerald-500/50 shadow-2xl rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3.5 sm:gap-4 transition-all"
+            >
+              <div className="flex items-center gap-3.5 min-w-0 w-full sm:w-auto">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                  <ArrowDownToLine size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs sm:text-sm font-bold text-white">Install Hindu Calendar App</p>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+                      Free PWA
+                    </span>
+                  </div>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5 truncate">
+                    100% Offline • Real-Time Vedic Astrometry • Instant Access
+                  </p>
+                </div>
+              </div>
 
-          <button 
-            onClick={handleShareClick}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0e1629] hover:bg-[#15223e] text-neutral-200 hover:text-white px-6 py-3.5 rounded-2xl font-bold text-sm border border-[#233152] transition-all cursor-pointer"
-          >
-            <Share2 size={16} className="text-orange-400" />
-            <span>Share App with Others</span>
-          </button>
-        </div>
+              <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-end">
+                <button
+                  onClick={handleInstallClick}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-xs transition-all shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  <ArrowDownToLine size={14} />
+                  <span>Install Free</span>
+                </button>
+                <button
+                  onClick={handleShareClick}
+                  className="px-3.5 py-2 rounded-xl bg-[#11192e] hover:bg-[#1a2645] border border-[#233152] text-neutral-200 hover:text-white font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  <Share2 size={13} className="text-orange-400" />
+                  <span>Share</span>
+                </button>
+                <button
+                  onClick={() => setIsBannerDismissed(true)}
+                  aria-label="Dismiss Banner"
+                  className="w-8 h-8 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer ml-0.5"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </aside>
+          </div>
+        )}
 
-        <p className="text-xs text-neutral-400 mt-3 flex items-center justify-center gap-1.5">
-          <ShieldCheck size={14} className="text-emerald-400" />
-          <span>Installs directly to <strong>Windows</strong>, <strong>Android</strong> & <strong>iOS</strong> without browser or antivirus warnings.</span>
-        </p>
       </section>
 
       {/* ── Footer ── */}
@@ -203,39 +206,6 @@ export default function LandingPage() {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
       />
-
-      {/* ── Floating Contextual PWA Action Bar ── */}
-      {isInstallable && !isFloatingBannerDismissed && (
-        <aside 
-          aria-label="App Installation Banner"
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-lg bg-[#0e1629]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl rounded-2xl p-3 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 flex-shrink-0">
-              <ArrowDownToLine size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">Install Hindu Calendar App</p>
-              <p className="text-[10px] text-neutral-300 truncate">100% Offline • Real-Time Vedic Astrometry</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <button
-              onClick={handleInstallClick}
-              className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-extrabold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              Install Free
-            </button>
-            <button
-              onClick={() => setIsFloatingBannerDismissed(true)}
-              aria-label="Dismiss Install Banner"
-              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </aside>
-      )}
 
     </div>
   );

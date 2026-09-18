@@ -5,7 +5,7 @@ import {
   Sparkles, MapPin, ChevronDown, MoreVertical, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight, Share2
+  ShieldAlert, ShieldCheck, ArrowUpRight
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -20,11 +20,7 @@ import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 
-interface HinduPanchangWidgetProps {
-  onShareClick?: () => void;
-}
-
-export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps = {}) {
+export function HinduPanchangWidget() {
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(PRESET_LOCATIONS[0]);
   const [isLiveMode, setIsLiveMode] = useState<boolean>(true);
   type WidgetTabType = 'panchang' | 'choghadiya' | 'muhurat' | 'astrometry';
@@ -159,17 +155,6 @@ export function HinduPanchangWidget({ onShareClick }: HinduPanchangWidgetProps =
 
           {/* Right Menu & Close Controls (Enlarged 40x40px Touch Targets) */}
           <div className="flex items-center gap-2">
-            {onShareClick && (
-              <button
-                onClick={onShareClick}
-                title="Share Widget"
-                aria-label="Share Widget"
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-orange-400 hover:text-orange-300 transition-colors cursor-pointer"
-              >
-                <Share2 size={15} />
-              </button>
-            )}
-
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
