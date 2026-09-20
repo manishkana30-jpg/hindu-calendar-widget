@@ -109,8 +109,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: [29, 30], // Krishna Amavasya (or Nishita Chaturdashi-Amavasya junction)
-    amantaMonthIndex: [6, 7], // Ashwina or Kartika
-    purnimantaMonthIndex: [7, 8], // Kartika
+    amantaMonthIndex: 6, // Ashwina in Amanta
+    purnimantaMonthIndex: 7, // Kartika in Purnimanta
     kalaRequirement: 'Pradosha',
     briefRule: {
       hindi: 'धर्मसिन्धु: प्रदोष काल एवं निशीथ काल में व्याप्त अमावस्या ही महालक्ष्मी पूजन हेतु शास्त्रसम्मत है; स्थिर लग्न (वृषभ) में पूजन चिरस्थायी समृद्धि देता है।',
@@ -129,8 +129,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 88,
     tithiIndex: 29, // Krishna Chaturdashi
-    amantaMonthIndex: [6, 7],
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 6, // Ashwina in Amanta
+    purnimantaMonthIndex: 7, // Kartika in Purnimanta
     kalaRequirement: 'Arunodaya',
     briefRule: {
       hindi: 'निर्णयसिन्धु: सूर्योदय पूर्व अरुणोदय काल में तैल-अभ्यङ्ग स्नान एवं प्रदोष काल में यमराज हेतु चतुर्मुखी दीपदान अनिवार्य है।',
@@ -149,8 +149,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 90,
     tithiIndex: 28, // Krishna Trayodashi
-    amantaMonthIndex: [6, 7],
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 6, // Ashwina in Amanta
+    purnimantaMonthIndex: 7, // Kartika in Purnimanta
     kalaRequirement: 'Pradosha',
     briefRule: {
       hindi: 'स्कन्द पुराण: प्रदोष काल में धन्वन्तरि एवं कुबेर पूजन तथा दक्षिण दिशा में यम दीपदान से आरोग्य व समृद्धि की प्राप्ति होती है।',
@@ -169,8 +169,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 1, // Shukla Pratipada
-    amantaMonthIndex: [7, 8], // Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
     kalaRequirement: 'Pratah',
     briefRule: {
       hindi: 'श्रीमद्भागवत: कार्तिक शुक्ल प्रतिपदा को गोवर्धन पर्वत व गौमाता का पूजन एवं 56 भोग अन्नकूट समर्पण परम कल्याणकारी है।',
@@ -189,8 +189,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 85,
     tithiIndex: 2, // Shukla Dwitiya
-    amantaMonthIndex: [7, 8], // Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
     kalaRequirement: 'Aparahna',
     briefRule: {
       hindi: 'भविष्य पुराण: अपराह्न व्यापिनी द्वितीया में बहन के हाथ से भोजन ग्रहण करने पर यमराज अकाल मृत्यु का भय समाप्त कर देते हैं।',
@@ -209,8 +209,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 6, // Shukla Shashthi
-    amantaMonthIndex: [7, 8], // Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
     kalaRequirement: 'Sayahna',
     briefRule: {
       hindi: 'महाभारत व स्कन्द पुराण: कार्तिक शुक्ल षष्ठी को अस्ताचलगामी सूर्य को सन्ध्या अर्घ्य एवं सप्तमी को उदीयमान सूर्य को प्रातः अर्घ्य प्रदान किया जाता है।',
@@ -229,8 +229,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 85,
     tithiIndex: 12, // Shukla Dwadashi
-    amantaMonthIndex: [7, 8], // Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
     kalaRequirement: 'Sayahna',
     briefRule: {
       hindi: 'पद्म पुराण: प्रबोधिनी एकादशी अथवा द्वादशी को तुलसी-शालिग्राम विवाह कराने से कन्यादान के समान अनन्त पुण्य की प्राप्ति होती है।',
@@ -249,8 +249,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 15, // Shukla Purnima
-    amantaMonthIndex: [7, 8], // Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
     kalaRequirement: 'Pradosha',
     briefRule: {
       hindi: 'शिव पुराण: भगवान शिव ने त्रिपुरासुर का संहार इसी दिन किया था; इस पावन संध्या काशी घाटों व देवालयों में दीपदान से मोक्ष की प्राप्ति होती है।',
@@ -271,8 +271,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: 23, // Krishna Ashtami
-    amantaMonthIndex: [4, 5], // Shravana (Amanta) or Bhadrapada
-    purnimantaMonthIndex: [5, 6], // Bhadrapada (Purnimanta)
+    amantaMonthIndex: 4, // Shravana (Amanta)
+    purnimantaMonthIndex: 5, // Bhadrapada (Purnimanta)
     kalaRequirement: 'Nishita',
     briefRule: {
       hindi: 'कालमाधव: मध्यरात्रि (निशीथ काल) में अष्टमी एवं रोहिणी नक्षत्र का संयोग होने पर ही जन्माष्टमी का मुख्य जयन्ती योग सिद्ध होता है।',
@@ -293,8 +293,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: 4, // Shukla Chaturthi
-    amantaMonthIndex: [5, 6], // Bhadrapada / Ashwina
-    purnimantaMonthIndex: [5, 6],
+    amantaMonthIndex: 5, // Bhadrapada
+    purnimantaMonthIndex: 5,
     kalaRequirement: 'Madhyahna',
     briefRule: {
       hindi: 'धर्मसिन्धु: भगवान श्रीगणेश का प्राकट्य मध्याह्न काल में हुआ था, अतः मध्याह्न व्यापिनी चतुर्थी ही गणेश स्थापना हेतु ग्राह्य है।',
@@ -313,8 +313,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 90,
     tithiIndex: 14, // Shukla Chaturdashi
-    amantaMonthIndex: [5, 6], // Bhadrapada
-    purnimantaMonthIndex: [5, 6],
+    amantaMonthIndex: 5, // Bhadrapada
+    purnimantaMonthIndex: 5,
     kalaRequirement: 'Madhyahna',
     briefRule: {
       hindi: 'हेमाद्रि: मध्याह्न व्यापिनी चतुर्दशी में 14 ग्रन्थियुक्त अनन्त सूत्र धारण करना एवं गणेश विसर्जन करना शास्त्रोक्त है।',
@@ -335,8 +335,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: [28, 29], // Krishna Chaturdashi (or Nishita Trayodashi/Chaturdashi)
-    amantaMonthIndex: [10, 11], // Magha in Amanta
-    purnimantaMonthIndex: [11, 0], // Phalguna in Purnimanta
+    amantaMonthIndex: 10, // Magha in Amanta
+    purnimantaMonthIndex: 11, // Phalguna in Purnimanta
     kalaRequirement: 'Nishita',
     briefRule: {
       hindi: 'निर्णयसिन्धु: निशीथ काल (मध्यरात्रि) में व्याप्त चतुर्दशी ही महाशिवरात्रि व्रत हेतु ग्राह्य है; 4 प्रहर रुद्राभिषेक से समस्त पाप नष्ट होते हैं।',
@@ -357,8 +357,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 15, // Shukla Purnima
-    amantaMonthIndex: [11, 0], // Phalguna
-    purnimantaMonthIndex: [11, 0],
+    amantaMonthIndex: 11, // Phalguna
+    purnimantaMonthIndex: 11,
     kalaRequirement: 'Pradosha',
     briefRule: {
       hindi: 'निर्णयसिन्धु: भद्रा रहित प्रदोष काल में पूर्णिमा होने पर ही होलिका दहन शास्त्रसम्मत है; भद्रा में दहन सर्वथा वर्जित है।',
@@ -377,8 +377,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: 16, // Krishna Pratipada
-    amantaMonthIndex: [11, 0], // Phalguna in Amanta / Chaitra in Purnimanta
-    purnimantaMonthIndex: [0, 1],
+    amantaMonthIndex: 11, // Phalguna in Amanta
+    purnimantaMonthIndex: 0, // Chaitra in Purnimanta
     kalaRequirement: 'Pratah',
     briefRule: {
       hindi: 'भविष्य पुराण: चैत्र कृष्ण प्रतिपदा के प्रातःकाल धूलिवन्दन एवं गुलाल-रंगोत्सव द्वारा नव वसन्त का स्वागत किया जाता है।',
@@ -461,8 +461,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 1, // Shukla Pratipada
-    amantaMonthIndex: [6, 7], // Ashwina
-    purnimantaMonthIndex: [6, 7],
+    amantaMonthIndex: 6, // Ashwina
+    purnimantaMonthIndex: 6,
     kalaRequirement: 'Pratah',
     briefRule: {
       hindi: 'निर्णयसिन्धु: प्रातःकाल द्विस्वभाव लग्न अथवा अभिजित मुहूर्त में कलश स्थापना परम शुभप्रद है।',
@@ -481,8 +481,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 90,
     tithiIndex: 8, // Shukla Ashtami
-    amantaMonthIndex: [6, 7], // Ashwina
-    purnimantaMonthIndex: [6, 7],
+    amantaMonthIndex: 6, // Ashwina
+    purnimantaMonthIndex: 6,
     kalaRequirement: 'Madhyahna',
     briefRule: {
       hindi: 'कालिका पुराण: अष्टमी एवं नवमी की सन्धि वेला (अन्तिम 24 मिनट व प्रथम 24 मिनट) में चामुण्डा देवी की सन्धि पूजा सर्वसिद्धिदात्री है।',
@@ -501,8 +501,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 90,
     tithiIndex: 9, // Shukla Navami
-    amantaMonthIndex: [6, 7], // Ashwina
-    purnimantaMonthIndex: [6, 7],
+    amantaMonthIndex: 6, // Ashwina
+    purnimantaMonthIndex: 6,
     kalaRequirement: 'Madhyahna',
     briefRule: {
       hindi: 'देवी पुराण: नवमी तिथि में नवदुर्गा महायज्ञ व पूर्णाहुति करने से साधक को धर्म, अर्थ, काम व मोक्ष की प्राप्ति होती है।',
@@ -521,8 +521,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: 10, // Shukla Dashami
-    amantaMonthIndex: [6, 7], // Ashwina
-    purnimantaMonthIndex: [6, 7],
+    amantaMonthIndex: 6, // Ashwina
+    purnimantaMonthIndex: 6,
     kalaRequirement: 'Aparahna',
     briefRule: {
       hindi: 'धर्मसिन्धु: अपराह्न व्यापिनी दशमी में अपराजिता देवी एवं शमी वृक्ष का पूजन विजयप्रद है; इसी दिन श्रीराम ने रावण पर विजय पाई थी।',
@@ -541,8 +541,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 90,
     tithiIndex: 15, // Shukla Purnima
-    amantaMonthIndex: [6, 7], // Ashwina
-    purnimantaMonthIndex: [6, 7],
+    amantaMonthIndex: 6, // Ashwina
+    purnimantaMonthIndex: 6,
     kalaRequirement: 'Nishita',
     briefRule: {
       hindi: 'स्कन्द पुराण: मध्यरात्रि में देवी महालक्ष्मी पृथ्वी पर विचरण कर ‘को जागर्ति’ (कौन जाग रहा है) पूछती हैं; खीर का भोग अमृततुल्य होता है।',
@@ -561,8 +561,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 19, // Krishna Chaturthi
-    amantaMonthIndex: [6, 7], // Ashwina or Kartika
-    purnimantaMonthIndex: [7, 8],
+    amantaMonthIndex: 6, // Ashwina in Amanta
+    purnimantaMonthIndex: 7, // Kartika in Purnimanta
     kalaRequirement: 'Ratri',
     briefRule: {
       hindi: 'धर्मसिन्धु: चन्द्रोदय-व्यापिनी चतुर्थी ही करवा चौथ व्रत हेतु ग्राह्य है; चन्द्र दर्शन व अर्घ्य के उपरान्त ही व्रत का पारण होता है।',
@@ -583,8 +583,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 100,
     tithiIndex: 15, // Shukla Purnima
-    amantaMonthIndex: [4, 5], // Shravana
-    purnimantaMonthIndex: [4, 5],
+    amantaMonthIndex: 4, // Shravana
+    purnimantaMonthIndex: 4,
     kalaRequirement: 'Aparahna',
     briefRule: {
       hindi: 'निर्णयसिन्धु: भद्रा काल में रक्षासूत्र बांधना पूर्णतः वर्जित है; अपराह्न अथवा प्रदोष काल में भद्रा समाप्ति के बाद ही रक्षाबन्धन करें।',
@@ -603,8 +603,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 85,
     tithiIndex: 5, // Shukla Panchami
-    amantaMonthIndex: [4, 5], // Shravana
-    purnimantaMonthIndex: [4, 5],
+    amantaMonthIndex: 4, // Shravana
+    purnimantaMonthIndex: 4,
     kalaRequirement: 'Pratah',
     briefRule: {
       hindi: 'भविष्य पुराण: श्रावण शुक्ल पंचमी को द्वादश नागों का दुग्ध-पूजन करने से वंश में सर्प भय समाप्त होता है।',
@@ -811,8 +811,8 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     isMajor: true,
     priority: 95,
     tithiIndex: 11, // Shukla Ekadashi
-    amantaMonthIndex: [8, 9], // Margashirsha
-    purnimantaMonthIndex: [8, 9],
+    amantaMonthIndex: 8, // Margashirsha
+    purnimantaMonthIndex: 8,
     kalaRequirement: 'Udaya',
     briefRule: {
       hindi: 'महाभारत: कुरुक्षेत्र के समरांगण में योगेश्वर श्रीकृष्ण द्वारा अर्जुन को श्रीमद्भगवद्गीता के अमर उपदेश का प्राकट्य हुआ था।',

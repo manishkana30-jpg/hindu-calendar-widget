@@ -65,7 +65,7 @@ assert(holiPanchang.todayFestival.isMajor === true, 'Holi marked as major festiv
 
 // 5. RAM NAVAMI
 console.log('\n▸ 5. Verifying Ram Navami (Chaitra Shukla Navami):');
-const ramPanchang = calculatePanchang(new Date(2026, 1, 25, 6, 0, 0), delhi);
+const ramPanchang = calculatePanchang(new Date(2026, 2, 26, 6, 0, 0), delhi);
 assert(ramPanchang.todayFestival.title.includes('Ram Navami'), 'Chaitra Shukla Navami is Ram Navami');
 assert(ramPanchang.todayFestival.icon === '🏹', 'Ram Navami icon is 🏹');
 assert(ramPanchang.todayFestival.isMajor === true, 'Ram Navami marked as major festival');

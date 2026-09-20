@@ -183,7 +183,10 @@ export function getAstrometricCoordinatesForDate(
   const r2 = Math.floor(sLon2 / 30);
   const isAdhika = r1 === r2;
 
-  const amantaMonthIndex = (r2 + 1) % 12;
+  // Canonical Masa name: derived from the solar ingress (Sankranti) occurring during this lunation.
+  // When Sun enters Mesha (Rashi 0), the month is Chaitra (Index 0).
+  // (Siddhanta Shiromani: "मेषादिस्थे सवितरि यो यो मासः प्रपूर्यते चान्द्रः। चैत्राद्यः स विज्ञेयः")
+  const amantaMonthIndex = r2 % 12;
   const isKrishnaPaksha = sunriseElongation >= 180;
   const purnimantaMonthIndex = isKrishnaPaksha ? (amantaMonthIndex + 1) % 12 : amantaMonthIndex;
 
@@ -775,7 +778,8 @@ export function determineFestivalForDate(
   const ekadashiEval = evaluateEkadashi(targetDate, location, options?.sampradaya || 'smarta');
   if (ekadashiEval.isEkadashiDay) {
     const isShukla = udayaTithiIndex === 11 || (ekadashiEval.isVaishnavaPushed && udayaTithiIndex === 12);
-    const monthData = EKADASHI_DATABASE[amantaMonthIndex] || EKADASHI_DATABASE[0];
+    const targetMonthIdx = isShukla ? amantaMonthIndex : purnimantaMonthIndex;
+    const monthData = EKADASHI_DATABASE[targetMonthIdx] || EKADASHI_DATABASE[0];
     const ekadashi = isShukla ? monthData.shukla : monthData.krishna;
     const ekadashiTitle = isAdhika
       ? (isShukla ? 'Padmini Ekadashi Vrat (पद्मिनी एकादशी)' : 'Parama Ekadashi Vrat (परमा एकादशी)')

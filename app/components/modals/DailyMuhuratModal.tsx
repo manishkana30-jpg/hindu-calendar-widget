@@ -333,7 +333,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                             <td className="p-3 whitespace-nowrap font-bold text-white flex items-center gap-1.5">
                               <span>{m.name}</span>
                               {m.index === 8 && (
-                                <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[9px] border border-amber-500/30">
+                                <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] border border-amber-500/30">
                                   Top Midday
                                 </span>
                               )}
@@ -416,7 +416,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                             <td className="p-3 whitespace-nowrap font-bold text-white flex items-center gap-1.5">
                               <span>{m.name}</span>
                               {m.index === 28 && (
-                                <span className="px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 text-[9px] border border-indigo-500/30">
+                                <span className="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[9px] border border-indigo-500/30">
                                   Brahma Kaal
                                 </span>
                               )}
@@ -510,7 +510,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
               <div className="p-4 rounded-2xl bg-[#0c1222] border border-emerald-500/40 space-y-2.5">
                 <h4 className="text-xs font-bold text-emerald-400 flex items-center justify-between">
                   <span className="flex items-center gap-1.5"><CheckCircle2 size={16} /> Auspicious Windows</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS (शुभ)</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS (शुभ)</span>
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="p-2.5 rounded-xl bg-[#11192e] flex justify-between">
@@ -540,7 +540,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
               <div className="p-4 rounded-2xl bg-[#0c1222] border border-yellow-500/40 space-y-2.5">
                 <h4 className="text-xs font-bold text-yellow-400 flex items-center justify-between">
                   <span className="flex items-center gap-1.5"><Sparkles size={16} /> Neutral Windows</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">NEUTRAL (मध्यम)</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">NEUTRAL (मध्यम)</span>
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="p-2.5 rounded-xl bg-[#11192e] flex justify-between">
@@ -561,7 +561,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
               <div className="p-4 rounded-2xl bg-[#0c1222] border border-rose-500/40 space-y-2.5">
                 <h4 className="text-xs font-bold text-rose-400 flex items-center justify-between">
                   <span className="flex items-center gap-1.5"><AlertTriangle size={16} /> Inauspicious Windows</span>
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">INAUSPICIOUS (अशुभ)</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">INAUSPICIOUS (अशुभ)</span>
                 </h4>
                 <div className="space-y-2 text-xs">
                   <div className="p-2.5 rounded-xl bg-[#11192e] flex justify-between">

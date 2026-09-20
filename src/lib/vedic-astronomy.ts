@@ -11,6 +11,7 @@ export interface LocationCoordinates {
   timezone: number; // UTC offset in hours (fallback)
   regionName: string;
   ianaTimezone?: string; // IANA timezone identifier for DST-aware resolution
+  elevation?: number; // Observer elevation in meters (optional)
 }
 
 // Resolve the actual UTC offset for a given date, respecting DST transitions.
@@ -295,7 +296,34 @@ export interface PanchangData {
   location: LocationCoordinates;
   timeFormatted: string;
 
-  // Pancha-Anga (5 limbs)
+  // Canonical Civil Udaya Tithi (Prevailing at Local Sunrise)
+  udayaTithi: {
+    index: number;
+    name: string;
+    pureName: string;
+    paksha: 'Shukla' | 'Krishna';
+    deity: string;
+    endTime: string;
+    isUdayaTithi: boolean;
+    udayaTithiName: string;
+    endDate?: Date | null;
+  };
+
+  // Instantaneous Running Tithi (Real-Time Lunar Phase)
+  instantaneousTithi: {
+    index: number;
+    name: string;
+    pureName: string;
+    paksha: 'Shukla' | 'Krishna';
+    deity: string;
+    completionPercent: number;
+    endTime: string;
+    endDate?: Date | null;
+  };
+
+  isPreSunrise?: boolean;
+
+  // Legacy Pancha-Anga (5 limbs) - preserved for full backward compatibility
   tithi: {
     index: number;
     name: string;
@@ -460,6 +488,12 @@ export interface MonthCalendarDay {
     isEkadashi: boolean;
     isKshayaTithi?: boolean;
     isVriddhiTithi?: boolean;
+    kshayaTithiDetails?: {
+      index: number;
+      name: string;
+      startTime: string;
+      endTime: string;
+    } | null;
   };
   
   // Exact Tithi end time in local timezone
@@ -810,7 +844,7 @@ export function formatUtcDateToLocalTime(date: Date, tz: number): string {
 // ─────────────────────────────────────────────────────────────────────────────
 // EXACT SOLAR TIMINGS (NOAA SOLAR CALCULATIONS WITH REFRACTION & EQUATION OF TIME)
 // ─────────────────────────────────────────────────────────────────────────────
-export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz: number) {
+export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz: number, elevationMeters: number = 0) {
   const year = targetDate.getFullYear();
   const month = targetDate.getMonth();
   const day = targetDate.getDate();
@@ -854,8 +888,9 @@ export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz
     - 1.25 * e * e * Math.sin(2 * M_rad)
   );
   
-  // Standard solar refraction zenith: 90° 50' = 90.8333°
-  const zenithRad = 90.8333 * DEG2RAD;
+  // Standard solar refraction zenith: 90° 50' = 90.8333° + elevation horizon dip
+  const dipDeg = elevationMeters > 0 ? (1.76 / 60) * Math.sqrt(elevationMeters) : 0;
+  const zenithRad = (90.833333 + dipDeg) * DEG2RAD;
   const latRad = lat * DEG2RAD;
   
   const cosHA = (Math.cos(zenithRad) - Math.sin(latRad) * sinDec) / (Math.cos(latRad) * cosDec);
@@ -878,7 +913,9 @@ export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz
     sunriseDate: sunriseDateUtc,
     sunsetDate: sunsetDateUtc,
     dayLengthMinutes: sunsetMinutes - sunriseMinutes,
-    nightLengthMinutes: 1440 - (sunsetMinutes - sunriseMinutes)
+    nightLengthMinutes: 1440 - (sunsetMinutes - sunriseMinutes),
+    elevationMeters,
+    dipDeg
   };
 }
 
@@ -978,10 +1015,15 @@ export function calculateMoonTimes(targetDate: Date, lat: number, lng: number, t
 // ─────────────────────────────────────────────────────────────────────────────
 // EXACT TITHI END TIME ROOT-FINDING ENGINE (BINARY SEARCH ACCURACY < 1 SECOND)
 // ─────────────────────────────────────────────────────────────────────────────
-export function findTithiEndTime(sunriseUtcDate: Date, tithiIndex: number, tz: number): Date | null {
+export function findTithiEndTime(
+  sunriseUtcDate: Date,
+  tithiIndex: number,
+  tz: number,
+  maxHours: number = 36
+): Date | null {
   const targetDeg = (tithiIndex * 12) % 360;
   const tLow = sunriseUtcDate.getTime();
-  const tHigh = tLow + 36 * 3600 * 1000; // Search window up to 36 hours from sunrise
+  const tHigh = tLow + maxHours * 3600 * 1000; // Search window up to maxHours from start
   
   let bracketFound = false;
   let bStart = tLow;
@@ -1100,9 +1142,10 @@ export function getLunarMonthDetails(targetDate: Date): {
 
   const isAdhika = r1 === r2;
 
-  // Canonical Masa name derived from the Solar Rashi entered
-  // (Mesha ingress -> Vaishakha, Vrishabha -> Jyeshtha, ..., Meena -> Chaitra)
-  const amantaMonthIndex = (r2 + 1) % 12;
+  // Canonical Masa name: derived from the solar ingress (Sankranti) occurring during this lunation.
+  // When Sun enters Mesha (Rashi 0), the month is Chaitra (Index 0).
+  // (Siddhanta Shiromani: "मेषादिस्थे सवितरि यो यो मासः प्रपूर्यते चान्द्रः। चैत्राद्यः स विज्ञेयः")
+  const amantaMonthIndex = r2 % 12;
   const baseMonth = HINDU_MONTHS[amantaMonthIndex];
   const amantaMonth = isAdhika ? `Adhika ${baseMonth}` : baseMonth;
 
@@ -1177,28 +1220,17 @@ export function getSamvatDetails(targetDate: Date): {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN PANCHANG CALCULATION FUNCTION (UDAYA TITHI + INSTANTANEOUS LIMBS)
 // ─────────────────────────────────────────────────────────────────────────────
-export function calculatePanchang(targetDate: Date, location: LocationCoordinates, specificTime?: Date): PanchangData {
+export function calculatePanchang(
+  targetDate: Date,
+  location: LocationCoordinates,
+  specificTime?: Date,
+  elevationMeters: number = 0
+): PanchangData {
   const currentTz = resolveTimezoneOffset(targetDate, location);
-  const sunTimes = calculateSunTimes(targetDate, location.latitude, location.longitude, currentTz);
+  const elev = location.elevation ?? elevationMeters;
+  const sunTimes = calculateSunTimes(targetDate, location.latitude, location.longitude, currentTz, elev);
   
-  // 1. CALCULATE UDAYA TITHI AT LOCAL SUNRISE (Canonical Vedic Rule)
-  const sunriseJd = getJulianDay(sunTimes.sunriseDate);
-  const sunriseElongation = getElongationAngle(sunriseJd);
-  const udayaTithiIndex = Math.floor(sunriseElongation / 12) + 1; // 1 to 30
-  const udayaTithiObj = TITHIS[(udayaTithiIndex - 1) % 30];
-  
-  // Exact End Time for prevailing Udaya Tithi
-  const endTimeUtc = findTithiEndTime(sunTimes.sunriseDate, udayaTithiIndex, currentTz);
-  let tithiEndTimeFormatted = 'Full Day';
-  if (endTimeUtc) {
-    const endLocalMs = endTimeUtc.getTime() + currentTz * 3600000;
-    const endDay = new Date(endLocalMs).getUTCDate();
-    const curDay = targetDate.getDate();
-    const timeStr = formatUtcDateToLocalTime(endTimeUtc, currentTz);
-    tithiEndTimeFormatted = endDay === curDay ? timeStr : `Next day ${timeStr}`;
-  }
-
-  // 2. INSTANTANEOUS MOMENT CALCULATIONS (Real-time Clock / Selected Time)
+  // 1. INSTANTANEOUS MOMENT RESOLUTION (Real-time Clock / Selected Time)
   const isTodayDate = targetDate.toDateString() === new Date().toDateString();
   const now = specificTime || (
     isTodayDate 
@@ -1212,6 +1244,38 @@ export function calculatePanchang(targetDate: Date, location: LocationCoordinate
           0
         )
   );
+
+  // 2. RESOLVE THE MIDNIGHT VS. SUNRISE ROLLOVER TRAP
+  // A civil Vedic day (Ahoratra) extends strictly from local sunrise to next local sunrise.
+  // Between 00:00:00 midnight and local sunrise, civil observances remain anchored to yesterday's sunrise.
+  const isPreSunrise = now.getTime() < sunTimes.sunriseDate.getTime();
+
+  let activeSunriseDate: Date;
+  if (isPreSunrise) {
+    const yesterdayDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() - 1, 12, 0, 0);
+    const yesterdaySunTimes = calculateSunTimes(yesterdayDate, location.latitude, location.longitude, currentTz, elev);
+    activeSunriseDate = yesterdaySunTimes.sunriseDate;
+  } else {
+    activeSunriseDate = sunTimes.sunriseDate;
+  }
+
+  // 3. CALCULATE UDAYA TITHI AT ACTIVE CIVIL SUNRISE (Canonical Vedic Rule)
+  const sunriseJd = getJulianDay(activeSunriseDate);
+  const sunriseElongation = getElongationAngle(sunriseJd);
+  const udayaTithiIndex = Math.min(30, Math.max(1, Math.floor(sunriseElongation / 12) + 1)); // 1 to 30
+  const udayaTithiObj = TITHIS[(udayaTithiIndex - 1) % 30];
+  
+  // Exact End Time for prevailing Udaya Tithi
+  const endTimeUtc = findTithiEndTime(activeSunriseDate, udayaTithiIndex, currentTz);
+  let tithiEndTimeFormatted = 'Full Day';
+  if (endTimeUtc) {
+    const endLocalMs = endTimeUtc.getTime() + currentTz * 3600000;
+    const endDay = new Date(endLocalMs).getUTCDate();
+    const curDay = targetDate.getDate();
+    const timeStr = formatUtcDateToLocalTime(endTimeUtc, currentTz);
+    tithiEndTimeFormatted = endDay === curDay ? timeStr : `Next day ${timeStr}`;
+  }
+
   const currentJd = getJulianDay(now);
   const ayanamsha = getLahiriAyanamsha(currentJd);
 
@@ -1226,6 +1290,17 @@ export function calculatePanchang(targetDate: Date, location: LocationCoordinate
   // Instantaneous elongation & progress
   const diff = normalizeDeg(moonTropical - sunTropical);
   const tithiProgress = (diff % 12) / 12;
+  const instTithiIndex = Math.min(30, Math.max(1, Math.floor(diff / 12) + 1));
+  const instTithiObj = TITHIS[(instTithiIndex - 1) % 30];
+  const instEndTimeUtc = findTithiEndTime(now, instTithiIndex, currentTz);
+  let instEndTimeFormatted = 'Full Day';
+  if (instEndTimeUtc) {
+    const endLocalMs = instEndTimeUtc.getTime() + currentTz * 3600000;
+    const endDay = new Date(endLocalMs).getUTCDate();
+    const curDay = now.getDate();
+    const timeStr = formatUtcDateToLocalTime(instEndTimeUtc, currentTz);
+    instEndTimeFormatted = endDay === curDay ? timeStr : `Next day ${timeStr}`;
+  }
 
   // Nakshatra (Sidereal)
   const nakshatraDeg = 360 / 27;
@@ -1555,6 +1630,28 @@ export function calculatePanchang(targetDate: Date, location: LocationCoordinate
     dayOfWeekName: vaar.name,
     location,
     timeFormatted: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }),
+    udayaTithi: {
+      index: udayaTithiObj.index,
+      name: udayaTithiObj.name,
+      pureName: udayaTithiObj.pureName,
+      paksha: udayaTithiObj.paksha,
+      deity: udayaTithiObj.deity,
+      endTime: tithiEndTimeFormatted,
+      isUdayaTithi: true,
+      udayaTithiName: udayaTithiObj.name,
+      endDate: endTimeUtc
+    },
+    instantaneousTithi: {
+      index: instTithiObj.index,
+      name: instTithiObj.name,
+      pureName: instTithiObj.pureName,
+      paksha: instTithiObj.paksha,
+      deity: instTithiObj.deity,
+      completionPercent: Math.round(tithiProgress * 100),
+      endTime: instEndTimeFormatted,
+      endDate: instEndTimeUtc
+    },
+    isPreSunrise,
     tithi: {
       index: udayaTithiObj.index,
       name: udayaTithiObj.name,
@@ -1801,20 +1898,57 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
   }
 
   // Detect Kshaya (skipped) and Vriddhi (repeated) Tithis across the month
+  const prevMonthDate = new Date(year, month, 0, 6, 0, 0);
+  const prevMonthTz = resolveTimezoneOffset(prevMonthDate, location);
+  const prevMonthSun = calculateSunTimes(prevMonthDate, location.latitude, location.longitude, prevMonthTz);
+  const prevMonthElongation = getElongationAngle(getJulianDay(prevMonthSun.sunriseDate));
+  const prevMonthTithiIndex = Math.min(30, Math.max(1, Math.floor(prevMonthElongation / 12) + 1));
+
   for (let i = 0; i < days.length; i++) {
-    if (i > 0) {
-      const prevTithi = days[i - 1].udayaTithi.index;
-      const currTithi = days[i].udayaTithi.index;
-      if (currTithi === prevTithi) {
-        days[i].udayaTithi.isVriddhiTithi = true;
-      } else {
-        const expected = (prevTithi % 30) + 1;
-        if (currTithi !== expected) {
-          days[i].udayaTithi.isKshayaTithi = true;
-        }
+    const prevTithi = i === 0 ? prevMonthTithiIndex : days[i - 1].udayaTithi.index;
+    const prevSunrise = i === 0 ? prevMonthSun.sunriseDate : days[i - 1].date;
+    const currTithi = days[i].udayaTithi.index;
+    const tz = resolveTimezoneOffset(days[i].date, location);
+
+    if (currTithi === prevTithi) {
+      days[i].udayaTithi.isVriddhiTithi = true;
+    } else {
+      const diff = (currTithi - prevTithi + 30) % 30;
+      if (diff === 2) {
+        days[i].udayaTithi.isKshayaTithi = true;
+        const kshayaIndex = (prevTithi % 30) + 1;
+        const kshayaObj = TITHIS[(kshayaIndex - 1) % 30];
+        const kshayaStart = findTithiEndTime(prevSunrise, prevTithi, tz, 24);
+        const kshayaEnd = kshayaStart
+          ? findTithiEndTime(kshayaStart, kshayaIndex, tz, 24)
+          : findTithiEndTime(prevSunrise, kshayaIndex, tz, 30);
+        days[i].udayaTithi.kshayaTithiDetails = {
+          index: kshayaIndex,
+          name: kshayaObj.name,
+          startTime: kshayaStart ? kshayaStart.toISOString() : '',
+          endTime: kshayaEnd ? kshayaEnd.toISOString() : ''
+        };
       }
     }
   }
 
   return days;
 }
+
+// Re-export ephemeris and anomalous tithi resolver contracts
+export {
+  calculateSunTimesWithRefraction,
+  findTithiStartTime,
+  calculateTithiIndexFromElongation,
+  calculateTithiProgressFromElongation,
+  getInstantaneousTithi
+} from './ephemeris';
+
+export {
+  type DailyTithiResolution,
+  resolveDailyTithi,
+  resolveMonthlyTithis,
+  resolveAnomaliesBetweenSunrises
+} from './tithi-resolver';
+
+

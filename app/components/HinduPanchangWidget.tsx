@@ -13,6 +13,7 @@ import {
   LocationCoordinates, 
   PanchangData 
 } from '../../src/lib/vedic-astronomy';
+import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { CITIES } from '../../src/lib/cities';
 import { getActivePanchakStatus } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal } from './modals/TithiMonthModal';
@@ -63,14 +64,21 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Live timer tick every second when isLiveMode is true
-  useEffect(() => {
-    if (!isLiveMode) return;
-    const timer = setInterval(() => {
-      setSelectedDate(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isLiveMode]);
+  // Reactive Auto-Sync Engine (Dual-trigger upcoming sunrise & tithi conclusion, tab focus recovery, drift mitigation)
+  const {
+    currentTime,
+    panchang,
+    tithiResolution,
+    isPreSunrise,
+    forceSync
+  } = usePanchangAutoSync({
+    location: selectedLocation,
+    isLiveMode,
+    customDate: selectedDate,
+    elevationMeters: selectedLocation.elevation || 0
+  });
+
+  const panchakStatus = getActivePanchakStatus(isLiveMode ? currentTime : selectedDate);
 
   // Click-outside handler to close dropdown menu
   useEffect(() => {
@@ -109,10 +117,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const handleResetToLive = () => {
     setIsLiveMode(true);
     setSelectedDate(new Date());
+    forceSync();
   };
-
-  const panchang: PanchangData = calculatePanchang(selectedDate, selectedLocation, isLiveMode ? new Date() : selectedDate);
-  const panchakStatus = getActivePanchakStatus(selectedDate);
 
   if (isDismissed) {
     return (
@@ -297,8 +303,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4">
           
           {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
-          {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#090e1a] flex flex-col justify-between">
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 border border-[#1e2942] flex flex-col justify-between shadow-lg">
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[#ea580c] text-[11px] font-bold tracking-wider uppercase">
@@ -316,17 +321,29 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight my-2"
                 aria-label={`Current time: ${isLiveMode ? panchang.timeFormatted : '06:00 AM'}`}
               >
-                <span aria-hidden="true">
+                <span aria-hidden="true" suppressHydrationWarning>
                   {isLiveMode ? panchang.timeFormatted : (selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) || '06:00 AM')}
                 </span>
               </div>
 
-              <div className="text-neutral-300 text-sm font-medium mb-4">
+              <div className="text-neutral-300 text-sm font-medium mb-3">
                 {panchang.dateString}
+              </div>
+
+              {/* Astronomical Solar Coordinates Subcard */}
+              <div className="p-2.5 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1 mb-2">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-neutral-400">Solar Position:</span>
+                  <span className="text-amber-300 font-mono font-semibold">{panchang.suryaRashi.name} Rashi</span>
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-neutral-400">Lunar Position:</span>
+                  <span className="text-indigo-300 font-mono font-semibold">{panchang.chandraRashi.name} Rashi</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 pt-2 text-xs border-t border-[#1a2542]">
               <span className="bg-[#11192e] border border-[#233152] px-2.5 py-1 rounded-lg font-semibold text-neutral-300">
                 {selectedLocation.regionName} • UTC{selectedLocation.timezone >= 0 ? `+${Math.floor(selectedLocation.timezone)}:${selectedLocation.timezone % 1 !== 0 ? '30' : '00'}` : `${selectedLocation.timezone}:00`}
               </span>
@@ -368,11 +385,33 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 </div>
               </div>
 
-              {/* Primary Glanceable Element: Tithi Name & Status */}
-              <div className="my-2">
-                <div className="flex items-center gap-2 flex-wrap">
+              {/* Pre-Sunrise Alert / Clarification Banner */}
+              {isPreSunrise && (
+                <div className="my-1.5 px-2.5 py-1 rounded-xl bg-indigo-950/60 border border-indigo-500/40 text-[11px] text-indigo-300 flex items-center gap-1.5 animate-pulse">
+                  <Moon size={12} className="text-indigo-400 flex-shrink-0" />
+                  <span>Pre-Sunrise (Brahma Muhurta): Civil Day anchored to yesterday</span>
+                </div>
+              )}
+
+              {/* Primary Element 1: Civil Udaya Tithi (Governs Civil Day & Vrat) */}
+              <div className="my-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-amber-400/90 flex-wrap">
+                  <span>Civil Udaya Tithi (दिन-तिथि)</span>
+                  {tithiResolution.isVriddhi && (
+                    <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-bold">
+                      Vriddhi (2nd Sunrise)
+                    </span>
+                  )}
+                  {tithiResolution.isKshaya && (
+                    <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[9px] font-bold">
+                      Kshaya Skipped
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight group-hover:text-amber-100 transition-colors">
-                    {panchang.tithi.name}
+                    {panchang.udayaTithi?.name || panchang.tithi.name}
                   </h3>
                   {panchang.tithi.index === 15 && <span className="text-lg animate-pulse" title="Purnima">🌕</span>}
                   {panchang.tithi.index === 30 && <span className="text-lg animate-pulse" title="Amavasya">🌑</span>}
@@ -383,9 +422,40 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                 </div>
 
-                <div className="text-xs text-amber-300/95 font-mono font-medium flex items-center gap-1 mt-1">
-                  <span>⏱️ Active Until:</span>
-                  <span className="font-bold text-white">{panchang.tithi.endTime}</span>
+                <div className="text-xs text-amber-300/95 font-mono font-medium flex items-center gap-1 mt-0.5">
+                  <span>⏱️ Udaya Tithi Ends:</span>
+                  <span className="font-bold text-white">{panchang.udayaTithi?.endTime || panchang.tithi.endTime}</span>
+                </div>
+              </div>
+
+              {/* Primary Element 2: Current Running Instantaneous Tithi Subcard */}
+              <div className="my-2 p-2 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1">
+                <div className="flex items-center justify-between text-[11px] gap-1 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">Live Running:</span>
+                    <span className="text-white font-semibold text-xs">
+                      {tithiResolution.instantaneousTithi?.name || panchang.tithi.name}
+                    </span>
+                  </div>
+                  <span className="text-emerald-300 font-mono text-[10px] font-bold">
+                    {tithiResolution.instantaneousTithi?.percentageElapsed ?? 0}% Elapsed
+                  </span>
+                </div>
+
+                {/* Micro Progress Bar */}
+                <div className="w-full h-1 bg-[#101b33] rounded-full overflow-hidden border border-[#1e2e54]">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-300"
+                    style={{ width: `${Math.min(100, Math.max(0, tithiResolution.instantaneousTithi?.percentageElapsed ?? 0))}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-[10px] text-neutral-400 font-mono">
+                  <span>Instantaneous Lunar Phase</span>
+                  <span>
+                    Ends: <strong className="text-amber-300">{panchang.instantaneousTithi?.endTime || panchang.tithi.endTime}</strong>
+                  </span>
                 </div>
               </div>
 
@@ -555,7 +625,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 <div className="text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 truncate">
                   <span>TODAY&apos;S FESTIVAL / VRAT</span>
                   {panchang.todayFestival.isMajor && (
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase flex-shrink-0">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase flex-shrink-0">
                       Festive
                     </span>
                   )}
@@ -862,28 +932,28 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-emerald-500/30">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-emerald-400 font-bold uppercase">Brahma Muhurat</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS</span>
                   </div>
                   <div className="text-sm font-bold font-mono text-emerald-300 mt-1">{panchang.muhurats.brahmaMuhurat.start} - {panchang.muhurats.brahmaMuhurat.end}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-emerald-500/30">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-emerald-400 font-bold uppercase">Abhijit Muhurat</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">AUSPICIOUS</span>
                   </div>
                   <div className="text-sm font-bold font-mono text-emerald-300 mt-1">{panchang.muhurats.abhijitMuhurat.start} - {panchang.muhurats.abhijitMuhurat.end}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-yellow-500/30">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-yellow-400 font-bold uppercase">Gulika Kaal</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">NEUTRAL</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30">NEUTRAL</span>
                   </div>
                   <div className="text-sm font-bold font-mono text-yellow-300 mt-1">{panchang.muhurats.gulikaKaal.start} - {panchang.muhurats.gulikaKaal.end}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-rose-500/30">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-rose-400 font-bold uppercase">Rahu Kaal (Avoid)</span>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">INAUSPICIOUS</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">INAUSPICIOUS</span>
                   </div>
                   <div className="text-sm font-bold font-mono text-rose-300 mt-1">{panchang.muhurats.rahuKaal.start} - {panchang.muhurats.rahuKaal.end}</div>
                 </div>

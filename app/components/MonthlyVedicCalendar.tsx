@@ -245,6 +245,12 @@ export function MonthlyVedicCalendar({
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
             ✨ Ekadashi Vrat
           </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/40 text-purple-300">
+            🔄 Vriddhi (Extended)
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/20 border border-rose-500/40 text-rose-300">
+            ⚠️ Kshaya (Lost Tithi)
+          </span>
         </div>
 
       </div>
@@ -332,7 +338,7 @@ export function MonthlyVedicCalendar({
                           {day.dayNumber}
                         </span>
                         {isToday && (
-                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-orange-500 text-white leading-none">
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-orange-500 text-white leading-none">
                             Today
                           </span>
                         )}
@@ -373,13 +379,23 @@ export function MonthlyVedicCalendar({
                       }`}>
                         {day.udayaTithi.pureName}
                       </div>
-                      <span className={`inline-block text-[9px] px-1 py-0.2 rounded font-semibold mt-0.5 ${
+                      <span className={`inline-block text-[9px] px-1 py-0.5 rounded font-semibold mt-0.5 ${
                         day.udayaTithi.paksha === 'Shukla'
                           ? 'bg-orange-500/15 text-orange-300 border border-orange-500/20'
                           : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/20'
                       }`}>
                         {day.udayaTithi.paksha}
                       </span>
+                      {day.udayaTithi.isVriddhiTithi && (
+                        <span className="inline-block text-[9px] px-1 py-0.5 rounded font-bold ml-1 bg-purple-500/20 text-purple-300 border border-purple-500/30" title="Vriddhi Tithi (Touches two sunrises)">
+                          Vriddhi
+                        </span>
+                      )}
+                      {day.udayaTithi.isKshayaTithi && (
+                        <span className="inline-block text-[9px] px-1 py-0.5 rounded font-bold ml-1 bg-rose-500/20 text-rose-300 border border-rose-500/30" title={`Kshaya Tithi Skipped: ${day.udayaTithi.kshayaTithiDetails?.name || 'Tithi skipped'}`}>
+                          ⚠️ Kshaya
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -392,6 +408,11 @@ export function MonthlyVedicCalendar({
                     <div className="text-neutral-400 text-[9px] truncate">
                       🌅 {day.sunrise}
                     </div>
+                    {day.udayaTithi.kshayaTithiDetails && (
+                      <div className="text-[9px] font-bold text-rose-300 truncate bg-rose-950/40 px-1 py-0.5 rounded border border-rose-500/30 mt-0.5" title={`Skipped: ${day.udayaTithi.kshayaTithiDetails.name}`}>
+                        Lost: {day.udayaTithi.kshayaTithiDetails.name.replace(/\s*\(\d+\)/, '')}
+                      </div>
+                    )}
                     {day.festival && (
                       <div className="text-[9px] font-bold text-amber-400 truncate bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 mt-1">
                         {day.festival}
@@ -444,7 +465,7 @@ export function MonthlyVedicCalendar({
                             {day.dateFormatted}
                           </span>
                           {day.isToday && (
-                            <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-orange-500 text-white font-bold">
+                            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-orange-500 text-white font-bold">
                               Today
                             </span>
                           )}
@@ -454,7 +475,7 @@ export function MonthlyVedicCalendar({
 
                       {/* Udaya Tithi */}
                       <td className="p-3 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className={`inline-block font-semibold px-2 py-0.5 rounded text-[11px] ${
                             isPurnima
                               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
@@ -468,6 +489,16 @@ export function MonthlyVedicCalendar({
                           }`}>
                             {day.udayaTithi.name}
                           </span>
+                          {day.udayaTithi.isVriddhiTithi && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                              Vriddhi
+                            </span>
+                          )}
+                          {day.udayaTithi.isKshayaTithi && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title={`Skipped: ${day.udayaTithi.kshayaTithiDetails?.name}`}>
+                              ⚠️ Kshaya: {day.udayaTithi.kshayaTithiDetails?.name.replace(/\s*\(\d+\)/, '') || 'Skipped'}
+                            </span>
+                          )}
                           {isPurnima && <span>🌕</span>}
                           {isAmavasya && <span>🌑</span>}
                           {isEkadashi && <span>✨</span>}
@@ -550,6 +581,26 @@ export function MonthlyVedicCalendar({
                 <div className="text-[11px] text-neutral-400">
                   Presiding Deity: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.deity}</strong> • Paksha: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.paksha}</strong>
                 </div>
+
+                {/* Anomaly Banners */}
+                {selectedDayDetail.udayaTithi.isVriddhiTithi && (
+                  <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-[11px] text-purple-200 mt-2">
+                    <strong className="text-purple-300">🔄 Tithi Vriddhi (Extended Tithi):</strong> This Tithi touches two consecutive sunrises. Both days share this Udaya Tithi.
+                  </div>
+                )}
+                {selectedDayDetail.udayaTithi.isKshayaTithi && (
+                  <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-200 space-y-1 mt-2">
+                    <div className="text-rose-300 font-bold">⚠️ Tithi Kshaya (Lost Tithi Detected):</div>
+                    <p className="text-[11px] text-neutral-300">
+                      <strong>{selectedDayDetail.udayaTithi.kshayaTithiDetails?.name || 'A Tithi'}</strong> began after yesterday&apos;s sunrise and ended before today&apos;s sunrise. It never touched a sunrise and has no independent civil day.
+                    </p>
+                    {selectedDayDetail.udayaTithi.kshayaTithiDetails && (
+                      <div className="text-[10px] font-mono text-rose-300/90 pt-0.5">
+                        Span: {new Date(selectedDayDetail.udayaTithi.kshayaTithiDetails.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &rarr; {new Date(selectedDayDetail.udayaTithi.kshayaTithiDetails.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* 5-Limbs Grid */}

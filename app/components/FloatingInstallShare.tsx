@@ -155,7 +155,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
             role="dialog"
             aria-modal="true"
             aria-label="Install & Share Options"
-            className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-[#0c1324]/95 backdrop-blur-2xl border border-[#25375d] shadow-[0_20px_50px_rgba(0,0,0,0.85)] rounded-2xl p-4 text-left transition-all duration-300 ease-out animate-in fade-in zoom-in-95"
+            className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-[#0c1324]/95 backdrop-blur-2xl border border-[#25375d] shadow-[0_20px_50px_rgba(0,0,0,0.85)] rounded-2xl p-4 text-left transition-all duration-300 ease-out animate-in fade-in zoom-in-95"
           >
             {/* Header: Title & Close Button */}
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1b2847]">
@@ -198,7 +198,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                       <span className="text-xs font-extrabold text-white group-hover:text-emerald-300 transition-colors">
                         Install Web App (PWA)
                       </span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 uppercase">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300 uppercase">
                         Free
                       </span>
                     </div>
@@ -257,7 +257,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                           ? "Permission Blocked ⚠️"
                           : "Push Test Tithi Alert"}
                       </span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 uppercase">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase">
                         {notificationStatus === 'sending' ? 'Sending...' : 'Test'}
                       </span>
                     </div>
