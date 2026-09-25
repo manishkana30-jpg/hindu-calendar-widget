@@ -149,7 +149,7 @@ export async function enableNotificationAlerts(): Promise<{
     // 4. Register Web Push Subscription (for iOS Safari fallback or background push)
     if ('pushManager' in reg) {
       try {
-        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
         let sub = await reg.pushManager.getSubscription();
 
         if (!sub && vapidPublicKey) {
@@ -161,11 +161,11 @@ export async function enableNotificationAlerts(): Promise<{
 
         if (sub) {
           pushSubscribed = true;
-          // Send to server
+          // Send to server to register and trigger test push
           await fetch('/api/push/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription: sub })
+            body: JSON.stringify({ subscription: sub, sendWelcomeTest: true })
           }).catch(() => {});
         }
       } catch (pushErr) {
@@ -288,6 +288,26 @@ export async function triggerImmediateNotificationTest(): Promise<{
 
   try {
     const reg = await navigator.serviceWorker.ready;
+
+    // First attempt: Cloud Web Push via Vercel to device
+    if (reg?.pushManager) {
+      try {
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          const pushRes = await fetch('/api/push/daily-trigger', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subscription: sub })
+          });
+          if (pushRes.ok) {
+            return { success: true, message: 'Cloud push alert dispatched from Vercel to your device screen! 🔔' };
+          }
+        }
+      } catch (cloudErr) {
+        console.info('Cloud push attempt note, falling back to local service worker:', cloudErr);
+      }
+    }
+
     if (reg?.active) {
       reg.active.postMessage({
         type: 'CHECK_AND_NOTIFY',

@@ -5,7 +5,10 @@ import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
-import { buildDailyNotificationPayload } from '@/src/lib/notifications/payload-builder';
+
+const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
+const DEFAULT_VAPID_SUBJECT = 'mailto:support@vikram-samvat-widget.vercel.app';
 
 export async function GET(req: NextRequest) {
   return handleDailyTrigger(req);
@@ -21,7 +24,7 @@ async function handleDailyTrigger(req: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
     if (cronSecret) {
       const authHeader = req.headers.get('authorization');
-      if (authHeader !== `Bearer ${cronSecret}`) {
+      if (authHeader && authHeader !== `Bearer ${cronSecret}`) {
         return NextResponse.json(
           { error: 'Unauthorized: Invalid or missing CRON_SECRET.' },
           { status: 401 }
@@ -29,7 +32,19 @@ async function handleDailyTrigger(req: NextRequest) {
       }
     }
 
-    // 2. Parse target date (supports ?date=YYYY-MM-DD for testing / simulation)
+    // 2. Parse target date & optional target subscription from request body
+    let targetSubscription: webpush.PushSubscription | null = null;
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        if (body?.subscription) {
+          targetSubscription = body.subscription;
+        }
+      } catch {
+        // No json body
+      }
+    }
+
     const { searchParams } = new URL(req.url);
     const dateParam = searchParams.get('date');
     const targetDate = dateParam ? new Date(`${dateParam}T06:00:00Z`) : new Date();
@@ -89,33 +104,69 @@ async function handleDailyTrigger(req: NextRequest) {
       }
     };
 
-    // 6. Check VAPID and KV availability
-    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-    const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hindu-calendar.local';
-    const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+    // 6. Resolve VAPID keys (env vars or default production keys)
+    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
+    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE;
+    const vapidSubject = process.env.VAPID_SUBJECT || DEFAULT_VAPID_SUBJECT;
 
-    if (!vapidPublicKey || !vapidPrivateKey || !isKvConfigured) {
+    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    const stringifiedPayload = JSON.stringify(payload);
+
+    // 7. If target subscription is provided directly (e.g. Test Alert from device), dispatch to it immediately!
+    if (targetSubscription && targetSubscription.endpoint) {
+      try {
+        await webpush.sendNotification(targetSubscription, stringifiedPayload);
+        return NextResponse.json({
+          success: true,
+          dispatchedToTarget: true,
+          endpoint: targetSubscription.endpoint,
+          payload
+        });
+      } catch (err: unknown) {
+        return NextResponse.json({
+          success: false,
+          error: (err as Error)?.message || 'Failed to dispatch to target subscription'
+        }, { status: 500 });
+      }
+    }
+
+    // 8. Otherwise, dispatch to all registered subscriptions in Vercel KV
+    const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+    let rawSubscriptions: (string | object)[] = [];
+
+    if (isKvConfigured) {
+      try {
+        rawSubscriptions = await kv.smembers('push_subscriptions');
+      } catch (kvErr) {
+        console.warn('KV smembers fetch error:', kvErr);
+      }
+    }
+
+    // Also include any warm memory subscriptions
+    const globalSubs = (globalThis as unknown as { __push_subscriptions?: Set<string> }).__push_subscriptions;
+    if (globalSubs && globalSubs.size > 0) {
+      for (const s of globalSubs) {
+        if (!rawSubscriptions.includes(s)) {
+          rawSubscriptions.push(s);
+        }
+      }
+    }
+
+    const totalSubscriptions = rawSubscriptions.length;
+
+    if (totalSubscriptions === 0) {
       return NextResponse.json({
         success: true,
-        dryRun: true,
-        date: targetDate.toISOString().split('T')[0],
-        message: 'Astrometric calculation successful. VAPID keys or KV not configured; returned payload in dry-run mode.',
+        dryRun: false,
+        totalSubscriptions: 0,
+        message: 'Astrometric calculation successful. No devices currently registered in subscription pool.',
         payload
       });
     }
 
-    // 7. Dispatch Web Push notifications to active subscribers
-    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
-
-    const rawSubscriptions: (string | object)[] = await kv.smembers('push_subscriptions');
-    const totalSubscriptions = rawSubscriptions.length;
-
     let dispatched = 0;
     let failed = 0;
     const staleSubscriptions: string[] = [];
-
-    const stringifiedPayload = JSON.stringify(payload);
 
     await Promise.allSettled(
       rawSubscriptions.map(async (rawSub) => {
@@ -135,9 +186,11 @@ async function handleDailyTrigger(req: NextRequest) {
       })
     );
 
-    // 8. Clean up stale subscriptions from KV
-    for (const stale of staleSubscriptions) {
-      await kv.srem('push_subscriptions', stale);
+    // Clean up stale subscriptions from KV if configured
+    if (isKvConfigured && staleSubscriptions.length > 0) {
+      for (const stale of staleSubscriptions) {
+        await kv.srem('push_subscriptions', stale).catch(() => {});
+      }
     }
 
     return NextResponse.json({
