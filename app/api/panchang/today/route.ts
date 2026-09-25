@@ -31,18 +31,13 @@ export async function GET(req: NextRequest) {
     const panchakResult = getActivePanchakStatus(targetDate);
     const ekadashiResult = evaluateEkadashi(targetDate, location);
 
-    // Resolve Festival or Vrat name
+    // Resolve Festival or Vrat name: Strictly major festivals & premier vrats (Ekadashi)
+    // Minor daily vrats are omitted so that primary focus remains on Tithi
     let festivalOrVrat: string | null = null;
     if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
       festivalOrVrat = festivalResult.name;
     } else if (ekadashiResult.isEkadashiDay) {
       festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
-    } else if (
-      festivalResult.category === 'Vrat' ||
-      festivalResult.category === 'Pradosh' ||
-      festivalResult.name.toLowerCase().includes('vrat')
-    ) {
-      festivalOrVrat = festivalResult.name;
     }
 
     // Instantaneous Tithi and its end timestamp
@@ -70,11 +65,23 @@ export async function GET(req: NextRequest) {
     const dayEnd = new Date(targetDate);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
+    // Panchak Auspiciousness Filter:
+    // Nirdosh Panchak (Wed/Thu) and Raja Panchak (Mon) are auspicious/benign per Dharmashastra
+    // Inauspicious types: Roga (Sun), Agni (Tue), Chora (Fri), Mrityu (Sat)
+    const rawPanchakType = panchakResult.panchak?.type || '';
+    const typeLower = rawPanchakType.toLowerCase();
+    const isAuspiciousPanchak = 
+      typeLower.includes('nirdosh') ||
+      typeLower.includes('raja') ||
+      typeLower.includes('raj ') ||
+      typeLower === 'raj panchak' ||
+      panchakResult.panchak?.auspiciousness === 'Auspicious';
+
+    const isInauspicious = panchakResult.isActive && !isAuspiciousPanchak;
     const statusText = panchakResult.isActive
       ? (isInauspicious
-          ? `${panchakResult.panchak?.type || 'Panchak'} (Inauspicious)`
-          : `${panchakResult.panchak?.type || 'Panchak'} (Auspicious)`)
+          ? `${rawPanchakType || 'Panchak'} (Inauspicious)`
+          : `${rawPanchakType || 'Panchak'} (Auspicious)`)
       : 'No Active Panchak';
 
     const cache: DailyPanchangCache = {

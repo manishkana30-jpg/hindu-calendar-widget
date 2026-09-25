@@ -227,14 +227,14 @@ export function NotificationSettingsModal({
           </div>
         </div>
 
-        {/* ── Strict Combined Notification Format Preview ── */}
+        {/* ── Strict Combined Notification Format Preview (Option B - Inline Format) ── */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
-              Notification Format Preview
+              Notification Format Preview (Option B - Mobile Glanceable)
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131e33] text-amber-400 border border-[#203154]">
-              Single Combined Alert
+              Inline Glanceable
             </span>
           </div>
 
@@ -250,38 +250,33 @@ export function NotificationSettingsModal({
               <span className="text-[10px] text-neutral-400">Now</span>
             </div>
 
-            {/* Notification Body Simulation (Strict 2-3 lines) */}
-            <div className="text-xs sm:text-[13px] font-mono space-y-1 text-neutral-200">
-              <div className="flex items-center gap-1.5">
-                <span className="text-neutral-400">Tithi:</span>
-                <span className="text-white font-semibold">{currentTithiName}</span>
-              </div>
+            {/* Notification Body Simulation (Option B - Single line inline with bullet separators) */}
+            <div className="text-xs sm:text-[13px] font-mono leading-relaxed text-neutral-200 break-words">
+              <span className="text-neutral-400">Tithi: </span>
+              <span className="text-white font-bold">{currentTithiName}</span>
 
-              {panchakStatus?.isActive && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-neutral-400">Panchak:</span>
-                  <span className="text-rose-400 font-bold bg-rose-500/15 border border-rose-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
-                    <span>🔴</span>
-                    <span>{panchakStatus.statusText || `${panchakStatus.type} (Inauspicious)`}</span>
-                  </span>
-                </div>
+              {panchakStatus?.isActive && panchakStatus.isInauspicious && (
+                <>
+                  <span className="text-neutral-500 mx-1.5">•</span>
+                  <span className="text-rose-400 font-bold">🔴 Panchak: {panchakStatus.type || 'Inauspicious'}</span>
+                </>
               )}
 
               {festivalOrVratName && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-neutral-400">Festival/Vrat:</span>
-                  <span className="text-amber-300 font-semibold">{festivalOrVratName}</span>
-                </div>
+                <>
+                  <span className="text-neutral-500 mx-1.5">•</span>
+                  <span className="text-amber-300 font-medium">Festival: {festivalOrVratName}</span>
+                </>
               )}
             </div>
           </div>
 
-          {/* Clarification on Lock-Screen Red Highlight Limitation */}
+          {/* Clarification on Mobile Glanceability & Auspicious Panchaks */}
           <div className="mt-2.5 p-2.5 rounded-xl bg-[#0d1629] border border-[#1b2947] flex items-start gap-2 text-[11px] text-neutral-400 leading-relaxed">
             <Info size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="text-neutral-300">Note on Lock-Screen Styling:</strong>
-              {' '}In-app cards render Panchak in true red highlight. Because native operating systems (Android, Windows, macOS, iOS) do not support colored HTML text in system push alerts, Panchak is flagged with the <span className="text-rose-400 font-bold">🔴 indicator</span> before its text in lock-screen alerts.
+              <strong className="text-neutral-300">Smart Glanceable Alerts:</strong>
+              {' '}Formatted inline (<span className="text-amber-300 font-mono">•</span>) so mobile lock screens display the entire alert without hiding details. Inauspicious Panchaks (Mrityu, Agni, Chora, Roga) are flagged with <span className="text-rose-400 font-bold">🔴</span>, while auspicious ones (Nirdosh & Raj Panchak) are omitted. Only major festivals & premier fasts are highlighted to preserve focus on Tithi.
             </div>
           </div>
         </div>

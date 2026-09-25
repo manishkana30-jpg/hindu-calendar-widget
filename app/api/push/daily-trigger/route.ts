@@ -5,6 +5,7 @@ import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
+import { formatPanchangNotificationBody, isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
 
 const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
@@ -56,50 +57,42 @@ async function handleDailyTrigger(req: NextRequest) {
     const panchakResult = getActivePanchakStatus(targetDate);
     const ekadashiResult = evaluateEkadashi(targetDate, location);
 
-    // 4. Determine active Festival and Vrat attributes
-    let festival: string | null = null;
-    let vrat: string | null = null;
-
+    // 4. Determine active Festival & Vrat (strictly major festivals and Ekadashi vrats)
+    // Minor daily vrats omitted to maintain primary focus on Tithi
+    let festivalOrVrat: string | null = null;
     if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
-      festival = festivalResult.name;
+      festivalOrVrat = festivalResult.name;
+    } else if (ekadashiResult.isEkadashiDay) {
+      festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
     }
 
-    if (ekadashiResult.isEkadashiDay) {
-      vrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
-    } else if (
-      festivalResult.category === 'Vrat' ||
-      festivalResult.category === 'Pradosh' ||
-      festivalResult.name.toLowerCase().includes('vrat')
-    ) {
-      vrat = festivalResult.name;
-    }
+    // 5. Build context-aware combined notification payload (Option B inline format)
+    const panchakInfo = {
+      isActive: panchakResult.isActive,
+      type: panchakResult.panchak?.type,
+      isInauspicious: panchakResult.panchak?.auspiciousness !== 'Auspicious',
+      statusText: panchakResult.panchak?.type
+    };
 
-    // 5. Build context-aware combined notification payload strictly adhering to 2-3 line format
-    const festivalOrVrat = festival || vrat || null;
-    const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
-    const panchakStatus = panchakResult.isActive
-      ? (panchakResult.panchak?.type ? `${panchakResult.panchak.type} (Inauspicious)` : 'Active (Inauspicious)')
-      : undefined;
+    const isTrulyInauspicious = isPanchakTrulyInauspicious(panchakInfo);
+    const tithiName = panchang.instantaneousTithi?.name || panchang.tithi.name;
 
-    const notificationLines: string[] = [];
-    notificationLines.push(`Tithi: ${panchang.instantaneousTithi?.name || panchang.tithi.name}`);
-    if (panchakResult.isActive && isInauspicious) {
-      notificationLines.push(`Panchak: 🔴 ${panchakStatus}`);
-    }
-    if (festivalOrVrat) {
-      notificationLines.push(`Festival/Vrat: ${festivalOrVrat}`);
-    }
+    const notificationBody = formatPanchangNotificationBody({
+      tithi: tithiName,
+      panchak: panchakInfo,
+      festivalOrVrat
+    });
 
     const payload = {
       title: 'Panchang Update',
-      body: notificationLines.join('\n'),
+      body: notificationBody,
       icon: '/icon-192.svg',
       badge: '/icon-192.svg',
       data: {
         url: '/',
         date: targetDate.toISOString().split('T')[0],
-        tithi: panchang.tithi.name,
-        panchakActive: panchakResult.isActive,
+        tithi: tithiName,
+        panchakActive: isTrulyInauspicious,
         festivalOrVrat
       }
     };

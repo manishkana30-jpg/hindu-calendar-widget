@@ -2,18 +2,14 @@
  * State-Diffing and Combined Notification Generator for Vedic Panchang
  * 
  * Monitored Triggers:
- * 1. Tithi change — current lunar day transitions to a new Tithi
- * 2. Panchak period — active/starting (marked with inauspicious status)
- * 3. Festival or Vrat observed on the current date
+ * 1. Tithi change — current lunar day transitions to a new Tithi (Primary Focus)
+ * 2. Inauspicious Panchak period — active/starting (Roga, Agni, Chora, Mrityu only; Nirdosh & Raj excluded)
+ * 3. Major Festival or Ekadashi Vrat observed on the current date
  * 
- * Notification Logic:
- * - Single combined notification if one or more conditions are met.
- * - Deduplicated against last-notified state stored locally (IndexedDB).
- * - Exact format:
- *     Tithi: <Tithi Name>
- *     Panchak: 🔴 <status> (omitted if no active inauspicious Panchak)
- *     Festival/Vrat: <Name> (omitted if none today)
- * - Notification Title: "Panchang Update"
+ * Notification Format (Option B - Inline Horizontal Glanceability for Mobile & Desktop):
+ *   Tithi: <Tithi Name> [ • 🔴 Panchak: <Status>] [ • Festival: <Name>]
+ * 
+ * Title: "Panchang Update"
  */
 
 export interface PanchakStatusInfo {
@@ -31,7 +27,8 @@ export interface PanchangCurrentState {
   tithiEndTimestamp?: number;        // when current tithi ends
   nextTithiName?: string;
   panchak: PanchakStatusInfo;
-  festivalOrVrat?: string | null;    // name of festival or vrat today, or null
+  festivalOrVrat?: string | null;    // name of major festival or vrat today, or null
+  isMajorFestival?: boolean;
   dateStr: string;                   // YYYY-MM-DD
   timestamp: number;                 // current time in ms
 }
@@ -79,90 +76,106 @@ export interface TriggerEvaluationResult {
 }
 
 /**
- * Strict 2-3 line notification body formatter:
+ * Checks whether an active Panchak is truly inauspicious per Vedic Dharmashastra.
  * 
- * Tithi: <Tithi Name>
- * Panchak: <status — shown in RED text/highlight only if Panchak is currently active/inauspicious; omit this line entirely if no Panchak>
- * Festival/Vrat: <Name> (omit this line entirely if none today)
+ * Prohibited / Inauspicious Panchaks:
+ * - Mrityu Panchak (Saturday start - severe danger/crises)
+ * - Agni Panchak (Tuesday start - fire/weapon hazards)
+ * - Chora Panchak (Friday start - theft/financial losses)
+ * - Roga Panchak (Sunday start - illness/physical afflictions)
  * 
- * Plain push notifications cannot render HTML/CSS color. The red highlight is indicated
- * via the 🔴 emoji marker, with richer red styling clarified in-app.
+ * Auspicious / Benign Panchaks (Strictly EXCLUDED from warnings):
+ * - Raja / Nripa Panchak (Monday start - highly auspicious for governance & assets)
+ * - Nirdosha Panchak (Wednesday & Thursday start - benign and fault-free)
+ */
+export function isPanchakTrulyInauspicious(panchak?: PanchakStatusInfo | null): boolean {
+  if (!panchak || !panchak.isActive) return false;
+
+  const typeLower = (panchak.type || '').toLowerCase();
+  const statusLower = (panchak.statusText || '').toLowerCase();
+
+  // Nirdosh and Raj Panchak are auspicious / fault-free -> NEVER alert them
+  if (
+    typeLower.includes('nirdosh') ||
+    typeLower.includes('raja') ||
+    typeLower.includes('raj ') ||
+    typeLower === 'raj panchak' ||
+    statusLower.includes('nirdosh') ||
+    statusLower.includes('raja') ||
+    panchak.isInauspicious === false
+  ) {
+    return false;
+  }
+
+  // Canonical inauspicious Panchaks
+  return (
+    typeLower.includes('mrityu') ||
+    typeLower.includes('agni') ||
+    typeLower.includes('chora') ||
+    typeLower.includes('roga') ||
+    panchak.isInauspicious === true
+  );
+}
+
+/**
+ * Option B: Single-Line Horizontal Glanceable Formatter for Mobile & Desktop.
+ * 
+ * Prevents mobile notification shade from cutting off text after line 1.
+ * Focus remains primarily on Tithi:
+ *   Tithi: <Tithi Name> [ • 🔴 Panchak: <Status>] [ • Festival: <Name>]
  */
 export function formatPanchangNotificationBody(state: {
   tithi: string;
   panchak?: PanchakStatusInfo | null;
   festivalOrVrat?: string | null;
 }): string {
-  const lines: string[] = [];
+  const parts: string[] = [];
 
-  // Line 1: Tithi (always shown)
+  // 1. Primary Focus: Tithi (always first and prominent)
   const cleanTithi = state.tithi?.trim() || 'Panchang';
-  lines.push(`Tithi: ${cleanTithi}`);
+  parts.push(`Tithi: ${cleanTithi}`);
 
-  // Line 2: Panchak (shown in RED indicator only if currently active/inauspicious; omit entirely if no Panchak)
-  const isPanchakActive = Boolean(state.panchak?.isActive);
-  const isInauspicious = state.panchak?.isInauspicious !== false; // Inauspicious unless explicitly marked false (e.g. Raj Panchak)
-
-  if (isPanchakActive && isInauspicious) {
+  // 2. Panchak: ONLY if genuinely inauspicious (omits Nirdosh & Raj Panchak)
+  if (isPanchakTrulyInauspicious(state.panchak)) {
     const rawType = state.panchak?.type?.trim();
-    const rawStatus = state.panchak?.statusText?.trim();
-
-    let panchakStatus = 'Active (Inauspicious)';
-    if (rawStatus) {
-      panchakStatus = rawStatus.replace(/^[🔴⚠️\s]+/, '');
-    } else if (rawType) {
-      panchakStatus = rawType.includes('(Inauspicious)') ? rawType : `${rawType} (Inauspicious)`;
-    }
-
-    lines.push(`Panchak: 🔴 ${panchakStatus}`);
+    const cleanType = rawType ? rawType.replace(/^[🔴⚠️\s]+/, '') : 'Inauspicious';
+    parts.push(`🔴 Panchak: ${cleanType}`);
   }
 
-  // Line 3: Festival/Vrat (omit entirely if none today)
+  // 3. Major Festival / Vrat (omitted if none today or minor)
   const cleanFest = state.festivalOrVrat?.trim();
   if (cleanFest && cleanFest.toLowerCase() !== 'none' && cleanFest.toLowerCase() !== 'null') {
-    lines.push(`Festival/Vrat: ${cleanFest}`);
+    parts.push(`Festival: ${cleanFest}`);
   }
 
-  return lines.join('\n');
+  return parts.join(' • ');
 }
 
 /**
  * State-diffing engine that evaluates current astronomical state against
  * the last-notified record in IndexedDB.
- * 
- * Rules:
- * - Trigger 1: Tithi changed from last notified state.
- * - Trigger 2: Inauspicious Panchak just became active or changed type.
- * - Trigger 3: Festival or Vrat observed on the current date, not yet alerted for today.
- * - If ANY of 1, 2, or 3 are met, returns shouldNotify = true with a SINGLE combined payload.
- * - Deduplicates: returns shouldNotify = false if nothing changed or already alerted.
  */
 export function evaluatePanchangNotificationTriggers(
   currentState: PanchangCurrentState,
   lastNotified: LastNotifiedState | null,
   options: { forceNotify?: boolean } = {}
 ): TriggerEvaluationResult {
-  const isPanchakActive = Boolean(currentState.panchak?.isActive);
-  const isInauspicious = currentState.panchak?.isInauspicious !== false;
-  const currentPanchakInauspicious = isPanchakActive && isInauspicious;
-  const currentPanchakType = currentState.panchak?.type || null;
+  const currentPanchakInauspicious = isPanchakTrulyInauspicious(currentState.panchak);
+  const currentPanchakType = currentPanchakInauspicious ? (currentState.panchak?.type || null) : null;
 
   const currentFestivalOrVrat = currentState.festivalOrVrat?.trim() || null;
   const currentDate = currentState.dateStr;
 
-  // 1. Trigger 1: Tithi Change
-  // If first run ever (lastNotified is null), we treat as a change or initial announcement
+  // 1. Trigger 1: Tithi Change (Primary Focus)
   const tithiChanged = !lastNotified?.tithi || lastNotified.tithi !== currentState.tithi;
 
-  // 2. Trigger 2: Inauspicious Panchak active/starting
-  // Only fires when transitioning into an active inauspicious Panchak period, or type changes
+  // 2. Trigger 2: Inauspicious Panchak active/starting (Nirdosh/Raj ignored)
   const panchakStarting = currentPanchakInauspicious && (
     !lastNotified?.isPanchakActive ||
     lastNotified.panchakType !== currentPanchakType
   );
 
-  // 3. Trigger 3: Festival or Vrat observed today
-  // Only fires once per calendar date for the day's festival/vrat
+  // 3. Trigger 3: Major Festival or Ekadashi Vrat observed today
   const festivalTriggered = Boolean(currentFestivalOrVrat) && (
     !lastNotified?.festivalDate ||
     lastNotified.festivalDate !== currentDate
@@ -170,11 +183,11 @@ export function evaluatePanchangNotificationTriggers(
 
   const shouldNotify = options.forceNotify || tithiChanged || panchakStarting || festivalTriggered;
 
-  // Next updated state to persist in IndexedDB
+  // Next state to persist in IndexedDB
   const nextNotifiedState: LastNotifiedState = {
     tithi: currentState.tithi,
     isPanchakActive: currentPanchakInauspicious,
-    panchakType: currentPanchakInauspicious ? currentPanchakType : null,
+    panchakType: currentPanchakType,
     festivalDate: currentFestivalOrVrat ? currentDate : (lastNotified?.festivalDate || null),
     festivalOrVrat: currentFestivalOrVrat,
     lastNotifiedAt: currentState.timestamp || Date.now()

@@ -1,5 +1,5 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (v6 - Background Sync & State Diffing)
-const CACHE_NAME = 'vedic-panchang-pwa-v6';
+// Service Worker for Hindu Calendar & Live Panchang PWA (v7 - Option B Glanceable & Auspiciousness Filter)
+const CACHE_NAME = 'vedic-panchang-pwa-v7';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
@@ -131,34 +131,63 @@ async function idbSet(key, value) {
 // 3. COMBINED NOTIFICATION FORMATTER & STATE-DIFFING ENGINE
 // ─────────────────────────────────────────────────────────────────────────────
 /**
- * Strict 2-3 line minimal format (no extra text):
- * 
- * Tithi: <Tithi Name>
- * Panchak: 🔴 <status> (omitted if no active inauspicious Panchak)
- * Festival/Vrat: <Name> (omitted if none today)
+ * Checks whether an active Panchak is truly inauspicious per Dharmashastra.
+ * Nirdosh Panchak (Wed/Thu) and Raja Panchak (Mon) are auspicious/benign -> EXCLUDED.
+ * Only inauspicious types: Roga (Sun), Agni (Tue), Chora (Fri), Mrityu (Sat).
+ */
+function isPanchakTrulyInauspicious(panchak) {
+  if (!panchak || !panchak.isActive) return false;
+  const typeLower = (panchak.type || '').toLowerCase();
+  const statusLower = (panchak.statusText || '').toLowerCase();
+
+  // Nirdosh and Raj Panchak are auspicious / fault-free -> NEVER alert them
+  if (
+    typeLower.includes('nirdosh') ||
+    typeLower.includes('raja') ||
+    typeLower.includes('raj ') ||
+    typeLower === 'raj panchak' ||
+    statusLower.includes('nirdosh') ||
+    statusLower.includes('raja') ||
+    panchak.isInauspicious === false
+  ) {
+    return false;
+  }
+
+  return (
+    typeLower.includes('mrityu') ||
+    typeLower.includes('agni') ||
+    typeLower.includes('chora') ||
+    typeLower.includes('roga') ||
+    panchak.isInauspicious === true
+  );
+}
+
+/**
+ * Option B: Single-Line Horizontal Glanceable Formatter for Mobile & Desktop
+ * Prevents mobile notification shade from clipping after line 1:
+ *   Tithi: <Tithi Name> [ • 🔴 Panchak: <Type>] [ • Festival: <Name>]
  */
 function formatNotificationBody(state) {
-  const lines = [];
+  const parts = [];
 
-  // Line 1: Tithi (always shown)
-  lines.push(`Tithi: ${state.tithi || 'Panchang'}`);
+  // 1. Primary Focus: Tithi (always prominent at front)
+  const cleanTithi = (state.tithi || 'Panchang').trim();
+  parts.push(`Tithi: ${cleanTithi}`);
 
-  // Line 2: Panchak (shown in RED text/highlight only if Panchak is currently active/inauspicious)
-  const isPanchakActive = Boolean(state.panchak?.isActive);
-  const isInauspicious = state.panchak?.isInauspicious !== false;
-
-  if (isPanchakActive && isInauspicious) {
-    const status = state.panchak?.statusText || (state.panchak?.type ? `${state.panchak.type} (Inauspicious)` : 'Active (Inauspicious)');
-    const cleanStatus = status.replace(/^[🔴⚠️\s]+/, '');
-    lines.push(`Panchak: 🔴 ${cleanStatus}`);
+  // 2. Panchak: ONLY if genuinely inauspicious (omits Nirdosh & Raj Panchaks)
+  if (isPanchakTrulyInauspicious(state.panchak)) {
+    const rawType = state.panchak?.type?.trim();
+    const cleanType = rawType ? rawType.replace(/^[🔴⚠️\s]+/, '') : 'Inauspicious';
+    parts.push(`🔴 Panchak: ${cleanType}`);
   }
 
-  // Line 3: Festival/Vrat (omit entirely if none today)
-  if (state.festivalOrVrat && state.festivalOrVrat.trim()) {
-    lines.push(`Festival/Vrat: ${state.festivalOrVrat.trim()}`);
+  // 3. Major Festival / Vrat (omitted if none today or minor)
+  const cleanFest = state.festivalOrVrat?.trim();
+  if (cleanFest && cleanFest.toLowerCase() !== 'none' && cleanFest.toLowerCase() !== 'null') {
+    parts.push(`Festival: ${cleanFest}`);
   }
 
-  return lines.join('\n');
+  return parts.join(' • ');
 }
 
 /**
@@ -220,8 +249,13 @@ async function checkAndNotifyPanchangChange(options = {}) {
   if (cache?.panchak?.startTimestamp && cache?.panchak?.endTimestamp) {
     isPanchakActive = now >= cache.panchak.startTimestamp && now <= cache.panchak.endTimestamp;
   }
-  const isPanchakInauspicious = isPanchakActive && cache?.panchak?.isInauspicious !== false;
   const panchakType = isPanchakActive ? (cache?.panchak?.type || 'Panchak') : null;
+  const isPanchakInauspicious = isPanchakTrulyInauspicious({
+    isActive: isPanchakActive,
+    type: panchakType,
+    statusText: cache?.panchak?.statusText,
+    isInauspicious: cache?.panchak?.isInauspicious
+  });
 
   const festivalOrVrat = cache?.festivalOrVrat || null;
 
@@ -250,10 +284,10 @@ async function checkAndNotifyPanchangChange(options = {}) {
   // 4. Retrieve last-notified state for deduplication
   const lastNotified = await idbGet('last_notified_state');
 
-  // TRIGGER 1: Tithi change — current lunar day transitions to a new Tithi
+  // TRIGGER 1: Tithi change — current lunar day transitions to a new Tithi (Primary Focus)
   const tithiChanged = !lastNotified?.tithi || lastNotified.tithi !== currentTithi;
 
-  // TRIGGER 2: Panchak period — active/starting (mark inauspicious status)
+  // TRIGGER 2: Inauspicious Panchak period — active/starting (Nirdosh/Raj ignored)
   const panchakStarting = isPanchakInauspicious && (
     !lastNotified?.isPanchakActive ||
     lastNotified.panchakType !== panchakType

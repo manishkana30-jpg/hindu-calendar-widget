@@ -1,14 +1,14 @@
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
 
+# Option B: Glanceable Inline Format (fits on single-line mobile & desktop toasts without truncation)
+# Notice: Nirdosh Panchak is auspicious so it is completely excluded!
 $template = @"
 <toast>
     <visual>
         <binding template="ToastGeneric">
             <text>Panchang Update</text>
-            <text>Tithi: Shukla Chaturdashi (14)</text>
-            <text>Panchak: 🔴 Nirdosha Panchak (Inauspicious)</text>
-            <text>Festival/Vrat: Anant Chaturdashi (अनन्त चतुर्दशी)</text>
+            <text>Tithi: Shukla Chaturdashi (14) • Festival: Anant Chaturdashi</text>
         </binding>
     </visual>
 </toast>
@@ -19,4 +19,4 @@ $xml.LoadXml($template)
 $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
 $notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe")
 $notifier.Show($toast)
-Write-Output "Test Panchang Update notification successfully displayed on device screen!"
+Write-Output "Test Panchang Update notification (Option B glanceable format) successfully displayed on device screen!"

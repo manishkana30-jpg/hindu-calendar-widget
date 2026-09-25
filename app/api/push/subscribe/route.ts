@@ -5,6 +5,7 @@ import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
+import { formatPanchangNotificationBody, isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
 
 const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
@@ -59,35 +60,42 @@ export async function POST(req: NextRequest) {
       const panchakResult = getActivePanchakStatus(now);
       const ekadashiResult = evaluateEkadashi(now, PRESET_LOCATIONS[0]);
 
+      // Only major festivals and Ekadashi vrats to keep primary focus on Tithi
       let festivalOrVrat: string | null = null;
       if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
         festivalOrVrat = festivalResult.name;
       } else if (ekadashiResult.isEkadashiDay) {
         festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
-      } else if (festivalResult.category === 'Vrat' || festivalResult.category === 'Pradosh') {
-        festivalOrVrat = festivalResult.name;
       }
 
-      const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
-      const panchakStatus = panchakResult.isActive
-        ? (panchakResult.panchak?.type ? `${panchakResult.panchak.type} (Inauspicious)` : 'Active (Inauspicious)')
-        : undefined;
+      const panchakInfo = {
+        isActive: panchakResult.isActive,
+        type: panchakResult.panchak?.type,
+        isInauspicious: panchakResult.panchak?.auspiciousness !== 'Auspicious',
+        statusText: panchakResult.panchak?.type
+      };
 
-      const lines: string[] = [];
-      lines.push(`Tithi: ${panchang.instantaneousTithi?.name || panchang.tithi.name}`);
-      if (panchakResult.isActive && isInauspicious) {
-        lines.push(`Panchak: 🔴 ${panchakStatus}`);
-      }
-      if (festivalOrVrat) {
-        lines.push(`Festival/Vrat: ${festivalOrVrat}`);
-      }
+      const isTrulyInauspicious = isPanchakTrulyInauspicious(panchakInfo);
+      const tithiName = panchang.instantaneousTithi?.name || panchang.tithi.name;
+
+      const bodyText = formatPanchangNotificationBody({
+        tithi: tithiName,
+        panchak: panchakInfo,
+        festivalOrVrat
+      });
 
       const payload = JSON.stringify({
         title: 'Panchang Update',
-        body: lines.join('\n'),
+        body: bodyText,
         icon: '/icon-192.svg',
         badge: '/icon-192.svg',
-        data: { url: '/', timestamp: Date.now() }
+        data: {
+          url: '/',
+          tithi: tithiName,
+          panchakActive: isTrulyInauspicious,
+          festivalOrVrat,
+          timestamp: Date.now()
+        }
       });
 
       const parsedSub = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
