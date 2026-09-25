@@ -255,7 +255,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                           ? "Notification Pushed! 🔔"
                           : notificationStatus === 'denied'
                           ? "Permission Blocked ⚠️"
-                          : "Push Test Tithi Alert"}
+                          : "Panchang Update Alert"}
                       </span>
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase">
                         {notificationStatus === 'sending' ? 'Sending...' : 'Test'}
@@ -266,7 +266,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                         ? "Check your device screen right now!"
                         : notificationStatus === 'denied'
                         ? "Enable notifications in browser settings"
-                        : "Pushes today's live Tithi alert to your screen"}
+                        : "Pushes combined Tithi, Panchak & Festival alert"}
                     </p>
                   </div>
                 </div>

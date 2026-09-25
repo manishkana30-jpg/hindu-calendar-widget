@@ -2,7 +2,9 @@ import { calculatePanchang, PRESET_LOCATIONS } from '../vedic-astronomy';
 import { getFestivalForDate } from '../festivals';
 import { getActivePanchakStatus } from '../dharmashastra-rules';
 import { evaluateEkadashi } from '../dharmashastra-engine';
-import { buildDailyNotificationPayload, NotificationPayload } from './payload-builder';
+import { formatPanchangNotificationBody } from './state-diff';
+import { NotificationPayload } from './payload-builder';
+import { saveLastNotifiedState } from './idb-storage';
 
 export interface PushNotificationResult {
   success: boolean;
@@ -12,11 +14,12 @@ export interface PushNotificationResult {
 }
 
 /**
- * Calculates today's Vedic astrometry and builds the Dharmashastra-compliant
- * context-aware notification payload strictly following the composition matrix:
- * - Case A: Normal Day (No Vrat, No Panchak, No Festival)
- * - Case B: Single Attribute Active
- * - Case C: Multiple Attributes Active
+ * Calculates today's Vedic astrometry and builds the strict 2-3 line combined notification:
+ * Title: "Panchang Update"
+ * Body:
+ * Tithi: <Tithi Name>
+ * Panchak: 🔴 <status> (omitted if no active inauspicious Panchak)
+ * Festival/Vrat: <Name> (omitted if none today)
  */
 export function getDailyNotificationPayloadForDate(date: Date = new Date()): NotificationPayload {
   const location = PRESET_LOCATIONS[0]; // Baseline New Delhi coordinates
@@ -25,42 +28,50 @@ export function getDailyNotificationPayloadForDate(date: Date = new Date()): Not
   const panchakResult = getActivePanchakStatus(date);
   const ekadashiResult = evaluateEkadashi(date, location);
 
-  let festival: string | null = null;
-  let vrat: string | null = null;
+  let festivalOrVrat: string | null = null;
 
-  // Detect Festival
+  // Detect Festival or Vrat
   if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
-    festival = festivalResult.name;
-  }
-
-  // Detect Vrat (Ekadashi, Pradosha, Chaturthi, Shivaratri, etc.)
-  if (ekadashiResult.isEkadashiDay) {
-    vrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
+    festivalOrVrat = festivalResult.name;
+  } else if (ekadashiResult.isEkadashiDay) {
+    festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
   } else if (
     festivalResult.category === 'Vrat' ||
     festivalResult.category === 'Pradosh' ||
     festivalResult.name.toLowerCase().includes('vrat')
   ) {
-    vrat = festivalResult.name;
+    festivalOrVrat = festivalResult.name;
   }
 
-  // Assemble context-aware payload
-  return buildDailyNotificationPayload({
-    tithi: panchang.tithi.name,
-    paksha: panchang.tithi.paksha,
-    samvat: String(panchang.vikramSamvat),
-    festival,
-    vrat,
+  const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
+  const panchakStatus = panchakResult.isActive
+    ? (panchakResult.panchak?.type ? `${panchakResult.panchak.type} (Inauspicious)` : 'Active (Inauspicious)')
+    : undefined;
+
+  const body = formatPanchangNotificationBody({
+    tithi: panchang.instantaneousTithi?.name || panchang.tithi.name,
     panchak: {
       isActive: panchakResult.isActive,
-      type: panchakResult.panchak?.type
-    }
+      isInauspicious,
+      statusText: panchakStatus
+    },
+    festivalOrVrat
   });
+
+  return {
+    title: 'Panchang Update',
+    body,
+    icon: '/icon-192.svg',
+    badge: '/icon-192.svg',
+    data: {
+      url: '/'
+    }
+  };
 }
 
 /**
- * Triggers an immediate, live Tithi notification directly to the user's device screen
- * using the Dharmashastra-compliant payload builder.
+ * Triggers an immediate combined notification directly to the user's screen
+ * with strict format and deduplication tracking in IndexedDB.
  */
 export async function pushTestTithiNotification(): Promise<PushNotificationResult> {
   if (typeof window === 'undefined') {
@@ -93,14 +104,15 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
     };
   }
 
-  // 2. Build intelligent context-aware payload for today
-  const payload = getDailyNotificationPayloadForDate(new Date());
+  // 2. Build strict 2-3 line combined payload for current moment
+  const now = new Date();
+  const payload = getDailyNotificationPayloadForDate(now);
 
   const options: NotificationOptions & { renotify?: boolean } = {
     body: payload.body,
     icon: payload.icon,
     badge: payload.badge,
-    tag: 'daily-panchang-notification',
+    tag: 'panchang-combined-alert',
     renotify: true,
     data: {
       ...payload.data,
@@ -108,10 +120,21 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
     }
   };
 
-  // 3. Mark notification as shown today in localStorage
+  // 3. Mark notification as shown today in localStorage & IndexedDB
   try {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = now.toISOString().split('T')[0];
     localStorage.setItem('last_panchang_notification_date', todayStr);
+
+    const panchang = calculatePanchang(now, PRESET_LOCATIONS[0]);
+    const panchakResult = getActivePanchakStatus(now);
+    await saveLastNotifiedState({
+      tithi: panchang.instantaneousTithi?.name || panchang.tithi.name,
+      isPanchakActive: panchakResult.isActive,
+      panchakType: panchakResult.panchak?.type || null,
+      festivalDate: todayStr,
+      festivalOrVrat: null,
+      lastNotifiedAt: Date.now()
+    });
   } catch (e) {
     // ignore storage error
   }
@@ -124,7 +147,7 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
         await registration.showNotification(payload.title, options);
         return { 
           success: true, 
-          message: `Pushed "${payload.title}" to your screen!`,
+          message: `Dispatched "${payload.title}" to your screen!`,
           payload
         };
       }
@@ -138,25 +161,21 @@ export async function pushTestTithiNotification(): Promise<PushNotificationResul
     new Notification(payload.title, options);
     return { 
       success: true, 
-      message: `Pushed "${payload.title}" to your screen!`,
+      message: `Dispatched "${payload.title}" to your screen!`,
       payload
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('window.Notification instantiation error:', err);
     return { 
       success: false, 
       message: 'Failed to instantiate notification on this device.', 
-      error: err?.message || 'UNKNOWN_ERROR' 
+      error: (err as Error)?.message || 'UNKNOWN_ERROR' 
     };
   }
 }
 
 /**
  * Initializes automatic daily notification scheduling on the client.
- * If notification permission is granted, it:
- * 1. Checks if today's notification was already shown. If not, dispatches it immediately.
- * 2. Schedules the next automatic notification for tomorrow's sunrise (~6:00 AM local time).
- * 3. Registers the Web Push subscription with /api/push/subscribe if available.
  */
 export function initAutomaticDailyNotifications(): void {
   if (typeof window === 'undefined' || !('Notification' in window)) return;

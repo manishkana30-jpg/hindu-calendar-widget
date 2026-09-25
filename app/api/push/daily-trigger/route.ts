@@ -59,18 +59,35 @@ async function handleDailyTrigger(req: NextRequest) {
       vrat = festivalResult.name;
     }
 
-    // 5. Build context-aware notification payload
-    const payload = buildDailyNotificationPayload({
-      tithi: panchang.tithi.name,
-      paksha: panchang.tithi.paksha,
-      samvat: String(panchang.vikramSamvat),
-      festival,
-      vrat,
-      panchak: {
-        isActive: panchakResult.isActive,
-        type: panchakResult.panchak?.type
+    // 5. Build context-aware combined notification payload strictly adhering to 2-3 line format
+    const festivalOrVrat = festival || vrat || null;
+    const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
+    const panchakStatus = panchakResult.isActive
+      ? (panchakResult.panchak?.type ? `${panchakResult.panchak.type} (Inauspicious)` : 'Active (Inauspicious)')
+      : undefined;
+
+    const notificationLines: string[] = [];
+    notificationLines.push(`Tithi: ${panchang.instantaneousTithi?.name || panchang.tithi.name}`);
+    if (panchakResult.isActive && isInauspicious) {
+      notificationLines.push(`Panchak: 🔴 ${panchakStatus}`);
+    }
+    if (festivalOrVrat) {
+      notificationLines.push(`Festival/Vrat: ${festivalOrVrat}`);
+    }
+
+    const payload = {
+      title: 'Panchang Update',
+      body: notificationLines.join('\n'),
+      icon: '/icon-192.svg',
+      badge: '/icon-192.svg',
+      data: {
+        url: '/',
+        date: targetDate.toISOString().split('T')[0],
+        tithi: panchang.tithi.name,
+        panchakActive: panchakResult.isActive,
+        festivalOrVrat
       }
-    });
+    };
 
     // 6. Check VAPID and KV availability
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;

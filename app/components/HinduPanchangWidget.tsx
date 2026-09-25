@@ -5,7 +5,7 @@ import {
   Sparkles, MapPin, ChevronDown, MoreVertical, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight, Lock
+  ShieldAlert, ShieldCheck, ArrowUpRight, Lock, Bell
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -21,6 +21,8 @@ import { DailyMuhuratModal } from './modals/DailyMuhuratModal';
 import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
+import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
+import { NotificationPermissionBanner } from './NotificationPermissionBanner';
 
 const CITY_LOCATIONS: LocationCoordinates[] = CITIES.map(c => ({
   name: `${c.name}`,
@@ -61,6 +63,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [isTodayFestivalModalOpen, setIsTodayFestivalModalOpen] = useState<boolean>(false);
   const [isPanchakModalOpen, setIsPanchakModalOpen] = useState<boolean>(false);
   const [isUpcomingFestivalsModalOpen, setIsUpcomingFestivalsModalOpen] = useState<boolean>(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState<boolean>(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -191,6 +194,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
           {/* Right Menu & Close Controls (Enlarged 40x40px Touch Targets) */}
           <div className="flex items-center gap-2">
+            {/* Direct Notification Settings Button */}
+            <button
+              onClick={() => setIsNotificationModalOpen(true)}
+              title="Panchang Alerts & Settings"
+              aria-label="Panchang Alerts & Settings"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-[#11192e] hover:bg-[#1a2542] border border-[#233152] flex items-center justify-center text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              <Bell size={16} />
+            </button>
+
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -204,8 +217,15 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {isMenuOpen && (
                 <div className="absolute right-0 top-11 w-60 bg-[#0e1629] border border-[#233152] rounded-2xl shadow-2xl py-2 z-30 text-xs animate-in fade-in zoom-in-95 duration-150">
                   <button
-                    onClick={() => { setIsTithiModalOpen(true); setIsMenuOpen(false); }}
+                    onClick={() => { setIsNotificationModalOpen(true); setIsMenuOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 cursor-pointer"
+                  >
+                    <Bell size={15} className="text-amber-400" />
+                    <span>Background Alerts & Settings</span>
+                  </button>
+                  <button
+                    onClick={() => { setIsTithiModalOpen(true); setIsMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 text-neutral-300 hover:bg-[#1a2542] hover:text-white flex items-center gap-2.5 cursor-pointer border-t border-[#1a2542]"
                   >
                     <Calendar size={15} className="text-orange-400" />
                     <span>Monthly Tithi Almanac</span>
@@ -1021,6 +1041,26 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         onClose={() => setIsUpcomingFestivalsModalOpen(false)}
         location={selectedLocation}
         currentDate={selectedDate}
+      />
+
+      {/* ── Background Notification System: Graceful Banner & Settings Modal ── */}
+      <NotificationPermissionBanner
+        onOpenSettings={() => setIsNotificationModalOpen(true)}
+      />
+
+      <NotificationSettingsModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        currentTithiName={panchang.instantaneousTithi?.name || panchang.tithi.name}
+        panchakStatus={{
+          isActive: panchakStatus.isActive,
+          isInauspicious: panchakStatus.isActive && panchakStatus.panchak?.auspiciousness !== 'Auspicious',
+          type: panchakStatus.panchak?.type,
+          statusText: panchakStatus.isActive
+            ? `${panchakStatus.panchak?.type || 'Panchak'} (Inauspicious)`
+            : undefined
+        }}
+        festivalOrVratName={panchang.festivals && panchang.festivals.length > 0 ? panchang.festivals[0] : null}
       />
     </>
   );
