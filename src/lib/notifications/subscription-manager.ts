@@ -16,6 +16,7 @@ import {
   DailyPanchangCache,
   NotificationSettings
 } from './idb-storage';
+import { formatPanchangNotificationBody } from './state-diff';
 
 export interface NotificationCapabilities {
   supported: boolean;
@@ -320,21 +321,15 @@ export async function triggerImmediateNotificationTest(): Promise<{
     const res = await fetch('/api/panchang/today');
     if (res.ok) {
       const data = await res.json();
-      const lines: string[] = [];
-      lines.push(`Tithi: ${data.instantaneousTithi?.name || 'Panchang'}`);
-
-      if (data.panchak?.isActive && data.panchak?.isInauspicious) {
-        const cleanStatus = (data.panchak.statusText || `${data.panchak.type || 'Panchak'} (Inauspicious)`).replace(/^[🔴⚠️\s]+/, '');
-        lines.push(`Panchak: 🔴 ${cleanStatus}`);
-      }
-
-      if (data.festivalOrVrat) {
-        lines.push(`Festival/Vrat: ${data.festivalOrVrat}`);
-      }
+      const bodyText = formatPanchangNotificationBody({
+        tithi: data.instantaneousTithi?.name || 'Panchang',
+        panchak: data.panchak,
+        festivalOrVrat: data.festivalOrVrat
+      });
 
       if (reg?.showNotification) {
         const notifOptions: NotificationOptions & { renotify?: boolean } = {
-          body: lines.join('\n'),
+          body: bodyText,
           icon: '/icon-192.svg',
           badge: '/icon-192.svg',
           tag: 'panchang-combined-alert',
@@ -343,7 +338,7 @@ export async function triggerImmediateNotificationTest(): Promise<{
         await reg.showNotification('Panchang Update', notifOptions);
       } else {
         new Notification('Panchang Update', {
-          body: lines.join('\n'),
+          body: bodyText,
           icon: '/icon-192.svg',
           badge: '/icon-192.svg',
           tag: 'panchang-combined-alert'
@@ -360,23 +355,49 @@ export async function triggerImmediateNotificationTest(): Promise<{
 }
 
 /**
- * Initializes client-side periodic polling and visibility change listeners.
- * Runs every 15 minutes when the tab is open, and immediately checks when the user returns to the tab.
+ * Initializes client-side periodic polling, visibility change listeners, and
+ * ensures granted permissions automatically sync to the server's push subscription pool.
  */
 export function initClientNotificationScheduler(): () => void {
   if (typeof window === 'undefined') return () => {};
 
-  // Register Service Worker
-  getOrRegisterServiceWorker().catch(() => {});
+  // Register Service Worker and sync push registration if permission already granted
+  getOrRegisterServiceWorker().then(async (reg) => {
+    if (reg && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        await saveNotificationSettings({ enabled: true, permission: 'granted' });
+        if ('pushManager' in reg) {
+          const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+          let sub = await reg.pushManager.getSubscription();
+          if (!sub && vapidKey) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(vapidKey) as unknown as BufferSource
+            }).catch(() => null);
+          }
+          if (sub) {
+            fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subscription: sub })
+            }).catch(() => {});
+          }
+        }
+      } catch (syncErr) {
+        console.info('Auto push sync note:', syncErr);
+      }
+    }
+  }).catch(() => {});
 
-  const checkState = async () => {
+  const checkState = async (force: boolean = false) => {
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
     const settings = await getNotificationSettings();
-    if (!settings.enabled || Notification.permission !== 'granted') return;
+    if (settings.enabled === false) return;
 
     if ('serviceWorker' in navigator) {
       const reg = await navigator.serviceWorker.ready;
       if (reg?.active) {
-        reg.active.postMessage({ type: 'CHECK_AND_NOTIFY', force: false });
+        reg.active.postMessage({ type: 'CHECK_AND_NOTIFY', force });
       }
     }
   };
@@ -384,7 +405,7 @@ export function initClientNotificationScheduler(): () => void {
   // Run on visibility change (when tab regains focus or screen wakes up)
   const handleVisibilityChange = () => {
     if (document.visibilityState === 'visible') {
-      checkState().catch(() => {});
+      checkState(false).catch(() => {});
     }
   };
 
@@ -392,13 +413,13 @@ export function initClientNotificationScheduler(): () => void {
 
   // Periodic interval every 15 minutes while tab is active
   const intervalId = setInterval(() => {
-    checkState().catch(() => {});
+    checkState(false).catch(() => {});
   }, 15 * 60 * 1000);
 
-  // Initial check after 3 seconds of page load
+  // Initial check after 2 seconds of page load
   const timeoutId = setTimeout(() => {
-    checkState().catch(() => {});
-  }, 3000);
+    checkState(false).catch(() => {});
+  }, 2000);
 
   return () => {
     document.removeEventListener('visibilitychange', handleVisibilityChange);

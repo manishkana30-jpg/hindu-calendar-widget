@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
 import webpush from 'web-push';
 import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
 import { formatPanchangNotificationBody, isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
+
+import { saveSubscription, removeSubscription } from '@/src/lib/notifications/subscription-store';
 
 const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
@@ -25,22 +26,8 @@ export async function POST(req: NextRequest) {
 
     const subString = typeof subscription === 'string' ? subscription : JSON.stringify(subscription);
 
-    // 1. Maintain in-memory subscription pool for serverless instances
-    if (!('__push_subscriptions' in globalThis)) {
-      (globalThis as unknown as { __push_subscriptions: Set<string> }).__push_subscriptions = new Set<string>();
-    }
-    const globalSubs = (globalThis as unknown as { __push_subscriptions: Set<string> }).__push_subscriptions;
-    globalSubs.add(subString);
-
-    // 2. If Vercel KV environment is configured, persist the subscription
-    const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-    if (isKvConfigured) {
-      try {
-        await kv.sadd('push_subscriptions', subString);
-      } catch (kvErr) {
-        console.warn('Failed to save subscription to Vercel KV:', kvErr);
-      }
-    }
+    // Save to shared persistent subscription store
+    await saveSubscription(subString);
 
     // 3. Immediately dispatch a test combined push notification to the subscribing device
     let testDispatched = false;
@@ -109,7 +96,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Subscription registered successfully.',
-      isKvConfigured,
+      registered: true,
       testDispatched,
       pushError
     });
@@ -134,25 +121,8 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Remove from in-memory pool
-    const globalSubs = (globalThis as unknown as { __push_subscriptions?: Set<string> }).__push_subscriptions;
-    if (globalSubs) {
-      for (const item of Array.from(globalSubs)) {
-        if (item.includes(endpoint)) {
-          globalSubs.delete(item);
-        }
-      }
-    }
-
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      const allSubs: (string | object)[] = await kv.smembers('push_subscriptions');
-      for (const item of allSubs) {
-        const itemStr = typeof item === 'string' ? item : JSON.stringify(item);
-        if (itemStr.includes(endpoint)) {
-          await kv.srem('push_subscriptions', itemStr).catch(() => {});
-        }
-      }
-    }
+    // Remove from shared persistent store
+    await removeSubscription(endpoint);
 
     return NextResponse.json({
       success: true,

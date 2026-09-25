@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
-import { kv } from '@vercel/kv';
 import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
 import { formatPanchangNotificationBody, isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
+import { getAllSubscriptions, removeSubscription } from '@/src/lib/notifications/subscription-store';
 
 const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
@@ -123,28 +123,8 @@ async function handleDailyTrigger(req: NextRequest) {
       }
     }
 
-    // 8. Otherwise, dispatch to all registered subscriptions in Vercel KV
-    const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-    let rawSubscriptions: (string | object)[] = [];
-
-    if (isKvConfigured) {
-      try {
-        rawSubscriptions = await kv.smembers('push_subscriptions');
-      } catch (kvErr) {
-        console.warn('KV smembers fetch error:', kvErr);
-      }
-    }
-
-    // Also include any warm memory subscriptions
-    const globalSubs = (globalThis as unknown as { __push_subscriptions?: Set<string> }).__push_subscriptions;
-    if (globalSubs && globalSubs.size > 0) {
-      for (const s of globalSubs) {
-        if (!rawSubscriptions.includes(s)) {
-          rawSubscriptions.push(s);
-        }
-      }
-    }
-
+    // 8. Otherwise, dispatch to all registered subscriptions in persistent store
+    const rawSubscriptions = await getAllSubscriptions();
     const totalSubscriptions = rawSubscriptions.length;
 
     if (totalSubscriptions === 0) {
@@ -159,11 +139,10 @@ async function handleDailyTrigger(req: NextRequest) {
 
     let dispatched = 0;
     let failed = 0;
-    const staleSubscriptions: string[] = [];
+    const staleEndpoints: string[] = [];
 
     await Promise.allSettled(
       rawSubscriptions.map(async (rawSub) => {
-        const subStr = typeof rawSub === 'string' ? rawSub : JSON.stringify(rawSub);
         try {
           const subscription = typeof rawSub === 'string' ? JSON.parse(rawSub) : rawSub;
           await webpush.sendNotification(subscription, stringifiedPayload);
@@ -173,16 +152,23 @@ async function handleDailyTrigger(req: NextRequest) {
           const status = (err as { statusCode?: number })?.statusCode;
           // Purge expired or unsubscribed endpoints (404 Not Found or 410 Gone)
           if (status === 404 || status === 410) {
-            staleSubscriptions.push(subStr);
+            try {
+              const parsed = typeof rawSub === 'string' ? JSON.parse(rawSub) : rawSub;
+              if (parsed?.endpoint) {
+                staleEndpoints.push(parsed.endpoint);
+              }
+            } catch {
+              // ignore
+            }
           }
         }
       })
     );
 
-    // Clean up stale subscriptions from KV if configured
-    if (isKvConfigured && staleSubscriptions.length > 0) {
-      for (const stale of staleSubscriptions) {
-        await kv.srem('push_subscriptions', stale).catch(() => {});
+    // Clean up stale subscriptions from pool
+    if (staleEndpoints.length > 0) {
+      for (const endpoint of staleEndpoints) {
+        await removeSubscription(endpoint).catch(() => {});
       }
     }
 
@@ -194,7 +180,7 @@ async function handleDailyTrigger(req: NextRequest) {
         totalSubscriptions,
         dispatched,
         failed,
-        prunedStaleSubscriptions: staleSubscriptions.length
+        prunedStaleSubscriptions: staleEndpoints.length
       }
     });
   } catch (error: unknown) {

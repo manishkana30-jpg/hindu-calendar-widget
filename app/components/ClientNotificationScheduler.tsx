@@ -27,17 +27,12 @@ export function ClientNotificationScheduler() {
         const panchakResult = getActivePanchakStatus(now);
         const ekadashiResult = evaluateEkadashi(now, location);
 
+        // Resolve Festival & Vrat: Strictly major festivals and Ekadashi vrats
         let festivalOrVrat: string | null = null;
         if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
           festivalOrVrat = festivalResult.name;
         } else if (ekadashiResult.isEkadashiDay) {
           festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
-        } else if (
-          festivalResult.category === 'Vrat' ||
-          festivalResult.category === 'Pradosh' ||
-          festivalResult.name.toLowerCase().includes('vrat')
-        ) {
-          festivalOrVrat = festivalResult.name;
         }
 
         const instTithiIndex = panchang.instantaneousTithi?.index || panchang.tithi.index;
@@ -51,11 +46,21 @@ export function ClientNotificationScheduler() {
         const dayEnd = new Date(now);
         dayEnd.setHours(23, 59, 59, 999);
 
-        const isInauspicious = panchakResult.isActive && panchakResult.panchak?.auspiciousness !== 'Auspicious';
+        // Panchak Auspiciousness Filter: Nirdosh & Raj are auspicious
+        const rawPanchakType = panchakResult.panchak?.type || '';
+        const typeLower = rawPanchakType.toLowerCase();
+        const isAuspiciousPanchak = 
+          typeLower.includes('nirdosh') ||
+          typeLower.includes('raja') ||
+          typeLower.includes('raj ') ||
+          typeLower === 'raj panchak' ||
+          panchakResult.panchak?.auspiciousness === 'Auspicious';
+
+        const isInauspicious = panchakResult.isActive && !isAuspiciousPanchak;
         const statusText = panchakResult.isActive
           ? (isInauspicious
-              ? `${panchakResult.panchak?.type || 'Panchak'} (Inauspicious)`
-              : `${panchakResult.panchak?.type || 'Panchak'} (Auspicious)`)
+              ? `${rawPanchakType || 'Panchak'} (Inauspicious)`
+              : `${rawPanchakType || 'Panchak'} (Auspicious)`)
           : 'No Active Panchak';
 
         const nowMs = now.getTime();
