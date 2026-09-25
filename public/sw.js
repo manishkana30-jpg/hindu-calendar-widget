@@ -249,15 +249,8 @@ async function checkAndNotifyPanchangChange(options = {}) {
   if (cache?.panchak?.startTimestamp && cache?.panchak?.endTimestamp) {
     isPanchakActive = now >= cache.panchak.startTimestamp && now <= cache.panchak.endTimestamp;
   }
-  const panchakType = isPanchakActive ? (cache?.panchak?.type || 'Panchak') : null;
-  const isPanchakInauspicious = isPanchakTrulyInauspicious({
-    isActive: isPanchakActive,
-    type: panchakType,
-    statusText: cache?.panchak?.statusText,
-    isInauspicious: cache?.panchak?.isInauspicious
-  });
-
-  const festivalOrVrat = cache?.festivalOrVrat || null;
+  let panchakType = isPanchakActive ? (cache?.panchak?.type || 'Panchak') : null;
+  let festivalOrVrat = cache?.festivalOrVrat || null;
 
   // If a server push payload was provided directly, merge any specific attributes
   if (pushPayload) {
@@ -265,8 +258,16 @@ async function checkAndNotifyPanchangChange(options = {}) {
     if (pushPayload.festivalOrVrat !== undefined) festivalOrVrat = pushPayload.festivalOrVrat;
     if (pushPayload.panchak !== undefined) {
       isPanchakActive = Boolean(pushPayload.panchak?.isActive);
+      if (pushPayload.panchak?.type) panchakType = pushPayload.panchak.type;
     }
   }
+
+  const isPanchakInauspicious = isPanchakTrulyInauspicious({
+    isActive: isPanchakActive,
+    type: panchakType,
+    statusText: cache?.panchak?.statusText,
+    isInauspicious: cache?.panchak?.isInauspicious
+  });
 
   const currentState = {
     tithi: currentTithi,

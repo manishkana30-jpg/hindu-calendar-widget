@@ -6,7 +6,7 @@ import {
   Sparkles, ShieldCheck, Smartphone, Bell
 } from 'lucide-react';
 import { PWAInstallModal } from './PWAInstallModal';
-import { pushTestTithiNotification } from '@/src/lib/notifications/client-trigger';
+import { triggerImmediateNotificationTest } from '@/src/lib/notifications/subscription-manager';
 
 interface FloatingInstallShareProps {
   className?: string;
@@ -125,11 +125,11 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   // Handle Direct Live Tithi Test Notification
   const handleNotificationTest = useCallback(async () => {
     setNotificationStatus('sending');
-    const result = await pushTestTithiNotification();
+    const result = await triggerImmediateNotificationTest();
     if (result.success) {
       setNotificationStatus('sent');
       setTimeout(() => setNotificationStatus('idle'), 4000);
-    } else if (result.error === 'PERMISSION_DENIED') {
+    } else if (result.message?.toLowerCase().includes('denied')) {
       setNotificationStatus('denied');
       setTimeout(() => setNotificationStatus('idle'), 4500);
     } else {
