@@ -34,9 +34,168 @@ const CITY_LOCATIONS: LocationCoordinates[] = CITIES.map(c => ({
   regionName: c.state
 }));
 
+// Comprehensive timezone mapping for city and country lookup fallbacks
+const CITY_TIMEZONE_MAP: Record<string, string> = {
+  // Major Indian Cities
+  'new delhi': 'Asia/Kolkata',
+  'mumbai': 'Asia/Kolkata',
+  'bengaluru': 'Asia/Kolkata',
+  'varanasi': 'Asia/Kolkata',
+  'varanasi (kashi)': 'Asia/Kolkata',
+  'ayodhya': 'Asia/Kolkata',
+  'ujjain': 'Asia/Kolkata',
+  'haridwar': 'Asia/Kolkata',
+  'kolkata': 'Asia/Kolkata',
+  'chennai': 'Asia/Kolkata',
+  'hyderabad': 'Asia/Kolkata',
+  'ahmedabad': 'Asia/Kolkata',
+  'pune': 'Asia/Kolkata',
+  'jaipur': 'Asia/Kolkata',
+  'lucknow': 'Asia/Kolkata',
+  'kanpur': 'Asia/Kolkata',
+  'patna': 'Asia/Kolkata',
+  'indore': 'Asia/Kolkata',
+  'mathura': 'Asia/Kolkata',
+  'surat': 'Asia/Kolkata',
+  'nagpur': 'Asia/Kolkata',
+  'chandigarh': 'Asia/Kolkata',
+  'guwahati': 'Asia/Kolkata',
+  'kochi': 'Asia/Kolkata',
+
+  // Nepal (45-min offset UTC+5:45)
+  'kathmandu': 'Asia/Kathmandu',
+  'pokhara': 'Asia/Kathmandu',
+
+  // International Cities
+  'london': 'Europe/London',
+  'new york': 'America/New_York',
+  'toronto': 'America/Toronto',
+  'san francisco': 'America/Los_Angeles',
+  'los angeles': 'America/Los_Angeles',
+  'chicago': 'America/Chicago',
+  'dubai': 'Asia/Dubai',
+  'singapore': 'Asia/Singapore',
+  'sydney': 'Australia/Sydney',
+  'melbourne': 'Australia/Melbourne',
+  'tokyo': 'Asia/Tokyo',
+  'paris': 'Europe/Paris',
+  'berlin': 'Europe/Berlin',
+
+  // Country-level Fallbacks
+  'nepal': 'Asia/Kathmandu',
+  'india': 'Asia/Kolkata',
+  'united kingdom': 'Europe/London',
+  'uk': 'Europe/London',
+  'united states': 'America/New_York',
+  'usa': 'America/New_York',
+  'canada': 'America/Toronto',
+  'united arab emirates': 'Asia/Dubai',
+  'uae': 'Asia/Dubai',
+  'australia': 'Australia/Sydney',
+  'japan': 'Asia/Tokyo',
+  'france': 'Europe/Paris',
+  'germany': 'Europe/Berlin'
+};
+
+function isValidIanaTimezone(tz: string): boolean {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveIanaTimezone(location: LocationCoordinates): string | undefined {
+  if (location.ianaTimezone && isValidIanaTimezone(location.ianaTimezone)) {
+    return location.ianaTimezone;
+  }
+
+  const nameKey = (location.name || '').toLowerCase().trim();
+  if (CITY_TIMEZONE_MAP[nameKey] && isValidIanaTimezone(CITY_TIMEZONE_MAP[nameKey])) {
+    return CITY_TIMEZONE_MAP[nameKey];
+  }
+
+  // Strip parentheses e.g. "Varanasi (Kashi)" -> "varanasi"
+  const cleanName = nameKey.replace(/\s*\([^)]*\)/g, '').trim();
+  if (CITY_TIMEZONE_MAP[cleanName] && isValidIanaTimezone(CITY_TIMEZONE_MAP[cleanName])) {
+    return CITY_TIMEZONE_MAP[cleanName];
+  }
+
+  const countryKey = (location.country || '').toLowerCase().trim();
+  if (CITY_TIMEZONE_MAP[countryKey] && isValidIanaTimezone(CITY_TIMEZONE_MAP[countryKey])) {
+    return CITY_TIMEZONE_MAP[countryKey];
+  }
+
+  const regionKey = (location.regionName || '').toLowerCase().trim();
+  if (CITY_TIMEZONE_MAP[regionKey] && isValidIanaTimezone(CITY_TIMEZONE_MAP[regionKey])) {
+    return CITY_TIMEZONE_MAP[regionKey];
+  }
+
+  return undefined;
+}
+
+function formatTimeForLocation(
+  date: Date,
+  timeZone: string | undefined,
+  isLive: boolean,
+  fallbackLiveTime: string,
+  selectedDateFallback: Date
+): string {
+  if (timeZone) {
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: isLive ? '2-digit' : undefined,
+        hour12: true,
+        timeZone
+      }).format(date);
+    } catch {
+      // Fall through to graceful fallback
+    }
+  }
+
+  if (isLive) {
+    return fallbackLiveTime || date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  }
+  return selectedDateFallback.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) || '06:00 AM';
+}
+
+function formatDateForLocation(
+  date: Date,
+  timeZone: string | undefined,
+  fallbackDateString: string
+): string {
+  if (timeZone) {
+    try {
+      return new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone
+      }).format(date);
+    } catch {
+      // Fall through to graceful fallback
+    }
+  }
+
+  return fallbackDateString || date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 const ALL_LOCATIONS: LocationCoordinates[] = [
   ...PRESET_LOCATIONS,
-  ...CITY_LOCATIONS.filter(cl => !PRESET_LOCATIONS.some(pl => pl.name.toLowerCase().startsWith(cl.name.toLowerCase())))
+  {
+    name: 'Kathmandu',
+    country: 'Nepal',
+    latitude: 27.7172,
+    longitude: 85.3240,
+    timezone: 5.75,
+    ianaTimezone: 'Asia/Kathmandu',
+    regionName: 'Bagmati'
+  },
+  ...CITY_LOCATIONS.filter(cl => !PRESET_LOCATIONS.some(pl => pl.name.toLowerCase().startsWith(cl.name.toLowerCase())) && cl.name.toLowerCase() !== 'kathmandu')
 ];
 
 export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
@@ -82,6 +241,19 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   });
 
   const panchakStatus = getActivePanchakStatus(isLiveMode ? currentTime : selectedDate);
+
+  // Derive IANA timezone and live formatted Gregorian clock and date
+  const activeTimezone = resolveIanaTimezone(selectedLocation);
+  const targetInstant = isLiveMode ? currentTime : selectedDate;
+  const displayTime = formatTimeForLocation(targetInstant, activeTimezone, isLiveMode, panchang.timeFormatted, selectedDate);
+  const displayDate = formatDateForLocation(targetInstant, activeTimezone, panchang.dateString);
+
+  // Format UTC offset cleanly supporting fractional offsets (e.g. +5:30 India, +5:45 Nepal)
+  const tzOffset = selectedLocation.timezone;
+  const tzSign = tzOffset >= 0 ? '+' : '-';
+  const tzHours = Math.trunc(Math.abs(tzOffset));
+  const tzMins = Math.round((Math.abs(tzOffset) % 1) * 60);
+  const formattedTzOffset = `UTC${tzSign}${tzHours}:${String(tzMins).padStart(2, '0')}`;
 
   // Click-outside handler to close dropdown menu
   useEffect(() => {
@@ -166,7 +338,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 value={selectedLocation.name}
                 onChange={(e) => {
                   const loc = ALL_LOCATIONS.find(l => l.name === e.target.value);
-                  if (loc) setSelectedLocation(loc);
+                  if (loc) {
+                    const resolvedTz = resolveIanaTimezone(loc);
+                    setSelectedLocation(resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc);
+                  }
                 }}
                 className="pl-8 pr-7 py-1.5 bg-[#11192e] hover:bg-[#16213d] border border-[#233152] rounded-full text-xs font-medium text-neutral-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all shadow-sm min-h-[36px]"
               >
@@ -339,15 +514,15 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
               <div 
                 className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight my-2"
-                aria-label={`Current time: ${isLiveMode ? panchang.timeFormatted : '06:00 AM'}`}
+                aria-label={`Current time: ${displayTime}`}
               >
                 <span aria-hidden="true" suppressHydrationWarning>
-                  {isLiveMode ? panchang.timeFormatted : (selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) || '06:00 AM')}
+                  {displayTime}
                 </span>
               </div>
 
               <div className="text-neutral-300 text-sm font-medium mb-3">
-                {panchang.dateString}
+                {displayDate}
               </div>
 
               {/* Astronomical Solar Coordinates Subcard */}
@@ -365,7 +540,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
             <div className="flex flex-wrap items-center gap-2 pt-2 text-xs border-t border-[#1a2542]">
               <span className="bg-[#11192e] border border-[#233152] px-2.5 py-1 rounded-lg font-semibold text-neutral-300">
-                {selectedLocation.regionName} • UTC{selectedLocation.timezone >= 0 ? `+${Math.floor(selectedLocation.timezone)}:${selectedLocation.timezone % 1 !== 0 ? '30' : '00'}` : `${selectedLocation.timezone}:00`}
+                {selectedLocation.regionName} • {formattedTzOffset}
               </span>
               <span className="text-neutral-300 font-medium flex items-center gap-1.5 ml-1">
                 <span>🌅 {panchang.sunrise}</span>
