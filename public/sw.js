@@ -355,6 +355,23 @@ async function checkAndNotifyPanchangChange(options = {}) {
 // 4. PERIODIC BACKGROUND SYNC & WEB PUSH EVENT LISTENERS
 // ─────────────────────────────────────────────────────────────────────────────
 
+function detectDevicePlatform() {
+  const ua = self.navigator.userAgent || '';
+  if (/Android/i.test(ua)) return 'Android';
+  if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+  if (/Windows|Macintosh|Linux/i.test(ua)) return 'Desktop';
+  return 'Other';
+}
+
+function detectDeviceBrowser() {
+  const ua = self.navigator.userAgent || '';
+  if (/Edg/i.test(ua)) return 'Edge';
+  if (/Chrome/i.test(ua)) return 'Chrome';
+  if (/Firefox/i.test(ua)) return 'Firefox';
+  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return 'Safari';
+  return 'Other';
+}
+
 // Periodic Background Sync (Chromium: Android, Edge, Chrome Desktop)
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'panchang-periodic-check') {
@@ -373,7 +390,42 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  // If payload contains explicit title and body directly from server scheduler (morning push)
+  // 1. One-Time Admin Test Broadcast Handler
+  if (pushPayload && pushPayload.data && pushPayload.data.isTestBroadcast) {
+    const testData = pushPayload.data;
+    const notificationOptions = {
+      body: pushPayload.body || 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.',
+      icon: pushPayload.icon || '/icon-192.svg',
+      badge: pushPayload.badge || '/icon-192.svg',
+      tag: 'panchang-test-alert',
+      renotify: true,
+      data: testData
+    };
+
+    // Show notification and silently confirm receipt
+    const showPromise = self.registration.showNotification(
+      pushPayload.title || 'Panchang Test Notification',
+      notificationOptions
+    );
+
+    const confirmPromise = fetch('/api/push/test-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        testId: testData.testId,
+        subId: testData.subId,
+        event: 'received',
+        platform: detectDevicePlatform(),
+        browser: detectDeviceBrowser(),
+        appVersion: '1.0.2'
+      })
+    }).catch(() => {});
+
+    event.waitUntil(Promise.all([showPromise, confirmPromise]));
+    return;
+  }
+
+  // 2. Regular Morning Push from Server Scheduler
   if (pushPayload && pushPayload.title && pushPayload.body) {
     const notificationOptions = {
       body: pushPayload.body,
@@ -390,11 +442,12 @@ self.addEventListener('push', (event) => {
     return;
   }
 
+  // 3. Fallback: State-diffing evaluation
   event.waitUntil(
     checkAndNotifyPanchangChange({
       source: 'web-push',
       pushPayload,
-      force: true // Push explicitly requested by server
+      force: true
     })
   );
 });
@@ -415,22 +468,42 @@ self.addEventListener('message', (event) => {
   }
 });
 
-
 // Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || '/';
+  const notifData = event.notification.data || {};
+  const targetUrl = notifData.url || '/';
 
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url && 'focus' in client) {
-          return client.focus();
-        }
+  const promises = [];
+
+  // If this was a test broadcast, record "opened" confirmation
+  if (notifData.isTestBroadcast && notifData.testId && notifData.subId) {
+    const openConfirmPromise = fetch('/api/push/test-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        testId: notifData.testId,
+        subId: notifData.subId,
+        event: 'opened',
+        platform: detectDevicePlatform(),
+        browser: detectDeviceBrowser(),
+        appVersion: '1.0.2'
+      })
+    }).catch(() => {});
+    promises.push(openConfirmPromise);
+  }
+
+  const focusPromise = clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    for (const client of clientList) {
+      if (client.url && 'focus' in client) {
+        return client.focus();
       }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
-      }
-    })
-  );
+    }
+    if (clients.openWindow) {
+      return clients.openWindow(targetUrl);
+    }
+  });
+  promises.push(focusPromise);
+
+  event.waitUntil(Promise.all(promises));
 });
