@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
-import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
-import { getFestivalForDate } from '@/src/lib/festivals';
-import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
-import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
-import { formatPanchangNotificationBody, isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
-
+import { LocationCoordinates, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
+import { computeDailyMorningNotification } from '@/src/lib/notifications/morning-push';
 import { saveSubscription, removeSubscription } from '@/src/lib/notifications/subscription-store';
 
 const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
@@ -24,78 +20,81 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const subString = typeof subscription === 'string' ? subscription : JSON.stringify(subscription);
+    const location: LocationCoordinates = body.location
+      ? {
+          name: body.location.name || 'Custom Location',
+          country: body.location.country || 'India',
+          latitude: Number(body.location.latitude) || 28.6139,
+          longitude: Number(body.location.longitude) || 77.2090,
+          timezone: Number(body.location.timezone) || 5.5,
+          ianaTimezone: body.location.ianaTimezone || 'Asia/Kolkata',
+          regionName: body.location.regionName || 'Custom Region'
+        }
+      : PRESET_LOCATIONS[0];
 
-    // Save to shared persistent subscription store
-    await saveSubscription(subString);
+    const preferences = {
+      dailyNotification: body.preferences?.dailyNotification !== false,
+      notificationTime: body.preferences?.notificationTime || 'sunrise',
+      alertOnTithiChange: Boolean(body.preferences?.alertOnTithiChange),
+      autoUpdate: body.preferences?.autoUpdate !== false,
+      wifiOnly: Boolean(body.preferences?.wifiOnly)
+    };
 
-    // 3. Immediately dispatch a test combined push notification to the subscribing device
+    // Save to shared persistent subscription store with full metadata
+    await saveSubscription({
+      subscription,
+      location: {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        timezone: location.timezone,
+        ianaTimezone: location.ianaTimezone,
+        name: location.name,
+        source: body.location?.source || 'fallback'
+      },
+      preferences,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+
     let testDispatched = false;
     let pushError: string | null = null;
 
-    try {
-      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
-      const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE;
-      const vapidSubject = process.env.VAPID_SUBJECT || DEFAULT_VAPID_SUBJECT;
+    if (body.sendWelcomeTest) {
+      try {
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
+        const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE;
+        const vapidSubject = process.env.VAPID_SUBJECT || DEFAULT_VAPID_SUBJECT;
 
-      webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+        webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
-      // Compute current real panchang state
-      const now = new Date();
-      const panchang = calculatePanchang(now, PRESET_LOCATIONS[0]);
-      const festivalResult = getFestivalForDate(now, PRESET_LOCATIONS[0]);
-      const panchakResult = getActivePanchakStatus(now);
-      const ekadashiResult = evaluateEkadashi(now, PRESET_LOCATIONS[0]);
+        const morningPayload = computeDailyMorningNotification(new Date(), location);
 
-      // Only major festivals and Ekadashi vrats to keep primary focus on Tithi
-      let festivalOrVrat: string | null = null;
-      if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
-        festivalOrVrat = festivalResult.name;
-      } else if (ekadashiResult.isEkadashiDay) {
-        festivalOrVrat = festivalResult.category === 'Ekadashi' ? festivalResult.name : 'Ekadashi Vrat';
+        const payload = JSON.stringify({
+          title: morningPayload.title,
+          body: morningPayload.body,
+          icon: '/icon-192.svg',
+          badge: '/icon-192.svg',
+          data: {
+            url: '/',
+            date: morningPayload.data.date,
+            primaryTithi: morningPayload.data.primaryTithi,
+            panchakType: morningPayload.data.panchakType,
+            festivalOrVrat: morningPayload.data.festivalOrVrat,
+            timestamp: Date.now()
+          }
+        });
+
+        await webpush.sendNotification(subscription, payload);
+        testDispatched = true;
+      } catch (pushErr: unknown) {
+        pushError = pushErr instanceof Error ? pushErr.message : 'Push dispatch error';
+        console.warn('Initial welcome push dispatch warning:', pushErr);
       }
-
-      const panchakInfo = {
-        isActive: panchakResult.isActive,
-        type: panchakResult.panchak?.type,
-        isInauspicious: panchakResult.panchak?.auspiciousness !== 'Auspicious',
-        statusText: panchakResult.panchak?.type
-      };
-
-      const isTrulyInauspicious = isPanchakTrulyInauspicious(panchakInfo);
-      const tithiName = panchang.instantaneousTithi?.name || panchang.tithi.name;
-
-      const bodyText = formatPanchangNotificationBody({
-        tithi: tithiName,
-        panchak: panchakInfo,
-        festivalOrVrat
-      });
-
-      const payload = JSON.stringify({
-        title: 'Panchang Update',
-        body: bodyText,
-        icon: '/icon-192.svg',
-        badge: '/icon-192.svg',
-        data: {
-          url: '/',
-          tithi: tithiName,
-          panchakActive: isTrulyInauspicious,
-          festivalOrVrat,
-          timestamp: Date.now()
-        }
-      });
-
-      const parsedSub = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
-      await webpush.sendNotification(parsedSub, payload);
-      testDispatched = true;
-    } catch (pushErr: unknown) {
-      pushError = pushErr instanceof Error ? pushErr.message : 'Push dispatch error';
-      console.warn('Initial welcome push dispatch warning:', pushErr);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Subscription registered successfully.',
+      message: 'Subscription registered successfully with location and preferences.',
       registered: true,
       testDispatched,
       pushError
@@ -121,7 +120,6 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Remove from shared persistent store
     await removeSubscription(endpoint);
 
     return NextResponse.json({

@@ -15,8 +15,15 @@ export interface NotificationSettings {
   permission: NotificationPermission | 'unsupported';
   periodicSyncRegistered: boolean;
   pushSubscribed: boolean;
+  dailyNotification?: boolean;
+  notificationTime?: 'sunrise' | string;
+  alertOnTithiChange?: boolean;
+  autoUpdate?: boolean;
+  wifiOnly?: boolean;
+  locationSource?: 'gps' | 'dropdown' | 'fallback';
   updatedAt: number;
 }
+
 
 export interface CachedTithiInfo {
   index: number;
@@ -158,17 +165,34 @@ export async function saveLastNotifiedState(state: LastNotifiedState): Promise<v
 
 export async function getNotificationSettings(): Promise<NotificationSettings> {
   const settings = await getStoredItem<NotificationSettings>(KEY_SETTINGS);
-  if (settings) return settings;
+  if (settings) {
+    return {
+      dailyNotification: true,
+      notificationTime: 'sunrise',
+      alertOnTithiChange: false,
+      autoUpdate: true,
+      wifiOnly: false,
+      locationSource: 'fallback',
+      ...settings
+    };
+  }
 
   const defaultSettings: NotificationSettings = {
     enabled: false,
     permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
     periodicSyncRegistered: false,
     pushSubscribed: false,
+    dailyNotification: true,
+    notificationTime: 'sunrise',
+    alertOnTithiChange: false,
+    autoUpdate: true,
+    wifiOnly: false,
+    locationSource: 'fallback',
     updatedAt: Date.now()
   };
   return defaultSettings;
 }
+
 
 export async function saveNotificationSettings(settings: Partial<NotificationSettings>): Promise<NotificationSettings> {
   const current = await getNotificationSettings();

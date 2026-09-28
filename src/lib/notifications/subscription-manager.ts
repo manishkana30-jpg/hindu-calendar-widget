@@ -17,6 +17,9 @@ import {
   NotificationSettings
 } from './idb-storage';
 import { formatPanchangNotificationBody } from './state-diff';
+import { getSavedLocationState } from '../location-service';
+import { LocationCoordinates } from '../vedic-astronomy';
+
 
 export interface NotificationCapabilities {
   supported: boolean;
@@ -162,11 +165,24 @@ export async function enableNotificationAlerts(): Promise<{
 
         if (sub) {
           pushSubscribed = true;
-          // Send to server to register and trigger test push
+          // Send to server to register with location and preferences
+          const currentLoc = getSavedLocationState().location;
+          const currentSettings = await getNotificationSettings();
           await fetch('/api/push/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription: sub, sendWelcomeTest: true })
+            body: JSON.stringify({
+              subscription: sub,
+              location: currentLoc,
+              preferences: {
+                dailyNotification: currentSettings.dailyNotification !== false,
+                notificationTime: currentSettings.notificationTime || 'sunrise',
+                alertOnTithiChange: Boolean(currentSettings.alertOnTithiChange),
+                autoUpdate: currentSettings.autoUpdate !== false,
+                wifiOnly: Boolean(currentSettings.wifiOnly)
+              },
+              sendWelcomeTest: true
+            })
           }).catch(() => {});
         }
       } catch (pushErr) {
@@ -182,6 +198,7 @@ export async function enableNotificationAlerts(): Promise<{
       });
     }
   }
+
 
   // 5. Persist enabled state in IndexedDB and localStorage
   await saveNotificationSettings({
@@ -427,3 +444,49 @@ export function initClientNotificationScheduler(): () => void {
     clearTimeout(timeoutId);
   };
 }
+
+/**
+ * Synchronizes updated notification preferences and location coordinates to the server push subscription.
+ */
+export async function syncPreferencesToBackend(
+  preferences?: Partial<NotificationSettings>,
+  location?: LocationCoordinates
+): Promise<boolean> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return false;
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (!reg?.pushManager) return false;
+
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return false;
+
+    const locState = location || getSavedLocationState().location;
+    const currentSettings = await getNotificationSettings();
+
+    const mergedPreferences = {
+      dailyNotification: preferences?.dailyNotification !== undefined ? preferences.dailyNotification : currentSettings.dailyNotification !== false,
+      notificationTime: preferences?.notificationTime || currentSettings.notificationTime || 'sunrise',
+      alertOnTithiChange: preferences?.alertOnTithiChange !== undefined ? preferences.alertOnTithiChange : Boolean(currentSettings.alertOnTithiChange),
+      autoUpdate: preferences?.autoUpdate !== undefined ? preferences.autoUpdate : currentSettings.autoUpdate !== false,
+      wifiOnly: preferences?.wifiOnly !== undefined ? preferences.wifiOnly : Boolean(currentSettings.wifiOnly)
+    };
+
+    const res = await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: sub,
+        location: locState,
+        preferences: mergedPreferences,
+        sendWelcomeTest: false
+      })
+    });
+
+    return res.ok;
+  } catch (err) {
+    console.warn('Sync preferences error:', err);
+    return false;
+  }
+}
+

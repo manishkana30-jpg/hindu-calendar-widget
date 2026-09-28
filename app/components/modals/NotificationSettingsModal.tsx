@@ -5,26 +5,46 @@ import {
   Bell,
   X,
   CheckCircle2,
-  AlertTriangle,
   Sparkles,
   Zap,
   Info,
   Calendar,
   Flame,
   ShieldAlert,
-  Loader2
+  Loader2,
+  MapPin,
+  Clock,
+  Wifi,
+  RefreshCw,
+  Sun
 } from 'lucide-react';
 import {
   checkNotificationCapabilities,
   enableNotificationAlerts,
   disableNotificationAlerts,
   triggerImmediateNotificationTest,
+  syncPreferencesToBackend,
   NotificationCapabilities
 } from '@/src/lib/notifications/subscription-manager';
+import {
+  getNotificationSettings,
+  saveNotificationSettings,
+  NotificationSettings
+} from '@/src/lib/notifications/idb-storage';
+import {
+  requestGpsLocation,
+  getSavedLocationState,
+  persistLocationState,
+  UserLocationState
+} from '@/src/lib/location-service';
+import { LocationCoordinates, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
+import { computeDailyMorningNotification, DailyMorningPushPayload } from '@/src/lib/notifications/morning-push';
 
 interface NotificationSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentLocation?: LocationCoordinates;
+  onLocationChange?: (newLoc: LocationCoordinates) => void;
   currentTithiName?: string;
   panchakStatus?: {
     isActive: boolean;
@@ -38,6 +58,8 @@ interface NotificationSettingsModalProps {
 export function NotificationSettingsModal({
   isOpen,
   onClose,
+  currentLocation,
+  onLocationChange,
   currentTithiName = 'Shukla Dashami (10)',
   panchakStatus = {
     isActive: true,
@@ -48,19 +70,32 @@ export function NotificationSettingsModal({
   festivalOrVratName = 'Vijayadashami'
 }: NotificationSettingsModalProps) {
   const [capabilities, setCapabilities] = useState<NotificationCapabilities | null>(null);
+  const [settings, setSettings] = useState<NotificationSettings | null>(null);
+  const [locationState, setLocationState] = useState<UserLocationState | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isGpsLoading, setIsGpsLoading] = useState<boolean>(false);
+  const [gpsMessage, setGpsMessage] = useState<string | null>(null);
   const [testStatus, setTestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState<string>('');
+  const [previewPayload, setPreviewPayload] = useState<DailyMorningPushPayload | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       checkNotificationCapabilities().then(setCapabilities);
+      getNotificationSettings().then(setSettings);
+      const loc = getSavedLocationState();
+      setLocationState(loc);
+
+      // Compute live 3-line morning notification preview for active location
+      const activeLoc = currentLocation || loc.location;
+      const preview = computeDailyMorningNotification(new Date(), activeLoc);
+      setPreviewPayload(preview);
     }
-  }, [isOpen]);
+  }, [isOpen, currentLocation]);
 
   if (!isOpen) return null;
 
-  const handleToggle = async () => {
+  const handleMasterToggle = async () => {
     setIsLoading(true);
     try {
       if (capabilities?.isEnabled) {
@@ -68,12 +103,54 @@ export function NotificationSettingsModal({
       } else {
         await enableNotificationAlerts();
       }
-      const updated = await checkNotificationCapabilities();
-      setCapabilities(updated);
+      const updatedCap = await checkNotificationCapabilities();
+      const updatedSet = await getNotificationSettings();
+      setCapabilities(updatedCap);
+      setSettings(updatedSet);
     } catch (err) {
       console.error('Toggle notification failed:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateSettingField = async <K extends keyof NotificationSettings>(
+    field: K,
+    value: NotificationSettings[K]
+  ) => {
+    if (!settings) return;
+    const updated = await saveNotificationSettings({ [field]: value });
+    setSettings(updated);
+
+    // Sync to backend push subscription
+    syncPreferencesToBackend({ [field]: value }, currentLocation || locationState?.location).catch(() => {});
+  };
+
+  const handleGpsRequest = async () => {
+    setIsGpsLoading(true);
+    setGpsMessage(null);
+    try {
+      const res = await requestGpsLocation();
+      if (res.success && res.location) {
+        setGpsMessage(`GPS acquired: ${res.location.name}`);
+        const newLocState = getSavedLocationState();
+        setLocationState(newLocState);
+        if (onLocationChange) {
+          onLocationChange(res.location);
+        }
+        // Update live preview
+        const newPreview = computeDailyMorningNotification(new Date(), res.location);
+        setPreviewPayload(newPreview);
+        // Sync to backend
+        syncPreferencesToBackend(settings || {}, res.location).catch(() => {});
+      } else {
+        setGpsMessage(res.error || 'GPS access was not granted. Using dropdown location.');
+      }
+    } catch (err) {
+      setGpsMessage('Unable to acquire GPS coordinates.');
+    } finally {
+      setIsGpsLoading(false);
+      setTimeout(() => setGpsMessage(null), 6000);
     }
   };
 
@@ -98,6 +175,8 @@ export function NotificationSettingsModal({
   };
 
   const isEnabled = Boolean(capabilities?.isEnabled);
+  const activeLocation = currentLocation || locationState?.location || PRESET_LOCATIONS[0];
+  const isGpsSource = locationState?.source === 'gps';
 
   return (
     <div
@@ -107,7 +186,7 @@ export function NotificationSettingsModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="relative w-full max-w-lg bg-[#0a101f] border border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-3xl p-5 sm:p-6 text-neutral-200 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-xl bg-[#0a101f] border border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-3xl p-5 sm:p-6 text-neutral-200 max-h-[90vh] overflow-y-auto"
       >
         {/* Close Button */}
         <button
@@ -125,19 +204,19 @@ export function NotificationSettingsModal({
           </div>
           <div>
             <h2 id="notification-settings-title" className="text-lg sm:text-xl font-bold text-white tracking-tight">
-              Panchang Background Alerts
+              Panchang Notifications & Auto-Updates
             </h2>
             <p className="text-xs text-neutral-400 mt-0.5">
-              Instant alerts for Tithi changes, inauspicious Panchak & sacred festivals
+              Daily morning pushes, real-time Tithi change alerts & background updates
             </p>
           </div>
         </div>
 
-        {/* ── Main Master Toggle Card ── */}
+        {/* ── Section 1: Main Master Notification Toggle ── */}
         <div className="p-4 rounded-2xl bg-[#0f182c] border border-[#202f4d] flex items-center justify-between gap-4 mb-5 shadow-sm">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">Background Alerts</span>
+              <span className="text-sm font-bold text-white">Push Notifications</span>
               {isEnabled ? (
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   Active
@@ -150,18 +229,18 @@ export function NotificationSettingsModal({
             </div>
             <p className="text-xs text-neutral-400 mt-1">
               {isEnabled
-                ? 'Monitored via Periodic Background Sync & Web Push (Every 15–30 min)'
-                : 'Turn on to receive timely astronomical & festival alerts'}
+                ? 'Web Push registered on backend. Works even when the app is completely closed.'
+                : 'Turn on to receive morning panchang updates and astronomical transition alerts.'}
             </p>
           </div>
 
           {/* Toggle Switch */}
           <button
-            onClick={handleToggle}
+            onClick={handleMasterToggle}
             disabled={isLoading}
             role="switch"
             aria-checked={isEnabled}
-            aria-label="Toggle background panchang notifications"
+            aria-label="Toggle push notifications"
             className={`relative inline-flex h-7 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-[#0a101f] ${
               isEnabled ? 'bg-amber-500' : 'bg-neutral-700'
             }`}
@@ -178,67 +257,187 @@ export function NotificationSettingsModal({
           </button>
         </div>
 
-        {/* ── The 3 Monitored Triggers ── */}
-        <div className="mb-5 space-y-2.5">
+        {/* ── Section 2: Location & GPS Acquisition ── */}
+        <div className="p-4 rounded-2xl bg-[#0c1424] border border-[#1b2742] mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 flex items-center gap-1.5">
+              <MapPin size={13} />
+              <span>Location in Use</span>
+            </span>
+            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+              isGpsSource
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+            }`}>
+              {isGpsSource ? 'GPS Location' : 'Dropdown City (Fallback)'}
+            </span>
+          </div>
+
+          <div className="text-xs text-neutral-300 font-medium mb-3">
+            <strong>Active Coordinates:</strong> {activeLocation.name} ({activeLocation.latitude.toFixed(2)}°N, {activeLocation.longitude.toFixed(2)}°E • {activeLocation.ianaTimezone || 'Asia/Kolkata'})
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleGpsRequest}
+              disabled={isGpsLoading}
+              className="px-3.5 py-1.5 rounded-xl bg-[#141e33] hover:bg-[#1d2b4a] border border-[#233555] text-amber-300 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+            >
+              {isGpsLoading ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  <span>Requesting GPS...</span>
+                </>
+              ) : (
+                <>
+                  <MapPin size={13} />
+                  <span>Use My GPS Location</span>
+                </>
+              )}
+            </button>
+
+            <span className="text-[11px] text-neutral-400">
+              Only requested upon tap. Used for exact local sunrise and Tithi timing.
+            </span>
+          </div>
+
+          {gpsMessage && (
+            <div className="mt-2 text-[11px] text-emerald-400 font-medium">
+              {gpsMessage}
+            </div>
+          )}
+        </div>
+
+        {/* ── Section 3: User Preferences & Push Controls ── */}
+        <div className="space-y-3 mb-5">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 flex items-center gap-1.5">
             <Sparkles size={13} />
-            <span>Monitored Trigger Events</span>
+            <span>Notification & Auto-Update Controls</span>
           </h3>
 
           <div className="grid grid-cols-1 gap-2.5 text-xs">
-            {/* Trigger 1 */}
-            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Calendar size={15} />
-              </div>
-              <div>
-                <span className="font-semibold text-white">1. Tithi Transition</span>
-                <p className="text-neutral-400 mt-0.5 leading-relaxed">
-                  Alerts as soon as the current lunar day concludes and ingress into a new Tithi occurs at any hour of the day.
+            {/* Control 1: Daily Morning Push */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <Sun size={14} className="text-amber-400" />
+                  <span>Daily Morning Notification</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                  One push per day containing the complete sunrise-to-sunrise picture (Tithi, Panchak & Festival).
                 </p>
               </div>
+
+              <input
+                type="checkbox"
+                checked={settings?.dailyNotification !== false}
+                onChange={(e) => updateSettingField('dailyNotification', e.target.checked)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+              />
             </div>
 
-            {/* Trigger 2 */}
-            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <ShieldAlert size={15} />
-              </div>
-              <div>
-                <span className="font-semibold text-white">2. Inauspicious Panchak Period (🔴)</span>
-                <p className="text-neutral-400 mt-0.5 leading-relaxed">
-                  Alerts immediately when an inauspicious Panchak commences (Mrityu, Agni, Chora, or Roga Panchak) to exercise caution for prohibited rites.
+            {/* Control 2: Notification Time (Sunrise vs Custom) */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <Clock size={14} className="text-indigo-400" />
+                  <span>Morning Notification Time</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px]">
+                  Default: Local sunrise calculated from GPS ({previewPayload?.sunriseTimeFormatted || '06:00 AM'}).
                 </p>
               </div>
+
+              <select
+                value={settings?.notificationTime || 'sunrise'}
+                onChange={(e) => updateSettingField('notificationTime', e.target.value)}
+                className="px-2.5 py-1 rounded-lg bg-[#11192e] border border-[#233152] text-xs font-semibold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500"
+              >
+                <option value="sunrise">Local Sunrise (Recommended)</option>
+                <option value="05:00">05:00 AM</option>
+                <option value="06:00">06:00 AM (Standard)</option>
+                <option value="07:00">07:00 AM</option>
+                <option value="08:00">08:00 AM</option>
+              </select>
             </div>
 
-            {/* Trigger 3 */}
-            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Flame size={15} />
-              </div>
-              <div>
-                <span className="font-semibold text-white">3. Sacred Festivals & Vrats</span>
-                <p className="text-neutral-400 mt-0.5 leading-relaxed">
-                  Highlights major religious celebrations (Diwali, Maha Shivaratri, Janmashtami) and fasts (Ekadashi, Pradosh) observed today.
+            {/* Control 3: Tithi Change Alert (Default OFF) */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <Calendar size={14} className="text-orange-400" />
+                  <span>Also alert me at each Tithi change</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                  Server push at the exact moment of transition: &quot;Tithi changed: &lt;New Tithi&gt; (from HH:MM)&quot;.
                 </p>
               </div>
+
+              <input
+                type="checkbox"
+                checked={Boolean(settings?.alertOnTithiChange)}
+                onChange={(e) => updateSettingField('alertOnTithiChange', e.target.checked)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+              />
+            </div>
+
+            {/* Control 4: Auto Updates */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <RefreshCw size={14} className="text-emerald-400" />
+                  <span>Automatic Background Version Updates</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                  Silently downloads newer app releases and prompts to refresh without disrupting active usage.
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={settings?.autoUpdate !== false}
+                onChange={(e) => updateSettingField('autoUpdate', e.target.checked)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+              />
+            </div>
+
+            {/* Control 5: Wi-Fi Only */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <Wifi size={14} className="text-cyan-400" />
+                  <span>Wi-Fi Only Data Sync</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                  Restricts non-essential background ephemeris prefetching to Wi-Fi to conserve mobile data.
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={Boolean(settings?.wifiOnly)}
+                onChange={(e) => {
+                  updateSettingField('wifiOnly', e.target.checked);
+                  localStorage.setItem('panchang_setting_wifi_only', e.target.checked ? 'true' : 'false');
+                }}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+              />
             </div>
           </div>
         </div>
 
-        {/* ── Strict Combined Notification Format Preview (Option B - Inline Format) ── */}
+        {/* ── Section 4: Live 3-Line Morning Notification Preview ── */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
-              Notification Format Preview (Option B - Mobile Glanceable)
+              Live Morning Notification Format (Max 3 Lines)
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131e33] text-amber-400 border border-[#203154]">
-              Inline Glanceable
+              {previewPayload?.lineCount || 1} {previewPayload?.lineCount === 1 ? 'Line' : 'Lines'}
             </span>
           </div>
 
-          {/* System Notification Simulation Frame */}
+          {/* System Notification Frame */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-b from-[#131c31] to-[#0c1324] border border-[#25375d] shadow-md font-sans">
             <div className="flex items-center justify-between border-b border-[#1f2d4d] pb-2 mb-2 text-[11px] text-neutral-400">
               <div className="flex items-center gap-1.5 font-medium">
@@ -247,49 +446,24 @@ export function NotificationSettingsModal({
                 </div>
                 <span className="text-white font-bold">Panchang Update</span>
               </div>
-              <span className="text-[10px] text-neutral-400">Now</span>
+              <span className="text-[10px] text-neutral-400">Sunrise {previewPayload?.sunriseTimeFormatted || '06:00'}</span>
             </div>
 
-            {/* Notification Body Simulation (Option B - Single line inline with bullet separators) */}
-            <div className="text-xs sm:text-[13px] font-mono leading-relaxed text-neutral-200 break-words">
-              <span className="text-neutral-400">Tithi: </span>
-              <span className="text-white font-bold">{currentTithiName}</span>
-
-              {panchakStatus?.isActive && panchakStatus.isInauspicious && (
-                <>
-                  <span className="text-neutral-500 mx-1.5">•</span>
-                  <span className="text-rose-400 font-bold">🔴 Panchak: {panchakStatus.type || 'Inauspicious'}</span>
-                </>
-              )}
-
-              {festivalOrVratName && (
-                <>
-                  <span className="text-neutral-500 mx-1.5">•</span>
-                  <span className="text-amber-300 font-medium">Festival: {festivalOrVratName}</span>
-                </>
+            {/* Notification Body Simulation (Preformatted 3-line text) */}
+            <div className="text-xs sm:text-[13px] font-mono leading-relaxed text-neutral-200 whitespace-pre-line break-words">
+              {previewPayload?.body || (
+                `Tithi: ${currentTithiName} till 14:00, then Shukla Ekadashi till 12:30\n🔴 Panchak: Mrityu Panchak from 14:15 to 06:12\nFestival/Vrat: ${festivalOrVratName || 'Diwali'}`
               )}
             </div>
           </div>
 
-          {/* Clarification on Mobile Glanceability & Auspicious Panchaks */}
           <div className="mt-2.5 p-2.5 rounded-xl bg-[#0d1629] border border-[#1b2947] flex items-start gap-2 text-[11px] text-neutral-400 leading-relaxed">
             <Info size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="text-neutral-300">Smart Glanceable Alerts:</strong>
-              {' '}Formatted inline (<span className="text-amber-300 font-mono">•</span>) so mobile lock screens display the entire alert without hiding details. Inauspicious Panchaks (Mrityu, Agni, Chora, Roga) are flagged with <span className="text-rose-400 font-bold">🔴</span>, while auspicious ones (Nirdosh & Raj Panchak) are omitted. Only major festivals & premier fasts are highlighted to preserve focus on Tithi.
+              <strong className="text-neutral-300">Sunrise-to-Next-Sunrise Guarantee:</strong>
+              {' '}Sent once per day at local sunrise. Shows full day progression even if Tithi changes at 2 PM. Inauspicious Panchaks (🔴) and sacred Festivals are combined into this single notification. Deduplicated to prevent repeat alerts.
             </div>
           </div>
-        </div>
-
-        {/* ── Battery & Offline Efficiency Card ── */}
-        <div className="p-3 rounded-2xl bg-emerald-950/20 border border-emerald-500/25 flex items-center justify-between text-xs text-neutral-300 mb-5">
-          <div className="flex items-center gap-2">
-            <Zap size={16} className="text-emerald-400 flex-shrink-0" />
-            <span>Zero-network cached ephemeris • Maximum battery efficiency</span>
-          </div>
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
-            Idempotent
-          </span>
         </div>
 
         {/* ── Test Notification & Close Action Buttons ── */}
@@ -302,12 +476,12 @@ export function NotificationSettingsModal({
             {testStatus === 'sending' ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                <span>Dispatching Test Alert...</span>
+                <span>Dispatching Test Push...</span>
               </>
             ) : testStatus === 'sent' ? (
               <>
                 <CheckCircle2 size={15} className="text-black" />
-                <span>Test Alert Sent! 🔔</span>
+                <span>Test Alert Sent to Screen! 🔔</span>
               </>
             ) : (
               <>

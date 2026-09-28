@@ -23,6 +23,14 @@ import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { NotificationPermissionBanner } from './NotificationPermissionBanner';
+import {
+  getSavedLocationState,
+  requestGpsLocation,
+  checkHasMovedSignificantly,
+  persistLocationState
+} from '../../src/lib/location-service';
+import { formatLastUpdatedTime } from '../../src/lib/panchang-cache';
+
 
 const CITY_LOCATIONS: LocationCoordinates[] = CITIES.map(c => ({
   name: `${c.name}`,
@@ -206,11 +214,55 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   type WidgetTabType = 'panchang' | 'choghadiya' | 'muhurat' | 'astrometry';
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+  const [locationSource, setLocationSource] = useState<'gps' | 'dropdown' | 'fallback'>('fallback');
+  const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('Just now');
+  const [isGpsDetecting, setIsGpsDetecting] = useState<boolean>(false);
+
   useEffect(() => {
     if (initialLocation) {
       setSelectedLocation(initialLocation);
+      return;
     }
+
+    const saved = getSavedLocationState();
+    if (saved?.location) {
+      setSelectedLocation(saved.location);
+      setLocationSource(saved.source);
+    }
+
+    // Re-check location on app open if user moved > 50 km or changed timezone
+    if (saved?.source === 'gps' && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const moved = checkHasMovedSignificantly(
+            saved.location,
+            pos.coords.latitude,
+            pos.coords.longitude
+          );
+          if (moved) {
+            requestGpsLocation().then((res) => {
+              if (res.success && res.location) {
+                setSelectedLocation(res.location);
+                setLocationSource('gps');
+              }
+            });
+          }
+        },
+        () => {},
+        { timeout: 8000, maximumAge: 300000 }
+      );
+    }
+
+    const interval = setInterval(() => {
+      const raw = localStorage.getItem('panchang_last_updated');
+      if (raw) {
+        setLastUpdatedTime(formatLastUpdatedTime(Number(raw)));
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [initialLocation]);
+
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -340,7 +392,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   const loc = ALL_LOCATIONS.find(l => l.name === e.target.value);
                   if (loc) {
                     const resolvedTz = resolveIanaTimezone(loc);
-                    setSelectedLocation(resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc);
+                    const updated = resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc;
+                    setSelectedLocation(updated);
+                    setLocationSource('dropdown');
+                    persistLocationState(updated, 'dropdown');
                   }
                 }}
                 className="pl-8 pr-7 py-1.5 bg-[#11192e] hover:bg-[#16213d] border border-[#233152] rounded-full text-xs font-medium text-neutral-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-all shadow-sm min-h-[36px]"
@@ -353,6 +408,33 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </select>
               <ChevronDown size={12} className="absolute right-2.5 text-neutral-400 pointer-events-none" />
             </div>
+
+            {/* GPS Detection Button */}
+            <button
+              onClick={async () => {
+                setIsGpsDetecting(true);
+                try {
+                  const res = await requestGpsLocation();
+                  if (res.success && res.location) {
+                    setSelectedLocation(res.location);
+                    setLocationSource('gps');
+                  }
+                } finally {
+                  setIsGpsDetecting(false);
+                }
+              }}
+              title="Detect your exact coordinates via GPS for accurate sunrise and Tithi times"
+              aria-label="Detect GPS Location"
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-sm min-h-[36px] ${
+                locationSource === 'gps'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'bg-[#11192e] hover:bg-[#16213d] text-amber-300 hover:text-white border border-[#233152]'
+              }`}
+            >
+              <MapPin size={12} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
+              <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
+            </button>
+
 
             {/* Geolocation Privacy Badge */}
             <div className="hidden md:inline-flex items-center gap-1 text-[11px] text-emerald-400 font-mono bg-emerald-950/30 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shadow-sm">
@@ -489,10 +571,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </button>
           </div>
 
-          <div className="text-[11px] text-neutral-400 font-mono">
-            {isLiveMode ? 'Perpetual Live Ephemeris Engine' : `Inspecting Date: ${selectedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-400 font-mono">
+            <span>{isLiveMode ? 'Perpetual Live Ephemeris Engine' : `Inspecting Date: ${selectedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</span>
+            <span className="text-neutral-600 hidden sm:inline">•</span>
+            <span className="hidden sm:inline text-neutral-400">Last updated: {lastUpdatedTime}</span>
           </div>
         </div>
+
 
         {/* ── Main Top 3-Card Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4">
@@ -1226,6 +1311,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
       <NotificationSettingsModal
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}
+        currentLocation={selectedLocation}
+        onLocationChange={(newLoc) => {
+          setSelectedLocation(newLoc);
+          setLocationSource('gps');
+        }}
         currentTithiName={panchang.instantaneousTithi?.name || panchang.tithi.name}
         panchakStatus={{
           isActive: panchakStatus.isActive,
@@ -1237,6 +1327,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         }}
         festivalOrVratName={panchang.festivals && panchang.festivals.length > 0 ? panchang.festivals[0] : null}
       />
+
     </>
   );
 }

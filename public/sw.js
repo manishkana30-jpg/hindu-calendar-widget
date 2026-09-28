@@ -1,6 +1,7 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (v7 - Option B Glanceable & Auspiciousness Filter)
-const CACHE_NAME = 'vedic-panchang-pwa-v7';
+// Service Worker for Hindu Calendar & Live Panchang PWA (v8 - Internet Auto Daily Notifications & Silent Updates)
+const CACHE_NAME = 'vedic-panchang-pwa-v8';
 const ASSETS_TO_CACHE = [
+
   '/',
   '/icon-192.svg',
   '/icon-512.svg',
@@ -372,6 +373,23 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  // If payload contains explicit title and body directly from server scheduler (morning push)
+  if (pushPayload && pushPayload.title && pushPayload.body) {
+    const notificationOptions = {
+      body: pushPayload.body,
+      icon: pushPayload.icon || '/icon-192.svg',
+      badge: pushPayload.badge || '/icon-192.svg',
+      tag: 'panchang-morning-push',
+      renotify: true,
+      data: pushPayload.data || { url: '/' }
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(pushPayload.title, notificationOptions)
+    );
+    return;
+  }
+
   event.waitUntil(
     checkAndNotifyPanchangChange({
       source: 'web-push',
@@ -386,7 +404,9 @@ self.addEventListener('message', (event) => {
   const data = event.data;
   if (!data) return;
 
-  if (data.type === 'CHECK_AND_NOTIFY') {
+  if (data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  } else if (data.type === 'CHECK_AND_NOTIFY') {
     event.waitUntil(checkAndNotifyPanchangChange({ source: 'client-message', force: Boolean(data.force) }));
   } else if (data.type === 'SEED_CACHE' && data.cache) {
     event.waitUntil(idbSet('daily_panchang_cache', data.cache));
@@ -394,6 +414,7 @@ self.addEventListener('message', (event) => {
     event.waitUntil(idbSet('notification_settings', data.settings));
   }
 });
+
 
 // Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
