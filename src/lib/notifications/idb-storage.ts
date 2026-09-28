@@ -20,6 +20,11 @@ export interface NotificationSettings {
   alertOnTithiChange?: boolean;
   autoUpdate?: boolean;
   wifiOnly?: boolean;
+  sound?: boolean;
+  vibration?: boolean;
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string; // e.g. "22:00"
+  quietHoursEnd?: string;   // e.g. "06:00"
   locationSource?: 'gps' | 'dropdown' | 'fallback';
   updatedAt: number;
 }

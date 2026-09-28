@@ -18,6 +18,11 @@ export interface UserNotificationPreferences {
   alertOnTithiChange: boolean;
   autoUpdate: boolean;
   wifiOnly: boolean;
+  sound?: boolean;
+  vibration?: boolean;
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string;
+  quietHoursEnd?: string;
 }
 
 export interface StoredSubscriptionLocation {
@@ -77,7 +82,12 @@ export function normalizeSubscriptionRecord(item: unknown): StoredSubscriptionRe
           notificationTime: obj.preferences?.notificationTime || 'sunrise',
           alertOnTithiChange: Boolean(obj.preferences?.alertOnTithiChange),
           autoUpdate: obj.preferences?.autoUpdate !== false,
-          wifiOnly: Boolean(obj.preferences?.wifiOnly)
+          wifiOnly: Boolean(obj.preferences?.wifiOnly),
+          sound: obj.preferences?.sound !== false,
+          vibration: obj.preferences?.vibration !== false,
+          quietHoursEnabled: Boolean(obj.preferences?.quietHoursEnabled),
+          quietHoursStart: obj.preferences?.quietHoursStart || '22:00',
+          quietHoursEnd: obj.preferences?.quietHoursEnd || '06:00'
         },
         lastNotifiedDailyDate: obj.lastNotifiedDailyDate || null,
         lastNotifiedTithiIndex: obj.lastNotifiedTithiIndex || null,

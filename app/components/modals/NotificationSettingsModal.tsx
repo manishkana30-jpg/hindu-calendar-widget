@@ -16,7 +16,9 @@ import {
   Clock,
   Wifi,
   RefreshCw,
-  Sun
+  Sun,
+  Volume2,
+  Moon
 } from 'lucide-react';
 import {
   checkNotificationCapabilities,
@@ -422,6 +424,74 @@ export function NotificationSettingsModal({
                 }}
                 className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
               />
+            </div>
+
+            {/* Control 6: Sound & Vibration */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
+                  <Volume2 size={14} className="text-violet-400" />
+                  <span>Notification Sound & Vibration</span>
+                </div>
+                <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                  Plays audio chime and triggers haptic vibration pattern upon receiving morning alerts.
+                </p>
+              </div>
+
+              <input
+                type="checkbox"
+                checked={settings?.sound !== false}
+                onChange={(e) => {
+                  updateSettingField('sound', e.target.checked);
+                  updateSettingField('vibration', e.target.checked);
+                }}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+              />
+            </div>
+
+            {/* Control 7: Quiet Hours */}
+            <div className="p-3 rounded-xl bg-[#0c1424] border border-[#1b2742] space-y-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 font-semibold text-white">
+                    <Moon size={14} className="text-indigo-400" />
+                    <span>Quiet Hours (Mute Non-Urgent Pushes)</span>
+                  </div>
+                  <p className="text-neutral-400 mt-0.5 text-[11px] leading-snug">
+                    Silences transition alerts during your designated rest hours.
+                  </p>
+                </div>
+
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.quietHoursEnabled)}
+                  onChange={(e) => updateSettingField('quietHoursEnabled', e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 border-neutral-600 bg-neutral-800 cursor-pointer"
+                />
+              </div>
+
+              {settings?.quietHoursEnabled && (
+                <div className="pt-2 border-t border-[#19253d] flex items-center gap-3 text-xs text-neutral-300">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-neutral-400">From:</span>
+                    <input
+                      type="time"
+                      value={settings?.quietHoursStart || '22:00'}
+                      onChange={(e) => updateSettingField('quietHoursStart', e.target.value)}
+                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-xs font-mono outline-none"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-neutral-400">To:</span>
+                    <input
+                      type="time"
+                      value={settings?.quietHoursEnd || '06:00'}
+                      onChange={(e) => updateSettingField('quietHoursEnd', e.target.value)}
+                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-xs font-mono outline-none"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

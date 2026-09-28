@@ -51,8 +51,8 @@ interface TestBroadcastReport {
 }
 
 export default function AdminPushTestPage() {
-  const [adminKey, setAdminKey] = useState<string>('panchang-admin-secret-2026');
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [adminKey, setAdminKey] = useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);

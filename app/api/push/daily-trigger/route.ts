@@ -10,10 +10,7 @@ import {
   removeSubscription,
   StoredSubscriptionRecord
 } from '@/src/lib/notifications/subscription-store';
-
-const DEFAULT_VAPID_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
-const DEFAULT_VAPID_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
-const DEFAULT_VAPID_SUBJECT = 'mailto:support@vikram-samvat-widget.vercel.app';
+import { configureWebPush } from '@/src/lib/notifications/vapid-config';
 
 export async function GET(req: NextRequest) {
   return handleDailyTrigger(req);
@@ -64,12 +61,14 @@ async function handleDailyTrigger(req: NextRequest) {
     const forceParam = searchParams.get('force') === 'true';
     if (forceParam) forceSend = true;
 
-    // 3. Resolve VAPID keys
-    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
-    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE;
-    const vapidSubject = process.env.VAPID_SUBJECT || DEFAULT_VAPID_SUBJECT;
-
-    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    // 3. Configure VAPID keys securely
+    const isVapidReady = configureWebPush();
+    if (!isVapidReady) {
+      return NextResponse.json(
+        { error: 'Server VAPID credentials unconfigured or invalid.' },
+        { status: 500 }
+      );
+    }
 
     // 4. If target subscription is provided directly (e.g. Test Alert from user screen), dispatch immediately
     if (targetSubscription && targetSubscription.endpoint) {
