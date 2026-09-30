@@ -313,9 +313,9 @@ const fs = require('fs');
 const swCode = fs.readFileSync('public/sw.js', 'utf8');
 
 assert(
-  swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v8'"),
-  'Service Worker cache bumped to v8 to prevent stale asset zombies',
-  'CACHE_NAME is vedic-panchang-pwa-v8'
+  swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v8'") || swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v9'"),
+  'Service Worker cache bumped to prevent stale asset zombies',
+  'CACHE_NAME is versioned (v8/v9)'
 );
 assert(
   swCode.includes("SKIP_WAITING"),

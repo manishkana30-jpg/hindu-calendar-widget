@@ -5,6 +5,7 @@ import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
 import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
+import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
 import { CITIES } from '@/src/lib/cities';
 
 export const revalidate = 86400; // 24 hours ISR revalidation
@@ -81,6 +82,11 @@ export default function LandingPage() {
         {/* ── Main Panchang Widget ── */}
         <div className="my-4 sm:my-6">
           <HinduPanchangWidget />
+        </div>
+
+        {/* ── Background Lock-Screen Alerts Setup ── */}
+        <div className="my-6 max-w-4xl mx-auto text-left">
+          <BackgroundAlertsSetup />
         </div>
 
         {/* ── Machine-Readable Canonical Summary Section for Search & Answer Engines ── */}

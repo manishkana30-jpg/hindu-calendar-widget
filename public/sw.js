@@ -1,7 +1,8 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (v8 - Internet Auto Daily Notifications & Silent Updates)
-const CACHE_NAME = 'vedic-panchang-pwa-v8';
-const ASSETS_TO_CACHE = [
+// Service Worker for Hindu Calendar & Live Panchang PWA (Production v9)
+// Compliant with W3C Service Worker & Push API standards
 
+const CACHE_NAME = 'vedic-panchang-pwa-v9';
+const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
   '/icon-512.svg',
@@ -9,7 +10,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. LIFECYCLE & ASSET CACHING (OFFLINE AVAILABILITY)
+// 1. LIFECYCLE & CACHING (OFFLINE RESILIENCE)
 // ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -24,9 +25,8 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -34,12 +34,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // Bypass cache for panchang API snapshot so fresh status can be retrieved when needed
-  if (url.pathname.startsWith('/api/panchang/')) {
+  // Bypass cache for push APIs and dynamic astrometry endpoints
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 
-  // For HTML page navigations, use Network-First to ensure instant deployment updates
+  // HTML page navigations: Network-First with cache fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -55,7 +55,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets & Next.js chunks, serve Cache-First with Background Revalidation
+  // Static assets & Next.js chunks: Cache-First with background revalidation
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -72,438 +72,102 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. INDEXEDDB PERSISTENCE (STANDALONE ZERO-DEPENDENCY HELPER)
+// 2. PUSH EVENT HANDLING (LOCK-SCREEN NOTIFICATION DELIVERY)
 // ─────────────────────────────────────────────────────────────────────────────
-const DB_NAME = 'vedic_panchang_db';
-const DB_VERSION = 1;
-const STORE_NAME = 'notification_kv';
-
-function openIDB() {
-  return new Promise((resolve) => {
-    try {
-      const req = indexedDB.open(DB_NAME, DB_VERSION);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME);
-        }
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    } catch (e) {
-      resolve(null);
-    }
-  });
-}
-
-async function idbGet(key) {
-  const db = await openIDB();
-  if (!db) return null;
-  return new Promise((resolve) => {
-    try {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const req = store.get(key);
-      req.onsuccess = () => resolve(req.result ?? null);
-      req.onerror = () => resolve(null);
-    } catch (e) {
-      resolve(null);
-    }
-  });
-}
-
-async function idbSet(key, value) {
-  const db = await openIDB();
-  if (!db) return;
-  return new Promise((resolve) => {
-    try {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      store.put(value, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    } catch (e) {
-      resolve();
-    }
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 3. COMBINED NOTIFICATION FORMATTER & STATE-DIFFING ENGINE
-// ─────────────────────────────────────────────────────────────────────────────
-/**
- * Checks whether an active Panchak is truly inauspicious per Dharmashastra.
- * Nirdosh Panchak (Wed/Thu) and Raja Panchak (Mon) are auspicious/benign -> EXCLUDED.
- * Only inauspicious types: Roga (Sun), Agni (Tue), Chora (Fri), Mrityu (Sat).
- */
-function isPanchakTrulyInauspicious(panchak) {
-  if (!panchak || !panchak.isActive) return false;
-  const typeLower = (panchak.type || '').toLowerCase();
-  const statusLower = (panchak.statusText || '').toLowerCase();
-
-  // Nirdosh and Raj Panchak are auspicious / fault-free -> NEVER alert them
-  if (
-    typeLower.includes('nirdosh') ||
-    typeLower.includes('raja') ||
-    typeLower.includes('raj ') ||
-    typeLower === 'raj panchak' ||
-    statusLower.includes('nirdosh') ||
-    statusLower.includes('raja') ||
-    panchak.isInauspicious === false
-  ) {
-    return false;
-  }
-
-  return (
-    typeLower.includes('mrityu') ||
-    typeLower.includes('agni') ||
-    typeLower.includes('chora') ||
-    typeLower.includes('roga') ||
-    panchak.isInauspicious === true
-  );
-}
-
-/**
- * Option B: Single-Line Horizontal Glanceable Formatter for Mobile & Desktop
- * Prevents mobile notification shade from clipping after line 1:
- *   Tithi: <Tithi Name> [ • 🔴 Panchak: <Type>] [ • Festival: <Name>]
- */
-function formatNotificationBody(state) {
-  const parts = [];
-
-  // 1. Primary Focus: Tithi (always prominent at front)
-  const cleanTithi = (state.tithi || 'Panchang').trim();
-  parts.push(`Tithi: ${cleanTithi}`);
-
-  // 2. Panchak: ONLY if genuinely inauspicious (omits Nirdosh & Raj Panchaks)
-  if (isPanchakTrulyInauspicious(state.panchak)) {
-    const rawType = state.panchak?.type?.trim();
-    const cleanType = rawType ? rawType.replace(/^[🔴⚠️\s]+/, '') : 'Inauspicious';
-    parts.push(`🔴 Panchak: ${cleanType}`);
-  }
-
-  // 3. Major Festival / Vrat (omitted if none today or minor)
-  const cleanFest = state.festivalOrVrat?.trim();
-  if (cleanFest && cleanFest.toLowerCase() !== 'none' && cleanFest.toLowerCase() !== 'null') {
-    parts.push(`Festival: ${cleanFest}`);
-  }
-
-  return parts.join(' • ');
-}
-
-/**
- * Checks Tithi, Panchak, and Festival/Vrat triggers.
- * - Single combined notification if one or more conditions met.
- * - Deduplicates using IndexedDB to avoid repeat pushes.
- * - Battery & data efficient: only hits the network when cached day-window is missing/expired.
- */
-async function checkAndNotifyPanchangChange(options = {}) {
-  const { force = false, source = 'unknown', pushPayload = null } = options;
-
-  // 1. Check if user enabled background alerts
-  const settings = await idbGet('notification_settings');
-  const isEnabled = settings ? Boolean(settings.enabled) : true; // Default true if push arrived
-  if (!isEnabled && !force) {
-    return { triggered: false, reason: 'NOTIFICATIONS_DISABLED' };
-  }
-
-  const now = Date.now();
-  const todayStr = new Date(now).toISOString().split('T')[0];
-
-  // 2. Retrieve or refresh cached daily panchang schedule
-  let cache = await idbGet('daily_panchang_cache');
-
-  // Verify whether cached day-window is valid for the current moment
-  const isCacheValid = cache &&
-    now >= (cache.dayWindowStart || 0) &&
-    now <= (cache.dayWindowEnd || Number.MAX_SAFE_INTEGER) &&
-    cache.dateStr === todayStr;
-
-  if (!isCacheValid) {
-    try {
-      // Hit network ONLY when ephemeris/festival data is not cached for the current day
-      const res = await fetch('/api/panchang/today', {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok) {
-        cache = await res.json();
-        await idbSet('daily_panchang_cache', cache);
-      }
-    } catch (netErr) {
-      console.warn('Panchang snapshot fetch failed, falling back to existing cache:', netErr);
-    }
-  }
-
-  if (!cache && !pushPayload) {
-    return { triggered: false, reason: 'NO_PANCHANG_DATA' };
-  }
-
-  // 3. Resolve instantaneous astronomical state at current timestamp
-  let currentTithi = cache?.instantaneousTithi?.name || 'Panchang';
-  if (cache?.instantaneousTithi?.endTimestamp && now >= cache.instantaneousTithi.endTimestamp) {
-    if (cache.nextTithi?.name) {
-      currentTithi = cache.nextTithi.name;
-    }
-  }
-
-  let isPanchakActive = Boolean(cache?.panchak?.isActive);
-  if (cache?.panchak?.startTimestamp && cache?.panchak?.endTimestamp) {
-    isPanchakActive = now >= cache.panchak.startTimestamp && now <= cache.panchak.endTimestamp;
-  }
-  let panchakType = isPanchakActive ? (cache?.panchak?.type || 'Panchak') : null;
-  let festivalOrVrat = cache?.festivalOrVrat || null;
-
-  // If a server push payload was provided directly, merge any specific attributes
-  if (pushPayload) {
-    if (pushPayload.tithi) currentTithi = pushPayload.tithi;
-    if (pushPayload.festivalOrVrat !== undefined) festivalOrVrat = pushPayload.festivalOrVrat;
-    if (pushPayload.panchak !== undefined) {
-      isPanchakActive = Boolean(pushPayload.panchak?.isActive);
-      if (pushPayload.panchak?.type) panchakType = pushPayload.panchak.type;
-    }
-  }
-
-  const isPanchakInauspicious = isPanchakTrulyInauspicious({
-    isActive: isPanchakActive,
-    type: panchakType,
-    statusText: cache?.panchak?.statusText,
-    isInauspicious: cache?.panchak?.isInauspicious
-  });
-
-  const currentState = {
-    tithi: currentTithi,
-    panchak: {
-      isActive: isPanchakActive,
-      isInauspicious: isPanchakInauspicious,
-      type: panchakType,
-      statusText: cache?.panchak?.statusText
-    },
-    festivalOrVrat,
-    dateStr: todayStr,
-    timestamp: now
-  };
-
-  // 4. Retrieve last-notified state for deduplication
-  const lastNotified = await idbGet('last_notified_state');
-
-  // TRIGGER 1: Tithi change — current lunar day transitions to a new Tithi (Primary Focus)
-  const tithiChanged = !lastNotified?.tithi || lastNotified.tithi !== currentTithi;
-
-  // TRIGGER 2: Inauspicious Panchak period — active/starting (Nirdosh/Raj ignored)
-  const panchakStarting = isPanchakInauspicious && (
-    !lastNotified?.isPanchakActive ||
-    lastNotified.panchakType !== panchakType
-  );
-
-  // TRIGGER 3: Festival or Vrat observed on the current date
-  const festivalTriggered = Boolean(festivalOrVrat) && (
-    !lastNotified?.festivalDate ||
-    lastNotified.festivalDate !== todayStr
-  );
-
-  const shouldNotify = force || tithiChanged || panchakStarting || festivalTriggered;
-
-  if (!shouldNotify) {
-    return { triggered: false, reason: 'IDEMPOTENT_NO_CHANGE' };
-  }
-
-  // 5. Build strict combined notification payload
-  const title = 'Panchang Update';
-  const body = formatNotificationBody(currentState);
-
-  const notificationOptions = {
-    body,
-    icon: '/icon-192.svg',
-    badge: '/icon-192.svg',
-    tag: 'panchang-combined-alert',
-    renotify: true,
-    data: {
-      url: '/',
-      source,
-      timestamp: now,
-      triggers: {
-        tithiChanged,
-        panchakStarting,
-        festivalTriggered
-      }
-    }
-  };
-
-  // 6. Show single combined notification
-  await self.registration.showNotification(title, notificationOptions);
-
-  // 7. Update last-notified state in IndexedDB to prevent duplicate pushes
-  const nextNotifiedState = {
-    tithi: currentTithi,
-    isPanchakActive: isPanchakInauspicious,
-    panchakType: isPanchakInauspicious ? panchakType : null,
-    festivalDate: festivalOrVrat ? todayStr : (lastNotified?.festivalDate || null),
-    festivalOrVrat,
-    lastNotifiedAt: now
-  };
-  await idbSet('last_notified_state', nextNotifiedState);
-
-  return {
-    triggered: true,
-    triggers: { tithiChanged, panchakStarting, festivalTriggered },
-    title,
-    body
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. PERIODIC BACKGROUND SYNC & WEB PUSH EVENT LISTENERS
-// ─────────────────────────────────────────────────────────────────────────────
-
-function detectDevicePlatform() {
-  const ua = self.navigator.userAgent || '';
-  if (/Android/i.test(ua)) return 'Android';
-  if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
-  if (/Windows|Macintosh|Linux/i.test(ua)) return 'Desktop';
-  return 'Other';
-}
-
-function detectDeviceBrowser() {
-  const ua = self.navigator.userAgent || '';
-  if (/Edg/i.test(ua)) return 'Edge';
-  if (/Chrome/i.test(ua)) return 'Chrome';
-  if (/Firefox/i.test(ua)) return 'Firefox';
-  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return 'Safari';
-  return 'Other';
-}
-
-// Periodic Background Sync (Chromium: Android, Edge, Chrome Desktop)
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'panchang-periodic-check') {
-    event.waitUntil(checkAndNotifyPanchangChange({ source: 'periodic-background-sync' }));
-  }
-});
-
-// Web Push API (Safari iOS/macOS, Firefox, Chrome fallback via server cron)
 self.addEventListener('push', (event) => {
-  let pushPayload = null;
-  if (event.data) {
-    try {
-      pushPayload = event.data.json();
-    } catch {
-      pushPayload = { body: event.data.text() };
-    }
-  }
+  if (!event.data) return;
 
-  // 1. One-Time Admin Test Broadcast Handler
-  if (pushPayload && pushPayload.data && pushPayload.data.isTestBroadcast) {
-    const testData = pushPayload.data;
-    const notificationOptions = {
-      body: pushPayload.body || 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.',
-      icon: pushPayload.icon || '/icon-192.svg',
-      badge: pushPayload.badge || '/icon-192.svg',
-      tag: 'panchang-test-alert',
-      renotify: true,
-      data: testData
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = {
+      title: 'Panchang Alert',
+      body: event.data.text()
     };
-
-    // Show notification and silently confirm receipt
-    const showPromise = self.registration.showNotification(
-      pushPayload.title || 'Panchang Test Notification',
-      notificationOptions
-    );
-
-    const confirmPromise = fetch('/api/push/test-confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        testId: testData.testId,
-        subId: testData.subId,
-        event: 'received',
-        platform: detectDevicePlatform(),
-        browser: detectDeviceBrowser(),
-        appVersion: '1.0.2'
-      })
-    }).catch(() => {});
-
-    event.waitUntil(Promise.all([showPromise, confirmPromise]));
-    return;
   }
 
-  // 2. Regular Morning Push from Server Scheduler
-  if (pushPayload && pushPayload.title && pushPayload.body) {
-    const notificationOptions = {
-      body: pushPayload.body,
-      icon: pushPayload.icon || '/icon-192.svg',
-      badge: pushPayload.badge || '/icon-192.svg',
-      tag: 'panchang-morning-push',
-      renotify: true,
-      data: pushPayload.data || { url: '/' }
-    };
+  const options = {
+    body: payload.body,
+    icon: payload.icon || '/icon-192.svg',
+    badge: payload.badge || '/icon-192.svg',
+    tag: payload.tag || 'panchang-alert',
+    renotify: true,
+    requireInteraction: false,
+    data: {
+      url: payload.url || payload.data?.url || '/',
+      timestamp: Date.now(),
+      ...payload.data
+    },
+    actions: [{ action: 'open', title: 'View Panchang' }]
+  };
 
-    event.waitUntil(
-      self.registration.showNotification(pushPayload.title, notificationOptions)
-    );
-    return;
-  }
+  // Crucial: All async work MUST be wrapped in event.waitUntil(...)
+  // Failure to wrap causes OS process termination before notification renders
+  event.waitUntil(self.registration.showNotification(payload.title, options));
+});
 
-  // 3. Fallback: State-diffing evaluation
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. NOTIFICATION CLICK ROUTING
+// ─────────────────────────────────────────────────────────────────────────────
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const notifData = event.notification.data || {};
+  const targetUrl = notifData.url || '/';
+
+  const routingPromise = clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then((clientList) => {
+      // If a window/tab is already open, focus it and transmit state
+      for (const client of clientList) {
+        if (client.url && 'focus' in client) {
+          client.postMessage({
+            type: 'NOTIFICATION_CLICK',
+            data: notifData
+          });
+          return client.focus();
+        }
+      }
+      // Otherwise launch a new window with the destination URL
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    });
+
+  event.waitUntil(routingPromise);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. SUBSCRIPTION ROTATION HANDLING (PREVENTS SILENT PUSH FAILURE)
+// ─────────────────────────────────────────────────────────────────────────────
+self.addEventListener('pushsubscriptionchange', (event) => {
+  const options = event.oldSubscription ? event.oldSubscription.options : { userVisibleOnly: true };
+
   event.waitUntil(
-    checkAndNotifyPanchangChange({
-      source: 'web-push',
-      pushPayload,
-      force: true
-    })
+    self.registration.pushManager.subscribe(options)
+      .then((newSub) => {
+        return fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: newSub,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+          })
+        });
+      })
+      .catch((err) => {
+        console.error('[SW] pushsubscriptionchange re-subscription failed:', err);
+      })
   );
 });
 
-// Direct Messages from Main Application Thread
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. CLIENT COMMUNICATION BUS
+// ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
   const data = event.data;
   if (!data) return;
 
   if (data.type === 'SKIP_WAITING') {
     self.skipWaiting();
-  } else if (data.type === 'CHECK_AND_NOTIFY') {
-    event.waitUntil(checkAndNotifyPanchangChange({ source: 'client-message', force: Boolean(data.force) }));
-  } else if (data.type === 'SEED_CACHE' && data.cache) {
-    event.waitUntil(idbSet('daily_panchang_cache', data.cache));
-  } else if (data.type === 'SET_SETTINGS' && data.settings) {
-    event.waitUntil(idbSet('notification_settings', data.settings));
   }
-});
-
-// Notification Click Handler
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const notifData = event.notification.data || {};
-  const targetUrl = notifData.url || '/';
-
-  const promises = [];
-
-  // If this was a test broadcast, record "opened" confirmation
-  if (notifData.isTestBroadcast && notifData.testId && notifData.subId) {
-    const openConfirmPromise = fetch('/api/push/test-confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        testId: notifData.testId,
-        subId: notifData.subId,
-        event: 'opened',
-        platform: detectDevicePlatform(),
-        browser: detectDeviceBrowser(),
-        appVersion: '1.0.2'
-      })
-    }).catch(() => {});
-    promises.push(openConfirmPromise);
-  }
-
-  const focusPromise = clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-    for (const client of clientList) {
-      if (client.url && 'focus' in client) {
-        return client.focus();
-      }
-    }
-    if (clients.openWindow) {
-      return clients.openWindow(targetUrl);
-    }
-  });
-  promises.push(focusPromise);
-
-  event.waitUntil(Promise.all(promises));
 });
