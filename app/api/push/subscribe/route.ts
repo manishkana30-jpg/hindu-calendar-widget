@@ -174,7 +174,8 @@ export async function POST(req: NextRequest) {
         auth: keys.auth
       },
       timezone,
-      location: body.location
+      location: body.location,
+      preferences: body.preferences
     });
 
     // 4. Synchronize with legacy subscription store for backward compatibility

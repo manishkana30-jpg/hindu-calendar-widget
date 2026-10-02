@@ -2,8 +2,8 @@ name: Panchang Daily Morning & Tithi Notification Scheduler
 
 on:
   schedule:
-    # Runs every hour at minute 0 (supports multiple timezones across the globe)
-    - cron: '0 * * * *'
+    # Runs every 10-15 minutes to catch local sunrises and exact Tithi transitions across all timezones
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,4 +16,5 @@ jobs:
           echo "Triggering Panchang Scheduler on $PROD_URL"
           curl -s -X POST "$PROD_URL" \
             -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -d '{"source": "github-actions-cron"}' || true

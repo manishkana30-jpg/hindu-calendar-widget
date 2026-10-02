@@ -19,6 +19,16 @@ export interface PushSubscriptionKeys {
   auth: string;
 }
 
+export interface PushSubscriptionPreferences {
+  dailyNotification?: boolean;
+  notificationTime?: string; // 'sunrise' or '05:00', '06:00', etc.
+  alertOnTithiChange?: boolean;
+  autoUpdate?: boolean;
+  wifiOnly?: boolean;
+  sound?: boolean;
+  vibration?: boolean;
+}
+
 export interface PushSubscriptionRecord {
   endpoint: string;
   endpointHash: string;
@@ -33,6 +43,10 @@ export interface PushSubscriptionRecord {
     ianaTimezone?: string;
     name?: string;
   };
+  preferences?: PushSubscriptionPreferences;
+  lastDailyDateNotified?: string | null;
+  lastTithiIndexNotified?: number | null;
+  lastTithiNotifiedAt?: number | null;
 }
 
 export interface UpsertSubscriptionInput {
@@ -46,6 +60,10 @@ export interface UpsertSubscriptionInput {
     ianaTimezone?: string;
     name?: string;
   };
+  preferences?: PushSubscriptionPreferences;
+  lastDailyDateNotified?: string | null;
+  lastTithiIndexNotified?: number | null;
+  lastTithiNotifiedAt?: number | null;
 }
 
 const KEY_PREFIX = 'push_sub:';
@@ -134,7 +152,37 @@ export async function upsertSubscription(
     timezone: timezone || existing?.timezone || 'Asia/Kolkata',
     createdAt: existing?.createdAt || now,
     lastValidated: now,
-    location: location || existing?.location
+    location: location || existing?.location,
+    preferences: {
+      dailyNotification: input.preferences?.dailyNotification !== undefined
+        ? input.preferences.dailyNotification
+        : (existing?.preferences?.dailyNotification !== false),
+      notificationTime: input.preferences?.notificationTime || existing?.preferences?.notificationTime || 'sunrise',
+      alertOnTithiChange: input.preferences?.alertOnTithiChange !== undefined
+        ? input.preferences.alertOnTithiChange
+        : Boolean(existing?.preferences?.alertOnTithiChange),
+      autoUpdate: input.preferences?.autoUpdate !== undefined
+        ? input.preferences.autoUpdate
+        : (existing?.preferences?.autoUpdate !== false),
+      wifiOnly: input.preferences?.wifiOnly !== undefined
+        ? input.preferences.wifiOnly
+        : Boolean(existing?.preferences?.wifiOnly),
+      sound: input.preferences?.sound !== undefined
+        ? input.preferences.sound
+        : (existing?.preferences?.sound !== false),
+      vibration: input.preferences?.vibration !== undefined
+        ? input.preferences.vibration
+        : (existing?.preferences?.vibration !== false)
+    },
+    lastDailyDateNotified: input.lastDailyDateNotified !== undefined
+      ? input.lastDailyDateNotified
+      : (existing?.lastDailyDateNotified ?? null),
+    lastTithiIndexNotified: input.lastTithiIndexNotified !== undefined
+      ? input.lastTithiIndexNotified
+      : (existing?.lastTithiIndexNotified ?? null),
+    lastTithiNotifiedAt: input.lastTithiNotifiedAt !== undefined
+      ? input.lastTithiNotifiedAt
+      : (existing?.lastTithiNotifiedAt ?? null)
   };
 
   // 1. In-memory store update
@@ -153,6 +201,37 @@ export async function upsertSubscription(
   }
 
   return record;
+}
+
+/**
+ * Updates execution state or preferences for an existing subscription.
+ */
+export async function updateSubscriptionState(
+  endpoint: string,
+  updates: {
+    lastDailyDateNotified?: string | null;
+    lastTithiIndexNotified?: number | null;
+    lastTithiNotifiedAt?: number | null;
+    preferences?: Partial<PushSubscriptionPreferences>;
+  }
+): Promise<PushSubscriptionRecord | null> {
+  const existing = await getSubscription(endpoint);
+  if (!existing) return null;
+
+  const mergedPreferences = updates.preferences
+    ? { ...existing.preferences, ...updates.preferences }
+    : existing.preferences;
+
+  return upsertSubscription({
+    endpoint: existing.endpoint,
+    keys: existing.keys,
+    timezone: existing.timezone,
+    location: existing.location,
+    preferences: mergedPreferences,
+    lastDailyDateNotified: updates.lastDailyDateNotified !== undefined ? updates.lastDailyDateNotified : existing.lastDailyDateNotified,
+    lastTithiIndexNotified: updates.lastTithiIndexNotified !== undefined ? updates.lastTithiIndexNotified : existing.lastTithiIndexNotified,
+    lastTithiNotifiedAt: updates.lastTithiNotifiedAt !== undefined ? updates.lastTithiNotifiedAt : existing.lastTithiNotifiedAt
+  });
 }
 
 /**

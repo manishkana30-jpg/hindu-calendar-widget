@@ -23,10 +23,23 @@ import webpush from 'web-push';
 import {
   getAllSubscriptions,
   pruneIfStale,
+  updateSubscriptionState,
   PushSubscriptionRecord
 } from '@/src/lib/push/subscription-store';
-import { computeDailyMorningNotification } from '@/src/lib/notifications/morning-push';
-import { PRESET_LOCATIONS, LocationCoordinates } from '@/src/lib/vedic-astronomy';
+import {
+  computeDailyMorningNotification,
+  formatTithiChangeAlert
+} from '@/src/lib/notifications/morning-push';
+import {
+  PRESET_LOCATIONS,
+  LocationCoordinates,
+  resolveTimezoneOffset,
+  calculatePanchang
+} from '@/src/lib/vedic-astronomy';
+import { calculateSunTimesWithRefraction } from '@/src/lib/ephemeris';
+import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
+import { getFestivalForDate } from '@/src/lib/festivals';
+import { isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
 
 // Mandatory Vercel Serverless Node.js runtime enforcement
 export const runtime = 'nodejs';
@@ -72,13 +85,23 @@ function ensureVapidConfig(): boolean {
 /**
  * Validates request authorization:
  * When CRON_SECRET is configured, requests must supply `Authorization: Bearer <CRON_SECRET>`.
+ * In permissive mode (unconfigured in production or dev), logs a warning and permits execution.
  */
 function isAuthorized(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
+
+  // Support Vercel native cron request header
+  const vercelCronHeader = req.headers.get('x-vercel-cron');
+  if (vercelCronHeader === '1') {
+    if (!cronSecret) return true;
+    const authHeader = req.headers.get('authorization');
+    if (authHeader === `Bearer ${cronSecret}`) return true;
+  }
+
   if (!cronSecret) {
-    // If no secret configured in dev, allow invocation with warning
     if (process.env.NODE_ENV !== 'production') return true;
-    return false;
+    console.warn('[SECURITY NOTE] CRON_SECRET is not configured in environment variables. Permitting cron execution.');
+    return true;
   }
 
   const authHeader = req.headers.get('authorization');
@@ -95,6 +118,7 @@ export async function POST(req: NextRequest) {
 
 interface TestRequestPayload {
   isTest?: boolean;
+  forceAll?: boolean;
   subscription?: {
     endpoint: string;
     keys: {
@@ -103,6 +127,125 @@ interface TestRequestPayload {
     };
   };
   location?: LocationCoordinates;
+}
+
+/**
+ * Formats local date string (YYYY-MM-DD) for a given timestamp and timezone.
+ */
+function getLocalDateStr(date: Date, timeZone?: string, tzOffsetHours?: number): string {
+  if (timeZone) {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone
+      });
+      return formatter.format(date);
+    } catch {
+      // Fall through to offset
+    }
+  }
+
+  const offset = tzOffsetHours ?? 5.5;
+  const localMs = date.getTime() + offset * 3600000;
+  const d = new Date(localMs);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Determines if the current moment is eligible for today's daily morning notification.
+ * Window: Current time is at or past (targetTime - 10 minutes) AND not yet sent today.
+ */
+function isEligibleForMorningPush(
+  now: Date,
+  userLoc: LocationCoordinates,
+  preferredTime: string | undefined,
+  lastNotifiedDate: string | null | undefined
+): boolean {
+  const userTz = resolveTimezoneOffset(now, userLoc);
+  const todayDateStr = getLocalDateStr(now, userLoc.ianaTimezone, userTz);
+
+  // If already notified for this local date, do not resend
+  if (lastNotifiedDate === todayDateStr) {
+    return false;
+  }
+
+  // Calculate local sunrise for today
+  const sunTimes = calculateSunTimesWithRefraction(
+    now,
+    userLoc.latitude,
+    userLoc.longitude,
+    userTz
+  );
+  const sunriseDate = sunTimes.sunriseDate;
+
+  let targetDate: Date = sunriseDate;
+
+  if (preferredTime && preferredTime !== 'sunrise') {
+    const match = preferredTime.match(/^(\d{1,2}):(\d{2})$/);
+    if (match) {
+      const targetHour = parseInt(match[1], 10);
+      const targetMin = parseInt(match[2], 10);
+      const localSunriseMs = sunriseDate.getTime() + userTz * 3600000;
+      const d = new Date(localSunriseMs);
+      d.setUTCHours(targetHour, targetMin, 0, 0);
+      targetDate = new Date(d.getTime() - userTz * 3600000);
+    }
+  }
+
+  // Allow trigger if now is at or past (targetTime - 10 minutes)
+  const windowStartMs = targetDate.getTime() - 10 * 60 * 1000;
+  return now.getTime() >= windowStartMs;
+}
+
+/**
+ * Evaluates whether a Tithi transition has occurred for the subscriber's location.
+ */
+function evaluateTithiChangeTrigger(
+  now: Date,
+  userLoc: LocationCoordinates,
+  record: PushSubscriptionRecord
+): {
+  hasChanged: boolean;
+  currentTithiIndex: number;
+  currentTithiName: string;
+  transitionTime: Date;
+} {
+  const panchang = calculatePanchang(now, userLoc);
+  const currentTithiIndex = panchang.instantaneousTithi?.index || panchang.tithi.index;
+  const currentTithiName = panchang.instantaneousTithi?.name || panchang.tithi.name;
+  const transitionTime = now;
+
+  // First check: Seed without false alarm
+  if (record.lastTithiIndexNotified === undefined || record.lastTithiIndexNotified === null) {
+    return {
+      hasChanged: false,
+      currentTithiIndex,
+      currentTithiName,
+      transitionTime
+    };
+  }
+
+  // Tithi transition detected
+  if (record.lastTithiIndexNotified !== currentTithiIndex) {
+    return {
+      hasChanged: true,
+      currentTithiIndex,
+      currentTithiName,
+      transitionTime
+    };
+  }
+
+  return {
+    hasChanged: false,
+    currentTithiIndex,
+    currentTithiName,
+    transitionTime
+  };
 }
 
 async function handleDispatch(req: NextRequest) {
@@ -206,78 +349,173 @@ async function handleDispatch(req: NextRequest) {
     });
   }
 
-  // 6. Dispatch with Promise.allSettled() for complete fault-tolerance
-  // One failed or unresponsive subscription NEVER blocks delivery to other users
-  let sentCount = 0;
+  // 6. Dual-Trigger Evaluation Engine (Morning Udaya + Tithi Change Alert)
+  const isForceAll = Boolean(testPayload?.forceAll);
+  let morningSentCount = 0;
+  let tithiSentCount = 0;
   let failedCount = 0;
   let prunedCount = 0;
 
   const dispatchPromises = subscriptions.map(async (record) => {
-    // If record has custom coordinates, compute localized sunrise/tithi; else use precomputed
-    let morningData = referenceMorningData;
-    if (record.location?.latitude && record.location?.longitude) {
-      const userLoc: LocationCoordinates = {
-        name: record.location.name || 'User Location',
-        country: 'India',
-        latitude: record.location.latitude,
-        longitude: record.location.longitude,
-        timezone: record.location.timezone ?? 5.5,
-        ianaTimezone: record.location.ianaTimezone || record.timezone || 'Asia/Kolkata',
-        regionName: record.location.name || 'Local Region'
-      };
-      morningData = computeDailyMorningNotification(now, userLoc);
-    }
+    const userLoc: LocationCoordinates = (record.location?.latitude && record.location?.longitude)
+      ? {
+          name: record.location.name || 'User Location',
+          country: 'India',
+          latitude: record.location.latitude,
+          longitude: record.location.longitude,
+          timezone: record.location.timezone ?? 5.5,
+          ianaTimezone: record.location.ianaTimezone || record.timezone || 'Asia/Kolkata',
+          regionName: record.location.name || 'Local Region'
+        }
+      : defaultLoc;
 
-    const payload = JSON.stringify({
-      title: morningData.title,
-      body: morningData.body,
-      icon: '/icon-192.svg',
-      badge: '/icon-192.svg',
-      tag: 'panchang-alert',
-      data: {
-        url: '/',
-        date: morningData.data.date,
-        primaryTithi: morningData.data.primaryTithi,
-        panchakType: morningData.data.panchakType,
-        festivalOrVrat: morningData.data.festivalOrVrat,
-        timestamp: Date.now()
-      }
-    });
-
+    const userTz = resolveTimezoneOffset(now, userLoc);
+    const todayDateStr = getLocalDateStr(now, userLoc.ianaTimezone, userTz);
     const pushSub = {
       endpoint: record.endpoint,
       keys: record.keys
     };
 
-    try {
-      await webpush.sendNotification(pushSub, payload, PUSH_OPTIONS);
-      sentCount++;
-      console.info(`[Push Sent] Sub ${record.endpointHash.slice(0, 8)} (${record.timezone})`);
-      return { status: 'sent', hash: record.endpointHash };
-    } catch (err: unknown) {
-      failedCount++;
-      const wasPruned = await pruneIfStale(record.endpoint, err);
-      if (wasPruned) {
-        prunedCount++;
-        console.info(`[Push Pruned] Sub ${record.endpointHash.slice(0, 8)} expired (404/410).`);
-        return { status: 'pruned', hash: record.endpointHash };
+    let sentMorning = false;
+    let sentTithi = false;
+
+    // ── TRIGGER 1: Daily Morning Notification at Udaya / Sunrise ──
+    const dailyEnabled = record.preferences?.dailyNotification !== false;
+    if (dailyEnabled) {
+      const isDueForMorning = isForceAll || isEligibleForMorningPush(
+        now,
+        userLoc,
+        record.preferences?.notificationTime,
+        record.lastDailyDateNotified
+      );
+
+      if (isDueForMorning) {
+        const morningData = computeDailyMorningNotification(now, userLoc);
+        const morningPayload = JSON.stringify({
+          title: morningData.title,
+          body: morningData.body,
+          icon: '/icon-192.svg',
+          badge: '/icon-192.svg',
+          tag: 'panchang-alert',
+          data: {
+            url: '/',
+            date: morningData.data.date,
+            primaryTithi: morningData.data.primaryTithi,
+            panchakType: morningData.data.panchakType,
+            festivalOrVrat: morningData.data.festivalOrVrat,
+            timestamp: Date.now()
+          }
+        });
+
+        try {
+          await webpush.sendNotification(pushSub, morningPayload, PUSH_OPTIONS);
+          sentMorning = true;
+          morningSentCount++;
+          console.info(`[Morning Push Sent] Sub ${record.endpointHash.slice(0, 8)} (${userLoc.name} @ ${todayDateStr})`);
+          await updateSubscriptionState(record.endpoint, {
+            lastDailyDateNotified: todayDateStr
+          });
+        } catch (err: unknown) {
+          failedCount++;
+          const wasPruned = await pruneIfStale(record.endpoint, err);
+          if (wasPruned) {
+            prunedCount++;
+            return { status: 'pruned', hash: record.endpointHash };
+          }
+          const errMsg = err instanceof Error ? err.message : 'Morning push failed';
+          console.warn(`[Morning Push Failed] Sub ${record.endpointHash.slice(0, 8)}: ${errMsg}`);
+        }
       }
-      const errMsg = err instanceof Error ? err.message : 'Unknown push failure';
-      console.warn(`[Push Failed] Sub ${record.endpointHash.slice(0, 8)}: ${errMsg}`);
-      return { status: 'failed', hash: record.endpointHash, error: errMsg };
     }
+
+    // ── TRIGGER 2: Instantaneous Tithi Change Alert ──
+    const alertOnTithi = Boolean(record.preferences?.alertOnTithiChange);
+    const tithiEval = evaluateTithiChangeTrigger(now, userLoc, record);
+
+    if (record.lastTithiIndexNotified === undefined || record.lastTithiIndexNotified === null) {
+      // First observation: initialize the index so future transitions are accurately detected
+      await updateSubscriptionState(record.endpoint, {
+        lastTithiIndexNotified: tithiEval.currentTithiIndex
+      });
+    } else if (alertOnTithi && (tithiEval.hasChanged || isForceAll)) {
+      // Transition detected!
+      const panchakResult = getActivePanchakStatus(now);
+      const festivalResult = getFestivalForDate(now, userLoc);
+
+      const panchakInfo = panchakResult.isActive ? {
+        isActive: true,
+        type: panchakResult.panchak?.type,
+        isInauspicious: panchakResult.panchak?.auspiciousness !== 'Auspicious'
+      } : null;
+
+      const tithiAlert = formatTithiChangeAlert({
+        newTithiName: tithiEval.currentTithiName,
+        transitionTime: tithiEval.transitionTime,
+        panchakStatus: (panchakInfo && isPanchakTrulyInauspicious(panchakInfo)) ? panchakInfo : null,
+        festivalName: festivalResult?.name,
+        timeZone: userLoc.ianaTimezone,
+        tzOffset: userTz
+      });
+
+      const tithiPayload = JSON.stringify({
+        title: tithiAlert.title,
+        body: tithiAlert.body,
+        icon: '/icon-192.svg',
+        badge: '/icon-192.svg',
+        tag: `tithi-change-${tithiEval.currentTithiIndex}`,
+        data: {
+          url: '/',
+          tithiIndex: tithiEval.currentTithiIndex,
+          tithiName: tithiEval.currentTithiName,
+          timestamp: Date.now()
+        }
+      });
+
+      try {
+        await webpush.sendNotification(pushSub, tithiPayload, {
+          ...PUSH_OPTIONS,
+          topic: 'panchang-tithi-change'
+        });
+        sentTithi = true;
+        tithiSentCount++;
+        console.info(`[Tithi Alert Sent] Sub ${record.endpointHash.slice(0, 8)} -> ${tithiEval.currentTithiName}`);
+        await updateSubscriptionState(record.endpoint, {
+          lastTithiIndexNotified: tithiEval.currentTithiIndex,
+          lastTithiNotifiedAt: Date.now()
+        });
+      } catch (err: unknown) {
+        failedCount++;
+        const wasPruned = await pruneIfStale(record.endpoint, err);
+        if (wasPruned) {
+          prunedCount++;
+          return { status: 'pruned', hash: record.endpointHash };
+        }
+        const errMsg = err instanceof Error ? err.message : 'Tithi push failed';
+        console.warn(`[Tithi Push Failed] Sub ${record.endpointHash.slice(0, 8)}: ${errMsg}`);
+      }
+    }
+
+    return {
+      status: (sentMorning || sentTithi) ? 'sent' : 'skipped',
+      sentMorning,
+      sentTithi,
+      hash: record.endpointHash
+    };
   });
 
   const results = await Promise.allSettled(dispatchPromises);
+  const totalSent = morningSentCount + tithiSentCount;
 
-  console.info(`[Daily Trigger Summary] Total: ${totalCount}, Sent: ${sentCount}, Failed: ${failedCount}, Pruned: ${prunedCount}`);
+  console.info(`[Daily Trigger Summary] Total: ${totalCount}, Morning Sent: ${morningSentCount}, Tithi Sent: ${tithiSentCount}, Failed: ${failedCount}, Pruned: ${prunedCount}`);
 
   return NextResponse.json({
     success: true,
     timestamp: now.toISOString(),
     metrics: {
       total: totalCount,
-      sent: sentCount,
+      totalSent,
+      morningSent: morningSentCount,
+      tithiSent: tithiSentCount,
       failed: failedCount,
       pruned: prunedCount,
       settledCount: results.length

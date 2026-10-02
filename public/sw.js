@@ -161,7 +161,7 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. CLIENT COMMUNICATION BUS
+// 5. CLIENT COMMUNICATION BUS & PERIODIC BACKGROUND SYNC
 // ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
   const data = event.data;
@@ -170,4 +170,39 @@ self.addEventListener('message', (event) => {
   if (data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+
+  if (data.type === 'CHECK_AND_NOTIFY' && data.force) {
+    event.waitUntil(
+      fetch('/api/panchang/today')
+        .then((res) => res.json())
+        .then((panchang) => {
+          if (panchang) {
+            const body = panchang.instantaneousTithi?.name
+              ? `Tithi: ${panchang.instantaneousTithi.name}`
+              : 'Vedic Panchang alert dispatched.';
+            return self.registration.showNotification('Panchang Update', {
+              body,
+              icon: '/icon-192.svg',
+              badge: '/icon-192.svg',
+              tag: 'panchang-alert',
+              renotify: true
+            });
+          }
+        })
+        .catch(() => {})
+    );
+  }
 });
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'panchang-periodic-check') {
+    event.waitUntil(
+      fetch('/api/push/daily-trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'periodic-sync' })
+      }).catch(() => {})
+    );
+  }
+});
+
