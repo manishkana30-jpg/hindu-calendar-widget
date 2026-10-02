@@ -11,10 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Panchang Scheduler API
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           PROD_URL="https://vikram-samvat-widget.vercel.app/api/push/daily-trigger"
           echo "Triggering Panchang Scheduler on $PROD_URL"
           curl -s -X POST "$PROD_URL" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
             -d '{"source": "github-actions-cron"}' || true
