@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'High-Precision Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra determination rules.',
     start_url: '/',
     scope: '/',
-    id: 'https://www.dailytithi.com/',
+    id: 'https://dailytithi.com/',
     display: 'standalone',
     background_color: '#090e1a',
     theme_color: '#090e1a',

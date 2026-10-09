@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "About Us & Astrometric Methodology | Daily Tithi",
   description: "Learn about the engineering and Vedic scholarship behind Daily Tithi (dailytithi.com)—Swiss Ephemeris precision, Dharmashastra canons, Ghati/Pala clocks, and our mission for a fast, ad-light Vedic utility.",
   alternates: {
-    canonical: 'https://www.dailytithi.com/about'
+    canonical: 'https://dailytithi.com/about'
   }
 };
 

@@ -26,7 +26,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.dailytithi.com'),
+  metadataBase: new URL('https://dailytithi.com'),
   title: {
     default: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
     template: '%s | Daily Tithi',
@@ -49,13 +49,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://www.dailytithi.com',
+    url: 'https://dailytithi.com',
     siteName: 'Daily Tithi',
     title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
     images: [
       {
-        url: 'https://www.dailytithi.com/api/og',
+        url: 'https://dailytithi.com/api/og',
         width: 1200,
         height: 630,
         alt: 'Daily Tithi Live Vedic Panchang Preview Card'
@@ -66,10 +66,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
-    images: ['https://www.dailytithi.com/api/og']
+    images: ['https://dailytithi.com/api/og']
   },
   alternates: {
-    canonical: 'https://www.dailytithi.com'
+    canonical: 'https://dailytithi.com'
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google2779ca9c3cc8b844.html',
@@ -84,15 +84,15 @@ const jsonLdSchema = {
   '@graph': [
     {
       '@type': 'WebPage',
-      '@id': 'https://www.dailytithi.com/#webpage',
-      url: 'https://www.dailytithi.com/',
+      '@id': 'https://dailytithi.com/#webpage',
+      url: 'https://dailytithi.com/',
       name: "Daily Tithi | Live Hindu Calendar, Panchang & Muhurat",
       description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
       isPartOf: {
         '@type': 'WebSite',
-        '@id': 'https://www.dailytithi.com/#website',
+        '@id': 'https://dailytithi.com/#website',
         name: 'Daily Tithi',
-        url: 'https://www.dailytithi.com/'
+        url: 'https://dailytithi.com/'
       },
       about: {
         '@type': 'Thing',
@@ -109,16 +109,16 @@ const jsonLdSchema = {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://www.dailytithi.com/'
+            item: 'https://dailytithi.com/'
           }
         ]
       }
     },
     {
       '@type': 'SoftwareApplication',
-      '@id': 'https://www.dailytithi.com/#software',
+      '@id': 'https://dailytithi.com/#software',
       name: 'Daily Tithi',
-      url: 'https://www.dailytithi.com/',
+      url: 'https://dailytithi.com/',
       applicationCategory: 'LifestyleApplication',
       operatingSystem: 'All (Web, Android, iOS, Windows, macOS)',
       browserRequirements: 'Modern browser with JavaScript support. Functions 100% offline.',
@@ -131,7 +131,7 @@ const jsonLdSchema = {
     },
     {
       '@type': 'FAQPage',
-      '@id': 'https://www.dailytithi.com/#faq',
+      '@id': 'https://dailytithi.com/#faq',
       mainEntity: [
         {
           '@type': 'Question',

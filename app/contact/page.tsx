@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Contact Us & Astrometry Support | Daily Tithi",
   description: "Get in touch with the Daily Tithi engineering and astrometry research team at contact@dailytithi.com for feedback, bug reports, and data inquiries.",
   alternates: {
-    canonical: 'https://www.dailytithi.com/contact'
+    canonical: 'https://dailytithi.com/contact'
   }
 };
 

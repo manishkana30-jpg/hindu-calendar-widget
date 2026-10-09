@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { CITIES } from '@/src/lib/cities';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.dailytithi.com';
+  const baseUrl = 'https://dailytithi.com';
   const currentDate = new Date().toISOString().split('T')[0];
 
   const staticUrls: MetadataRoute.Sitemap = [

@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
 
           {/* Footer Callout */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', color: '#64748b' }}>
-            <span>https://www.dailytithi.com/</span>
+            <span>https://dailytithi.com/</span>
             <span>Real-time Ghati • Pala • Vipala • Dynamic Choghadiya</span>
           </div>
         </div>
