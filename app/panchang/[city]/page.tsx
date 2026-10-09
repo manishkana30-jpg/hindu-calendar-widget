@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `${city.name} Panchang Today — Live Udaya Tithi, Choghadiya & Muhurat`;
   const description = `Accurate Vedic Panchang for ${city.name}, ${city.country}. Real-time Udaya Tithi, dynamic Choghadiya Muhurat, Rahu Kalam, and sunrise/sunset powered by Swiss Ephemeris.`;
-  const canonicalUrl = `https://dailytithi.com/panchang/${city.slug}`;
-  const ogImageUrl = `https://dailytithi.com/api/og?city=${city.slug}`;
+  const canonicalUrl = `https://www.dailytithi.com/panchang/${city.slug}`;
+  const ogImageUrl = `https://www.dailytithi.com/api/og?city=${city.slug}`;
 
   return {
     title,
@@ -112,19 +112,19 @@ export default async function CityPanchangPage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://dailytithi.com/'
+        item: 'https://www.dailytithi.com/'
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Panchang',
-        item: 'https://dailytithi.com/'
+        item: 'https://www.dailytithi.com/'
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: `${city.name} Panchang`,
-        item: `https://dailytithi.com/panchang/${city.slug}`
+        item: `https://www.dailytithi.com/panchang/${city.slug}`
       }
     ]
   };

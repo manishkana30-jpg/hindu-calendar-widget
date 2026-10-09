@@ -2,7 +2,7 @@
 
 High-precision, offline-first Vedic Panchang and Hindu Calendar calculated with continuous trigonometric astronomical ephemeris algorithms.
 
-Live Production Web App: [https://dailytithi.com/](https://dailytithi.com/)
+Live Production Web App: [https://www.dailytithi.com/](https://www.dailytithi.com/)
 
 ---
 

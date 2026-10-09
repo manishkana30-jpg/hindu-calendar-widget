@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Terms of Service & Astrometric Disclaimers | Daily Tithi",
   description: "Terms of Service, computational astrometry accuracy disclaimers, and warranty limitations for Daily Tithi (dailytithi.com).",
   alternates: {
-    canonical: 'https://dailytithi.com/terms'
+    canonical: 'https://www.dailytithi.com/terms'
   }
 };
 

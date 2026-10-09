@@ -83,7 +83,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   const handleShareClick = useCallback(async () => {
     const shareUrl = typeof window !== 'undefined' 
       ? window.location.origin 
-      : 'https://dailytithi.com';
+      : 'https://www.dailytithi.com';
 
     const shareData = {
       title: 'Daily Tithi - Live Vedic Panchang & Hindu Calendar',

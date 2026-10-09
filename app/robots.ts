@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/admin/'],
     },
-    sitemap: 'https://dailytithi.com/sitemap.xml',
+    sitemap: 'https://www.dailytithi.com/sitemap.xml',
   };
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Daily Tithi",
   description: "Comprehensive privacy disclosures for Daily Tithi (dailytithi.com) detailing client-side astrometry processing, Google AdSense cookies, Web Storage, and data rights.",
   alternates: {
-    canonical: 'https://dailytithi.com/privacy-policy'
+    canonical: 'https://www.dailytithi.com/privacy-policy'
   }
 };
 
