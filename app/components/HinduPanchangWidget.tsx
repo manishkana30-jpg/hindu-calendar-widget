@@ -5,7 +5,7 @@ import {
   Sparkles, MapPin, ChevronDown, MoreVertical, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight, Lock, Bell
+  ShieldAlert, ShieldCheck, ArrowUpRight, Bell
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -367,21 +367,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         {/* ── Top Bar ── */}
         <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#161f36]">
           
-          {/* Left Badges & Trust Signals */}
+          {/* Left Controls & Location Selector */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            
-            {/* Vedic Live Engine Pill */}
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#11192e] border border-[#233152] text-[#f59e0b] text-xs font-semibold tracking-tight shadow-sm">
-              <Sparkles size={13} className="text-[#f59e0b] animate-pulse" />
-              <span>Vedic Astrometry Engine</span>
-            </div>
-
-            {/* Astrometric Authority & Offline Badge */}
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0e1629] border border-emerald-500/30 text-emerald-300 text-[11px] font-mono shadow-sm">
-              <ShieldCheck size={12} className="text-emerald-400" />
-              <span>Drik Ganita • 100% Offline</span>
-            </div>
-
             {/* Location Dropdown Pill */}
             <div className="relative inline-flex items-center">
               <MapPin size={13} className="absolute left-3 text-[#f59e0b] pointer-events-none" />
@@ -435,18 +422,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
             </button>
 
-
-            {/* Geolocation Privacy Badge */}
-            <div className="hidden md:inline-flex items-center gap-1 text-[11px] text-emerald-400 font-mono bg-emerald-950/30 border border-emerald-500/20 px-2.5 py-0.5 rounded-full shadow-sm">
-              <Lock size={10} />
-              <span>100% Client-Side • Zero GPS Logging</span>
-            </div>
-
             {/* Subtitle / Center Coordinates info */}
             <span className="hidden xl:inline-block text-neutral-400 text-xs font-normal">
               Center ({selectedLocation.latitude > 0 ? `${selectedLocation.latitude}°N` : `${Math.abs(selectedLocation.latitude)}°S`}, {selectedLocation.longitude > 0 ? `${selectedLocation.longitude}°E` : `${Math.abs(selectedLocation.longitude)}°W`})
             </span>
-
           </div>
 
           {/* Right Menu & Close Controls (Enlarged 40x40px Touch Targets) */}
