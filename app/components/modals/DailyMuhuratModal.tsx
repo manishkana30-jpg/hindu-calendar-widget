@@ -87,12 +87,18 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   const nightLengthMin = (1440 - sunsetMin) + nextSunriseMin;
   const nightSlotDuration = nightLengthMin / 15;
 
-  // Anchor dates to Gregorian Live Clock
-  const clockDate = new Date(liveNow);
-  const prevClockDate = new Date(clockDate);
-  prevClockDate.setDate(prevClockDate.getDate() - 1);
-  const nextClockDate = new Date(clockDate);
-  nextClockDate.setDate(nextClockDate.getDate() + 1);
+  // Anchor dates to the Vedic Day (Ahoratra)
+  // A civil Vedic day extends from Sunrise to Next Sunrise.
+  // When the current Gregorian time is pre-sunrise (between midnight and today's sunrise),
+  // the ongoing Vedic day is anchored to yesterday's sunrise.
+  const isPreSunrise = currentMinutes < sunriseMin;
+
+  const baseVedicDate = new Date(liveNow);
+  if (isPreSunrise) {
+    baseVedicDate.setDate(baseVedicDate.getDate() - 1);
+  }
+  const nextVedicDate = new Date(baseVedicDate);
+  nextVedicDate.setDate(nextVedicDate.getDate() + 1);
 
   const formatGregorianDate = (d: Date) => d.toLocaleDateString('en-GB', {
     weekday: 'short',
@@ -101,21 +107,17 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     year: 'numeric'
   });
 
-  const prevDateStr = formatGregorianDate(prevClockDate);
-  const todayDateStr = formatGregorianDate(clockDate);
-  const nextDateStr = formatGregorianDate(nextClockDate);
+  const baseDateStr = formatGregorianDate(baseVedicDate);
+  const nextDateStr = formatGregorianDate(nextVedicDate);
 
-  // Check if live Gregorian clock is currently pre-sunrise (between midnight and today's sunrise)
-  const isPreSunrise = currentMinutes < sunriseMin;
-
-  // Build Day Muhurats with exact dates, start time, end time
+  // Build Day Muhurats with exact dates, start time, end time (Strict Ascending Order: baseDateStr)
   const dayMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal (Day)').map((m, idx) => {
     const sMin = sunriseMin + idx * daySlotDuration;
     const eMin = sMin + daySlotDuration;
     const startTimeStr = formatMinutesToTime(sMin);
     const endTimeStr = formatMinutesToTime(eMin);
     const isCurrent = currentMinutes >= sMin && currentMinutes < eMin;
-    const dateStr = todayDateStr;
+    const dateStr = baseDateStr;
 
     return {
       ...m,
@@ -127,19 +129,17 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     };
   });
 
-  // Build Night Muhurats with exact dates, start time, end time
+  // Build Night Muhurats with exact dates, start time, end time (Strict Ascending Order: baseDateStr before midnight, nextDateStr after midnight)
   const nightMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal (Night)').map((m, idx) => {
     const sMin = sunsetMin + idx * nightSlotDuration;
     const eMin = sMin + nightSlotDuration;
     const startTimeStr = formatMinutesToTime(sMin);
     const endTimeStr = formatMinutesToTime(eMin);
     
-    // Check if slot falls after midnight
-    const isPostMidnight = sMin >= 1440 || (sMin % 1440) < sunriseMin;
-    // When isPreSunrise is true (we are currently between 00:00 and sunrise), the post-midnight slot is happening TODAY!
-    const dateStr = isPreSunrise
-      ? (isPostMidnight ? todayDateStr : prevDateStr)
-      : (isPostMidnight ? nextDateStr : todayDateStr);
+    // Check if slot falls after midnight (1440 minutes mark)
+    const isPostMidnight = sMin >= 1440;
+    // Slots before midnight belong to baseDateStr; slots after midnight advance to nextDateStr
+    const dateStr = isPostMidnight ? nextDateStr : baseDateStr;
 
     // Check if current time falls in this night slot
     const normS = sMin % 1440;

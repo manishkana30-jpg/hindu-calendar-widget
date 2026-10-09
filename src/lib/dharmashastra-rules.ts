@@ -95,6 +95,101 @@ export const COMPLETE_MUHURATS_LIST: MuhuratEntry[] = [
   { index: 30, name: 'Savitra (सावित्र)', deity: 'Savitr / Dawn Radiance', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Gayatri Japa, Suryodaya Arghya preparation' }
 ];
 
+export interface Active30MuhuratResult extends MuhuratEntry {
+  startTime: string;
+  endTime: string;
+  durationMins: number;
+  remainingString: string;
+}
+
+export function calculateActive30Muhurat(
+  sunriseStr: string,
+  sunsetStr: string,
+  targetDate: Date = new Date()
+): Active30MuhuratResult | null {
+  const parseTimeToMinutes = (t: string) => {
+    const parts = t.trim().split(' ');
+    const hm = parts[0].split(':');
+    let h = parseInt(hm[0], 10);
+    const m = parseInt(hm[1], 10);
+    const ampm = parts[1]?.toUpperCase();
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  };
+
+  const formatMinutesToTime = (totalMin: number) => {
+    let normalized = Math.round(totalMin) % 1440;
+    if (normalized < 0) normalized += 1440;
+    const hours24 = Math.floor(normalized / 60);
+    const minutes = normalized % 60;
+    const period = hours24 >= 12 ? 'PM' : 'AM';
+    const hours12 = hours24 % 12 || 12;
+    return `${String(hours12).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+  };
+
+  const sunriseMin = parseTimeToMinutes(sunriseStr);
+  const sunsetMin = parseTimeToMinutes(sunsetStr);
+  const currentMinutes = targetDate.getHours() * 60 + targetDate.getMinutes() + targetDate.getSeconds() / 60;
+
+  const dayLengthMin = sunsetMin >= sunriseMin ? sunsetMin - sunriseMin : (sunsetMin + 1440) - sunriseMin;
+  const daySlotDuration = dayLengthMin / 15;
+  const nightLengthMin = (1440 - sunsetMin) + sunriseMin;
+  const nightSlotDuration = nightLengthMin / 15;
+
+  // Diurnal (Day) Slots 1 to 15
+  for (let idx = 0; idx < 15; idx++) {
+    const sMin = sunriseMin + idx * daySlotDuration;
+    const eMin = sMin + daySlotDuration;
+    if (currentMinutes >= sMin && currentMinutes < eMin) {
+      const m = COMPLETE_MUHURATS_LIST[idx];
+      let diff = eMin - currentMinutes;
+      const totalSec = Math.max(0, Math.floor(diff * 60));
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      return {
+        ...m,
+        startTime: formatMinutesToTime(sMin),
+        endTime: formatMinutesToTime(eMin),
+        durationMins: Math.round(daySlotDuration),
+        remainingString: `${mins}m ${secs < 10 ? '0' + secs : secs}s`
+      };
+    }
+  }
+
+  // Nocturnal (Night) Slots 16 to 30
+  for (let idx = 0; idx < 15; idx++) {
+    const sMin = sunsetMin + idx * nightSlotDuration;
+    const eMin = sMin + nightSlotDuration;
+    const normS = sMin % 1440;
+    const normE = eMin % 1440;
+    let isCurrent = false;
+    if (normS < normE) {
+      isCurrent = currentMinutes >= normS && currentMinutes < normE;
+    } else {
+      isCurrent = currentMinutes >= normS || currentMinutes < normE;
+    }
+    if (isCurrent) {
+      const m = COMPLETE_MUHURATS_LIST[15 + idx];
+      let diff = normE - (currentMinutes % 1440);
+      if (diff < 0) diff += 1440;
+      const totalSec = Math.max(0, Math.floor(diff * 60));
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      return {
+        ...m,
+        startTime: formatMinutesToTime(sMin),
+        endTime: formatMinutesToTime(eMin),
+        durationMins: Math.round(nightSlotDuration),
+        remainingString: `${mins}m ${secs < 10 ? '0' + secs : secs}s`
+      };
+    }
+  }
+
+  return null;
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. PANCHAK DATABASE WITH REAL TIMESTAMPS (2026 - 2027)
 // ─────────────────────────────────────────────────────────────────────────────
