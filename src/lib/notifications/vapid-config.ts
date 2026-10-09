@@ -6,51 +6,51 @@
  * - In development/testing: Provides sandboxed keys with security warnings.
  */
 
-import webpush from 'web-push';
+import webpush, {
+  getVapidCredentials as getCentralVapidCredentials,
+  getWebPushInstance,
+  isVapidConfigured,
+  VapidCredentials
+} from '@/src/lib/webpush';
 
-export interface VapidCredentials {
-  publicKey: string;
-  privateKey: string;
-  subject: string;
-}
+export type { VapidCredentials };
 
-// Development fallback keys only used when NODE_ENV !== 'production'
+// Development fallback keys used only in local development when unconfigured
 const DEV_FALLBACK_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEV_FALLBACK_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
 const DEFAULT_SUBJECT = 'mailto:contact@dailytithi.com';
 
 export function getVapidCredentials(): VapidCredentials | null {
-  const isProd = process.env.NODE_ENV === 'production';
-  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || DEFAULT_SUBJECT;
+  const central = getCentralVapidCredentials();
+  if (central) return central;
 
-  if (!publicKey || !privateKey) {
-    if (isProd) {
-      console.error('CRITICAL SECURITY ERROR: VAPID_PRIVATE_KEY or NEXT_PUBLIC_VAPID_PUBLIC_KEY environment variable is missing in production.');
-      return null;
-    }
-
-    // Development only fallback
-    return {
-      publicKey: publicKey || DEV_FALLBACK_PUBLIC,
-      privateKey: privateKey || DEV_FALLBACK_PRIVATE,
-      subject
-    };
+  if (process.env.NODE_ENV === 'production') {
+    console.error('CRITICAL SECURITY ERROR: VAPID_PRIVATE_KEY or NEXT_PUBLIC_VAPID_PUBLIC_KEY environment variable is missing in production.');
+    return null;
   }
 
-  return { publicKey, privateKey, subject };
+  // Development only fallback
+  return {
+    publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEV_FALLBACK_PUBLIC,
+    privateKey: process.env.VAPID_PRIVATE_KEY || DEV_FALLBACK_PRIVATE,
+    subject: process.env.VAPID_SUBJECT || DEFAULT_SUBJECT,
+  };
 }
 
 export function configureWebPush(): boolean {
+  const instance = getWebPushInstance();
+  if (instance) return true;
+
   const creds = getVapidCredentials();
   if (!creds) return false;
 
   try {
     webpush.setVapidDetails(creds.subject, creds.publicKey, creds.privateKey);
     return true;
-  } catch (err) {
-    console.error('Failed to configure webpush VAPID details:', err);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error('Failed to configure webpush VAPID details:', errorMsg);
     return false;
   }
 }
+

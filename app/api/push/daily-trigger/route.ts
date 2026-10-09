@@ -19,7 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import webpush from 'web-push';
+import webpush, { getWebPushInstance } from '@/src/lib/webpush';
 import {
   getAllSubscriptions,
   pruneIfStale,
@@ -57,24 +57,19 @@ const PUSH_OPTIONS: webpush.RequestOptions = {
  * In development, provides a fallback to ensure local testing succeeds.
  */
 function ensureVapidConfig(): boolean {
-  const publicKey = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@dailytithi.com';
+  const wp = getWebPushInstance();
+  if (wp) return true;
 
-  if (!publicKey || !privateKey) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[CRITICAL] VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is missing in production environment.');
-      return false;
-    }
-    // Sandboxed development fallback keys
-    const DEV_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
-    const DEV_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
-    webpush.setVapidDetails(subject, DEV_PUBLIC, DEV_PRIVATE);
-    return true;
+  if (process.env.NODE_ENV === 'production') {
+    console.error('[CRITICAL] VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is missing in production environment.');
+    return false;
   }
-
+  // Sandboxed development fallback keys
+  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@dailytithi.com';
+  const DEV_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+  const DEV_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
   try {
-    webpush.setVapidDetails(subject, publicKey, privateKey);
+    webpush.setVapidDetails(subject, DEV_PUBLIC, DEV_PRIVATE);
     return true;
   } catch (err: unknown) {
     console.error('Failed to configure web-push VAPID details:', err);

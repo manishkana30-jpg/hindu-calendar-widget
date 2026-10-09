@@ -129,16 +129,24 @@ self.addEventListener('push', (event) => {
     };
   }
 
+  // Dedicated handling for Admin & Diagnostics Test Broadcasts (isTestBroadcast)
+  const isTestBroadcast = Boolean(payload.isTestBroadcast || payload.data?.isTestBroadcast);
+  const title = payload.title || (isTestBroadcast ? 'Panchang Test Notification' : 'Panchang Alert');
+  const body = payload.body || (isTestBroadcast 
+    ? 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.' 
+    : 'Vedic Panchang update available.');
+
   const options = {
-    body: payload.body,
+    body,
     icon: payload.icon || '/icon-192.svg',
     badge: payload.badge || '/icon-192.svg',
-    tag: payload.tag || 'panchang-alert',
+    tag: payload.tag || (isTestBroadcast ? 'panchang-test' : 'panchang-alert'),
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: isTestBroadcast,
     data: {
       url: payload.url || payload.data?.url || '/',
       timestamp: Date.now(),
+      isTestBroadcast,
       ...payload.data
     },
     actions: [{ action: 'open', title: 'View Panchang' }]
@@ -146,7 +154,22 @@ self.addEventListener('push', (event) => {
 
   // Crucial: All async work MUST be wrapped in event.waitUntil(...)
   // Failure to wrap causes OS process termination before notification renders
-  event.waitUntil(self.registration.showNotification(payload.title, options));
+  event.waitUntil(self.registration.showNotification(title, options).then(() => {
+    // If this is a test broadcast, report receipt confirmation back to server silently
+    if (isTestBroadcast && payload.data?.testId && payload.data?.subId) {
+      return fetch('/api/push/test-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          testId: payload.data.testId,
+          subId: payload.data.subId,
+          event: 'received',
+          platform: navigator.userAgentData?.platform || 'Unknown',
+          browser: 'ServiceWorker'
+        })
+      }).catch((err) => console.warn('[SW] Confirmation delivery failed:', err));
+    }
+  }));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

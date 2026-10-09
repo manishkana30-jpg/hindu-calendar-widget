@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vapid:generate": "node scripts/generate-vapid-keys.js",
+    "vapid:check": "node scripts/verify-vapid.js"
   },
   "dependencies": {
     "@upstash/redis": "^1.39.0",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getVapidPublicKey, isVapidConfigured } from '@/src/lib/webpush';
 import {
   upsertSubscription,
   deleteSubscription,
@@ -114,10 +115,10 @@ function isValidKeys(keys: unknown): keys is PushSubscriptionKeys {
  * Exposes the configured VAPID public key to authenticated client PWA instances.
  */
 export async function GET() {
-  const publicKey = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null;
+  const publicKey = getVapidPublicKey();
   return NextResponse.json({
     publicKey,
-    configured: Boolean(publicKey)
+    configured: isVapidConfigured()
   });
 }
 
