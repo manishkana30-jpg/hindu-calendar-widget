@@ -11,7 +11,8 @@ import {
   calculatePanchang, 
   PRESET_LOCATIONS, 
   LocationCoordinates, 
-  PanchangData 
+  PanchangData,
+  TITHIS
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { CITIES } from '../../src/lib/cities';
@@ -306,6 +307,33 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const tzHours = Math.trunc(Math.abs(tzOffset));
   const tzMins = Math.round((Math.abs(tzOffset) % 1) * 60);
   const formattedTzOffset = `UTC${tzSign}${tzHours}:${String(tzMins).padStart(2, '0')}`;
+
+  // Next Tithi & Dharmashastra observation timing calculation
+  const currentUdayaIndex = panchang.udayaTithi?.index || panchang.tithi.index || 1;
+  const nextTithiIndex = (currentUdayaIndex % 30) + 1;
+  const nextTithiObj = TITHIS[(nextTithiIndex - 1) % 30];
+  const nextTithiName = nextTithiObj?.name || `Tithi ${nextTithiIndex}`;
+  const newTithiStartTime = panchang.udayaTithi?.endTime || panchang.tithi.endTime || 'At conclusion';
+
+  const DAY_NAMES = [
+    'Ravivara (रविवार)',
+    'Somavara (सोमवार)',
+    'Mangalavara (मंगलवार)',
+    'Budhavara (बुधवार)',
+    'Guruvara (गुरुवार)',
+    'Shukravara (शुक्रवार)',
+    'Shanivara (शनिवार)'
+  ];
+  const currentDayIndex = targetInstant.getDay();
+  const tomorrowDayName = DAY_NAMES[(currentDayIndex + 1) % 7];
+
+  let newTithiObservedWhen = `Tomorrow • ${tomorrowDayName}`;
+  if (tithiResolution.isVriddhi) {
+    const dayAfterIndex = (currentDayIndex + 2) % 7;
+    newTithiObservedWhen = `${DAY_NAMES[dayAfterIndex]} (Delayed: Vriddhi)`;
+  } else if (tithiResolution.isKshaya && tithiResolution.kshayaTithiDetails?.name === nextTithiName) {
+    newTithiObservedWhen = 'Today (Kshaya — Skipped at Sunrise)';
+  }
 
   // Click-outside handler to close dropdown menu
   useEffect(() => {
@@ -614,7 +642,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* COLUMN 2: VEDIC PANCHANG CARD (CLICKABLE -> OPENS MONTHLY TITHI CALENDAR) */}
+          {/* COLUMN 2: VEDIC PANCHANG CARD (CLEAN FOCUSED VIEW) */}
           <div 
             onClick={() => setIsTithiModalOpen(true)}
             onKeyDown={(e) => {
@@ -629,36 +657,43 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isTithiModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
-            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-amber-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99]"
+            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/90 hover:bg-[#121c33] border border-[#1e2942] hover:border-amber-500/60 flex flex-col justify-between shadow-xl cursor-pointer transition-all group relative active:scale-[0.99] font-sans"
           >
-            <div>
-              {/* Card Header with Affordance Cue */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-[#f59e0b] text-[11px] font-bold tracking-wider uppercase">
-                  <Sun size={13} className="text-[#f59e0b]" />
-                  <span>VEDIC PANCHANG</span>
+            <div className="space-y-3">
+              {/* 1 & 2: Today's Day & Masa */}
+              <div className="space-y-1.5 pb-2.5 border-b border-[#16213d]">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+                    <Sun size={14} className="text-amber-400 flex-shrink-0" />
+                    <span className="text-white text-sm sm:text-base font-bold tracking-tight">
+                      {panchang.dayOfWeekName}
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    Today
+                  </span>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:text-amber-300">
-                  <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-semibold opacity-90">{panchang.dayOfWeekName} • Almanac</span>
-                  <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+
+                <div className="flex items-baseline gap-1.5 text-xs text-neutral-300 leading-snug">
+                  <span className="text-[11px] font-bold text-amber-400/90 uppercase tracking-wider flex-shrink-0">Masa:</span>
+                  <span className="font-medium text-neutral-100 flex-1 truncate">
+                    {panchang.masaDisplay}
+                  </span>
+                  <span className="text-neutral-400 font-mono text-[11px] flex-shrink-0">
+                    VS {panchang.vikramSamvat}
+                  </span>
                 </div>
               </div>
 
-              {/* Pre-Sunrise Alert / Clarification Banner */}
-              {isPreSunrise && (
-                <div className="my-1.5 px-2.5 py-1 rounded-xl bg-indigo-950/60 border border-indigo-500/40 text-[11px] text-indigo-300 flex items-center gap-1.5 animate-pulse">
-                  <Moon size={12} className="text-indigo-400 flex-shrink-0" />
-                  <span>Pre-Sunrise (Brahma Muhurta): Civil Day anchored to yesterday</span>
-                </div>
-              )}
-
-              {/* Primary Element 1: Civil Udaya Tithi (Governs Civil Day & Vrat) */}
-              <div className="my-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-amber-400/90 flex-wrap">
-                  <span>Civil Udaya Tithi (दिन-तिथि)</span>
+              {/* 3: Today's Tithi as per Dharmashastra rules with End Time */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-neutral-400">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400/90">
+                    Today&apos;s Tithi (Dharmashastra)
+                  </span>
                   {tithiResolution.isVriddhi && (
                     <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-bold">
-                      Vriddhi (2nd Sunrise)
+                      Vriddhi
                     </span>
                   )}
                   {tithiResolution.isKshaya && (
@@ -668,12 +703,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight group-hover:text-amber-100 transition-colors">
                     {panchang.udayaTithi?.name || panchang.tithi.name}
                   </h3>
-                  {panchang.tithi.index === 15 && <span className="text-lg animate-pulse" title="Purnima">🌕</span>}
-                  {panchang.tithi.index === 30 && <span className="text-lg animate-pulse" title="Amavasya">🌑</span>}
+                  {panchang.tithi.index === 15 && <span className="text-lg" title="Purnima">🌕</span>}
+                  {panchang.tithi.index === 30 && <span className="text-lg" title="Amavasya">🌑</span>}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
                       ✨ Ekadashi Vrat
@@ -681,67 +716,55 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                 </div>
 
-                <div className="text-xs text-amber-300/95 font-mono font-medium flex items-center gap-1 mt-0.5">
-                  <span>⏱️ Udaya Tithi Ends:</span>
-                  <span className="font-bold text-white">{panchang.udayaTithi?.endTime || panchang.tithi.endTime}</span>
-                </div>
-              </div>
-
-              {/* Primary Element 2: Current Running Instantaneous Tithi Subcard */}
-              <div className="my-2 p-2 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1">
-                <div className="flex items-center justify-between text-[11px] gap-1 flex-wrap">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400">Live Running:</span>
-                    <span className="text-white font-semibold text-xs">
-                      {tithiResolution.instantaneousTithi?.name || panchang.tithi.name}
-                    </span>
-                  </div>
-                  <span className="text-emerald-300 font-mono text-[10px] font-bold">
-                    {tithiResolution.instantaneousTithi?.percentageElapsed ?? 0}% Elapsed
-                  </span>
-                </div>
-
-                {/* Micro Progress Bar */}
-                <div className="w-full h-1 bg-[#101b33] rounded-full overflow-hidden border border-[#1e2e54]">
-                  <div 
-                    className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, tithiResolution.instantaneousTithi?.percentageElapsed ?? 0))}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-[10px] text-neutral-400 font-mono">
-                  <span>Instantaneous Lunar Phase</span>
-                  <span>
-                    Ends: <strong className="text-amber-300">{panchang.instantaneousTithi?.endTime || panchang.tithi.endTime}</strong>
+                <div className="text-xs text-amber-300/95 font-mono font-medium flex items-center gap-1.5 pt-0.5">
+                  <Clock size={12} className="text-amber-400/80 flex-shrink-0" />
+                  <span>Ends:</span>
+                  <span className="font-bold text-white">
+                    {panchang.udayaTithi?.endTime || panchang.tithi.endTime}
                   </span>
                 </div>
               </div>
 
-              {/* Secondary Details: Masa & Samvat */}
-              <div className="text-xs text-neutral-300 mt-1 flex items-center gap-1.5">
-                <span>Masa:</span>
-                <span className="font-semibold text-white">{panchang.masaDisplay}</span>
-                <span className="text-neutral-400">•</span>
-                <span className="text-neutral-300">VS {panchang.vikramSamvat}</span>
+              {/* 4: New Tithi: Start Time & Will Be Observed When */}
+              <div className="p-2.5 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400 text-[11px] font-medium">New Tithi:</span>
+                  <span className="font-bold text-amber-200">
+                    {nextTithiName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400 text-[11px] font-medium">Starts:</span>
+                  <span className="font-mono text-neutral-100 font-medium">
+                    {newTithiStartTime}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-[#16233d]">
+                  <span className="text-neutral-400 text-[11px] font-medium">Observed:</span>
+                  <span className="font-semibold text-emerald-300">
+                    {newTithiObservedWhen}
+                  </span>
+                </div>
               </div>
 
-              {/* Tertiary Ishta Kaal Sub-Panel */}
-              <div className="mt-2.5 pt-2 border-t border-[#1a2542] flex items-center justify-between text-[11px] font-mono text-neutral-300">
-                <span>Ishta Kaal:</span>
-                <span className="text-amber-400 font-semibold">{panchang.ishtaKaal.ghatiFormatted}</span>
+              {/* 5: Pahar */}
+              <div className="flex items-center justify-between text-xs py-0.5">
+                <span className="text-[11px] font-medium text-neutral-400 flex items-center gap-1.5">
+                  <Compass size={13} className="text-amber-400" />
+                  <span>Pahar:</span>
+                </span>
+                <span className="font-medium text-neutral-200 font-mono text-[11px] bg-[#0b1222] border border-[#233152] px-2 py-0.5 rounded-lg">
+                  {panchang.paharCapsuleText}
+                </span>
               </div>
             </div>
 
-            {/* Footer: Pahar Capsule & Interactive Tap Pill */}
-            <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#1a2542]">
-              <div className="border border-[#233152] bg-[#0b1222] px-2.5 py-1 rounded-xl text-[11px] font-medium text-neutral-300 flex items-center gap-1.5">
-                <Compass size={12} className="text-[#f59e0b]" />
-                <span>{panchang.paharCapsuleText}</span>
-              </div>
-              <div className="px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-[11px] font-bold text-amber-300 group-hover:bg-amber-500/25 group-hover:border-amber-400 transition-all flex items-center gap-1">
-                <span>Open 30-Day Almanac</span>
-                <ArrowUpRight size={12} />
+            {/* 6: Link for Open Calendar */}
+            <div className="mt-3 pt-2.5 border-t border-[#1a2542]">
+              <div className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 group-hover:border-amber-400/80 text-amber-300 group-hover:text-amber-200 text-xs font-bold tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <Calendar size={13} className="text-amber-400" />
+                <span>Open 30-Day Calendar</span>
+                <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
           </div>
