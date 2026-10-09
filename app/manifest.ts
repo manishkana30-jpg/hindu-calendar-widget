@@ -6,10 +6,13 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'Panchang',
     description: 'High-Precision Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra determination rules.',
     start_url: '/',
+    scope: '/',
+    id: '/',
     display: 'standalone',
     background_color: '#090e1a',
     theme_color: '#090e1a',
     orientation: 'any',
+    prefer_related_applications: false,
     icons: [
       {
         src: '/icon-192.svg',

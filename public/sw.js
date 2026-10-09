@@ -1,13 +1,55 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (Production v9)
+// Service Worker for Hindu Calendar & Live Panchang PWA (Production v10)
 // Compliant with W3C Service Worker & Push API standards
+// v10: Offline-first CHECK_AND_NOTIFY using IndexedDB cache, dual manifest support
 
-const CACHE_NAME = 'vedic-panchang-pwa-v9';
+const CACHE_NAME = 'vedic-panchang-pwa-v10';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
   '/icon-512.svg',
-  '/manifest.json'
+  '/manifest.json',
+  '/manifest.webmanifest'
 ];
+
+// ── IndexedDB Access (shared with main thread via idb-storage.ts) ───────────
+const IDB_NAME = 'vedic_panchang_db';
+const IDB_VERSION = 1;
+const IDB_STORE = 'notification_kv';
+const KEY_DAILY_CACHE = 'daily_panchang_cache';
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+function getFromIDB(key) {
+  return openIDB().then((db) => {
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(IDB_STORE, 'readonly');
+        const store = tx.objectStore(IDB_STORE);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    });
+  }).catch(() => null);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. LIFECYCLE & CACHING (OFFLINE RESILIENCE)
@@ -161,7 +203,7 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. CLIENT COMMUNICATION BUS & PERIODIC BACKGROUND SYNC
+// 5. CLIENT COMMUNICATION BUS & OFFLINE-FIRST BACKGROUND NOTIFICATIONS
 // ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
   const data = event.data;
@@ -171,38 +213,99 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 
-  if (data.type === 'CHECK_AND_NOTIFY' && data.force) {
-    event.waitUntil(
-      fetch('/api/panchang/today')
-        .then((res) => res.json())
-        .then((panchang) => {
-          if (panchang) {
-            const body = panchang.instantaneousTithi?.name
-              ? `Tithi: ${panchang.instantaneousTithi.name}`
-              : 'Vedic Panchang alert dispatched.';
-            return self.registration.showNotification('Panchang Update', {
-              body,
-              icon: '/icon-192.svg',
-              badge: '/icon-192.svg',
-              tag: 'panchang-alert',
-              renotify: true
-            });
-          }
-        })
-        .catch(() => {})
-    );
+  // Seed cache message from ClientNotificationScheduler
+  if (data.type === 'SEED_CACHE' && data.cache) {
+    // Cache is already saved to IndexedDB by the main thread;
+    // This message just confirms the SW is aware of the seeded data.
+  }
+
+  // Settings update from main thread
+  if (data.type === 'SET_SETTINGS') {
+    // Acknowledged — settings are read from IndexedDB when needed
+  }
+
+  if (data.type === 'CHECK_AND_NOTIFY') {
+    event.waitUntil(handleCheckAndNotify(data.force));
   }
 });
 
+/**
+ * Offline-first CHECK_AND_NOTIFY handler.
+ * 1. First attempts to read from the IndexedDB cache seeded by the client
+ * 2. Falls back to network fetch only if cache is stale or missing
+ * 3. This ensures notifications work even when the device is offline/background
+ */
+async function handleCheckAndNotify(force) {
+  try {
+    // Strategy 1: Read from IndexedDB cache (offline-first, zero-network)
+    const cachedData = await getFromIDB(KEY_DAILY_CACHE);
+    if (cachedData && cachedData.instantaneousTithi) {
+      const cacheAgeMs = Date.now() - (cachedData.cachedAt || 0);
+      const MAX_CACHE_AGE = 6 * 60 * 60 * 1000; // 6 hours
+
+      if (cacheAgeMs < MAX_CACHE_AGE || force) {
+        const bodyParts = [];
+        if (cachedData.instantaneousTithi.name) {
+          bodyParts.push(`Tithi: ${cachedData.instantaneousTithi.name}`);
+        }
+        if (cachedData.panchak && cachedData.panchak.isActive && cachedData.panchak.isInauspicious) {
+          bodyParts.push(`🔴 ${cachedData.panchak.statusText || cachedData.panchak.type || 'Panchak Active'}`);
+        }
+        if (cachedData.festivalOrVrat) {
+          bodyParts.push(`Festival: ${cachedData.festivalOrVrat}`);
+        }
+
+        const body = bodyParts.length > 0
+          ? bodyParts.join('\n')
+          : 'Vedic Panchang alert dispatched.';
+
+        return self.registration.showNotification('Panchang Update', {
+          body,
+          icon: '/icon-192.svg',
+          badge: '/icon-192.svg',
+          tag: 'panchang-alert',
+          renotify: true
+        });
+      }
+    }
+
+    // Strategy 2: Network fetch fallback (only when cache is stale/missing)
+    const res = await fetch('/api/panchang/today');
+    if (res.ok) {
+      const panchang = await res.json();
+      if (panchang) {
+        const body = panchang.instantaneousTithi?.name
+          ? `Tithi: ${panchang.instantaneousTithi.name}`
+          : 'Vedic Panchang alert dispatched.';
+        return self.registration.showNotification('Panchang Update', {
+          body,
+          icon: '/icon-192.svg',
+          badge: '/icon-192.svg',
+          tag: 'panchang-alert',
+          renotify: true
+        });
+      }
+    }
+  } catch {
+    // Silent failure — both cache and network unavailable
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. PERIODIC BACKGROUND SYNC
+// ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'panchang-periodic-check') {
     event.waitUntil(
-      fetch('/api/push/daily-trigger', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: 'periodic-sync' })
+      // First try offline-first local notification
+      handleCheckAndNotify(false).then(() => {
+        // Then attempt to trigger server-side dispatch for other subscribers
+        return fetch('/api/push/daily-trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source: 'periodic-sync' })
+        }).catch(() => {});
       }).catch(() => {})
     );
   }
 });
-

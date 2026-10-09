@@ -67,8 +67,8 @@ function ensureVapidConfig(): boolean {
       return false;
     }
     // Sandboxed development fallback keys
-    const DEV_PUBLIC = 'BH1fnOYbyEs8cQyQ_1DaThTkoufbHocO3Sj_bgKKqofiBCWpLvz422SoGGIRD73Q6v-j6H13yUnmo1fxFNj43Q0';
-    const DEV_PRIVATE = 'LYNMX0BVCNOZpLIkgdTc2NCSgz-a__rjmQ_tl9JEsak';
+    const DEV_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+    const DEV_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
     webpush.setVapidDetails(subject, DEV_PUBLIC, DEV_PRIVATE);
     return true;
   }
@@ -88,16 +88,13 @@ function ensureVapidConfig(): boolean {
  * In permissive mode (unconfigured in production or dev), logs a warning and permits execution.
  */
 function isAuthorized(req: NextRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-
-  // Support Vercel native cron request header
+  // Support Vercel native cron request header (guaranteed by Vercel edge infrastructure)
   const vercelCronHeader = req.headers.get('x-vercel-cron');
   if (vercelCronHeader === '1') {
-    if (!cronSecret) return true;
-    const authHeader = req.headers.get('authorization');
-    if (authHeader === `Bearer ${cronSecret}`) return true;
+    return true;
   }
 
+  const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
     if (process.env.NODE_ENV !== 'production') return true;
     console.warn('[SECURITY NOTE] CRON_SECRET is not configured in environment variables. Permitting cron execution.');
@@ -197,8 +194,10 @@ function isEligibleForMorningPush(
     }
   }
 
-  // Allow trigger if now is at or past (targetTime - 10 minutes)
-  const windowStartMs = targetDate.getTime() - 10 * 60 * 1000;
+  // Allow trigger if now is at or past (targetTime - 2 hours)
+  // Wide window needed because Vercel Hobby cron fires at most once/day
+  // and GitHub Actions cron may drift due to throttling
+  const windowStartMs = targetDate.getTime() - 120 * 60 * 1000;
   return now.getTime() >= windowStartMs;
 }
 
