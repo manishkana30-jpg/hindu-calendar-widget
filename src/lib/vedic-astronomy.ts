@@ -841,6 +841,21 @@ export function formatUtcDateToLocalTime(date: Date, tz: number): string {
   return `${pad(h12)}:${pad(m)} ${period}`;
 }
 
+export function formatUtcDateToLocalDateString(date: Date, tz: number, referenceDate?: Date): string {
+  const localMs = date.getTime() + tz * 3600000;
+  const d = new Date(localMs);
+  const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dayStr = DAYS_SHORT[d.getUTCDay()];
+  const dateNum = d.getUTCDate();
+  const monthStr = MONTHS_SHORT[d.getUTCMonth()];
+  
+  if (referenceDate && d.getUTCFullYear() !== referenceDate.getFullYear()) {
+    return `${dayStr}, ${dateNum} ${monthStr} ${d.getUTCFullYear()}`;
+  }
+  return `${dayStr}, ${dateNum} ${monthStr}`;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // EXACT SOLAR TIMINGS (NOAA SOLAR CALCULATIONS WITH REFRACTION & EQUATION OF TIME)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1273,7 +1288,8 @@ export function calculatePanchang(
     const endDay = new Date(endLocalMs).getUTCDate();
     const curDay = targetDate.getDate();
     const timeStr = formatUtcDateToLocalTime(endTimeUtc, currentTz);
-    tithiEndTimeFormatted = endDay === curDay ? timeStr : `Next day ${timeStr}`;
+    const endDateStr = formatUtcDateToLocalDateString(endTimeUtc, currentTz, targetDate);
+    tithiEndTimeFormatted = endDay === curDay ? timeStr : `${endDateStr} • ${timeStr}`;
   }
 
   const currentJd = getJulianDay(now);
@@ -1299,7 +1315,8 @@ export function calculatePanchang(
     const endDay = new Date(endLocalMs).getUTCDate();
     const curDay = now.getDate();
     const timeStr = formatUtcDateToLocalTime(instEndTimeUtc, currentTz);
-    instEndTimeFormatted = endDay === curDay ? timeStr : `Next day ${timeStr}`;
+    const endDateStr = formatUtcDateToLocalDateString(instEndTimeUtc, currentTz, now);
+    instEndTimeFormatted = endDay === curDay ? timeStr : `${endDateStr} • ${timeStr}`;
   }
 
   // Nakshatra (Sidereal)
@@ -1817,7 +1834,8 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
       const endLocalMs = endTimeUtc.getTime() + tz * 3600000;
       const endDay = new Date(endLocalMs).getUTCDate();
       const timeStr = formatUtcDateToLocalTime(endTimeUtc, tz);
-      endStr = endDay === d ? timeStr : `Next day ${timeStr}`;
+      const endDateStr = formatUtcDateToLocalDateString(endTimeUtc, tz, targetDate);
+      endStr = endDay === d ? timeStr : `${endDateStr} • ${timeStr}`;
     }
 
     // Nakshatra at sunrise

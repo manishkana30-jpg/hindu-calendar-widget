@@ -258,7 +258,11 @@ for (let day = 1; day <= daysInMonth; day++) {
     const endLocalMs = endUtc.getTime() + tz * 3600000;
     const endDay = new Date(endLocalMs).getUTCDate();
     const timeStr = formatUtcTime(endUtc, tz);
-    endStr = endDay === day ? timeStr : `Next day ${timeStr}`;
+    const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const endLocalDate = new Date(endLocalMs);
+    const dateFormatted = `${DAYS_SHORT[endLocalDate.getUTCDay()]}, ${endLocalDate.getUTCDate()} ${MONTHS_SHORT[endLocalDate.getUTCMonth()]}`;
+    endStr = endDay === day ? timeStr : `${dateFormatted} • ${timeStr}`;
   }
   
   let marker = '';
