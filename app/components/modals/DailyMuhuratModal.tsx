@@ -201,11 +201,16 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                   {panchang.currentChoghadiya?.nature === 'INAUSPICIOUS' && '⚠️ INAUSPICIOUS (अशुभ)'}
                 </span>
               </div>
-              <div className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+              <div className="text-sm sm:text-base font-extrabold text-white flex flex-wrap items-center gap-2">
                 <span>{panchang.currentChoghadiya?.displayName || 'Labh Choghadiya'}</span>
                 <span className="text-xs text-neutral-300 font-normal hidden sm:inline">
                   ({panchang.currentChoghadiya?.periodType} Choghadiya • {panchang.currentChoghadiya?.ruler})
                 </span>
+                {active30Muhurat && (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium">
+                    Muhurat #{active30Muhurat.index}: {active30Muhurat.name}
+                  </span>
+                )}
               </div>
             </div>
           </div>
