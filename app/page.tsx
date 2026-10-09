@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
@@ -64,20 +63,12 @@ export default function LandingPage() {
       {/* ── Hero Section with Live Widget & Dynamic Server Date ── */}
       <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-6 max-w-6xl mx-auto text-center">
         
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] sm:text-xs font-bold mb-4 backdrop-blur-md">
-          <Sparkles size={13} className="text-amber-400 animate-pulse shrink-0" />
-          <span>Vedic Time • {serverFormattedDate} • 100% Offline PWA</span>
-        </div>
-
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-3 leading-tight">
-          Vedic Time. <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-red-500">
-            Real-Time Astrometry Today.
-          </span>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mb-2 leading-snug">
+          Real-Time High-Precision Vedic Panchang
         </h1>
         
-        <p className="text-xs sm:text-sm md:text-base text-neutral-400 max-w-2xl mx-auto mb-6 leading-relaxed px-2">
-          High-precision Vedic Panchang for {serverFormattedDate}. Live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra determination rules.
+        <p className="text-xs sm:text-sm text-neutral-400 font-medium max-w-xl mx-auto mb-6">
+          Dharmashastra determination rules
         </p>
 
         {/* ── Main Panchang Widget ── */}
