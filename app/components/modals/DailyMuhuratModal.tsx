@@ -164,6 +164,18 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   // Currently active 30-Muhurat
   const active30Muhurat = [...dayMuhuratsWithTimes, ...nightMuhuratsWithTimes].find(m => m.isCurrent);
 
+  // Countdown remaining string for active 30-Muhurat
+  const activeMuhuratRemaining = (() => {
+    if (!active30Muhurat) return null;
+    const endMins = parseTimeToMinutes(active30Muhurat.endTime);
+    let diff = endMins - (currentMinutes % 1440);
+    if (diff < 0) diff += 1440;
+    const totalSec = Math.max(0, Math.floor(diff * 60));
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${mins}m ${secs < 10 ? '0' + secs : secs}s`;
+  })();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-5xl max-h-[92vh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
@@ -208,85 +220,88 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
           </div>
         </div>
 
-        {/* ── ⭐ DEDICATED PROMINENT ACTIVE MUHURAT & TIMING HERO BANNER (FIXED & COMPACT) ── */}
-        <div className={`p-3 sm:px-6 sm:py-2.5 bg-gradient-to-r from-[#0d1c33] via-[#10223d] to-[#0d1c33] border-b ${
-          panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
-            ? 'border-emerald-500/30'
-            : panchang.currentChoghadiya?.nature === 'NEUTRAL'
-            ? 'border-yellow-500/30'
-            : 'border-rose-500/30'
-        } flex flex-wrap items-center justify-between gap-2.5 shadow-inner flex-shrink-0`}>
-          <div className="flex items-center gap-2.5">
-            <div className={`p-1.5 rounded-xl border flex-shrink-0 animate-pulse ${
-              panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-                : panchang.currentChoghadiya?.nature === 'NEUTRAL'
-                ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
-                : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-            }`}>
-              {panchang.currentChoghadiya?.nature === 'AUSPICIOUS' ? (
-                <Sparkles size={16} />
-              ) : panchang.currentChoghadiya?.nature === 'NEUTRAL' ? (
-                <Star size={16} />
-              ) : (
-                <AlertTriangle size={16} />
-              )}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
-                  panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
-                    ? 'text-emerald-400'
-                    : panchang.currentChoghadiya?.nature === 'NEUTRAL'
-                    ? 'text-yellow-300'
-                    : 'text-rose-400'
-                }`}>
-                  CURRENTLY ACTIVE MUHURAT & TIMING
-                </span>
-                <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                  panchang.currentChoghadiya?.nature === 'AUSPICIOUS'
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                    : panchang.currentChoghadiya?.nature === 'NEUTRAL'
-                    ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
-                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                }`}>
-                  {panchang.currentChoghadiya?.nature === 'AUSPICIOUS' && '✅ AUSPICIOUS (शुभ)'}
-                  {panchang.currentChoghadiya?.nature === 'NEUTRAL' && '⚡ NEUTRAL (मध्यम)'}
-                  {panchang.currentChoghadiya?.nature === 'INAUSPICIOUS' && '⚠️ INAUSPICIOUS (अशुभ)'}
-                </span>
-              </div>
-              <div className="text-sm sm:text-base font-extrabold text-white flex flex-wrap items-center gap-2">
-                <span>{panchang.currentChoghadiya?.displayName || 'Labh Choghadiya'}</span>
-                <span className="text-xs text-neutral-300 font-normal hidden sm:inline">
-                  ({panchang.currentChoghadiya?.periodType} Choghadiya • {panchang.currentChoghadiya?.ruler})
-                </span>
-                {active30Muhurat && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium">
-                    Muhurat #{active30Muhurat.index}: {active30Muhurat.name}
-                  </span>
+        {/* ── ⭐ DEDICATED PROMINENT ACTIVE VEDIC MUHURAT BANNER (OBSERVED PER DHARMASHASTRA RULES) ── */}
+        {active30Muhurat && (
+          <div className={`p-3 sm:px-6 sm:py-2.5 bg-gradient-to-r from-[#0d1c33] via-[#10223d] to-[#0d1c33] border-b ${
+            (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
+              ? 'border-emerald-500/40 shadow-emerald-500/5'
+              : active30Muhurat.nature === 'Moderate'
+              ? 'border-yellow-500/40 shadow-yellow-500/5'
+              : 'border-rose-500/40 shadow-rose-500/5'
+          } flex flex-wrap items-center justify-between gap-2.5 shadow-inner flex-shrink-0`}>
+            <div className="flex items-center gap-2.5">
+              <div className={`p-2 rounded-xl border flex-shrink-0 animate-pulse ${
+                (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
+                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                  : active30Muhurat.nature === 'Moderate'
+                  ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
+                  : 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+              }`}>
+                {(active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious') ? (
+                  <Sparkles size={18} />
+                ) : active30Muhurat.nature === 'Moderate' ? (
+                  <Star size={18} />
+                ) : (
+                  <AlertTriangle size={18} />
                 )}
               </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
+                    (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
+                      ? 'text-emerald-400'
+                      : active30Muhurat.nature === 'Moderate'
+                      ? 'text-yellow-300'
+                      : 'text-rose-400'
+                  }`}>
+                    CURRENTLY ACTIVE VEDIC MUHURAT (धर्मशास्त्र सम्मत)
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                    (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      : active30Muhurat.nature === 'Moderate'
+                      ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
+                      : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                  }`}>
+                    {active30Muhurat.nature === 'Highly Auspicious' && '🌟 HIGHLY AUSPICIOUS (परम शुभ)'}
+                    {active30Muhurat.nature === 'Auspicious' && '✅ AUSPICIOUS (शुभ)'}
+                    {active30Muhurat.nature === 'Moderate' && '⚡ MODERATE (मध्यम)'}
+                    {active30Muhurat.nature === 'Inauspicious' && '⚠️ INAUSPICIOUS (अशुभ)'}
+                  </span>
+                </div>
+                <div className="text-sm sm:text-base font-extrabold text-white flex flex-wrap items-center gap-2 mt-0.5">
+                  <span className="text-amber-300 font-bold">Muhurat #{active30Muhurat.index}: {active30Muhurat.name}</span>
+                  <span className="text-xs text-neutral-300 font-normal">
+                    • Presiding Deity: <strong className="text-white">{active30Muhurat.deity}</strong>
+                  </span>
+                </div>
+                <div className="text-[11px] text-neutral-300 mt-0.5">
+                  <span className="text-amber-400/90 font-medium">Activity & Guidance:</span> {active30Muhurat.activity}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Timing Window & Countdown Pill */}
+            <div className="flex items-center gap-2">
+              <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-[#233152] text-xs">
+                <span className="text-[10px] text-neutral-400 uppercase font-bold mr-1.5">Window:</span>
+                <span className="font-mono font-bold text-white text-xs">
+                  {active30Muhurat.startTime} — {active30Muhurat.endTime}
+                </span>
+              </div>
+
+              {activeMuhuratRemaining && (
+                <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-amber-500/40 text-xs flex items-center gap-1.5">
+                  <Hourglass size={12} className="text-amber-400 animate-spin" />
+                  <span className="text-[10px] text-amber-400 uppercase font-bold hidden sm:inline">Remaining:</span>
+                  <span className="font-mono font-extrabold text-amber-300 text-xs">
+                    {activeMuhuratRemaining}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Active Timing Window & Countdown Pill */}
-          <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-[#233152] text-xs">
-              <span className="text-[10px] text-neutral-400 uppercase font-bold mr-1.5">Window:</span>
-              <span className="font-mono font-bold text-white text-xs">
-                {panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM'}
-              </span>
-            </div>
-
-            <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-amber-500/40 text-xs flex items-center gap-1.5">
-              <Hourglass size={12} className="text-amber-400 animate-spin" />
-              <span className="text-[10px] text-amber-400 uppercase font-bold hidden sm:inline">Remaining:</span>
-              <span className="font-mono font-extrabold text-amber-300 text-xs">
-                {panchang.currentChoghadiya?.remainingString || '77m 12s'}
-              </span>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* ── 🔘 HIGH-VISIBILITY CLICKABLE NAVIGATION TABS (PROMINENT PILLS - NEVER HIDDEN) ── */}
         <div className="p-2.5 sm:px-6 bg-[#0c1222] border-b border-[#1a233a] flex-shrink-0">
@@ -422,7 +437,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
 
               {/* 15 Nocturnal (Night) Muhurats */}
               <div>
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <Moon size={16} className="text-indigo-300" />
                     <span>15 Nocturnal (Night) Muhurats (रात्रि के १५ मुहूर्त)</span>
@@ -431,6 +446,9 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                     🌇 {panchang.sunset} to 🌅 {panchang.sunrise} ({Math.round(nightSlotDuration)} mins each)
                   </span>
                 </div>
+                <p className="text-[11px] text-neutral-400 mb-2.5 leading-relaxed">
+                  ℹ️ <strong className="text-amber-300">Vedic Night (रात्रिमान):</strong> Extends continuously from Sunset to Sunrise. Slots before 12:00 AM midnight belong to the evening calendar date, while slots after 12:00 AM midnight roll over into the morning of the next date as per the Gregorian calendar.
+                </p>
 
                 <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
                   <div className="overflow-x-auto">
