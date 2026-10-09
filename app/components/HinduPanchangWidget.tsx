@@ -676,11 +676,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
                 <div className="flex items-baseline gap-1.5 text-xs text-neutral-300 leading-snug">
                   <span className="text-[11px] font-bold text-amber-400/90 uppercase tracking-wider flex-shrink-0">Masa:</span>
-                  <span className="font-medium text-neutral-100 flex-1 truncate">
+                  <span className="font-medium text-neutral-100 flex-1">
                     {panchang.masaDisplay}
-                  </span>
-                  <span className="text-neutral-400 font-mono text-[11px] flex-shrink-0">
-                    VS {panchang.vikramSamvat}
                   </span>
                 </div>
               </div>
