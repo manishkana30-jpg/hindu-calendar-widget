@@ -83,10 +83,15 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   });
 
   // Build Night Muhurats with exact dates, start time, end time
-  const nextDayDate = new Date(panchang.date);
+  const isPreSunrise = Boolean(panchang.isPreSunrise);
+  const baseDate = new Date(panchang.date);
+  const prevDayDate = new Date(baseDate);
+  prevDayDate.setDate(prevDayDate.getDate() - 1);
+  const prevDayDateStr = prevDayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const todayDateStr = baseDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const nextDayDate = new Date(baseDate);
   nextDayDate.setDate(nextDayDate.getDate() + 1);
   const nextDayDateStr = nextDayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const todayDateStr = panchang.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
   const nightMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal (Night)').map((m, idx) => {
     const sMin = sunsetMin + idx * nightSlotDuration;
@@ -94,9 +99,12 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     const startTimeStr = formatMinutesToTime(sMin);
     const endTimeStr = formatMinutesToTime(eMin);
     
-    // Check if slot falls on next day after midnight
-    const isNextDay = sMin >= 1440 || (sMin % 1440) < sunriseMin;
-    const dateStr = isNextDay ? nextDayDateStr : todayDateStr;
+    // Check if slot falls after midnight
+    const isPostMidnight = sMin >= 1440 || (sMin % 1440) < sunriseMin;
+    // When isPreSunrise is true (we are between 00:00 and sunrise), the post-midnight slot is happening TODAY!
+    const dateStr = isPreSunrise
+      ? (isPostMidnight ? todayDateStr : prevDayDateStr)
+      : (isPostMidnight ? nextDayDateStr : todayDateStr);
 
     // Check if current time falls in this night slot
     const normS = sMin % 1440;
@@ -269,12 +277,12 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
               <BookOpen size={15} />
               <span>📜 Dharmashastra Determination Rule (मुहूर्त निर्णय शास्त्र नियम)</span>
             </div>
-            <div className="space-y-1 text-neutral-200">
+            <div className="space-y-1.5 text-neutral-200">
               <p>
-                <strong className="text-amber-300">हिंदी:</strong> २४ घण्टों को ३० मुहूर्तों में बांटा गया है। मध्याह्न का ८वाँ &apos;अभिजित मुहूर्त&apos; समस्त दोषों का नाश करता है, जबकि राहुकाल में शुभ कार्य वर्जित हैं (मुहूर्तचिन्तामणि)।
+                <strong className="text-amber-300">हिंदी:</strong> २४ घण्टों को ३० वैदिक मुहूर्तों (दैविक कर्म/आराधना) तथा १६ चौघड़ियों (लौकिक कार्य/यात्रा) में विभाजित किया गया है। उदाहरणार्थ, रात्रि में &apos;विष्णु मुहूर्त&apos; ईश्वर स्मरण, जप व शांति हेतु अत्यंत शुभ है, जबकि सांसारिक कार्यों के लिए उसी समय &apos;रोग चौघड़िया&apos; वर्जित है (मुहूर्तचिन्तामणि)।
               </p>
               <p className="text-neutral-300">
-                <strong className="text-amber-300">English:</strong> A 24-hour cycle is divided into 30 Muhurats. Midday 8th &apos;Abhijit Muhurat&apos; neutralizes all astrological flaws, while Rahu Kaal must strictly be avoided for new beginnings (Muhurta Chintamani).
+                <strong className="text-amber-300">English:</strong> A 24-hour cycle is governed by two distinct timing frameworks: 30 Vedic Muhurats for spiritual devotion/Japa, and 16 Choghadiyas for worldly tasks/travel. For example, &apos;Vishnu Muhurat&apos; is spiritually highly auspicious for prayer, while worldly business in &apos;Rog Choghadiya&apos; should be avoided (Muhurta Chintamani).
               </p>
             </div>
           </div>
