@@ -12,7 +12,8 @@ import {
   PRESET_LOCATIONS, 
   LocationCoordinates, 
   PanchangData,
-  TITHIS
+  TITHIS,
+  formatUtcDateToLocalTime
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { CITIES } from '../../src/lib/cities';
@@ -316,8 +317,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const nextTithiIndex = (currentUdayaIndex % 30) + 1;
   const nextTithiObj = TITHIS[(nextTithiIndex - 1) % 30];
   const nextTithiName = nextTithiObj?.name || `Tithi ${nextTithiIndex}`;
-  const newTithiStartTime = panchang.udayaTithi?.endTime || panchang.tithi.endTime || 'At conclusion';
 
+  const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const DAY_NAMES = [
     'Ravivara (रविवार)',
     'Somavara (सोमवार)',
@@ -327,16 +328,42 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     'Shukravara (शुक्रवार)',
     'Shanivara (शनिवार)'
   ];
-  const currentDayIndex = targetInstant.getDay();
-  const tomorrowDayName = DAY_NAMES[(currentDayIndex + 1) % 7];
 
-  let newTithiObservedWhen = `Tomorrow • ${tomorrowDayName}`;
-  if (tithiResolution.isVriddhi) {
-    const dayAfterIndex = (currentDayIndex + 2) % 7;
-    newTithiObservedWhen = `${DAY_NAMES[dayAfterIndex]} (Delayed: Vriddhi)`;
-  } else if (tithiResolution.isKshaya && tithiResolution.kshayaTithiDetails?.name === nextTithiName) {
-    newTithiObservedWhen = 'Today (Kshaya — Skipped at Sunrise)';
+  // Format Gregorian date & time for new Tithi start:
+  // "new tithi date • time AM/PM according to georgian" (e.g. "11 Oct 2026 • 09:36 PM")
+  const transitionUtc = panchang.udayaTithi?.endDate || panchang.instantaneousTithi?.endDate;
+  let newTithiStartTime = panchang.udayaTithi?.endTime || panchang.tithi.endTime || 'At conclusion';
+  if (transitionUtc) {
+    const localMs = transitionUtc.getTime() + tzOffset * 3600000;
+    const localD = new Date(localMs);
+    const dateFormatted = `${localD.getUTCDate()} ${MONTHS_SHORT[localD.getUTCMonth()]} ${localD.getUTCFullYear()}`;
+    const timeFormatted = formatUtcDateToLocalTime(transitionUtc, tzOffset);
+    newTithiStartTime = `${dateFormatted} • ${timeFormatted}`;
   }
+  const currentTithiEndTime = newTithiStartTime;
+
+  // Format Dharmashastra observation day:
+  // "date • day/vara" (e.g. "11 Oct 2026 • Ravivara (रविवार)")
+  const isCurrentPreSunrise = isPreSunrise ?? panchang.isPreSunrise ?? false;
+  let dayOffset = isCurrentPreSunrise ? 0 : 1;
+  let anomalySuffix = '';
+  if (tithiResolution.isVriddhi) {
+    dayOffset = isCurrentPreSunrise ? 1 : 2;
+    anomalySuffix = ' (Delayed: Vriddhi)';
+  } else if (tithiResolution.isKshaya && tithiResolution.kshayaTithiDetails?.name === nextTithiName) {
+    dayOffset = isCurrentPreSunrise ? 0 : 1;
+    anomalySuffix = ' (Kshaya — Skipped at Sunrise)';
+  }
+
+  const obsDate = new Date(
+    targetInstant.getFullYear(),
+    targetInstant.getMonth(),
+    targetInstant.getDate() + dayOffset,
+    12, 0, 0
+  );
+  const obsDateFormatted = `${obsDate.getDate()} ${MONTHS_SHORT[obsDate.getMonth()]} ${obsDate.getFullYear()}`;
+  const obsDayVara = DAY_NAMES[obsDate.getDay()];
+  const newTithiObservedWhen = `${obsDateFormatted} • ${obsDayVara}${anomalySuffix}`;
 
   // Click-outside handler to close dropdown menu
   useEffect(() => {
@@ -805,28 +832,28 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <Clock size={12} className="text-amber-400/80 flex-shrink-0" />
                   <span>Ends:</span>
                   <span className="font-bold text-white">
-                    {panchang.udayaTithi?.endTime || panchang.tithi.endTime}
+                    {currentTithiEndTime}
                   </span>
                 </div>
               </div>
 
               {/* 4: New Tithi: Start Time & Will Be Observed When */}
               <div className="p-2.5 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-400 text-[11px] font-medium">New Tithi:</span>
-                  <span className="font-bold text-amber-200">
+                <div className="flex items-center justify-between text-xs gap-2">
+                  <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">New Tithi:</span>
+                  <span className="font-bold text-amber-200 text-right">
                     {nextTithiName}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-400 text-[11px] font-medium">Starts:</span>
-                  <span className="font-mono text-neutral-100 font-medium">
+                <div className="flex items-center justify-between text-xs gap-2">
+                  <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">Starts:</span>
+                  <span className="font-mono text-neutral-100 font-medium text-right">
                     {newTithiStartTime}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-[#16233d]">
-                  <span className="text-neutral-400 text-[11px] font-medium">Observed:</span>
-                  <span className="font-semibold text-emerald-300">
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-[#16233d] gap-2">
+                  <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">Observed:</span>
+                  <span className="font-semibold text-emerald-300 text-right">
                     {newTithiObservedWhen}
                   </span>
                 </div>
