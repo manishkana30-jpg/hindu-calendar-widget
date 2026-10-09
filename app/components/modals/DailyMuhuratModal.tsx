@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, Clock, BookOpen, Sun, Moon, CheckCircle2, 
   AlertTriangle, Hourglass, Sparkles, Star, Shield, ArrowUpRight
@@ -43,12 +43,36 @@ type MuhuratTabType = 'all30' | 'choghadiya' | 'shubhAshubh';
 
 export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   const [activeTab, setActiveTab] = useState<MuhuratTabType>('all30');
+  const [liveNow, setLiveNow] = useState<Date>(() => new Date());
+
+  // Second-by-second Gregorian Live Clock Ticker
+  useEffect(() => {
+    if (!isOpen) return;
+    setLiveNow(new Date());
+    const interval = setInterval(() => {
+      setLiveNow(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  // Calculate current time in minutes using deterministic panchang date reference
-  const now = panchang.date || new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  // Format Gregorian Live Clock values
+  const liveDateFormatted = liveNow.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+  const liveTimeFormatted = liveNow.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+
+  // Calculate current minutes from midnight using live Gregorian clock
+  const currentMinutes = liveNow.getHours() * 60 + liveNow.getMinutes() + liveNow.getSeconds() / 60;
 
   // Parse sunrise & sunset
   const sunriseMin = parseTimeToMinutes(panchang.sunrise);
@@ -63,6 +87,27 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   const nightLengthMin = (1440 - sunsetMin) + nextSunriseMin;
   const nightSlotDuration = nightLengthMin / 15;
 
+  // Anchor dates to Gregorian Live Clock
+  const clockDate = new Date(liveNow);
+  const prevClockDate = new Date(clockDate);
+  prevClockDate.setDate(prevClockDate.getDate() - 1);
+  const nextClockDate = new Date(clockDate);
+  nextClockDate.setDate(nextClockDate.getDate() + 1);
+
+  const formatGregorianDate = (d: Date) => d.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  const prevDateStr = formatGregorianDate(prevClockDate);
+  const todayDateStr = formatGregorianDate(clockDate);
+  const nextDateStr = formatGregorianDate(nextClockDate);
+
+  // Check if live Gregorian clock is currently pre-sunrise (between midnight and today's sunrise)
+  const isPreSunrise = currentMinutes < sunriseMin;
+
   // Build Day Muhurats with exact dates, start time, end time
   const dayMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal (Day)').map((m, idx) => {
     const sMin = sunriseMin + idx * daySlotDuration;
@@ -70,7 +115,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     const startTimeStr = formatMinutesToTime(sMin);
     const endTimeStr = formatMinutesToTime(eMin);
     const isCurrent = currentMinutes >= sMin && currentMinutes < eMin;
-    const dateStr = panchang.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const dateStr = todayDateStr;
 
     return {
       ...m,
@@ -83,16 +128,6 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   });
 
   // Build Night Muhurats with exact dates, start time, end time
-  const isPreSunrise = Boolean(panchang.isPreSunrise);
-  const baseDate = new Date(panchang.date);
-  const prevDayDate = new Date(baseDate);
-  prevDayDate.setDate(prevDayDate.getDate() - 1);
-  const prevDayDateStr = prevDayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const todayDateStr = baseDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const nextDayDate = new Date(baseDate);
-  nextDayDate.setDate(nextDayDate.getDate() + 1);
-  const nextDayDateStr = nextDayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-
   const nightMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal (Night)').map((m, idx) => {
     const sMin = sunsetMin + idx * nightSlotDuration;
     const eMin = sMin + nightSlotDuration;
@@ -101,10 +136,10 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     
     // Check if slot falls after midnight
     const isPostMidnight = sMin >= 1440 || (sMin % 1440) < sunriseMin;
-    // When isPreSunrise is true (we are between 00:00 and sunrise), the post-midnight slot is happening TODAY!
+    // When isPreSunrise is true (we are currently between 00:00 and sunrise), the post-midnight slot is happening TODAY!
     const dateStr = isPreSunrise
-      ? (isPostMidnight ? todayDateStr : prevDayDateStr)
-      : (isPostMidnight ? nextDayDateStr : todayDateStr);
+      ? (isPostMidnight ? todayDateStr : prevDateStr)
+      : (isPostMidnight ? nextDateStr : todayDateStr);
 
     // Check if current time falls in this night slot
     const normS = sMin % 1440;
@@ -134,7 +169,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
       <div className="relative w-full max-w-5xl max-h-[92vh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
         
         {/* ── Top Header ── */}
-        <div className="p-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between flex-shrink-0">
+        <div className="p-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <Clock size={20} />
@@ -154,12 +189,23 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors flex-shrink-0"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-2.5">
+            {/* Gregorian Live Clock Display Pill */}
+            <div className="px-3 py-1.5 rounded-xl bg-[#080d1a] border border-[#233152] flex items-center gap-2 text-xs shadow-inner">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider hidden sm:inline">Live Clock:</span>
+              <span className="font-mono font-extrabold text-emerald-300 text-xs">
+                {liveDateFormatted} • {liveTimeFormatted}
+              </span>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors flex-shrink-0 cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* ── ⭐ DEDICATED PROMINENT ACTIVE MUHURAT & TIMING HERO BANNER (FIXED & COMPACT) ── */}
@@ -309,12 +355,12 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                       <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                         <tr>
                           <th className="p-3 font-bold">#</th>
-                          <th className="p-3 font-bold">Date</th>
+                          <th className="p-3 font-bold">Gregorian Date</th>
                           <th className="p-3 font-bold">Start Time</th>
                           <th className="p-3 font-bold">End Time</th>
-                          <th className="p-3 font-bold">Muhurat Name</th>
+                          <th className="p-3 font-bold">Vedic Muhurat Name</th>
                           <th className="p-3 font-bold">Presiding Deity</th>
-                          <th className="p-3 font-bold">Nature</th>
+                          <th className="p-3 font-bold">Nature of Muhurat</th>
                           <th className="p-3 font-bold">Activity & Guidance</th>
                         </tr>
                       </thead>
@@ -334,7 +380,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                                 {m.isCurrent && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>}
                               </span>
                             </td>
-                            <td className="p-3 whitespace-nowrap text-neutral-300 font-medium">
+                            <td className="p-3 whitespace-nowrap text-neutral-200 font-medium font-mono text-[11px]">
                               {m.date}
                             </td>
                             <td className="p-3 whitespace-nowrap font-mono font-bold text-white">
@@ -392,12 +438,12 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                       <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                         <tr>
                           <th className="p-3 font-bold">#</th>
-                          <th className="p-3 font-bold">Date</th>
+                          <th className="p-3 font-bold">Gregorian Date</th>
                           <th className="p-3 font-bold">Start Time</th>
                           <th className="p-3 font-bold">End Time</th>
-                          <th className="p-3 font-bold">Muhurat Name</th>
+                          <th className="p-3 font-bold">Vedic Muhurat Name</th>
                           <th className="p-3 font-bold">Presiding Deity</th>
-                          <th className="p-3 font-bold">Nature</th>
+                          <th className="p-3 font-bold">Nature of Muhurat</th>
                           <th className="p-3 font-bold">Activity & Guidance</th>
                         </tr>
                       </thead>
@@ -417,7 +463,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                                 {m.isCurrent && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>}
                               </span>
                             </td>
-                            <td className="p-3 whitespace-nowrap text-neutral-300 font-medium">
+                            <td className="p-3 whitespace-nowrap text-neutral-200 font-medium font-mono text-[11px]">
                               {m.date}
                             </td>
                             <td className="p-3 whitespace-nowrap font-mono font-bold text-white">
