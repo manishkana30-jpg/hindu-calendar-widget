@@ -250,8 +250,8 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error || 'Server rejected test notification request.');
+        const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+        throw new Error(data.message || data.error || 'Server rejected test notification request.');
       }
 
       setIsSendingTest(false);

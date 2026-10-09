@@ -259,7 +259,10 @@ async function handleDispatch(req: NextRequest) {
     const isReady = ensureVapidConfig();
     if (!isReady) {
       return NextResponse.json(
-        { error: 'VAPID credentials unconfigured on server.' },
+        {
+          error: 'VAPID_NOT_CONFIGURED',
+          message: 'VAPID credentials are not configured in environment variables. Please set NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT.'
+        },
         { status: 500 }
       );
     }
@@ -316,7 +319,10 @@ async function handleDispatch(req: NextRequest) {
   const isVapidReady = ensureVapidConfig();
   if (!isVapidReady) {
     return NextResponse.json(
-      { error: 'Server VAPID credentials unconfigured or invalid.' },
+      {
+        error: 'VAPID_NOT_CONFIGURED',
+        message: 'VAPID credentials are not configured in environment variables. Please set NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT.'
+      },
       { status: 500 }
     );
   }
