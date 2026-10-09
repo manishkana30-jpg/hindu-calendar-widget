@@ -522,7 +522,7 @@ export function NotificationSettingsModal({
             {/* Notification Body Simulation (Preformatted 3-line text) */}
             <div className="text-xs sm:text-[13px] font-mono leading-relaxed text-neutral-200 whitespace-pre-line break-words">
               {previewPayload?.body || (
-                `Tithi: ${currentTithiName} till 14:00, then Shukla Ekadashi till 12:30\n🔴 Panchak: Mrityu Panchak from 14:15 to 06:12\nFestival/Vrat: ${festivalOrVratName || 'Diwali'}`
+                `Tithi - ${currentTithiName} till 14:00, then Shukla Ekadashi till 12:30\nPanchak - None\nVrat/Festival - ${festivalOrVratName || 'Diwali'}`
               )}
             </div>
           </div>

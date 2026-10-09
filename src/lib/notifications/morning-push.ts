@@ -206,14 +206,14 @@ export function computeDailyMorningNotification(
       });
 
       // 3 Tithis (Kshaya day)
-      tithiLine = `Tithi: ${udayaTithiObj.name} till ${E1Formatted}, then ${t2Obj.name} till ${E2Formatted}, then ${t3Obj.name} till ${E3Formatted}`;
+      tithiLine = `Tithi - ${udayaTithiObj.name} till ${E1Formatted}, then ${t2Obj.name} till ${E2Formatted}, then ${t3Obj.name} till ${E3Formatted}`;
     } else {
       // 2 Tithis (Standard day)
-      tithiLine = `Tithi: ${udayaTithiObj.name} till ${E1Formatted}, then ${t2Obj.name} till ${E2Formatted}`;
+      tithiLine = `Tithi - ${udayaTithiObj.name} till ${E1Formatted}, then ${t2Obj.name} till ${E2Formatted}`;
     }
   } else {
     // 1 Tithi spans the entire sunrise-to-sunrise duration (Tithi Vriddhi)
-    tithiLine = `Tithi: ${udayaTithiObj.name} till ${E1Formatted}`;
+    tithiLine = `Tithi - ${udayaTithiObj.name} till ${E1Formatted}`;
   }
 
   // 2. Panchak window between S1 and S2 (active at S1 or starting mid-day before S2)
@@ -226,7 +226,7 @@ export function computeDailyMorningNotification(
     dayPanchak = panchakAtS1.nextPanchak;
   }
 
-  let panchakLine: string | null = null;
+  let panchakLine = 'Panchak - None';
   if (dayPanchak) {
     const isTrulyInauspiciousPanchak = isPanchakTrulyInauspicious({
       isActive: true,
@@ -244,7 +244,7 @@ export function computeDailyMorningNotification(
       const pStartFormatted = pStartMs ? formatTimeHHMM(new Date(pStartMs), ianaTz, tz) : formatTimeHHMM(S1, ianaTz, tz);
       const pEndFormatted = pEndMs ? formatTimeHHMM(new Date(pEndMs), ianaTz, tz) : formatTimeHHMM(S2, ianaTz, tz);
 
-      panchakLine = `🔴 Panchak: ${cleanType} from ${pStartFormatted} to ${pEndFormatted}`;
+      panchakLine = `Panchak - ${cleanType} from ${pStartFormatted} to ${pEndFormatted}`;
     }
   }
 
@@ -253,7 +253,6 @@ export function computeDailyMorningNotification(
   const festivalResult = getFestivalForDate(S1, location);
   const ekadashiResult = evaluateEkadashi(S1, location);
 
-  let festivalLine: string | null = null;
   let detectedFestivalName: string | null = null;
 
   if (festivalResult.isMajor || festivalResult.category === 'Major Festival') {
@@ -264,24 +263,18 @@ export function computeDailyMorningNotification(
     detectedFestivalName = festivalResult.name;
   }
 
-  if (detectedFestivalName) {
-    festivalLine = `Festival/Vrat: ${detectedFestivalName}`;
-  }
+  const festivalLine = detectedFestivalName
+    ? `Vrat/Festival - ${detectedFestivalName}`
+    : 'Vrat/Festival - None';
 
-  // 4. Assemble max 3 lines (omit lines if none)
-  const lines: string[] = [tithiLine];
-  if (panchakLine) {
-    lines.push(panchakLine);
-  }
-  if (festivalLine) {
-    lines.push(festivalLine);
-  }
+  // 4. Assemble canonical 3 lines
+  const lines: string[] = [tithiLine, panchakLine, festivalLine];
 
   const body = lines.join('\n');
   const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
   return {
-    title: 'Panchang Update',
+    title: 'Daily Tithi • Panchang Update',
     body,
     lineCount: lines.length,
     tithiLine,
@@ -294,10 +287,9 @@ export function computeDailyMorningNotification(
       url: '/',
       date: dateStr,
       primaryTithi: udayaTithiObj.name,
-      panchakType: panchakLine ? (dayPanchak?.type || null) : null,
+      panchakType: panchakLine !== 'Panchak - None' ? (dayPanchak?.type || null) : null,
       festivalOrVrat: detectedFestivalName,
       timestamp: Date.now()
-
     }
   };
 }

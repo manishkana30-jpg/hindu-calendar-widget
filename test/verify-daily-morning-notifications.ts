@@ -105,8 +105,8 @@ assert(
   `Delhi: ${delhiMorning.sunriseTimeFormatted} vs NY: ${nyMorning.sunriseTimeFormatted}`
 );
 assert(
-  delhiMorning.tithiLine.startsWith('Tithi: ') && nyMorning.tithiLine.startsWith('Tithi: '),
-  'Both locations generate canonical Tithi line starting with "Tithi: "'
+  delhiMorning.tithiLine.startsWith('Tithi - ') && nyMorning.tithiLine.startsWith('Tithi - '),
+  'Both locations generate canonical Tithi line starting with "Tithi - "'
 );
 assert(
   delhiMorning.lineCount <= 3 && nyMorning.lineCount <= 3,
@@ -163,8 +163,8 @@ const panchakPayload = computeDailyMorningNotification(panchakMidDayDate, delhiL
 console.log(`  Panchak Day Notification Body:\n${panchakPayload.body}`);
 
 assert(
-  Boolean(panchakPayload.panchakLine && panchakPayload.panchakLine.includes('🔴 Panchak:')),
-  'Inauspicious Panchak starting mid-day is identified and flagged with 🔴',
+  Boolean(panchakPayload.panchakLine && panchakPayload.panchakLine.includes('Panchak - ')),
+  'Inauspicious Panchak starting mid-day is identified and formatted as "Panchak - "',
   panchakPayload.panchakLine || 'None'
 );
 assert(
@@ -184,7 +184,7 @@ assert(
   `Actual lines: ${kshayaPayload.lineCount}`
 );
 assert(
-  Boolean(kshayaPayload.festivalLine && kshayaPayload.festivalLine.includes('Festival/Vrat:')),
+  Boolean(kshayaPayload.festivalLine && kshayaPayload.festivalLine.includes('Vrat/Festival - ')),
   'Festival / Vrat line is included in the combined notification',
   kshayaPayload.festivalLine || 'None'
 );
@@ -313,9 +313,9 @@ const fs = require('fs');
 const swCode = fs.readFileSync('public/sw.js', 'utf8');
 
 assert(
-  swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v8'") || swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v9'"),
+  swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v8'") || swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v9'") || swCode.includes("CACHE_NAME = 'vedic-panchang-pwa-v10'"),
   'Service Worker cache bumped to prevent stale asset zombies',
-  'CACHE_NAME is versioned (v8/v9)'
+  'CACHE_NAME is versioned (v8/v9/v10)'
 );
 assert(
   swCode.includes("SKIP_WAITING"),

@@ -103,7 +103,7 @@ async function runTests() {
     // Morning notification calculation
     const morningPayload = computeDailyMorningNotification(now, delhiLoc);
     assert(morningPayload.title.includes('Panchang'), 'Morning payload title is valid');
-    assert(morningPayload.body.startsWith('Tithi: '), 'Morning payload body starts with "Tithi: "');
+    assert(morningPayload.body.startsWith('Tithi - '), 'Morning payload body starts with "Tithi - "');
     assert(morningPayload.lineCount <= 3, 'Morning payload complies with max 3-line requirement');
 
     // Idempotency check: if lastDailyDateNotified === '2026-10-02', suppress second send
