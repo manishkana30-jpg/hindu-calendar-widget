@@ -62,7 +62,7 @@ export function NotificationSettingsModal({
   onClose,
   currentLocation,
   onLocationChange,
-  currentTithiName = 'Shukla Dashami (10)',
+  currentTithiName = 'Shukla Dashami',
   panchakStatus = {
     isActive: true,
     isInauspicious: true,

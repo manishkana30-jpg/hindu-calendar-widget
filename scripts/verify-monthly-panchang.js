@@ -193,14 +193,14 @@ function findTithiEndTime(sunriseUtcDate, tithiIndex, tz) {
 }
 
 const TITHI_NAMES = [
-  'Shukla Pratipada (1)', 'Shukla Dwitiya (2)', 'Shukla Tritiya (3)', 'Shukla Chaturthi (4)',
-  'Shukla Panchami (5)', 'Shukla Shashthi (6)', 'Shukla Saptami (7)', 'Shukla Ashtami (8)',
-  'Shukla Navami (9)', 'Shukla Dashami (10)', 'Shukla Ekadashi (11)', 'Shukla Dwadashi (12)',
-  'Shukla Trayodashi (13)', 'Shukla Chaturdashi (14)', 'Shukla Purnima (15)',
-  'Krishna Pratipada (1)', 'Krishna Dwitiya (2)', 'Krishna Tritiya (3)', 'Krishna Chaturthi (4)',
-  'Krishna Panchami (5)', 'Krishna Shashthi (6)', 'Krishna Saptami (7)', 'Krishna Ashtami (8)',
-  'Krishna Navami (9)', 'Krishna Dashami (10)', 'Krishna Ekadashi (11)', 'Krishna Dwadashi (12)',
-  'Krishna Trayodashi (13)', 'Krishna Chaturdashi (14)', 'Krishna Amavasya (30)'
+  'Shukla Pratipada', 'Shukla Dwitiya', 'Shukla Tritiya', 'Shukla Chaturthi',
+  'Shukla Panchami', 'Shukla Shashthi', 'Shukla Saptami', 'Shukla Ashtami',
+  'Shukla Navami', 'Shukla Dashami', 'Shukla Ekadashi', 'Shukla Dwadashi',
+  'Shukla Trayodashi', 'Shukla Chaturdashi', 'Shukla Purnima',
+  'Krishna Pratipada', 'Krishna Dwitiya', 'Krishna Tritiya', 'Krishna Chaturthi',
+  'Krishna Panchami', 'Krishna Shashthi', 'Krishna Saptami', 'Krishna Ashtami',
+  'Krishna Navami', 'Krishna Dashami', 'Krishna Ekadashi', 'Krishna Dwadashi',
+  'Krishna Trayodashi', 'Krishna Chaturdashi', 'Krishna Amavasya'
 ];
 
 function formatTime(mins) {
