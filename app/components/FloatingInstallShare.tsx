@@ -83,10 +83,10 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   const handleShareClick = useCallback(async () => {
     const shareUrl = typeof window !== 'undefined' 
       ? window.location.origin 
-      : 'https://vikram-samvat-widget.vercel.app';
+      : 'https://dailytithi.com';
 
     const shareData = {
-      title: 'Hindu Calendar & Live Panchang',
+      title: 'Daily Tithi - Live Vedic Panchang & Hindu Calendar',
       text: 'Experience real-time Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra festival engine. 100% Offline PWA:',
       url: shareUrl
     };

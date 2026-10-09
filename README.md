@@ -1,8 +1,8 @@
-# 🕉️ Hindu Calendar & Live Panchang (Progressive Web App)
+# 🕉️ Daily Tithi - Live Hindu Calendar & Panchang (Progressive Web App)
 
 High-precision, offline-first Vedic Panchang and Hindu Calendar calculated with continuous trigonometric astronomical ephemeris algorithms.
 
-Live Production Web App: [https://vikram-samvat-widget.vercel.app/](https://vikram-samvat-widget.vercel.app/)
+Live Production Web App: [https://dailytithi.com/](https://dailytithi.com/)
 
 ---
 

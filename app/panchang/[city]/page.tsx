@@ -8,6 +8,7 @@ import { calculatePanchang } from '@/src/lib/vedic-astronomy';
 import { HinduPanchangWidget } from '@/app/components/HinduPanchangWidget';
 import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
 import { FaqAccordion } from '@/app/components/FaqAccordion';
+import { Footer } from '@/src/components/Footer';
 
 export const revalidate = 86400; // 24 hours ISR revalidation
 
@@ -33,8 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `${city.name} Panchang Today — Live Udaya Tithi, Choghadiya & Muhurat`;
   const description = `Accurate Vedic Panchang for ${city.name}, ${city.country}. Real-time Udaya Tithi, dynamic Choghadiya Muhurat, Rahu Kalam, and sunrise/sunset powered by Swiss Ephemeris.`;
-  const canonicalUrl = `https://vikram-samvat-widget.vercel.app/panchang/${city.slug}`;
-  const ogImageUrl = `https://vikram-samvat-widget.vercel.app/api/og?city=${city.slug}`;
+  const canonicalUrl = `https://dailytithi.com/panchang/${city.slug}`;
+  const ogImageUrl = `https://dailytithi.com/api/og?city=${city.slug}`;
 
   return {
     title,
@@ -53,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: canonicalUrl,
       title,
       description,
-      siteName: 'Hindu Calendar & Live Panchang',
+      siteName: 'Daily Tithi',
       images: [
         {
           url: ogImageUrl,
@@ -111,19 +112,19 @@ export default async function CityPanchangPage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://vikram-samvat-widget.vercel.app/'
+        item: 'https://dailytithi.com/'
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Panchang',
-        item: 'https://vikram-samvat-widget.vercel.app/'
+        item: 'https://dailytithi.com/'
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: `${city.name} Panchang`,
-        item: `https://vikram-samvat-widget.vercel.app/panchang/${city.slug}`
+        item: `https://dailytithi.com/panchang/${city.slug}`
       }
     ]
   };
@@ -287,24 +288,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="pt-16 pb-12 border-t border-[#162038] bg-[#050811] text-xs text-neutral-400 text-left">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              © 2026 Hindu Calendar & Live Panchang • {city.name} Vedic Edition
-            </div>
-            <div className="flex items-center gap-4 text-neutral-400">
-              <Link href="/privacy-policy" className="hover:text-white">Privacy</Link>
-              <span>•</span>
-              <Link href="/terms" className="hover:text-white">Terms</Link>
-              <span>•</span>
-              <Link href="/about" className="hover:text-white">Methodology</Link>
-              <span>•</span>
-              <Link href="/contact" className="hover:text-white">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer cityName={city.name} />
 
     </div>
   );

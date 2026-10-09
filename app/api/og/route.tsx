@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
               <div style={{ fontSize: '38px' }}>🕉️</div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.5px' }}>
-                  Hindu Calendar & Live Panchang
+                  Daily Tithi
                 </span>
                 <span style={{ fontSize: '14px', color: '#fb923c', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
                   Vedic Astrometry Engine • Live Panchang
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
 
           {/* Footer Callout */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', color: '#64748b' }}>
-            <span>https://vikram-samvat-widget.vercel.app/</span>
+            <span>https://dailytithi.com/</span>
             <span>Real-time Ghati • Pala • Vipala • Dynamic Choghadiya</span>
           </div>
         </div>

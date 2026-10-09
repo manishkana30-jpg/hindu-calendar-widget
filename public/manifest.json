@@ -1,10 +1,10 @@
 {
-  "name": "Hindu Calendar & Live Panchang",
-  "short_name": "Panchang",
+  "name": "Daily Tithi - Live Vedic Panchang & Hindu Calendar",
+  "short_name": "Daily Tithi",
   "description": "High-Precision Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra determination rules.",
   "start_url": "/",
   "scope": "/",
-  "id": "/",
+  "id": "https://dailytithi.com/",
   "display": "standalone",
   "background_color": "#090e1a",
   "theme_color": "#090e1a",

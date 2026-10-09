@@ -26,18 +26,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://vikram-samvat-widget.vercel.app'),
-  title: "Hindu Calendar & Live Panchang | Today's Tithi & Muhurat",
+  metadataBase: new URL('https://dailytithi.com'),
+  title: {
+    default: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
+    template: '%s | Daily Tithi',
+  },
   description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
   keywords: [
-    'Hindu Calendar & Live Panchang', 'Vikram Samvat 2083', 'Shaka Samvat 1948', 
+    'Daily Tithi', 'Hindu Calendar & Live Panchang', 'Vikram Samvat 2083', 'Shaka Samvat 1948', 
     'Udaya Tithi today', 'Choghadiya Muhurat', 'Hindu festival calendar', 
     'Panchak timing', 'Ghati Pala calculator', 'Swiss Ephemeris Vedic calendar', 
     'live panchang widget', 'Ishta Kaal', 'Dharmashastra', 'Vedic Astrology'
   ],
-  authors: [{ name: 'Vedic Astrometry Research Team' }],
-  creator: 'Vedic Astrometry Research Team',
-  publisher: 'Hindu Calendar & Live Panchang',
+  authors: [{ name: 'Daily Tithi Research Team' }],
+  creator: 'Daily Tithi',
+  publisher: 'Daily Tithi',
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/icon-192.svg',
@@ -46,27 +49,27 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://vikram-samvat-widget.vercel.app/',
-    siteName: 'Hindu Calendar & Live Panchang',
-    title: "Hindu Calendar & Live Panchang | Today's Tithi & Muhurat",
+    url: 'https://dailytithi.com',
+    siteName: 'Daily Tithi',
+    title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
     images: [
       {
-        url: 'https://vikram-samvat-widget.vercel.app/api/og',
+        url: 'https://dailytithi.com/api/og',
         width: 1200,
         height: 630,
-        alt: 'Hindu Calendar & Live Panchang Preview Card'
+        alt: 'Daily Tithi Live Vedic Panchang Preview Card'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Hindu Calendar & Live Panchang | Today's Tithi & Muhurat",
+    title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
-    images: ['https://vikram-samvat-widget.vercel.app/api/og']
+    images: ['https://dailytithi.com/api/og']
   },
   alternates: {
-    canonical: 'https://vikram-samvat-widget.vercel.app/'
+    canonical: 'https://dailytithi.com'
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google2779ca9c3cc8b844.html',
@@ -81,15 +84,15 @@ const jsonLdSchema = {
   '@graph': [
     {
       '@type': 'WebPage',
-      '@id': 'https://vikram-samvat-widget.vercel.app/#webpage',
-      url: 'https://vikram-samvat-widget.vercel.app/',
-      name: "Hindu Calendar & Live Panchang | Today's Tithi & Muhurat",
+      '@id': 'https://dailytithi.com/#webpage',
+      url: 'https://dailytithi.com/',
+      name: "Daily Tithi | Live Hindu Calendar, Panchang & Muhurat",
       description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
       isPartOf: {
         '@type': 'WebSite',
-        '@id': 'https://vikram-samvat-widget.vercel.app/#website',
-        name: 'Hindu Calendar & Live Panchang',
-        url: 'https://vikram-samvat-widget.vercel.app/'
+        '@id': 'https://dailytithi.com/#website',
+        name: 'Daily Tithi',
+        url: 'https://dailytithi.com/'
       },
       about: {
         '@type': 'Thing',
@@ -97,7 +100,7 @@ const jsonLdSchema = {
       },
       author: {
         '@type': 'Organization',
-        name: 'Vedic Astrometry Research Team'
+        name: 'Daily Tithi Research Team'
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
@@ -106,16 +109,16 @@ const jsonLdSchema = {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://vikram-samvat-widget.vercel.app/'
+            item: 'https://dailytithi.com/'
           }
         ]
       }
     },
     {
       '@type': 'SoftwareApplication',
-      '@id': 'https://vikram-samvat-widget.vercel.app/#software',
-      name: 'Hindu Calendar & Live Panchang',
-      url: 'https://vikram-samvat-widget.vercel.app/',
+      '@id': 'https://dailytithi.com/#software',
+      name: 'Daily Tithi',
+      url: 'https://dailytithi.com/',
       applicationCategory: 'LifestyleApplication',
       operatingSystem: 'All (Web, Android, iOS, Windows, macOS)',
       browserRequirements: 'Modern browser with JavaScript support. Functions 100% offline.',
@@ -128,7 +131,7 @@ const jsonLdSchema = {
     },
     {
       '@type': 'FAQPage',
-      '@id': 'https://vikram-samvat-widget.vercel.app/#faq',
+      '@id': 'https://dailytithi.com/#faq',
       mainEntity: [
         {
           '@type': 'Question',
@@ -183,9 +186,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#090e1a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Panchang" />
+        <meta name="apple-mobile-web-app-title" content="Daily Tithi" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
         <script
           type="application/ld+json"

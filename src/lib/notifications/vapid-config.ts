@@ -17,7 +17,7 @@ export interface VapidCredentials {
 // Development fallback keys only used when NODE_ENV !== 'production'
 const DEV_FALLBACK_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
 const DEV_FALLBACK_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
-const DEFAULT_SUBJECT = 'mailto:support@vikram-samvat-widget.vercel.app';
+const DEFAULT_SUBJECT = 'mailto:contact@dailytithi.com';
 
 export function getVapidCredentials(): VapidCredentials | null {
   const isProd = process.env.NODE_ENV === 'production';

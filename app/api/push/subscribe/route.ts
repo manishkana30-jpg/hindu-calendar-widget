@@ -57,6 +57,7 @@ function isOriginAllowed(req: NextRequest): boolean {
       const originHost = originUrl.host.toLowerCase();
       if (expectedHost && originHost === expectedHost) return true;
       if (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1') return true;
+      if (originUrl.hostname === 'dailytithi.com' || originUrl.hostname.endsWith('.dailytithi.com')) return true;
       if (originUrl.hostname.endsWith('.vercel.app')) return true;
     } catch {
       return false;
@@ -69,6 +70,7 @@ function isOriginAllowed(req: NextRequest): boolean {
       const refererHost = refererUrl.host.toLowerCase();
       if (expectedHost && refererHost === expectedHost) return true;
       if (refererUrl.hostname === 'localhost' || refererUrl.hostname === '127.0.0.1') return true;
+      if (refererUrl.hostname === 'dailytithi.com' || refererUrl.hostname.endsWith('.dailytithi.com')) return true;
       if (refererUrl.hostname.endsWith('.vercel.app')) return true;
     } catch {
       return false;

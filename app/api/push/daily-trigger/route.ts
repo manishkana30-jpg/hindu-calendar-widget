@@ -59,7 +59,7 @@ const PUSH_OPTIONS: webpush.RequestOptions = {
 function ensureVapidConfig(): boolean {
   const publicKey = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || 'mailto:support@vikram-samvat-widget.vercel.app';
+  const subject = process.env.VAPID_SUBJECT || 'mailto:contact@dailytithi.com';
 
   if (!publicKey || !privateKey) {
     if (process.env.NODE_ENV === 'production') {

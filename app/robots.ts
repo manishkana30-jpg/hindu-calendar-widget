@@ -5,7 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/api/', '/admin/'],
     },
-    sitemap: 'https://vikram-samvat-widget.vercel.app/sitemap.xml',
+    sitemap: 'https://dailytithi.com/sitemap.xml',
   };
 }
