@@ -162,10 +162,10 @@ async function runShareVerification() {
     assert(anyMatches.length === 0, `${relPath} contains zero 'any' types (found: ${anyMatches.length})`);
   }
 
-  // ── TEST 5: Verify HinduPanchangWidget Contains WhatsApp Button Placement ──
-  console.log('\n▸ 5. Verifying HinduPanchangWidget UI Integration:');
+  // ── TEST 5: Verify WhatsApp UI Integration & Card 2 Cleanliness ──
+  console.log('\n▸ 5. Verifying WhatsApp UI Integration & Card 2 Cleanliness:');
   const widgetSource = fs.readFileSync('app/components/HinduPanchangWidget.tsx', 'utf8');
-  assert(widgetSource.includes('WhatsAppShareButton'), 'HinduPanchangWidget mounts WhatsAppShareButton');
+  assert(!widgetSource.includes("Share Today's Tithi"), "Card 2 permanently removed 'Share Today\\'s Tithi' tag");
   assert(widgetSource.includes('Share Panchang on WhatsApp'), 'HinduPanchangWidget includes menu WhatsApp action');
 
   console.log('\n═══════════════════════════════════════════════════════════════════════════════════');

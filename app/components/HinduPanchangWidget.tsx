@@ -26,7 +26,7 @@ import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { NotificationPermissionBanner } from './NotificationPermissionBanner';
-import { WhatsAppShareButton, WhatsAppIcon } from './WhatsAppShareButton';
+import { WhatsAppIcon } from './WhatsAppShareButton';
 import { sharePanchang, buildShareDataFromPanchang } from '../../src/lib/utils/sharePanchang';
 import {
   getSavedLocationState,
@@ -742,122 +742,127 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isTithiModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
-            className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 hover:border-amber-400/60 shadow-[0_0_25px_rgba(245,158,11,0.08)] flex flex-col justify-between cursor-pointer transition-all duration-300 group relative active:scale-[0.99] font-sans overflow-hidden"
+            className="p-5 sm:p-6 rounded-3xl bg-slate-900/85 backdrop-blur-xl border border-amber-500/35 hover:border-amber-400/70 shadow-[0_0_30px_rgba(245,158,11,0.1)] hover:shadow-[0_0_40px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer transition-all duration-300 group relative active:scale-[0.99] font-sans overflow-hidden"
           >
             {/* Subtle ambient radial backdrop glow */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-purple-950/15 to-transparent" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/12 via-purple-950/20 to-transparent" />
 
-            <div className="space-y-3 relative z-10">
+            <div className="space-y-3.5 relative z-10">
               {/* 1 & 2: Today's Day & Masa */}
-              <div className="space-y-1.5 pb-2.5 border-b border-white/10">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
-                    <Sun size={14} className="text-amber-400 flex-shrink-0" />
-                    <span className="font-serif font-devanagari text-amber-300 text-sm sm:text-base font-bold tracking-tight">
+              <div className="space-y-2 pb-3 border-b border-white/10">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0 shadow-sm">
+                      <Sun size={15} />
+                    </div>
+                    <span className="font-serif font-devanagari text-amber-300 text-base sm:text-lg font-bold tracking-tight truncate drop-shadow-sm">
                       {panchang.dayOfWeekName}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <WhatsAppShareButton
-                      date={selectedDate}
-                      panchang={panchang}
-                      activeMuhurat={activeMuhurat}
-                      panchakStatus={observances.panchak?.isActive ? (observances.panchak.panchak?.type || 'Active Panchak') : 'No Active Panchak (Free)'}
-                    />
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-outfit uppercase tracking-wider bg-amber-950/60 border border-amber-500/30 text-amber-300">
-                      Today
-                    </span>
-                  </div>
+                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.2)] shrink-0">
+                    TODAY
+                  </span>
                 </div>
 
-                <div className="flex items-baseline gap-1.5 text-xs text-slate-300 leading-snug">
-                  <span className="text-[11px] font-bold font-outfit text-amber-400/90 uppercase tracking-wider flex-shrink-0">Masa:</span>
-                  <span className="font-serif font-devanagari font-medium text-amber-100 flex-1">
+                <div className="flex items-start gap-2 pt-1 text-xs text-slate-300">
+                  <span className="text-[10px] font-extrabold font-outfit text-amber-400/90 tracking-wider uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
+                    MASA
+                  </span>
+                  <span className="font-serif font-devanagari font-medium text-amber-100 text-xs sm:text-[13px] leading-snug">
                     {panchang.masaDisplay}
                   </span>
                 </div>
               </div>
 
               {/* 3: Today's Tithi as per Dharmashastra rules with End Time */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="text-[10px] uppercase font-bold font-outfit tracking-wider text-amber-400/90">
-                    Today&apos;s Tithi (Dharmashastra)
-                  </span>
-                  {tithiResolution.isVriddhi && (
-                    <span className="px-1.5 py-0.5 rounded bg-purple-950/60 text-purple-300 border border-purple-500/30 text-[9px] font-bold font-outfit">
-                      Vriddhi
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-amber-400/80" />
+                    <span className="text-[10px] font-extrabold font-outfit tracking-widest uppercase text-amber-400/90">
+                      TODAY&apos;S TITHI (DHARMASHASTRA)
                     </span>
-                  )}
-                  {tithiResolution.isKshaya && (
-                    <span className="px-1.5 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-500/30 text-[9px] font-bold font-outfit">
-                      Kshaya Skipped
-                    </span>
-                  )}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {tithiResolution.isVriddhi && (
+                      <span className="px-2 py-0.5 rounded-full bg-purple-950/70 text-purple-300 border border-purple-500/40 text-[9px] font-extrabold font-outfit uppercase tracking-wider shadow-sm">
+                        Vriddhi
+                      </span>
+                    )}
+                    {tithiResolution.isKshaya && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-950/70 text-rose-300 border border-rose-500/40 text-[9px] font-extrabold font-outfit uppercase tracking-wider shadow-sm">
+                        Kshaya Skipped
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-xl sm:text-2xl font-serif font-devanagari font-extrabold text-amber-300 tracking-tight leading-tight group-hover:text-amber-200 transition-colors drop-shadow-sm">
+                <div className="flex items-center gap-2.5 flex-wrap py-0.5">
+                  <h3 className="text-2xl sm:text-3xl font-serif font-devanagari font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 tracking-tight leading-tight group-hover:from-amber-100 group-hover:to-yellow-300 transition-colors drop-shadow">
                     {panchang.udayaTithi?.name || panchang.tithi.name}
                   </h3>
-                  {panchang.tithi.index === 15 && <span className="text-xl drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]" title="Purnima">🌕</span>}
-                  {panchang.tithi.index === 30 && <span className="text-xl drop-shadow-[0_0_12px_rgba(244,63,94,0.4)]" title="Amavasya">🌑</span>}
+                  {panchang.tithi.index === 15 && (
+                    <span className="text-2xl drop-shadow-[0_0_16px_rgba(251,191,36,0.7)] select-none animate-pulse" title="Purnima (Full Moon)">🌕</span>
+                  )}
+                  {panchang.tithi.index === 30 && (
+                    <span className="text-2xl drop-shadow-[0_0_16px_rgba(168,85,247,0.5)] select-none" title="Amavasya (New Moon)">🌑</span>
+                  )}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-bold font-outfit shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-extrabold font-outfit shadow-[0_0_15px_rgba(16,185,129,0.2)]">
                       ✨ Ekadashi Vrat
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs text-amber-300/95 font-grotesk font-mono font-medium flex items-center gap-1.5 pt-0.5 tabular-nums">
-                  <Clock size={12} className="text-amber-400/80 flex-shrink-0" />
-                  <span className="font-sans text-slate-400">Ends:</span>
-                  <span className="font-bold text-white">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0b101e]/80 border border-amber-500/20 text-xs font-grotesk tabular-nums shadow-sm">
+                  <Clock size={13} className="text-amber-400 shrink-0" />
+                  <span className="font-sans text-slate-400 font-medium text-[11px]">Ends:</span>
+                  <span className="font-bold text-white tracking-tight">
                     {currentTithiEndTime}
                   </span>
                 </div>
               </div>
 
               {/* 4: New Tithi: Start Time & Will Be Observed When */}
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-white/10 space-y-1.5">
-                <div className="flex items-center justify-between text-xs gap-2">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">New Tithi:</span>
-                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#0a0f1d] to-[#070b16] border border-[#1d2948] shadow-inner divide-y divide-white/5 space-y-2">
+                <div className="flex items-center justify-between text-xs gap-3">
+                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">New Tithi:</span>
+                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-xs sm:text-[13px] truncate">
                     {nextTithiName}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs gap-2">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">Starts:</span>
-                  <span className="font-grotesk font-mono tabular-nums text-slate-100 font-medium text-right">
+                <div className="flex items-center justify-between text-xs pt-2 gap-3">
+                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">Starts:</span>
+                  <span className="font-grotesk font-mono tabular-nums text-slate-200 font-medium text-right text-xs">
                     {newTithiStartTime}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10 gap-2">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">Observed:</span>
-                  <span className="font-semibold text-emerald-300 font-sans text-right">
+                <div className="flex items-center justify-between text-xs pt-2 gap-3">
+                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">Observed:</span>
+                  <span className="font-semibold text-emerald-300 font-sans text-right text-xs sm:text-[13px]">
                     {newTithiObservedWhen}
                   </span>
                 </div>
               </div>
 
               {/* 5: Pahar */}
-              <div className="flex items-center justify-between text-xs py-0.5">
+              <div className="flex items-center justify-between text-xs py-1 px-1">
                 <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 font-sans">
-                  <Compass size={13} className="text-amber-400" />
+                  <Compass size={13} className="text-amber-400 shrink-0" />
                   <span>Pahar:</span>
                 </span>
-                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[11px] bg-slate-950/60 border border-white/10 px-2 py-0.5 rounded-lg">
+                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[11px] bg-slate-950/80 border border-white/10 px-2.5 py-1 rounded-lg shadow-sm">
                   {panchang.paharCapsuleText}
                 </span>
               </div>
             </div>
 
             {/* 6: Link for Open Calendar */}
-            <div className="mt-3 pt-2.5 border-t border-white/10 relative z-10">
-              <div className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 group-hover:border-amber-400/80 text-amber-300 group-hover:text-amber-200 text-xs font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                <Calendar size={13} className="text-amber-400" />
+            <div className="mt-3.5 pt-3 border-t border-white/10 relative z-10">
+              <div className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-xs font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                <Calendar size={14} className="text-amber-400" />
                 <span>Open 30-Day Almanac</span>
-                <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
           </div>
