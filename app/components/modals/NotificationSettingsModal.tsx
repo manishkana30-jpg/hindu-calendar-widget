@@ -41,6 +41,7 @@ import {
 } from '@/src/lib/location-service';
 import { LocationCoordinates, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { computeDailyMorningNotification, DailyMorningPushPayload } from '@/src/lib/notifications/morning-push';
+import { DeviceSetupModal } from '@/src/components/DeviceSetupModal';
 
 interface NotificationSettingsModalProps {
   isOpen: boolean;
@@ -80,6 +81,7 @@ export function NotificationSettingsModal({
   const [testStatus, setTestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState<string>('');
   const [previewPayload, setPreviewPayload] = useState<DailyMorningPushPayload | null>(null);
+  const [isDeviceGuideOpen, setIsDeviceGuideOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -536,6 +538,27 @@ export function NotificationSettingsModal({
           </div>
         </div>
 
+        {/* ── Section 5: Device Reliability & Battery Settings Banner ── */}
+        <div className="mb-5 p-3.5 rounded-2xl bg-gradient-to-r from-[#0d1629] to-[#111c33] border border-amber-500/30 flex items-center justify-between gap-3 text-xs shadow-md">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-amber-400 font-bold text-base shrink-0">⚙️</span>
+            <div>
+              <span className="text-white font-semibold text-xs block">
+                Device Reliability &amp; Battery Optimization Guide
+              </span>
+              <span className="text-neutral-400 text-[11px] block leading-snug">
+                Configure Unrestricted Battery &amp; Lock-Screen Visibility for sleeping phones
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsDeviceGuideOpen(true)}
+            className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition-all shrink-0 cursor-pointer text-xs flex items-center gap-1"
+          >
+            <span>Guide ⚙️</span>
+          </button>
+        </div>
+
         {/* ── Test Notification & Close Action Buttons ── */}
         <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2 border-t border-[#1a2744]">
           <button
@@ -574,6 +597,14 @@ export function NotificationSettingsModal({
             {testMessage}
           </p>
         )}
+
+        {/* Mounted Device Setup Guide Modal */}
+        <DeviceSetupModal
+          isOpen={isDeviceGuideOpen}
+          onClose={() => setIsDeviceGuideOpen(false)}
+          onSendTestAlert={handleTestAlert}
+          isSendingTest={testStatus === 'sending'}
+        />
       </div>
     </div>
   );
