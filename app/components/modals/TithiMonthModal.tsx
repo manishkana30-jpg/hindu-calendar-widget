@@ -2,8 +2,21 @@
 
 import React, { useEffect } from 'react';
 import { X, ArrowLeft, Calendar } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { LocationCoordinates } from '../../../src/lib/vedic-astronomy';
-import { MonthlyVedicCalendar } from '../MonthlyVedicCalendar';
+
+const MonthlyVedicCalendar = dynamic(
+  () => import('../MonthlyVedicCalendar').then((mod) => mod.MonthlyVedicCalendar),
+  {
+    loading: () => (
+      <div className="flex flex-col items-center justify-center p-12 text-center space-y-3 min-h-[300px]">
+        <div className="w-8 h-8 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+        <span className="text-xs text-neutral-400 font-mono">Loading Monthly Vedic Calendar...</span>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 interface Props {
   isOpen: boolean;

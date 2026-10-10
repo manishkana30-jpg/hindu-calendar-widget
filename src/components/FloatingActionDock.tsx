@@ -166,7 +166,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
         <button
           type="button"
           onClick={handleShareClick}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[40px] rounded-full text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
           title="Share today's live Panchang card on WhatsApp"
           aria-label="Share Today's Panchang on WhatsApp"
         >
@@ -180,7 +180,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
           type="button"
           onClick={handleAlertsClick}
           disabled={isPushLoading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold bg-amber-950/70 hover:bg-amber-900/90 border border-amber-500/40 text-amber-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[40px] rounded-full text-xs font-semibold bg-amber-950/70 hover:bg-amber-900/90 border border-amber-500/40 text-amber-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
           title={isSubscribed ? "Daily Alerts active — Click to test sound & settings" : "Enable lock-screen sunrise & tithi notifications"}
           aria-label={isSubscribed ? "Daily Alerts active" : "Enable Daily Alerts"}
         >
@@ -202,7 +202,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
         <button
           type="button"
           onClick={handleGetAppClick}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold bg-sky-950/70 hover:bg-sky-900/90 border border-sky-500/40 text-sky-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(14,165,233,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[40px] rounded-full text-xs font-semibold bg-sky-950/70 hover:bg-sky-900/90 border border-sky-500/40 text-sky-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(14,165,233,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
           title={isStandalone ? "App is installed and running in standalone mode" : "Install Daily Tithi Web App (PWA) for 100% offline access"}
           aria-label={isStandalone ? "App Installed" : "Get App"}
         >

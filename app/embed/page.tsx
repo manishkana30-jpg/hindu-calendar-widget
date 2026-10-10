@@ -99,6 +99,7 @@ function EmbedWidgetContent() {
 
         <time
           dateTime={currentDate.toISOString().split('T')[0]}
+          suppressHydrationWarning
           className="text-[10px] font-mono text-neutral-400 shrink-0"
         >
           {formattedDate}

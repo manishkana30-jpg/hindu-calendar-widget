@@ -227,7 +227,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${outfit.variable} ${plusJakarta.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen selection:bg-orange-500/30 selection:text-orange-200`}>
+      <body className={`${outfit.variable} ${plusJakarta.variable} ${notoSerifDevanagari.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen selection:bg-orange-500/30 selection:text-orange-200`}>
         <Suspense fallback={null}>
           <NotificationNavigationHandler />
         </Suspense>
