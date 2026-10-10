@@ -1,8 +1,10 @@
+import React, { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Outfit, Noto_Serif_Devanagari, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { FloatingInstallShare } from './components/FloatingInstallShare';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
+import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
@@ -209,6 +211,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${outfit.variable} ${plusJakarta.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen selection:bg-orange-500/30 selection:text-orange-200`}>
+        <Suspense fallback={null}>
+          <NotificationNavigationHandler />
+        </Suspense>
         {children}
         <FloatingInstallShare />
         <PwaUpdatePrompt />

@@ -10,6 +10,7 @@ import { getFestivalForDate } from '@/src/lib/festivals';
 import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { evaluateEkadashi } from '@/src/lib/dharmashastra-engine';
 import { DailyPanchangCache } from '@/src/lib/notifications/idb-storage';
+import { getSavedLocationState } from '@/src/lib/location-service';
 
 export function ClientNotificationScheduler() {
   useEffect(() => {
@@ -21,7 +22,8 @@ export function ClientNotificationScheduler() {
     const seedCache = async () => {
       try {
         const now = new Date();
-        const location = PRESET_LOCATIONS[0];
+        const savedLoc = getSavedLocationState().location;
+        const location = savedLoc || PRESET_LOCATIONS[0];
         const panchang = calculatePanchang(now, location);
         const festivalResult = getFestivalForDate(now, location);
         const panchakResult = getActivePanchakStatus(now);

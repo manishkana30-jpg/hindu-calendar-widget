@@ -59,7 +59,13 @@ function getFromIDB(key) {
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.allSettled(
+        ASSETS_TO_CACHE.map((url) =>
+          cache.add(url).catch((err) => console.warn(`[SW] Pre-cache notice for ${url}:`, err))
+        )
+      );
+    })
   );
 });
 
@@ -75,6 +81,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http')) return;
 
   const url = new URL(event.request.url);
 
@@ -94,7 +101,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request).then((res) => res || caches.match('/')))
+        .catch(() => caches.match(event.request, { ignoreSearch: true }).then((res) => res || caches.match('/')))
     );
     return;
   }
@@ -103,7 +110,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
           const clone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
@@ -206,44 +213,51 @@ self.addEventListener('push', (event) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. NOTIFICATION CLICK ROUTING
+// 3. NOTIFICATION CLICK ROUTING (DEEP-LINKING & WARM-TAB RESOLUTION)
 // ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const notifData = event.notification.data || {};
-  const origin = self.location.origin || 'https://dailytithi.com';
-  let targetUrl = notifData.url || origin;
 
-  // Route user based on clicked action
+  const baseUrl = self.location.origin;
+  let targetUrl = `${baseUrl}/`;
+  let viewAction = 'default';
+
   if (event.action === 'open_muhurat') {
-    targetUrl = new URL('#muhurat', origin).href;
-  } else if (event.action === 'open_panchang' || !event.action) {
-    targetUrl = notifData.url ? new URL(notifData.url, origin).href : origin;
+    targetUrl = `${baseUrl}/?view=muhurat`;
+    viewAction = 'muhurat';
+  } else if (event.action === 'open_panchang') {
+    targetUrl = `${baseUrl}/?view=calendar`;
+    viewAction = 'calendar';
+  } else if (event.notification.data?.url) {
+    targetUrl = event.notification.data.url;
   }
 
-  const routingPromise = clients.matchAll({ type: 'window', includeUncontrolled: true })
-    .then((clientList) => {
-      // If a window/tab is already open, focus it and transmit state
-      for (const client of clientList) {
-        if (client.url && 'focus' in client) {
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windowClients) => {
+      // Check if Daily Tithi tab is already open (warm tab)
+      for (const client of windowClients) {
+        if (client.url && client.url.startsWith(baseUrl)) {
+          // Send message to open view dynamically if tab is alive
           client.postMessage({
-            type: 'NOTIFICATION_CLICK',
-            action: event.action,
-            data: notifData
+            type: 'NOTIFICATION_NAVIGATE',
+            view: viewAction,
+            targetUrl: targetUrl
           });
-          if ('navigate' in client && event.action === 'open_muhurat') {
-            client.navigate(targetUrl);
+
+          // Navigate the tab to ensure query params update
+          if ('navigate' in client) {
+            await client.navigate(targetUrl);
           }
           return client.focus();
         }
       }
-      // Otherwise launch a new window with the destination URL
+
+      // If no tab is open, launch a new window with the deep-linked URL (cold start)
       if (clients.openWindow) {
         return clients.openWindow(targetUrl);
       }
-    });
-
-  event.waitUntil(routingPromise);
+    })
+  );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

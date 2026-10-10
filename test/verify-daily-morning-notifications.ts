@@ -157,8 +157,8 @@ assert(
 // TEST 4: Panchak starting mid-day shown with correct time window
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('\n▸ TEST 4: Panchak Starting Mid-Day Shown with Time Window');
-// April 12, 2026: Roga Panchak starts at 03:15 PM (15:15 IST)
-const panchakMidDayDate = new Date('2026-04-12T06:00:00Z');
+// Nov 17, 2026: Agni Panchak starts at 03:31 PM (15:31 IST)
+const panchakMidDayDate = new Date('2026-11-17T06:00:00Z');
 const panchakPayload = computeDailyMorningNotification(panchakMidDayDate, delhiLoc);
 console.log(`  Panchak Day Notification Body:\n${panchakPayload.body}`);
 
@@ -168,8 +168,8 @@ assert(
   panchakPayload.panchakLine || 'None'
 );
 assert(
-  Boolean(panchakPayload.panchakLine && panchakPayload.panchakLine.includes('15:15')),
-  'Panchak line displays exact commencement time window starting at 15:15',
+  Boolean(panchakPayload.panchakLine && panchakPayload.panchakLine.includes('15:31')),
+  'Panchak line displays exact commencement time window starting at 15:31',
   panchakPayload.panchakLine || 'None'
 );
 

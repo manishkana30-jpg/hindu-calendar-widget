@@ -222,7 +222,8 @@ export function usePanchangAutoSync({
         const subJson = sub.toJSON();
         const currentSignature = JSON.stringify({
           endpoint: subJson.endpoint,
-          keys: subJson.keys
+          keys: subJson.keys,
+          loc: `${location.latitude.toFixed(4)},${location.longitude.toFixed(4)}`
         });
 
         const lastSynced = localStorage.getItem('panchang_push_sub_signature');
