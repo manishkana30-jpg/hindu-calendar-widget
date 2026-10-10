@@ -88,7 +88,7 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google2779ca9c3cc8b844.html',
     other: {
-      ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } : {}),
+      'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '54274A593A0417D0C42AC6F422F4A71C',
     },
   },
 };
