@@ -105,7 +105,8 @@ export interface Active30MuhuratResult extends MuhuratEntry {
 export function calculateActive30Muhurat(
   sunriseStr: string,
   sunsetStr: string,
-  targetDate: Date = new Date()
+  targetDate: Date = new Date(),
+  targetMinutesOverride?: number
 ): Active30MuhuratResult | null {
   const parseTimeToMinutes = (t: string) => {
     const parts = t.trim().split(' ');
@@ -130,7 +131,9 @@ export function calculateActive30Muhurat(
 
   const sunriseMin = parseTimeToMinutes(sunriseStr);
   const sunsetMin = parseTimeToMinutes(sunsetStr);
-  const currentMinutes = targetDate.getHours() * 60 + targetDate.getMinutes() + targetDate.getSeconds() / 60;
+  const currentMinutes = targetMinutesOverride !== undefined
+    ? targetMinutesOverride
+    : targetDate.getHours() * 60 + targetDate.getMinutes() + targetDate.getSeconds() / 60;
 
   const dayLengthMin = sunsetMin >= sunriseMin ? sunsetMin - sunriseMin : (sunsetMin + 1440) - sunriseMin;
   const daySlotDuration = dayLengthMin / 15;
@@ -330,12 +333,12 @@ function getMoonSiderealDeg(date: Date): number {
   return getSiderealMoonLongitude(jd);
 }
 
-export function generatePanchaksForYear(year: number): PanchakEntry[] {
+export function generatePanchaksForYear(year: number, ianaTimezone?: string): PanchakEntry[] {
   const panchaks: PanchakEntry[] = [];
   const startOfYear = new Date(year, 0, 1, 0, 0, 0);
   const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
-  const PANCHAK_START_DEG = 293.33333333; // Dhanishta 3rd pada boundary (293° 20')
+  const PANCHAK_START_DEG = 300.0; // Dhanishta 3rd/4th pada boundary (300° Nirayana longitude / Kumbha ingress)
 
   // Step across the year in 2-hour increments
   const stepMs = 2 * 3600 * 1000;
@@ -426,8 +429,12 @@ export function generatePanchaksForYear(year: number): PanchakEntry[] {
           briefRule = { hindi: 'धर्मसिन्धु: शनिवार का पञ्चक मृत्यु-पञ्चक है। समस्त मांगलिक कार्य वर्जित हैं एवं दाह संस्कार में पञ्च-पुत्तलिका शान्ति अनिवार्य है।', english: 'Dharmasindhu: Saturday Panchak is Mrityu Panchak. Auspicious rites forbidden; Putrika Shanti mandatory.' };
         }
 
-        const formatD = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        const formatT = (d: Date) => d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formatD = (d: Date) => ianaTimezone
+          ? new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: ianaTimezone }).format(d)
+          : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        const formatT = (d: Date) => ianaTimezone
+          ? new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: ianaTimezone }).format(d)
+          : d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
         panchaks.push({
           id: `panchak-${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`,
@@ -452,14 +459,14 @@ export function generatePanchaksForYear(year: number): PanchakEntry[] {
   return panchaks;
 }
 
-export function getActivePanchakStatus(currentDate: Date = new Date()) {
+export function getActivePanchakStatus(currentDate: Date = new Date(), ianaTimezone?: string) {
   const currentTs = currentDate.getTime();
   const year = currentDate.getFullYear();
   
   // Calculate dynamic panchak list for current and next year
   const yearPanchaks = [
-    ...generatePanchaksForYear(year),
-    ...generatePanchaksForYear(year + 1)
+    ...generatePanchaksForYear(year, ianaTimezone),
+    ...generatePanchaksForYear(year + 1, ianaTimezone)
   ];
   
   // Check if currently inside any Panchak

@@ -16,6 +16,7 @@ import {
   formatUtcDateToLocalTime
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
+import { usePanchang } from '../../src/hooks/usePanchang';
 import { CITIES } from '../../src/lib/cities';
 import { getActivePanchakStatus, calculateActive30Muhurat } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal } from './modals/TithiMonthModal';
@@ -213,23 +214,52 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
     initialLocation || PRESET_LOCATIONS[0]
   );
-  const [isLiveMode, setIsLiveMode] = useState<boolean>(true);
   type WidgetTabType = 'panchang' | 'choghadiya' | 'muhurat' | 'astrometry';
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const [locationSource, setLocationSource] = useState<'gps' | 'dropdown' | 'fallback'>('fallback');
   const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('Just now');
   const [isGpsDetecting, setIsGpsDetecting] = useState<boolean>(false);
 
+  // Single Source of Truth (SSOT) Cascading Panchang Hook
+  const {
+    observer,
+    selectedDate,
+    liveTime,
+    targetInstant,
+    isLiveMode,
+    isMounted,
+    displayTime,
+    displayDate,
+    solarHorizon,
+    tithiDetails,
+    activeMuhurat,
+    observances,
+    panchang,
+    tithiResolution,
+    setObserver,
+    setSelectedDate,
+    prevDay,
+    nextDay,
+    setDateFromInput,
+    resetToLive,
+    setLiveMode,
+    forceSync
+  } = usePanchang({
+    initialLocation: selectedLocation,
+    isLiveMode: true
+  });
+
   useEffect(() => {
     if (initialLocation) {
       setSelectedLocation(initialLocation);
+      setObserver(initialLocation);
       return;
     }
 
     const saved = getSavedLocationState();
     if (saved?.location) {
       setSelectedLocation(saved.location);
+      setObserver(saved.location);
       setLocationSource(saved.source);
     }
 
@@ -246,6 +276,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             requestGpsLocation().then((res) => {
               if (res.success && res.location) {
                 setSelectedLocation(res.location);
+                setObserver(res.location);
                 setLocationSource('gps');
               }
             });
@@ -264,7 +295,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [initialLocation]);
+  }, [initialLocation, setObserver]);
 
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
@@ -281,105 +312,26 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Reactive Auto-Sync Engine (Dual-trigger upcoming sunrise & tithi conclusion, tab focus recovery, drift mitigation)
-  const {
-    currentTime,
-    panchang,
-    tithiResolution,
-    isPreSunrise,
-    forceSync
-  } = usePanchangAutoSync({
-    location: selectedLocation,
-    isLiveMode,
-    customDate: selectedDate,
-    elevationMeters: selectedLocation.elevation || 0
-  });
+  // SSOT reactive bindings for Cards 1 through 6
+  const panchakStatus = observances.panchak;
+  const activeTimezone = observer.timezone;
+  const activeVedicMuhurat = activeMuhurat.currentMuhurat;
+  const holidayDetails = observances.holidayDetails;
+  const formattedTzOffset = observer.formattedTzOffset;
+  const nextTithiName = tithiDetails.nextTithiName;
+  const newTithiStartTime = tithiDetails.newTithiStartTime;
+  const currentTithiEndTime = tithiDetails.currentTithiEndTime;
+  const newTithiObservedWhen = tithiDetails.newTithiObservedWhen;
+  const muhuratProgress = activeMuhurat.progressPercent;
+  const isPreSunrise = tithiDetails.isPreSunrise;
 
-  const panchakStatus = getActivePanchakStatus(isLiveMode ? currentTime : selectedDate);
-
-  // Derive IANA timezone and live formatted Gregorian clock and date
-  const activeTimezone = resolveIanaTimezone(selectedLocation);
-  const targetInstant = isLiveMode ? currentTime : selectedDate;
-  const displayTime = formatTimeForLocation(targetInstant, activeTimezone, isLiveMode, panchang.timeFormatted, selectedDate);
-  const displayDate = formatDateForLocation(targetInstant, activeTimezone, panchang.dateString);
-  const activeVedicMuhurat = calculateActive30Muhurat(panchang.sunrise, panchang.sunset, targetInstant);
-  const holidayDetails = getHolidayAndEclipseDetails(targetInstant, selectedLocation);
-
-  // Format UTC offset cleanly supporting fractional offsets (e.g. +5:30 India, +5:45 Nepal)
-  const tzOffset = selectedLocation.timezone;
-  const tzSign = tzOffset >= 0 ? '+' : '-';
-  const tzHours = Math.trunc(Math.abs(tzOffset));
-  const tzMins = Math.round((Math.abs(tzOffset) % 1) * 60);
-  const formattedTzOffset = `UTC${tzSign}${tzHours}:${String(tzMins).padStart(2, '0')}`;
-
-  // Next Tithi & Dharmashastra observation timing calculation
-  const currentUdayaIndex = panchang.udayaTithi?.index || panchang.tithi.index || 1;
-  const nextTithiIndex = (currentUdayaIndex % 30) + 1;
-  const nextTithiObj = TITHIS[(nextTithiIndex - 1) % 30];
-  const nextTithiName = nextTithiObj?.name || `Tithi ${nextTithiIndex}`;
-
-  const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const DAY_NAMES = [
-    'Ravivara (रविवार)',
-    'Somavara (सोमवार)',
-    'Mangalavara (मंगलवार)',
-    'Budhavara (बुधवार)',
-    'Guruvara (गुरुवार)',
-    'Shukravara (शुक्रवार)',
-    'Shanivara (शनिवार)'
-  ];
-
-  // Format Gregorian date & time for new Tithi start:
-  // "new tithi date • time AM/PM according to georgian" (e.g. "11 Oct 2026 • 09:36 PM")
-  const transitionUtc = panchang.udayaTithi?.endDate || panchang.instantaneousTithi?.endDate;
-  let newTithiStartTime = panchang.udayaTithi?.endTime || panchang.tithi.endTime || 'At conclusion';
-  if (transitionUtc) {
-    const localMs = transitionUtc.getTime() + tzOffset * 3600000;
-    const localD = new Date(localMs);
-    const dateFormatted = `${localD.getUTCDate()} ${MONTHS_SHORT[localD.getUTCMonth()]} ${localD.getUTCFullYear()}`;
-    const timeFormatted = formatUtcDateToLocalTime(transitionUtc, tzOffset);
-    newTithiStartTime = `${dateFormatted} • ${timeFormatted}`;
-  }
-  const currentTithiEndTime = newTithiStartTime;
-
-  // Format Dharmashastra observation day:
-  // "date • day/vara" (e.g. "11 Oct 2026 • Ravivara (रविवार)")
-  const isCurrentPreSunrise = isPreSunrise ?? panchang.isPreSunrise ?? false;
-  let dayOffset = isCurrentPreSunrise ? 0 : 1;
-  let anomalySuffix = '';
-  if (tithiResolution.isVriddhi) {
-    dayOffset = isCurrentPreSunrise ? 1 : 2;
-    anomalySuffix = ' (Delayed: Vriddhi)';
-  } else if (tithiResolution.isKshaya && tithiResolution.kshayaTithiDetails?.name === nextTithiName) {
-    dayOffset = isCurrentPreSunrise ? 0 : 1;
-    anomalySuffix = ' (Kshaya — Skipped at Sunrise)';
-  }
-
-  const obsDate = new Date(
-    targetInstant.getFullYear(),
-    targetInstant.getMonth(),
-    targetInstant.getDate() + dayOffset,
-    12, 0, 0
-  );
-  const obsDateFormatted = `${obsDate.getDate()} ${MONTHS_SHORT[obsDate.getMonth()]} ${obsDate.getFullYear()}`;
-  const obsDayVara = DAY_NAMES[obsDate.getDay()];
-  const newTithiObservedWhen = `${obsDateFormatted} • ${obsDayVara}${anomalySuffix}`;
-
-  // Active Muhurat window elapsed percentage (0 - 100%) for visual progress bar
-  const muhuratProgress = (() => {
-    if (activeVedicMuhurat?.durationMins && activeVedicMuhurat?.remainingString) {
-      const match = activeVedicMuhurat.remainingString.match(/(\d+)m\s*(\d+)s/);
-      if (match) {
-        const remSec = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-        const totalSec = activeVedicMuhurat.durationMins * 60;
-        if (totalSec > 0) {
-          const elapsedSec = Math.max(0, totalSec - remSec);
-          return Math.min(100, Math.max(0, Math.round((elapsedSec / totalSec) * 100)));
-        }
-      }
-    }
-    return 50;
-  })();
+  // Actions wired directly to SSOT
+  const handlePrevDay = prevDay;
+  const handleNextDay = nextDay;
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateFromInput(e.target.value);
+  };
+  const handleResetToLive = resetToLive;
 
   // Click-outside handler to close dropdown menu
   useEffect(() => {
@@ -392,34 +344,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMenuOpen]);
-
-  const handlePrevDay = () => {
-    setIsLiveMode(false);
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 1);
-    setSelectedDate(newDate);
-  };
-
-  const handleNextDay = () => {
-    setIsLiveMode(false);
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 1);
-    setSelectedDate(newDate);
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value) return;
-    const [y, m, d] = e.target.value.split('-').map(Number);
-    const newDate = new Date(y, m - 1, d, 6, 0, 0);
-    setIsLiveMode(false);
-    setSelectedDate(newDate);
-  };
-
-  const handleResetToLive = () => {
-    setIsLiveMode(true);
-    setSelectedDate(new Date());
-    forceSync();
-  };
 
   if (isDismissed) {
     return (
@@ -458,6 +382,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     const resolvedTz = resolveIanaTimezone(loc);
                     const updated = resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc;
                     setSelectedLocation(updated);
+                    setObserver(updated);
                     setLocationSource('dropdown');
                     persistLocationState(updated, 'dropdown');
                   }
@@ -481,6 +406,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   const res = await requestGpsLocation();
                   if (res.success && res.location) {
                     setSelectedLocation(res.location);
+                    setObserver(res.location);
                     setLocationSource('gps');
                   }
                 } finally {
@@ -1438,7 +1364,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         onClose={() => setIsTithiModalOpen(false)}
         location={selectedLocation}
         onSelectDate={(d) => {
-          setIsLiveMode(false);
           setSelectedDate(d);
           setIsTithiModalOpen(false);
         }}
