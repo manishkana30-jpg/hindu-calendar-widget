@@ -7,6 +7,14 @@ import {
 } from 'lucide-react';
 import { PWAInstallModal } from './PWAInstallModal';
 import { triggerImmediateNotificationTest } from '@/src/lib/notifications/subscription-manager';
+import { sharePanchang, buildShareDataFromPanchang } from '@/src/lib/utils/sharePanchang';
+import { calculatePanchang, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
+import { getSavedLocationState } from '@/src/lib/location-service';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 interface FloatingInstallShareProps {
   className?: string;
@@ -14,7 +22,7 @@ interface FloatingInstallShareProps {
 
 export function FloatingInstallShare({ className = '' }: FloatingInstallShareProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [notificationStatus, setNotificationStatus] = useState<'idle' | 'sending' | 'sent' | 'denied' | 'error'>('idle');
@@ -24,7 +32,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as unknown as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -68,7 +76,7 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
   // Handle PWA installation
   const handleInstallClick = useCallback(async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
+      await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         setDeferredPrompt(null);
@@ -79,46 +87,32 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
     setIsOpen(false);
   }, [deferredPrompt]);
 
-  // Handle Native Share with Clipboard Fallback
+  // Handle Native Share with WhatsApp & Clipboard Fallback
   const handleShareClick = useCallback(async () => {
-    const shareUrl = typeof window !== 'undefined' 
-      ? window.location.origin 
-      : 'https://dailytithi.com';
-
-    const shareData = {
-      title: 'Daily Tithi - Live Vedic Panchang & Hindu Calendar',
-      text: 'Experience real-time Vedic Panchang with live Ishta Kaal, 8-Pahar segmentation, real-time Muhurats, and Dharmashastra festival engine. 100% Offline PWA:',
-      url: shareUrl
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        setIsOpen(false);
-        return;
-      } catch (err: any) {
-        // User aborted share or browser rejected; fall through to clipboard copy
-        if (err?.name === 'AbortError') return;
-      }
-    }
-
-    // Fallback: Copy URL to clipboard
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(shareUrl);
-      } else {
-        // Legacy fallback
-        const textArea = document.createElement('textarea');
-        textArea.value = shareUrl;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
+      const loc = getSavedLocationState()?.location || PRESET_LOCATIONS[0];
+      const today = new Date();
+      const panchang = calculatePanchang(today, loc);
+      const shareData = buildShareDataFromPanchang(today, panchang);
+
+      const result = await sharePanchang(shareData, {
+        onToast: () => {
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2500);
+        }
+      });
+
+      if (result.method === 'clipboard') {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2500);
+      } else if (result.success) {
+        setIsOpen(false);
       }
+    } catch (err: unknown) {
+      const error = err as Error;
+      if (error && error.name === 'AbortError') return;
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2500);
-    } catch (clipErr) {
-      console.error('Failed to copy link:', clipErr);
     }
   }, []);
 
@@ -223,11 +217,11 @@ export function FloatingInstallShare({ className = '' }: FloatingInstallSharePro
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold text-white group-hover:text-orange-300 transition-colors">
-                        {isCopied ? "Link Copied! ✅" : "Share with Family"}
+                        {isCopied ? "Panchang Copied! ✅" : "Share Today's Panchang"}
                       </span>
                     </div>
                     <p className="text-[11px] text-neutral-400 mt-0.5 truncate">
-                      {isCopied ? "Panchang URL copied to clipboard" : "Send via WhatsApp, SMS, or social"}
+                      {isCopied ? "Panchang copied to clipboard" : "Share on WhatsApp or native share sheet"}
                     </p>
                   </div>
                 </div>

@@ -26,6 +26,8 @@ import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { NotificationPermissionBanner } from './NotificationPermissionBanner';
+import { WhatsAppShareButton, WhatsAppIcon } from './WhatsAppShareButton';
+import { sharePanchang, buildShareDataFromPanchang } from '../../src/lib/utils/sharePanchang';
 import {
   getSavedLocationState,
   requestGpsLocation,
@@ -484,6 +486,22 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     <span>Panchak Calendar for Any Year</span>
                   </button>
                   <button
+                    onClick={async () => {
+                      setIsMenuOpen(false);
+                      const baseData = buildShareDataFromPanchang(
+                        selectedDate,
+                        panchang,
+                        activeMuhurat,
+                        observances.panchak?.isActive ? (observances.panchak.panchak?.type || 'Active Panchak') : 'No Active Panchak (Free)'
+                      );
+                      await sharePanchang(baseData);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 flex items-center gap-2.5 cursor-pointer border-t border-white/10 font-sans"
+                  >
+                    <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
+                    <span>Share Panchang on WhatsApp</span>
+                  </button>
+                  <button
                     onClick={() => { setShowDetails(!showDetails); setIsMenuOpen(false); }}
                     className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 border-t border-white/10 mt-1 pt-2 cursor-pointer font-sans"
                   >
@@ -739,9 +757,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       {panchang.dayOfWeekName}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-outfit uppercase tracking-wider bg-amber-950/60 border border-amber-500/30 text-amber-300">
-                    Today
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <WhatsAppShareButton
+                      date={selectedDate}
+                      panchang={panchang}
+                      activeMuhurat={activeMuhurat}
+                      panchakStatus={observances.panchak?.isActive ? (observances.panchak.panchak?.type || 'Active Panchak') : 'No Active Panchak (Free)'}
+                    />
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-outfit uppercase tracking-wider bg-amber-950/60 border border-amber-500/30 text-amber-300">
+                      Today
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-baseline gap-1.5 text-xs text-slate-300 leading-snug">

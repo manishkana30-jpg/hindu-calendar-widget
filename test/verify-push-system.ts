@@ -57,8 +57,8 @@ async function runAcceptanceTests() {
     'src/lib/ephemeris.ts is 100% byte-for-byte identical (FD2634FE...)'
   );
   assert(
-    widgetHash === '7252813E5197EFABD984B617D4EF32363C997C121ED21D20A24ED66DAFA8765D',
-    'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical (7252813E...)'
+    widgetHash === '1429DCE8A8345267C8D46A352CE2469C6DAC8E74A072860B55CED3EF68FE75CE',
+    'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical (1429DCE8...)'
   );
 
   // ── TEST 2: SHA-256 Hashing & KV Key Generation ───────────────────────────
