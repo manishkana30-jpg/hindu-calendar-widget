@@ -1,14 +1,26 @@
 import type { Metadata, Viewport } from 'next';
-import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
+import { Outfit, Noto_Serif_Devanagari, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { FloatingInstallShare } from './components/FloatingInstallShare';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
-
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
   variable: '--font-outfit',
   display: 'swap' 
+});
+
+const notoSerifDevanagari = Noto_Serif_Devanagari({
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-devanagari',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800'],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
 });
 
 const plusJakarta = Plus_Jakarta_Sans({ 

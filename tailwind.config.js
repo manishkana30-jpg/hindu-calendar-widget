@@ -20,7 +20,12 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['var(--font-sans)', 'Plus Jakarta Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        outfit: ['var(--font-outfit)', 'Outfit', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-devanagari)', 'Noto Serif Devanagari', 'Georgia', 'serif'],
+        devanagari: ['var(--font-devanagari)', 'Noto Serif Devanagari', 'Georgia', 'serif'],
+        mono: ['var(--font-space-grotesk)', 'Space Grotesk', 'monospace'],
+        grotesk: ['var(--font-space-grotesk)', 'Space Grotesk', 'monospace'],
       },
       animation: {
         'spin-slow': 'spin 30s linear infinite',

@@ -47,3 +47,29 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Typography helpers */
+.font-devanagari {
+  font-family: var(--font-devanagari), 'Noto Serif Devanagari', Georgia, serif;
+}
+
+.font-grotesk {
+  font-family: var(--font-space-grotesk), 'Space Grotesk', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-outfit {
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+}
+
+/* Celestial Observatory surfaces */
+.celestial-glass {
+  background: rgba(15, 23, 42, 0.70);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.celestial-card-glow {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.08);
+}
