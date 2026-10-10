@@ -5,7 +5,7 @@ import {
   Sparkles, MapPin, ChevronDown, MoreVertical, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight, Bell
+  ShieldAlert, ShieldCheck, ArrowUpRight, Bell, Code2
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -27,6 +27,7 @@ import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { NotificationPermissionBanner } from './NotificationPermissionBanner';
 import { WhatsAppIcon } from './WhatsAppShareButton';
+import { EmbedWidgetModal } from '../../src/components/EmbedWidgetModal';
 import { sharePanchang, buildShareDataFromPanchang } from '../../src/lib/utils/sharePanchang';
 import {
   getSavedLocationState,
@@ -311,6 +312,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [isPanchakModalOpen, setIsPanchakModalOpen] = useState<boolean>(false);
   const [isUpcomingFestivalsModalOpen, setIsUpcomingFestivalsModalOpen] = useState<boolean>(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState<boolean>(false);
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState<boolean>(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -500,6 +502,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   >
                     <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
                     <span>Share Panchang on WhatsApp</span>
+                  </button>
+                  <button
+                    onClick={() => { setIsEmbedModalOpen(true); setIsMenuOpen(false); }}
+                    className="w-full text-left px-4 py-2.5 text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 flex items-center gap-2.5 cursor-pointer border-t border-white/10 font-sans"
+                  >
+                    <Code2 size={15} className="text-amber-400" />
+                    <span>Embed on Your Site</span>
                   </button>
                   <button
                     onClick={() => { setShowDetails(!showDetails); setIsMenuOpen(false); }}
@@ -1447,6 +1456,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             : undefined
         }}
         festivalOrVratName={panchang.festivals && panchang.festivals.length > 0 ? panchang.festivals[0] : null}
+      />
+
+      <EmbedWidgetModal
+        isOpen={isEmbedModalOpen}
+        onClose={() => setIsEmbedModalOpen(false)}
+        defaultCity={selectedLocation.name}
       />
 
     </>

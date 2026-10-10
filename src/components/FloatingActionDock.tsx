@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { 
   Bell, 
   ArrowDownToLine, 
@@ -62,6 +63,11 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
   // Micro-toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const pathname = usePathname();
+  if (pathname?.startsWith('/embed')) {
+    return null;
+  }
 
   const showToast = useCallback((msg: string) => {
     if (toastTimeoutRef.current) {

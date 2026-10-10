@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
 import { usePwaUpdate } from '@/src/hooks/usePwaUpdate';
 
 export function PwaUpdatePrompt() {
+  const pathname = usePathname();
   const { updateAvailable, refreshApp } = usePwaUpdate();
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
+  if (pathname?.startsWith('/embed')) return null;
   if (!updateAvailable || isDismissed) return null;
 
   const handleRefresh = () => {
