@@ -381,28 +381,18 @@ async function handleDispatch(req: NextRequest) {
       );
 
       if (isDueForMorning) {
-        const morningData = computeDailyMorningNotification(now, userLoc);
-        const morningPayload = JSON.stringify({
-          title: morningData.title,
-          body: morningData.body,
-          icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
-          tag: 'panchang-alert',
-          data: {
-            url: '/',
-            date: morningData.data.date,
-            primaryTithi: morningData.data.primaryTithi,
-            panchakType: morningData.data.panchakType,
-            festivalOrVrat: morningData.data.festivalOrVrat,
-            timestamp: Date.now()
-          }
-        });
+        const dailyData = extractDailyPanchangData(now, userLoc);
+        const floatingPayload = buildDailyFloatingPayload(dailyData);
+        const morningPayload = JSON.stringify(floatingPayload);
 
         try {
-          await webpush.sendNotification(pushSub, morningPayload, PUSH_OPTIONS);
+          await webpush.sendNotification(pushSub, morningPayload, {
+            ...PUSH_OPTIONS,
+            topic: 'daily-floating-panchang'
+          });
           sentMorning = true;
           morningSentCount++;
-          console.info(`[Morning Push Sent] Sub ${record.endpointHash.slice(0, 8)} (${userLoc.name} @ ${todayDateStr})`);
+          console.info(`[Daily Floating Push Sent] Sub ${record.endpointHash.slice(0, 8)} (${userLoc.name} @ ${todayDateStr})`);
           await updateSubscriptionState(record.endpoint, {
             lastDailyDateNotified: todayDateStr
           });
@@ -451,8 +441,8 @@ async function handleDispatch(req: NextRequest) {
       const tithiPayload = JSON.stringify({
         title: tithiAlert.title,
         body: tithiAlert.body,
-        icon: '/icon-192.svg',
-        badge: '/icon-192.svg',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/badge-72x72.png',
         tag: `tithi-change-${tithiEval.currentTithiIndex}`,
         data: {
           url: '/',

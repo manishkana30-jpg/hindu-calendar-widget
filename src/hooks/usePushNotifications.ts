@@ -44,9 +44,9 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
     if (typeof window === 'undefined') return;
 
     const ua = navigator.userAgent || '';
-    const iosDevice = /iP(hone|od|ad)/.test(ua);
+    const iosDevice = /iP(hone|od|ad)/i.test(ua) || (typeof navigator !== 'undefined' && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const nav = window.navigator as NavigatorWithStandalone;
-    const standaloneMode = iosDevice && Boolean(nav.standalone);
+    const standaloneMode = Boolean(nav.standalone) || (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches);
 
     setIsIOS(iosDevice);
     setIsStandalone(standaloneMode);

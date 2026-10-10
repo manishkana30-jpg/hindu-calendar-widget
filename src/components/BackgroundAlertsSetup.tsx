@@ -73,25 +73,11 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
     }
   };
 
-  // ── State 1: Browser completely lacks PushManager or ServiceWorker ──────────
-  if (!isSupported) {
-    return (
-      <div className={`p-4 rounded-xl bg-[#0c1426]/90 border border-neutral-800 text-neutral-400 text-xs ${className}`}>
-        <div className="flex items-center gap-2 text-neutral-300 font-semibold mb-1">
-          <BellOff size={16} className="text-neutral-500" />
-          <span>Background Alerts Unsupported</span>
-        </div>
-        <p>
-          This browser engine does not support the W3C Push API. For lock-screen alerts,
-          use Chrome or Edge on Android/Desktop, or install this web app via Safari on iOS 16.4+.
-        </p>
-      </div>
-    );
-  }
-
-  // ── State 2: iOS Browser Not Yet Installed to Home Screen ───────────────────
+  // ── State 1: iOS Browser Not Yet Installed to Home Screen ───────────────────
   // Per Apple WebKit guidelines (iOS 16.4+), PushManager.subscribe() requires the PWA
   // to be launched from the iOS Home Screen (standalone display mode).
+  // Must evaluate iOS standalone check before generic unsupported check because WebKit
+  // completely hides PushManager from window in regular browser tabs.
   if (isIOS && !isStandalone) {
     return (
       <>
@@ -134,6 +120,22 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
           isSendingTest={isSendingTest}
         />
       </>
+    );
+  }
+
+  // ── State 2: Browser completely lacks PushManager or ServiceWorker ──────────
+  if (!isSupported) {
+    return (
+      <div className={`p-4 rounded-xl bg-[#0c1426]/90 border border-neutral-800 text-neutral-400 text-xs ${className}`}>
+        <div className="flex items-center gap-2 text-neutral-300 font-semibold mb-1">
+          <BellOff size={16} className="text-neutral-500" />
+          <span>Background Alerts Unsupported</span>
+        </div>
+        <p>
+          This browser engine does not support the W3C Push API. For lock-screen alerts,
+          use Chrome or Edge on Android/Desktop, or install this web app via Safari on iOS 16.4+.
+        </p>
+      </div>
     );
   }
 

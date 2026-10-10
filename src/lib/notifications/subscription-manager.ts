@@ -286,8 +286,13 @@ export async function seedServiceWorkerCacheFromClient(cacheData: DailyPanchangC
   }
 }
 
+import {
+  buildDailyFloatingPayload,
+  extractDailyPanchangData
+} from '../push/dailySummaryPayload';
+
 /**
- * Fires an immediate test notification using the strict 2-3 line combined format.
+ * Fires an immediate test notification using the new 5-line all-in-one floating lock-screen format.
  */
 export async function triggerImmediateNotificationTest(): Promise<{
   success: boolean;
@@ -307,7 +312,7 @@ export async function triggerImmediateNotificationTest(): Promise<{
   try {
     const reg = await navigator.serviceWorker.ready;
 
-    // First attempt: Cloud Web Push via Vercel to device
+    // First attempt: Cloud Web Push via Vercel to device (delivers the 5-line floating lock-screen payload)
     if (reg?.pushManager) {
       try {
         const sub = await reg.pushManager.getSubscription();
@@ -321,11 +326,11 @@ export async function triggerImmediateNotificationTest(): Promise<{
             pushRes = await fetch('/api/push/daily-trigger', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subscription: sub })
+              body: JSON.stringify({ subscription: sub, isTest: true })
             });
           }
           if (pushRes.ok) {
-            return { success: true, message: 'Cloud push alert dispatched from Vercel to your device screen! 🔔' };
+            return { success: true, message: 'Daily floating lock-screen alert dispatched via Web Push! 🔔' };
           }
         }
       } catch (cloudErr) {
@@ -333,45 +338,32 @@ export async function triggerImmediateNotificationTest(): Promise<{
       }
     }
 
-    if (reg?.active) {
-      reg.active.postMessage({
-        type: 'CHECK_AND_NOTIFY',
-        force: true
+    // Fallback: Format the new 5-line floating lock-screen notification directly
+    const now = new Date();
+    const loc = getSavedLocationState().location;
+    const dailyData = extractDailyPanchangData(now, loc);
+    const floating = buildDailyFloatingPayload(dailyData);
+
+    if (reg?.showNotification) {
+      const notifOptions: NotificationOptions & { renotify?: boolean } = {
+        body: floating.options.body,
+        icon: floating.options.icon,
+        badge: floating.options.badge,
+        tag: floating.options.tag,
+        requireInteraction: floating.options.requireInteraction,
+        renotify: floating.options.renotify,
+        data: floating.options.data
+      };
+      await reg.showNotification(floating.title, notifOptions);
+    } else {
+      new Notification(floating.title, {
+        body: floating.options.body,
+        icon: floating.options.icon,
+        badge: floating.options.badge,
+        tag: floating.options.tag
       });
-      return { success: true, message: 'Panchang Update alert dispatched!' };
     }
-
-    // Fallback: fetch from /api/panchang/today and show directly
-    const res = await fetch('/api/panchang/today');
-    if (res.ok) {
-      const data = await res.json();
-      const bodyText = formatPanchangNotificationBody({
-        tithi: data.instantaneousTithi?.name || 'Panchang',
-        panchak: data.panchak,
-        festivalOrVrat: data.festivalOrVrat
-      });
-
-      if (reg?.showNotification) {
-        const notifOptions: NotificationOptions & { renotify?: boolean } = {
-          body: bodyText,
-          icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
-          tag: 'panchang-combined-alert',
-          renotify: true
-        };
-        await reg.showNotification('Panchang Update', notifOptions);
-      } else {
-        new Notification('Panchang Update', {
-          body: bodyText,
-          icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
-          tag: 'panchang-combined-alert'
-        });
-      }
-      return { success: true, message: 'Panchang Update alert dispatched!' };
-    }
-
-    return { success: false, message: 'Unable to fetch panchang snapshot for test.' };
+    return { success: true, message: 'Daily floating lock-screen alert dispatched!' };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     return { success: false, message: `Failed to trigger notification: ${msg}` };
@@ -379,8 +371,8 @@ export async function triggerImmediateNotificationTest(): Promise<{
 }
 
 /**
- * Initializes client-side periodic polling, visibility change listeners, and
- * ensures granted permissions automatically sync to the server's push subscription pool.
+ * Initializes client-side service worker registration and push subscription synchronization.
+ * Note: Unprompted local notification popups have been removed so only the new floating push scheme is active.
  */
 export function initClientNotificationScheduler(): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -413,43 +405,9 @@ export function initClientNotificationScheduler(): () => void {
     }
   }).catch(() => {});
 
-  const checkState = async (force: boolean = false) => {
-    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-    const settings = await getNotificationSettings();
-    if (settings.enabled === false) return;
-
-    if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.ready;
-      if (reg?.active) {
-        reg.active.postMessage({ type: 'CHECK_AND_NOTIFY', force });
-      }
-    }
-  };
-
-  // Run on visibility change (when tab regains focus or screen wakes up)
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
-      checkState(false).catch(() => {});
-    }
-  };
-
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-
-  // Periodic interval every 15 minutes while tab is active
-  const intervalId = setInterval(() => {
-    checkState(false).catch(() => {});
-  }, 15 * 60 * 1000);
-
-  // Initial check after 2 seconds of page load
-  const timeoutId = setTimeout(() => {
-    checkState(false).catch(() => {});
-  }, 2000);
-
-  return () => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
-    clearInterval(intervalId);
-    clearTimeout(timeoutId);
-  };
+  // Automatic local polling popups have been removed in favor of the new
+  // all-in-one floating lock-screen push notification scheme.
+  return () => {};
 }
 
 /**

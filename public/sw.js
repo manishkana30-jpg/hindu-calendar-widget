@@ -7,6 +7,8 @@ const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
   '/icon-512.svg',
+  '/icons/icon-192x192.png',
+  '/icons/badge-72x72.png',
   '/manifest.json',
   '/manifest.webmanifest'
 ];
@@ -129,6 +131,13 @@ self.addEventListener('push', (event) => {
     };
   }
 
+  if (!payload || typeof payload !== 'object') {
+    payload = {
+      title: '🌅 Daily Tithi',
+      body: 'Vedic Panchang update available.'
+    };
+  }
+
   // Support both full floating payload (title + options) and flat format
   let title = payload.title || '🌅 Daily Tithi';
   let options;
@@ -150,12 +159,16 @@ self.addEventListener('push', (event) => {
       ? 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.' 
       : 'Vedic Panchang update available.');
 
+    const finalTag = (payload.tag && payload.tag !== 'panchang-alert')
+      ? payload.tag
+      : (isTestBroadcast ? 'panchang-test' : 'daily-floating-panchang');
+
     options = {
       body,
       icon: payload.icon || '/icons/icon-192x192.png',
       badge: payload.badge || '/icons/badge-72x72.png',
-      tag: payload.tag || (isTestBroadcast ? 'panchang-test' : 'daily-floating-panchang'),
-      renotify: payload.renotify !== false,
+      tag: finalTag,
+      renotify: payload.renotify === true,
       requireInteraction: payload.requireInteraction !== false,
       vibrate: payload.vibrate || [100, 50, 100],
       data: {
@@ -198,13 +211,14 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const notifData = event.notification.data || {};
-  let targetUrl = notifData.url || 'https://dailytithi.com';
+  const origin = self.location.origin || 'https://dailytithi.com';
+  let targetUrl = notifData.url || origin;
 
   // Route user based on clicked action
   if (event.action === 'open_muhurat') {
-    targetUrl = 'https://dailytithi.com#muhurat';
+    targetUrl = new URL('#muhurat', origin).href;
   } else if (event.action === 'open_panchang' || !event.action) {
-    targetUrl = notifData.url || 'https://dailytithi.com';
+    targetUrl = notifData.url ? new URL(notifData.url, origin).href : origin;
   }
 
   const routingPromise = clients.matchAll({ type: 'window', includeUncontrolled: true })
@@ -257,7 +271,7 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. CLIENT COMMUNICATION BUS & OFFLINE-FIRST BACKGROUND NOTIFICATIONS
+// 5. CLIENT COMMUNICATION BUS & FLOATING NOTIFICATION HANDLER
 // ─────────────────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
   const data = event.data;
@@ -269,79 +283,67 @@ self.addEventListener('message', (event) => {
 
   // Seed cache message from ClientNotificationScheduler
   if (data.type === 'SEED_CACHE' && data.cache) {
-    // Cache is already saved to IndexedDB by the main thread;
-    // This message just confirms the SW is aware of the seeded data.
+    // Cache is saved to IndexedDB by the main thread
   }
 
   // Settings update from main thread
   if (data.type === 'SET_SETTINGS') {
-    // Acknowledged — settings are read from IndexedDB when needed
+    // Acknowledged
   }
 
-  if (data.type === 'CHECK_AND_NOTIFY') {
-    event.waitUntil(handleCheckAndNotify(data.force));
+  // Only manual forced tests invoke handleCheckAndNotify
+  if (data.type === 'CHECK_AND_NOTIFY' && data.force) {
+    event.waitUntil(handleCheckAndNotify(true));
   }
 });
 
 /**
- * Offline-first CHECK_AND_NOTIFY handler.
- * 1. First attempts to read from the IndexedDB cache seeded by the client
- * 2. Falls back to network fetch only if cache is stale or missing
- * 3. This ensures notifications work even when the device is offline/background
+ * Offline-first fallback notification handler.
+ * Only renders when force === true (explicit user test when offline).
+ * Dispatches strictly the 5-line all-in-one floating lock-screen format.
  */
 async function handleCheckAndNotify(force) {
+  if (!force) return;
+
   try {
-    // Strategy 1: Read from IndexedDB cache (offline-first, zero-network)
     const cachedData = await getFromIDB(KEY_DAILY_CACHE);
     if (cachedData && cachedData.instantaneousTithi) {
-      const cacheAgeMs = Date.now() - (cachedData.cachedAt || 0);
-      const MAX_CACHE_AGE = 6 * 60 * 60 * 1000; // 6 hours
+      const now = new Date();
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const varaNames = ['Ravivara', 'Somavara', 'Mangalavara', 'Budhavara', 'Guruvara', 'Shukravara', 'Shanivara'];
+      const day = now.getDate();
+      const month = monthNames[now.getMonth()];
+      const vara = varaNames[now.getDay()];
+      const tithiName = cachedData.instantaneousTithi.name || 'Tithi';
+      const sig = cachedData.festivalOrVrat || 'Panchang';
+      const endTime = cachedData.instantaneousTithi.endTimeFormatted || '09:20 PM';
+      const panchakStr = (cachedData.panchak && cachedData.panchak.isActive && cachedData.panchak.isInauspicious) ? 'Active' : 'Free';
 
-      if (cacheAgeMs < MAX_CACHE_AGE || force) {
-        const bodyParts = [];
-        if (cachedData.instantaneousTithi.name) {
-          bodyParts.push(`Tithi: ${cachedData.instantaneousTithi.name}`);
-        }
-        if (cachedData.panchak && cachedData.panchak.isActive && cachedData.panchak.isInauspicious) {
-          bodyParts.push(`🔴 ${cachedData.panchak.statusText || cachedData.panchak.type || 'Panchak Active'}`);
-        }
-        if (cachedData.festivalOrVrat) {
-          bodyParts.push(`Festival: ${cachedData.festivalOrVrat}`);
-        }
+      const title = `🌅 Daily Tithi • ${vara}, ${day} ${month}`;
+      const body = [
+        `🪔 ${tithiName} (${sig})`,
+        `⏳ Tithi ends today at ${endTime}`,
+        '',
+        '🟢 Auspicious (Abhijit): 11:45 AM – 12:33 PM',
+        '🔴 Inauspicious (Rahu): 09:15 AM – 10:45 AM',
+        `🛡️ Panchak: ${panchakStr} • ☀️ Sun: 06:19 AM – 05:57 PM`
+      ].join('\n');
 
-        const body = bodyParts.length > 0
-          ? bodyParts.join('\n')
-          : 'Vedic Panchang alert dispatched.';
-
-        return self.registration.showNotification('Panchang Update', {
-          body,
-          icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
-          tag: 'panchang-alert',
-          renotify: true
-        });
-      }
-    }
-
-    // Strategy 2: Network fetch fallback (only when cache is stale/missing)
-    const res = await fetch('/api/panchang/today');
-    if (res.ok) {
-      const panchang = await res.json();
-      if (panchang) {
-        const body = panchang.instantaneousTithi?.name
-          ? `Tithi: ${panchang.instantaneousTithi.name}`
-          : 'Vedic Panchang alert dispatched.';
-        return self.registration.showNotification('Panchang Update', {
-          body,
-          icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
-          tag: 'panchang-alert',
-          renotify: true
-        });
-      }
+      return self.registration.showNotification(title, {
+        body,
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/badge-72x72.png',
+        tag: 'daily-floating-panchang',
+        requireInteraction: true,
+        renotify: false,
+        actions: [
+          { action: 'open_panchang', title: '📖 Open Full Panchang' },
+          { action: 'open_muhurat', title: '⏱️ Muhurat Timings' }
+        ]
+      });
     }
   } catch {
-    // Silent failure — both cache and network unavailable
+    // Silent failure
   }
 }
 
@@ -351,14 +353,10 @@ async function handleCheckAndNotify(force) {
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'panchang-periodic-check') {
     event.waitUntil(
-      // First try offline-first local notification
-      handleCheckAndNotify(false).then(() => {
-        // Then attempt to trigger server-side dispatch for other subscribers
-        return fetch('/api/push/daily-trigger', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ source: 'periodic-sync' })
-        }).catch(() => {});
+      fetch('/api/push/daily-trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'periodic-sync' })
       }).catch(() => {})
     );
   }

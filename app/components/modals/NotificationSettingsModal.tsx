@@ -41,6 +41,7 @@ import {
 } from '@/src/lib/location-service';
 import { LocationCoordinates, PRESET_LOCATIONS } from '@/src/lib/vedic-astronomy';
 import { computeDailyMorningNotification, DailyMorningPushPayload } from '@/src/lib/notifications/morning-push';
+import { extractDailyPanchangData, buildDailyFloatingPayload } from '@/src/lib/push/dailySummaryPayload';
 import { DeviceSetupModal } from '@/src/components/DeviceSetupModal';
 
 interface NotificationSettingsModalProps {
@@ -81,6 +82,7 @@ export function NotificationSettingsModal({
   const [testStatus, setTestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState<string>('');
   const [previewPayload, setPreviewPayload] = useState<DailyMorningPushPayload | null>(null);
+  const [floatingPreview, setFloatingPreview] = useState<{ title: string; body: string } | null>(null);
   const [isDeviceGuideOpen, setIsDeviceGuideOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -90,10 +92,14 @@ export function NotificationSettingsModal({
       const loc = getSavedLocationState();
       setLocationState(loc);
 
-      // Compute live 3-line morning notification preview for active location
+      // Compute live 5-line floating morning notification preview for active location
       const activeLoc = currentLocation || loc.location;
       const preview = computeDailyMorningNotification(new Date(), activeLoc);
       setPreviewPayload(preview);
+
+      const dailyData = extractDailyPanchangData(new Date(), activeLoc);
+      const floating = buildDailyFloatingPayload(dailyData);
+      setFloatingPreview({ title: floating.title, body: floating.options.body });
     }
   }, [isOpen, currentLocation]);
 
@@ -145,6 +151,11 @@ export function NotificationSettingsModal({
         // Update live preview
         const newPreview = computeDailyMorningNotification(new Date(), res.location);
         setPreviewPayload(newPreview);
+
+        const dailyData = extractDailyPanchangData(new Date(), res.location);
+        const floating = buildDailyFloatingPayload(dailyData);
+        setFloatingPreview({ title: floating.title, body: floating.options.body });
+
         // Sync to backend
         syncPreferencesToBackend(settings || {}, res.location).catch(() => {});
       } else {
@@ -498,14 +509,14 @@ export function NotificationSettingsModal({
           </div>
         </div>
 
-        {/* ── Section 4: Live 3-Line Morning Notification Preview ── */}
+        {/* ── Section 4: Live All-in-One Floating Lock-Screen Notification Preview ── */}
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
-              Live Morning Notification Format (Max 3 Lines)
+              Live Lock-Screen Floating Format (All-in-One 5-Line Card)
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#131e33] text-amber-400 border border-[#203154]">
-              {previewPayload?.lineCount || 1} {previewPayload?.lineCount === 1 ? 'Line' : 'Lines'}
+              5 Lines + Actions
             </span>
           </div>
 
@@ -516,24 +527,34 @@ export function NotificationSettingsModal({
                 <div className="w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center text-[8px] font-bold text-black">
                   ॐ
                 </div>
-                <span className="text-white font-bold">Panchang Update</span>
+                <span className="text-white font-bold">{floatingPreview?.title || '🌅 Daily Tithi'}</span>
               </div>
               <span className="text-[10px] text-neutral-400">Sunrise {previewPayload?.sunriseTimeFormatted || '06:00'}</span>
             </div>
 
-            {/* Notification Body Simulation (Preformatted 3-line text) */}
+            {/* Notification Body Simulation (Preformatted 5-line text) */}
             <div className="text-xs sm:text-[13px] font-mono leading-relaxed text-neutral-200 whitespace-pre-line break-words">
-              {previewPayload?.body || (
-                `Tithi - ${currentTithiName} till 14:00, then Shukla Ekadashi till 12:30\nPanchak - None\nVrat/Festival - ${festivalOrVratName || 'Diwali'}`
+              {floatingPreview?.body || (
+                `🪔 ${currentTithiName} (${festivalOrVratName || 'Daily Panchang'})\n⏳ Tithi ends today at 09:20 PM\n\n🟢 Auspicious (Abhijit): 11:45 AM – 12:33 PM\n🔴 Inauspicious (Rahu): 09:15 AM – 10:45 AM\n🛡️ Panchak: Free • ☀️ Sun: 06:19 AM – 05:57 PM`
               )}
+            </div>
+
+            {/* Action Buttons Simulation */}
+            <div className="mt-3 pt-2.5 border-t border-[#1f2d4d] flex items-center gap-2">
+              <div className="flex-1 py-1 px-2 rounded-lg bg-[#1a2642] text-center text-[10px] font-semibold text-amber-300 border border-[#2d4170]/60">
+                📖 Open Full Panchang
+              </div>
+              <div className="flex-1 py-1 px-2 rounded-lg bg-[#1a2642] text-center text-[10px] font-semibold text-neutral-300 border border-[#2d4170]/60">
+                ⏱️ Muhurat Timings
+              </div>
             </div>
           </div>
 
           <div className="mt-2.5 p-2.5 rounded-xl bg-[#0d1629] border border-[#1b2947] flex items-start gap-2 text-[11px] text-neutral-400 leading-relaxed">
             <Info size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
-              <strong className="text-neutral-300">Sunrise-to-Next-Sunrise Guarantee:</strong>
-              {' '}Sent once per day at local sunrise. Shows full day progression even if Tithi changes at 2 PM. Inauspicious Panchaks (🔴) and sacred Festivals are combined into this single notification. Deduplicated to prevent repeat alerts.
+              <strong className="text-neutral-300">All-in-One Lock-Screen Floating Card:</strong>
+              {' '}Delivered once per day at local sunrise. Compact 5-line summary features current Tithi, exact End Time, Auspicious Muhurats (Abhijit), Rahu Kaal, Panchak status, and Sunrise/Sunset with direct action buttons. Persistent and peaceful lock-screen docking.
             </div>
           </div>
         </div>

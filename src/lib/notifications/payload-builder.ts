@@ -142,8 +142,8 @@ export function buildDailyNotificationPayload(data: PanchangNotificationData): N
   return {
     title,
     body: constrainedBody,
-    icon: '/icon-192.svg',
-    badge: '/icon-192.svg',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72x72.png',
     data: {
       url: '/'
     }
