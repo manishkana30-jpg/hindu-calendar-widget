@@ -676,9 +676,9 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     ? 'bg-amber-500/15 border-amber-500/40 text-amber-200'
                     : 'bg-[#0b1324] border-[#1d2b4a] text-neutral-300'
                 }`}>
-                  <div className="flex items-center gap-2 truncate">
-                    <span className="text-sm select-none">{holidayDetails.todayHoliday.icon}</span>
-                    <div className="truncate">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <span className="text-sm select-none flex-shrink-0">{holidayDetails.todayHoliday.icon}</span>
+                    <div className="min-w-0 flex-1 truncate">
                       <div className="text-[11px] font-bold text-white truncate">
                         {holidayDetails.todayHoliday.title}
                       </div>
@@ -699,12 +699,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 {/* 2. Upcoming Holiday (Projecting next holiday/observance) */}
                 {holidayDetails.upcomingHoliday && (
                   <div className="px-2.5 py-1.5 rounded-xl bg-[#0b1324] border border-[#1d2b4a] text-[11px] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 truncate text-neutral-300">
-                      <span className="text-amber-400 select-none">{holidayDetails.upcomingHoliday.icon}</span>
-                      <span className="text-neutral-400 text-[10px]">Next Holiday:</span>
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1 text-neutral-300">
+                      <span className="text-amber-400 select-none flex-shrink-0">{holidayDetails.upcomingHoliday.icon}</span>
+                      <span className="text-neutral-400 text-[10px] flex-shrink-0">Next Holiday:</span>
                       <strong className="text-white truncate font-semibold">{holidayDetails.upcomingHoliday.title}</strong>
                     </div>
-                    <span className="text-[10px] text-amber-300 font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                    <span className="text-[10px] text-amber-300 font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 flex-shrink-0">
                       {holidayDetails.upcomingHoliday.daysText}
                     </span>
                   </div>
@@ -716,7 +716,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     ? 'bg-rose-950/50 border-rose-500/50 text-rose-300 animate-pulse'
                     : 'bg-[#080e1c] border-[#18233a] text-neutral-400'
                 }`}>
-                  <div className="flex items-center gap-1.5 truncate">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
                     <span>{holidayDetails.eclipseInfo.hasEclipseToday ? '🌑' : '✨'}</span>
                     {holidayDetails.eclipseInfo.hasEclipseToday ? (
                       <span className="font-extrabold text-rose-300 truncate">
@@ -894,19 +894,19 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             tabIndex={0}
             aria-haspopup="dialog"
             aria-expanded={isMuhuratModalOpen}
-            title="Click to open Daily Muhurat for Complete Day & Dharmashastra Rules"
+            title="Click to view 24h Muhurat Matrix & Choghadiya"
             aria-label="Open Daily Muhurat Timetable and Choghadiya Matrix"
-            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99]"
+            className="p-4 sm:p-5 rounded-2xl bg-[#0e1629]/80 hover:bg-[#121c33] border border-[#1e2942] hover:border-emerald-500/60 flex flex-col justify-between shadow-lg cursor-pointer transition-all group relative active:scale-[0.99] overflow-hidden"
           >
             <div>
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-neutral-400 text-[11px] font-bold tracking-wider uppercase group-hover:text-neutral-300 transition-colors flex items-center gap-1.5">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="text-neutral-400 text-[11px] font-bold tracking-wider uppercase group-hover:text-neutral-300 transition-colors flex items-center gap-1.5 flex-wrap">
                   <span>ACTIVE MUHURAT & TIMING</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold hidden sm:inline">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold hidden sm:inline flex-shrink-0">
                     धर्मशास्त्र सम्मत
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   <span className={`border px-2.5 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 ${
                     (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                       ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
@@ -915,11 +915,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       : 'border-rose-500/40 bg-rose-500/10 text-rose-400'
                   }`}>
                     {(activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious') ? (
-                      <CheckCircle2 size={11} className="text-emerald-400" />
+                      <CheckCircle2 size={11} className="text-emerald-400 flex-shrink-0" />
                     ) : activeVedicMuhurat?.nature === 'Moderate' ? (
-                      <Sparkles size={11} className="text-yellow-300" />
+                      <Sparkles size={11} className="text-yellow-300 flex-shrink-0" />
                     ) : (
-                      <ShieldAlert size={11} className="text-rose-400" />
+                      <ShieldAlert size={11} className="text-rose-400 flex-shrink-0" />
                     )}
                     <span>
                       {activeVedicMuhurat?.nature === 'Highly Auspicious' ? 'HIGHLY AUSPICIOUS' :
@@ -927,12 +927,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                        activeVedicMuhurat?.nature === 'Moderate' ? 'MODERATE' : 'INAUSPICIOUS'}
                     </span>
                   </span>
-                  <ArrowUpRight size={14} className="text-neutral-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={14} className="text-neutral-400 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
                 </div>
               </div>
 
               {/* Main Active Vedic Muhurat Title */}
-              <div className={`text-xl sm:text-2xl font-extrabold my-1.5 leading-tight transition-colors ${
+              <div className={`text-xl sm:text-2xl font-extrabold my-2 leading-tight transition-colors break-words ${
                 (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                   ? 'text-white group-hover:text-emerald-300'
                   : activeVedicMuhurat?.nature === 'Moderate'
@@ -943,43 +943,56 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Shastric Guidance Banner */}
-              <div className={`py-1 px-2.5 rounded-lg text-[11px] font-bold flex items-center justify-between border mb-2 ${
+              <div className={`p-2 rounded-xl text-xs font-medium border mb-2.5 w-full ${
                 (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                   : activeVedicMuhurat?.nature === 'Moderate'
-                  ? 'bg-yellow-950/40 border-yellow-500/40 text-yellow-300'
-                  : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+                  ? 'bg-yellow-950/40 border-yellow-500/40 text-yellow-200'
+                  : 'bg-rose-950/40 border-rose-500/40 text-rose-200'
               }`}>
-                <div className="flex items-center gap-1.5">
-                  <span>
+                <div className="flex items-start gap-2">
+                  <span className="flex-shrink-0 text-sm leading-none mt-0.5 select-none">
                     {(activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious') ? '🌟' : activeVedicMuhurat?.nature === 'Moderate' ? '⚡' : '⚠️'}
                   </span>
-                  <span className="truncate">
+                  <span className="leading-snug break-words text-[11px] font-semibold flex-1">
                     {activeVedicMuhurat?.activity || (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious' ? 'Auspicious: Favorable for Sacred Actions' : 'Moderate: Routine Duties')}
                   </span>
                 </div>
               </div>
 
-              <div className="text-xs text-neutral-300 mb-1.5 flex items-center justify-between">
-                <span>Presiding Deity: <strong className="text-white">{activeVedicMuhurat?.deity || 'Universal'}</strong></span>
-                {panchang.currentChoghadiya && (
-                  <span className="text-[10px] text-neutral-400">
-                    Choghadiya: {panchang.currentChoghadiya.displayName}
+              {/* Structured Timing & Deity Matrix Details Box */}
+              <div className="p-2.5 rounded-xl bg-[#0b1324] border border-[#1d2b4a] space-y-1.5">
+                <div className="flex items-center justify-between text-xs gap-2">
+                  <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">Presiding Deity:</span>
+                  <span className="font-bold text-white text-right break-words">
+                    {activeVedicMuhurat?.deity || 'Universal'}
                   </span>
-                )}
-              </div>
+                </div>
 
-              <div className="text-xs text-neutral-200 font-semibold mb-1">
-                Window: <span className="font-mono text-neutral-100">{activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}</span>
+                {panchang.currentChoghadiya && (
+                  <div className="flex items-center justify-between text-xs gap-2">
+                    <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">Choghadiya:</span>
+                    <span className="font-semibold text-neutral-200 text-right break-words">
+                      {panchang.currentChoghadiya.displayName}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-[#16233d] gap-2">
+                  <span className="text-neutral-400 text-[11px] font-medium flex-shrink-0">Window:</span>
+                  <span className="font-mono text-neutral-100 font-semibold text-right">
+                    {activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#1a2542]">
-              <div className="text-xs font-bold text-[#f59e0b] flex items-center gap-1.5">
+            <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-[#1a2542] flex-wrap gap-2">
+              <div className="text-xs font-bold text-[#f59e0b] flex items-center gap-1.5 flex-shrink-0">
                 <Hourglass size={14} className="text-[#f59e0b] animate-spin" style={{ animationDuration: '6s' }} />
                 <span>Expires in <span className="font-mono">{activeVedicMuhurat?.remainingString || panchang.currentChoghadiya?.remainingString || '45m 00s'}</span></span>
               </div>
-              <div className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-bold text-emerald-300 group-hover:bg-emerald-500/25 group-hover:border-emerald-400 transition-all flex items-center gap-1">
+              <div className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-bold text-emerald-300 group-hover:bg-emerald-500/25 group-hover:border-emerald-400 transition-all flex items-center gap-1 flex-shrink-0">
                 <span>View 24h Matrix</span>
                 <ArrowUpRight size={12} />
               </div>
