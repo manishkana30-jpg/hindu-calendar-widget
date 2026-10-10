@@ -312,11 +312,18 @@ export async function triggerImmediateNotificationTest(): Promise<{
       try {
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
-          const pushRes = await fetch('/api/push/daily-trigger', {
+          let pushRes = await fetch('/api/push/test', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ subscription: sub })
           });
+          if (!pushRes.ok && pushRes.status === 404) {
+            pushRes = await fetch('/api/push/daily-trigger', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subscription: sub })
+            });
+          }
           if (pushRes.ok) {
             return { success: true, message: 'Cloud push alert dispatched from Vercel to your device screen! 🔔' };
           }

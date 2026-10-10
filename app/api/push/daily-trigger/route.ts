@@ -31,6 +31,10 @@ import {
   formatTithiChangeAlert
 } from '@/src/lib/notifications/morning-push';
 import {
+  buildDailyFloatingPayload,
+  extractDailyPanchangData
+} from '@/src/lib/push/dailySummaryPayload';
+import {
   PRESET_LOCATIONS,
   LocationCoordinates,
   resolveTimezoneOffset,
@@ -270,22 +274,9 @@ async function handleDispatch(req: NextRequest) {
     const targetSub = testPayload.subscription;
     const loc: LocationCoordinates = testPayload.location || PRESET_LOCATIONS[0];
     const today = new Date();
-    const morningPayload = computeDailyMorningNotification(today, loc);
-
-    const notificationPayload = JSON.stringify({
-      title: 'Panchang Alert • Test Notification',
-      body: morningPayload.body || 'Vedic Panchang background push verified. Tap to view today\'s live astrometry.',
-      icon: '/icon-192.svg',
-      badge: '/icon-192.svg',
-      tag: 'panchang-alert',
-      data: {
-        url: '/',
-        timestamp: Date.now(),
-        isTest: true,
-        date: morningPayload.data.date,
-        primaryTithi: morningPayload.data.primaryTithi
-      }
-    });
+    const dailyData = extractDailyPanchangData(today, loc);
+    const floatingPayload = buildDailyFloatingPayload(dailyData);
+    const notificationPayload = JSON.stringify(floatingPayload);
 
     try {
       await webpush.sendNotification(targetSub, notificationPayload, PUSH_OPTIONS);

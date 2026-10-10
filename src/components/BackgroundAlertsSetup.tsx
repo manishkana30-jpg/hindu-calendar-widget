@@ -36,6 +36,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
     isSubscribed,
     isLoading,
     isSendingTest,
+    hasVapidKey,
     error,
     isIOS,
     isStandalone,
@@ -148,7 +149,8 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
           <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
             <button
               onClick={handleTestAlert}
-              disabled={isSendingTest}
+              disabled={isSendingTest || !hasVapidKey}
+              title={!hasVapidKey ? 'VAPID credentials unconfigured on server. Run "npm run generate-vapid" to set up.' : 'Send Test Alert to device'}
               className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
             >
               {isSendingTest ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}

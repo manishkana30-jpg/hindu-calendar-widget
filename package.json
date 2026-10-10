@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "vapid:generate": "node scripts/generate-vapid-keys.js",
-    "vapid:check": "node scripts/verify-vapid.js"
+    "vapid:check": "node scripts/verify-vapid.js",
+    "generate-vapid": "node scripts/generate-vapid.mjs"
   },
   "dependencies": {
     "@upstash/redis": "^1.39.0",

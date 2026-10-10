@@ -124,45 +124,65 @@ self.addEventListener('push', (event) => {
     payload = event.data.json();
   } catch {
     payload = {
-      title: 'Panchang Alert',
+      title: '🌅 Daily Tithi',
       body: event.data.text()
     };
   }
 
-  // Dedicated handling for Admin & Diagnostics Test Broadcasts (isTestBroadcast)
-  const isTestBroadcast = Boolean(payload.isTestBroadcast || payload.data?.isTestBroadcast);
-  const title = payload.title || (isTestBroadcast ? 'Panchang Test Notification' : 'Panchang Alert');
-  const body = payload.body || (isTestBroadcast 
-    ? 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.' 
-    : 'Vedic Panchang update available.');
+  // Support both full floating payload (title + options) and flat format
+  let title = payload.title || '🌅 Daily Tithi';
+  let options;
 
-  const options = {
-    body,
-    icon: payload.icon || '/icon-192.svg',
-    badge: payload.badge || '/icon-192.svg',
-    tag: payload.tag || (isTestBroadcast ? 'panchang-test' : 'panchang-alert'),
-    renotify: true,
-    requireInteraction: isTestBroadcast,
-    data: {
-      url: payload.url || payload.data?.url || '/',
-      timestamp: Date.now(),
-      isTestBroadcast,
-      ...payload.data
-    },
-    actions: [{ action: 'open', title: 'View Panchang' }]
-  };
+  if (payload.options && typeof payload.options === 'object') {
+    options = {
+      ...payload.options,
+      icon: payload.options.icon || '/icons/icon-192x192.png',
+      badge: payload.options.badge || '/icons/badge-72x72.png',
+      data: {
+        url: 'https://dailytithi.com',
+        ...payload.options.data
+      }
+    };
+  } else {
+    const isTestBroadcast = Boolean(payload.isTestBroadcast || payload.data?.isTestBroadcast);
+    title = payload.title || (isTestBroadcast ? 'Panchang Test Notification' : '🌅 Daily Tithi');
+    const body = payload.body || (isTestBroadcast 
+      ? 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.' 
+      : 'Vedic Panchang update available.');
+
+    options = {
+      body,
+      icon: payload.icon || '/icons/icon-192x192.png',
+      badge: payload.badge || '/icons/badge-72x72.png',
+      tag: payload.tag || (isTestBroadcast ? 'panchang-test' : 'daily-floating-panchang'),
+      renotify: payload.renotify !== false,
+      requireInteraction: payload.requireInteraction !== false,
+      vibrate: payload.vibrate || [100, 50, 100],
+      data: {
+        url: payload.url || payload.data?.url || 'https://dailytithi.com',
+        timestamp: Date.now(),
+        isTestBroadcast,
+        ...payload.data
+      },
+      actions: payload.actions || [
+        { action: 'open_panchang', title: '📖 Open Full Panchang' },
+        { action: 'open_muhurat', title: '⏱️ Muhurat Timings' }
+      ]
+    };
+  }
 
   // Crucial: All async work MUST be wrapped in event.waitUntil(...)
   // Failure to wrap causes OS process termination before notification renders
   event.waitUntil(self.registration.showNotification(title, options).then(() => {
     // If this is a test broadcast, report receipt confirmation back to server silently
-    if (isTestBroadcast && payload.data?.testId && payload.data?.subId) {
+    const isTestBroadcast = Boolean(options.data?.isTestBroadcast);
+    if (isTestBroadcast && options.data?.testId && options.data?.subId) {
       return fetch('/api/push/test-confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          testId: payload.data.testId,
-          subId: payload.data.subId,
+          testId: options.data.testId,
+          subId: options.data.subId,
           event: 'received',
           platform: navigator.userAgentData?.platform || 'Unknown',
           browser: 'ServiceWorker'
@@ -178,7 +198,14 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const notifData = event.notification.data || {};
-  const targetUrl = notifData.url || '/';
+  let targetUrl = notifData.url || 'https://dailytithi.com';
+
+  // Route user based on clicked action
+  if (event.action === 'open_muhurat') {
+    targetUrl = 'https://dailytithi.com#muhurat';
+  } else if (event.action === 'open_panchang' || !event.action) {
+    targetUrl = notifData.url || 'https://dailytithi.com';
+  }
 
   const routingPromise = clients.matchAll({ type: 'window', includeUncontrolled: true })
     .then((clientList) => {
@@ -187,8 +214,12 @@ self.addEventListener('notificationclick', (event) => {
         if (client.url && 'focus' in client) {
           client.postMessage({
             type: 'NOTIFICATION_CLICK',
+            action: event.action,
             data: notifData
           });
+          if ('navigate' in client && event.action === 'open_muhurat') {
+            client.navigate(targetUrl);
+          }
           return client.focus();
         }
       }

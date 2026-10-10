@@ -19,6 +19,7 @@ export interface PushNotificationState {
   isSubscribed: boolean;
   isLoading: boolean;
   isSendingTest: boolean;
+  hasVapidKey: boolean;
   error: string | null;
   isIOS: boolean;
   isStandalone: boolean;
@@ -33,6 +34,7 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSendingTest, setIsSendingTest] = useState<boolean>(false);
+  const [hasVapidKey, setHasVapidKey] = useState<boolean>(Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY));
   const [error, setError] = useState<string | null>(null);
   const [isIOS, setIsIOS] = useState<boolean>(false);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
@@ -69,6 +71,18 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
         .catch(() => {
           setIsSubscribed(false);
         });
+    }
+
+    // Passive check if server has VAPID configured
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+      fetch('/api/push/test')
+        .then((r) => r.json())
+        .then((data: { vapidConfigured?: boolean }) => {
+          if (data.vapidConfigured) {
+            setHasVapidKey(true);
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -239,15 +253,26 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
       }
 
       const loc = customLocation || PRESET_LOCATIONS[0];
-      const res = await fetch('/api/push/daily-trigger', {
+      let res = await fetch('/api/push/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          isTest: true,
           subscription: sub.toJSON(),
           location: loc
         })
       });
+
+      if (!res.ok && res.status === 404) {
+        res = await fetch('/api/push/daily-trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isTest: true,
+            subscription: sub.toJSON(),
+            location: loc
+          })
+        });
+      }
 
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
@@ -271,6 +296,7 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
     isSubscribed,
     isLoading,
     isSendingTest,
+    hasVapidKey,
     error,
     isIOS,
     isStandalone,
