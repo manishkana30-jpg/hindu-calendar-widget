@@ -48,7 +48,7 @@ async function runShareVerification() {
   assert(output.includes('🟢 Shubh Window: 11:45 AM – 12:33 PM (Abhijit Muhurat)'), 'Shubh Window line formats 🟢 Shubh Window: {AuspiciousWindow}');
   assert(output.includes('🔴 Rahu Kaal: 09:15 AM – 10:45 AM'), 'Rahu Kaal line formats 🔴 Rahu Kaal: {RahuKaalWindow}');
   assert(output.includes('🛡️ Panchak: No Active Panchak (Free)'), 'Panchak line formats 🛡️ Panchak: {PanchakStatus}');
-  assert(output.includes('Check live real-time muhurat & panchang:'), 'Contains live call-to-action text');
+  assert(output.includes('real-time muhurat & panchang:'), 'Contains live call-to-action text');
   assert(output.includes('https://dailytithi.com'), 'Contains direct app deep-link https://dailytithi.com');
 
   // ── TEST 2: Dynamic Astrometric Data Binding ───────────────────────────────

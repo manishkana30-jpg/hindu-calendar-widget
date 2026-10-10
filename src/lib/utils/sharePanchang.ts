@@ -13,6 +13,7 @@ export interface PanchangShareData {
   rahuKaalWindow?: string;
   panchakStatus?: string;
   appUrl?: string;
+  callToAction?: string;
 }
 
 export interface ShareOptions {
@@ -127,6 +128,7 @@ export function formatPanchangShareText(data: PanchangShareData): string {
   const rahuKaalWindow = data.rahuKaalWindow || '09:15 AM – 10:45 AM';
   const panchakStatus = data.panchakStatus || 'No Active Panchak (Free)';
   const appUrl = data.appUrl || 'https://dailytithi.com';
+  const cta = data.callToAction || 'Live real-time muhurat & panchang:';
 
   return `🌅 Aaj Ka Panchang • Daily Tithi
 📅 ${vara}, ${day} ${month} ${year}
@@ -138,7 +140,7 @@ export function formatPanchangShareText(data: PanchangShareData): string {
 🔴 Rahu Kaal: ${rahuKaalWindow}
 🛡️ Panchak: ${panchakStatus}
 
-Check live real-time muhurat & panchang:
+${cta}
 ${appUrl}`;
 }
 

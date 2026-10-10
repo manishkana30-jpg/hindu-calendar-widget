@@ -5,12 +5,13 @@ import {
   X, Monitor, Smartphone,
   ArrowDownToLine, ShieldCheck, Sparkles
 } from 'lucide-react';
+import { BeforeInstallPromptEvent } from '@/src/hooks/usePwaInstall';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onDirectInstall?: () => void;
-  deferredPrompt?: any;
+  deferredPrompt?: BeforeInstallPromptEvent | null;
 }
 
 export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredPrompt }: Props) {

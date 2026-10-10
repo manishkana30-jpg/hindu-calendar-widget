@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Outfit, Noto_Serif_Devanagari, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { FloatingInstallShare } from './components/FloatingInstallShare';
+import { FloatingActionDock } from '@/src/components/FloatingActionDock';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
 
@@ -225,7 +225,7 @@ export default function RootLayout({
           <NotificationNavigationHandler />
         </Suspense>
         {children}
-        <FloatingInstallShare />
+        <FloatingActionDock />
         <PwaUpdatePrompt />
       </body>
     </html>
