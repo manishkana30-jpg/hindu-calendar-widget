@@ -64,6 +64,28 @@ export function usePanchangAutoSync({
     setLastSyncTimestamp(now.getTime());
   }, []);
 
+  // Top-level unmount safeguard: ensure all active timers and intervals are killed
+  useEffect(() => {
+    return () => {
+      if (sunriseTimerRef.current) {
+        clearTimeout(sunriseTimerRef.current);
+        sunriseTimerRef.current = null;
+      }
+      if (tithiTimerRef.current) {
+        clearTimeout(tithiTimerRef.current);
+        tithiTimerRef.current = null;
+      }
+      if (heartbeatTimerRef.current) {
+        clearInterval(heartbeatTimerRef.current);
+        heartbeatTimerRef.current = null;
+      }
+      if (clockTickRef.current) {
+        clearInterval(clockTickRef.current);
+        clockTickRef.current = null;
+      }
+    };
+  }, []);
+
   // Update time when customDate changes while not in live mode
   useEffect(() => {
     if (!isLiveMode && customDate) {
@@ -72,25 +94,60 @@ export function usePanchangAutoSync({
     }
   }, [isLiveMode, customDate]);
 
-  // Compute active panchang and tithi resolution using untouched astronomical engines
-  const activeDate = isLiveMode ? currentTime : customDate || currentTime;
+  // Stable civil day key: changes ONLY when crossing midnight or when customDate changes
+  // Extracts day primitives so the 1-second clock tick does NOT change this key
+  const civilDayKey = useMemo(() => {
+    const d = isLiveMode ? currentTime : (customDate || currentTime);
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  }, [
+    isLiveMode,
+    isLiveMode ? currentTime.getFullYear() : undefined,
+    isLiveMode ? currentTime.getMonth() : undefined,
+    isLiveMode ? currentTime.getDate() : undefined,
+    customDate ? customDate.getFullYear() : undefined,
+    customDate ? customDate.getMonth() : undefined,
+    customDate ? customDate.getDate() : undefined
+  ]);
+
+  // Heavy astronomical calculation (DECOUPLED from 1-second tick)
+  // ONLY recalculates when location changes, crossing midnight (civilDayKey), or on explicit sync
   const panchang: PanchangData = useMemo(() => {
-    return calculatePanchang(activeDate, location, isLiveMode ? currentTime : activeDate);
-  }, [activeDate, location, isLiveMode, currentTime, lastSyncTimestamp]);
+    const calcDate = isLiveMode ? new Date() : (customDate || new Date());
+    return calculatePanchang(calcDate, location, calcDate, elevationMeters);
+  }, [
+    civilDayKey,
+    location.latitude,
+    location.longitude,
+    location.timezone,
+    location.ianaTimezone,
+    elevationMeters,
+    isLiveMode,
+    lastSyncTimestamp
+  ]);
 
   const tithiResolution: DailyTithiResolution = useMemo(() => {
+    const calcDate = isLiveMode ? new Date() : (customDate || new Date());
     return resolveDailyTithi(
-      activeDate,
+      calcDate,
       location,
-      isLiveMode ? currentTime : activeDate,
+      calcDate,
       elevationMeters
     );
-  }, [activeDate, location, isLiveMode, currentTime, elevationMeters, lastSyncTimestamp]);
+  }, [
+    civilDayKey,
+    location.latitude,
+    location.longitude,
+    location.timezone,
+    location.ianaTimezone,
+    elevationMeters,
+    isLiveMode,
+    lastSyncTimestamp
+  ]);
 
   // Guard against SSR hydration mismatch for DOM elements
   const isPreSunrise = isMounted && Boolean(tithiResolution.isPreSunrise);
 
-  // 1-second live clock update when isLiveMode is active
+  // 1-second lightweight live clock update (ONLY updates Date for UI clock)
   useEffect(() => {
     if (!isLiveMode) return;
 
@@ -99,7 +156,10 @@ export function usePanchangAutoSync({
     }, 1000);
 
     return () => {
-      if (clockTickRef.current) clearInterval(clockTickRef.current);
+      if (clockTickRef.current) {
+        clearInterval(clockTickRef.current);
+        clockTickRef.current = null;
+      }
     };
   }, [isLiveMode]);
 
@@ -108,9 +168,18 @@ export function usePanchangAutoSync({
     if (!isLiveMode) return;
 
     // Clear previous milestone timers
-    if (sunriseTimerRef.current) clearTimeout(sunriseTimerRef.current);
-    if (tithiTimerRef.current) clearTimeout(tithiTimerRef.current);
-    if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+    if (sunriseTimerRef.current) {
+      clearTimeout(sunriseTimerRef.current);
+      sunriseTimerRef.current = null;
+    }
+    if (tithiTimerRef.current) {
+      clearTimeout(tithiTimerRef.current);
+      tithiTimerRef.current = null;
+    }
+    if (heartbeatTimerRef.current) {
+      clearInterval(heartbeatTimerRef.current);
+      heartbeatTimerRef.current = null;
+    }
 
     const nowMs = Date.now();
     lastHeartbeatTimeRef.current = nowMs;
@@ -129,12 +198,13 @@ export function usePanchangAutoSync({
     // Trigger 2: Upcoming Current Instantaneous Tithi Conclusion Timer
     if (tithiResolution.instantaneousTithi.endTime) {
       const tithiEndMs = new Date(tithiResolution.instantaneousTithi.endTime).getTime();
-      const delayToTithiEnd = tithiEndMs - nowMs;
-
-      if (delayToTithiEnd > 0 && delayToTithiEnd < 2147483647) {
-        tithiTimerRef.current = setTimeout(() => {
-          forceSync();
-        }, delayToTithiEnd + 1000);
+      if (!isNaN(tithiEndMs)) {
+        const delayToTithiEnd = tithiEndMs - nowMs;
+        if (delayToTithiEnd > 0 && delayToTithiEnd < 2147483647) {
+          tithiTimerRef.current = setTimeout(() => {
+            forceSync();
+          }, delayToTithiEnd + 1000);
+        }
       }
     }
 
@@ -147,9 +217,9 @@ export function usePanchangAutoSync({
           ? new Date(tithiResolution.instantaneousTithi.endTime).getTime()
           : 0;
         const isStale =
-          checkNow - lastSyncTimestamp > 5000 ||
-          (tithiEndMs > 0 && checkNow >= tithiEndMs) ||
-          (nextSunriseMs > 0 && checkNow >= nextSunriseMs);
+          checkNow - lastSyncTimestamp > 30000 ||
+          (tithiEndMs > 0 && !isNaN(tithiEndMs) && checkNow >= tithiEndMs) ||
+          (nextSunriseMs > 0 && !isNaN(nextSunriseMs) && checkNow >= nextSunriseMs);
 
         if (isStale) {
           forceSync();
@@ -159,7 +229,7 @@ export function usePanchangAutoSync({
 
     const handleOnline = () => {
       const checkNow = Date.now();
-      if (checkNow - lastSyncTimestamp > 5000) {
+      if (checkNow - lastSyncTimestamp > 30000) {
         forceSync();
       }
     };
@@ -174,12 +244,12 @@ export function usePanchangAutoSync({
       const actualElapsed = currentHeartbeat - lastHeartbeatTimeRef.current;
       lastHeartbeatTimeRef.current = currentHeartbeat;
 
-      const hasDrifted = Math.abs(actualElapsed - expectedElapsed) > 2500;
+      const hasDrifted = Math.abs(actualElapsed - expectedElapsed) > 3000;
       const sunrisePassed = nextSunriseMs > (currentHeartbeat - actualElapsed) && currentHeartbeat >= nextSunriseMs;
       const tithiEndMs = tithiResolution.instantaneousTithi.endTime
         ? new Date(tithiResolution.instantaneousTithi.endTime).getTime()
         : null;
-      const tithiEndPassed = tithiEndMs
+      const tithiEndPassed = tithiEndMs && !isNaN(tithiEndMs)
         ? (tithiEndMs > (currentHeartbeat - actualElapsed) && currentHeartbeat >= tithiEndMs)
         : false;
 
@@ -189,9 +259,18 @@ export function usePanchangAutoSync({
     }, 10000);
 
     return () => {
-      if (sunriseTimerRef.current) clearTimeout(sunriseTimerRef.current);
-      if (tithiTimerRef.current) clearTimeout(tithiTimerRef.current);
-      if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+      if (sunriseTimerRef.current) {
+        clearTimeout(sunriseTimerRef.current);
+        sunriseTimerRef.current = null;
+      }
+      if (tithiTimerRef.current) {
+        clearTimeout(tithiTimerRef.current);
+        tithiTimerRef.current = null;
+      }
+      if (heartbeatTimerRef.current) {
+        clearInterval(heartbeatTimerRef.current);
+        heartbeatTimerRef.current = null;
+      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('online', handleOnline);
     };
@@ -206,6 +285,8 @@ export function usePanchangAutoSync({
   // Trigger 5: Silent PushSubscription Synchronization On Load
   // Silently checks pushManager.getSubscription() and syncs ONLY if key differs from cached signature
   useEffect(() => {
+    let isCancelled = false;
+
     if (
       typeof window === 'undefined' ||
       !('serviceWorker' in navigator) ||
@@ -217,7 +298,7 @@ export function usePanchangAutoSync({
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
       .then(async (sub) => {
-        if (!sub) return;
+        if (!sub || isCancelled) return;
 
         const subJson = sub.toJSON();
         const currentSignature = JSON.stringify({
@@ -247,16 +328,20 @@ export function usePanchangAutoSync({
               })
             });
 
-            if (res.ok) {
+            if (res.ok && !isCancelled) {
               localStorage.setItem('panchang_push_sub_signature', currentSignature);
             }
           } catch (err: unknown) {
-            console.warn('Silent background subscription sync note:', err);
+            console.warn('Silent background subscription sync notice:', err);
           }
         }
       })
       .catch(() => {});
-  }, [location]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [location.latitude, location.longitude, location.timezone]);
 
   return {
     currentTime,

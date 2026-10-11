@@ -67,6 +67,16 @@ export function useNotificationNavigation() {
     }, 50);
   }, [openMuhuratModal, openCalendarModal]);
 
+  // Unmount safeguard for pending retry intervals
+  useEffect(() => {
+    return () => {
+      if (retryTimerRef.current) {
+        clearInterval(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
+  }, []);
+
   // 1. URL Query Parameter Listener (Cold start & in-app navigation)
   useEffect(() => {
     const viewParam = searchParams.get('view');
@@ -75,6 +85,13 @@ export function useNotificationNavigation() {
     } else if (viewParam === 'calendar') {
       triggerView('calendar');
     }
+
+    return () => {
+      if (retryTimerRef.current) {
+        clearInterval(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
   }, [searchParams, triggerView]);
 
   // 2. Service Worker postMessage Listener (For Warm / Background Tabs)
@@ -100,6 +117,7 @@ export function useNotificationNavigation() {
       }
       if (retryTimerRef.current) {
         clearInterval(retryTimerRef.current);
+        retryTimerRef.current = null;
       }
     };
   }, [triggerView]);

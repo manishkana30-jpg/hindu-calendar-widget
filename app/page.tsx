@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
+import { WidgetErrorBoundary } from './components/WidgetErrorBoundary';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
@@ -68,7 +69,9 @@ export default function LandingPage() {
 
         {/* ── Main Panchang Widget ── */}
         <div className="my-2 sm:my-4">
-          <HinduPanchangWidget />
+          <WidgetErrorBoundary>
+            <HinduPanchangWidget />
+          </WidgetErrorBoundary>
         </div>
 
         {/* ── Background Lock-Screen Alerts Setup ── */}

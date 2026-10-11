@@ -338,9 +338,24 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
 
   // IANA timezone & numeric offset resolution
   const ianaTz = useMemo(() => resolveIanaTimezone(observerLocation), [observerLocation]);
+
+  // Date anchor key to decouple offset, observer, and daily observances from 1-second ticks
+  const targetDayKey = useMemo(() => {
+    const d = isLiveMode ? liveTime : selectedDate;
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  }, [
+    isLiveMode,
+    isLiveMode ? liveTime.getFullYear() : undefined,
+    isLiveMode ? liveTime.getMonth() : undefined,
+    isLiveMode ? liveTime.getDate() : undefined,
+    selectedDate ? selectedDate.getFullYear() : undefined,
+    selectedDate ? selectedDate.getMonth() : undefined,
+    selectedDate ? selectedDate.getDate() : undefined
+  ]);
+
   const tzOffset = useMemo(
     () => resolveTimezoneOffset(targetInstant, { ...observerLocation, ianaTimezone: ianaTz }),
-    [targetInstant, observerLocation, ianaTz]
+    [targetDayKey, observerLocation.latitude, observerLocation.longitude, observerLocation.timezone, ianaTz]
   );
 
   // Formatted UTC Offset (e.g. UTC+5:30 or UTC-4:00)
@@ -421,7 +436,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     } catch {
       return panchang.dateString;
     }
-  }, [targetInstant, ianaTz, panchang.dateString]);
+  }, [targetDayKey, ianaTz, panchang.dateString]);
 
   // ── Step 3: Card 2 (Vedic Day & Udaya Tithi) Synchronization ──
   const tithiDetails: TithiDetailsState = useMemo(() => {
@@ -494,7 +509,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
       currentTithiEndTime,
       isPreSunrise: isPreSun
     };
-  }, [panchang, tithiResolution, tzOffset, targetInstant]);
+  }, [panchang, tithiResolution, tzOffset, targetDayKey]);
 
   // ── Step 4: Card 3 (Active Muhurat & Timing Engine) Synchronization ──
   const activeMuhurat: ActiveMuhuratState = useMemo(() => {
@@ -597,7 +612,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
       upcomingObservance,
       holidayDetails
     };
-  }, [panchang.todayFestival, panchang.upcomingFestival, targetInstant, ianaTz, observerLocation, tzOffset]);
+  }, [panchang.todayFestival, panchang.upcomingFestival, targetDayKey, ianaTz, observerLocation.latitude, observerLocation.longitude, tzOffset]);
 
   // Actions
   const setObserver = useCallback((loc: LocationCoordinates) => {

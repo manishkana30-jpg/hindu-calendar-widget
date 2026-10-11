@@ -6,6 +6,7 @@ import { Sparkles, MapPin, Compass, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { CITIES, getCityBySlug, getAllCitySlugs } from '@/src/lib/cities';
 import { calculatePanchang } from '@/src/lib/vedic-astronomy';
 import { HinduPanchangWidget } from '@/app/components/HinduPanchangWidget';
+import { WidgetErrorBoundary } from '@/app/components/WidgetErrorBoundary';
 import { PWAInstallButton } from '@/app/components/PWAInstallButton';
 import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
 import { FaqAccordion } from '@/app/components/FaqAccordion';
@@ -176,7 +177,9 @@ export default async function CityPanchangPage({ params }: PageProps) {
 
         {/* ── Pre-configured Live Widget for this specific city ── */}
         <div className="my-4 sm:my-6">
-          <HinduPanchangWidget initialLocation={cityLocation} />
+          <WidgetErrorBoundary>
+            <HinduPanchangWidget initialLocation={cityLocation} />
+          </WidgetErrorBoundary>
         </div>
 
         {/* ── Localized Astrometric Summary Block ── */}

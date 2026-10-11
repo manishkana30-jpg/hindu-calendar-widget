@@ -333,16 +333,25 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         { timeout: 8000, maximumAge: 300000 }
       );
     }
-
-    const interval = setInterval(() => {
-      const raw = localStorage.getItem('panchang_last_updated');
-      if (raw) {
-        setLastUpdatedTime(formatLastUpdatedTime(Number(raw)));
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, [initialLocation, setObserver]);
+
+  // Periodic update of "Last updated" indicator every 30 seconds with strict clearInterval cleanup
+  useEffect(() => {
+    const updateTime = () => {
+      try {
+        const raw = localStorage.getItem('panchang_last_updated');
+        if (raw) {
+          setLastUpdatedTime(formatLastUpdatedTime(Number(raw)));
+        }
+      } catch {
+        // Guard against restricted storage access
+      }
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
