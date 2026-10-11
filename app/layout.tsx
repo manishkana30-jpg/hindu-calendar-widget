@@ -7,6 +7,7 @@ import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
 import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
 import { FloatingAlertBanner } from './components/FloatingAlertBanner';
+import { ContentProtection } from './components/ContentProtection';
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
@@ -213,6 +214,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Daily Tithi" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
+        <meta name="copyright" content="Daily Tithi. All Rights Reserved." />
+        <meta name="author" content="Daily Tithi Research & Astrometry" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -238,6 +241,7 @@ export default function RootLayout({
           <NotificationNavigationHandler />
         </Suspense>
         <ClientNotificationScheduler />
+        <ContentProtection />
         {children}
         <FloatingAlertBanner />
         <PwaUpdatePrompt />

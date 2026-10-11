@@ -84,25 +84,19 @@ export function Footer({ cityName }: FooterProps) {
             </ul>
           </div>
 
-          {/* Column 4: Open Architecture & Community */}
+          {/* Column 4: Intellectual Property & Copyright Protection */}
           <div className="space-y-3">
             <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
-              <BookOpen size={14} className="text-blue-400" />
-              <span>Publisher Information</span>
+              <ShieldCheck size={14} className="text-amber-400" />
+              <span>Intellectual Property</span>
             </h3>
             <p className="text-xs text-neutral-400 leading-relaxed">
-              Published by Daily Tithi. Dedicated to the global diaspora with Next.js 15, React 19, and Tailwind CSS. Open-source calculations verifiable on GitHub.
+              Proprietary astronomical calculation pipeline, algorithms, and micro-app architecture are protected under international copyright conventions and DMCA regulations.
             </p>
-            <div>
-              <a
-                href="https://github.com/manishkana30-jpg/hindu-calendar-widget"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
-              >
-                <span>Inspect Source Code</span>
-                <ExternalLink size={12} />
-              </a>
+            <div className="pt-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0e1629] border border-amber-500/30 text-[11px] text-amber-300">
+                <span>🛡️ DMCA Protected &amp; Anti-Scraping Active</span>
+              </div>
             </div>
           </div>
 
@@ -111,7 +105,7 @@ export function Footer({ cityName }: FooterProps) {
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-neutral-400 text-xs">
           <div>
-            © {currentYear} Daily Tithi. All rights reserved.{cityName ? ` • ${cityName} Edition` : ''}
+            © {currentYear} Daily Tithi (dailytithi.com). All Rights Reserved.{cityName ? ` • ${cityName} Edition` : ''} • Unauthorized copying or scraping is prohibited.
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-neutral-400">
             <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
@@ -120,7 +114,7 @@ export function Footer({ cityName }: FooterProps) {
             <span>•</span>
             <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <span>•</span>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms &amp; Copyright</Link>
           </div>
         </div>
 

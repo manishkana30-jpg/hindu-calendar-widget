@@ -39,3 +39,11 @@ scratch/
 tsconfig.tsbuildinfo
 next-env.d.ts
 
+# Security & Private Keys
+*.key
+*.cert
+*.crt
+*.pfx
+.vscode/
+.idea/
+

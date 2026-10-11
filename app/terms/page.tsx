@@ -90,26 +90,38 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 3: Intellectual Property */}
+          {/* Section 3: Intellectual Property & Copyright Protection */}
           <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
             <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
               <ShieldCheck size={20} className="text-emerald-400" />
-              <h2>3. Intellectual Property &amp; Open Architecture</h2>
+              <h2>3. Intellectual Property, DMCA &amp; Copyright Notice</h2>
             </div>
             <p>
-              The user interface, design systems, and original software algorithms of Daily Tithi are protected by applicable copyright and intellectual property laws. The underlying Swiss Ephemeris astronomical tables and ephemeris algorithms adhere to their respective GNU AGPL-v3 and public domain software licensing models. You may review and audit calculation algorithms on our public repository in accordance with open-source guidelines.
+              The entirety of <strong>Daily Tithi</strong> (including but not limited to the user interface, proprietary astrometric presentation systems, dynamic Choghadiya computation engines, compiled scripts, micro-app architecture, branding, graphic design, and custom typography) is the exclusive intellectual property of Daily Tithi (<code>https://dailytithi.com</code>).
+            </p>
+            <p className="mt-3">
+              All content and software assets are strictly protected under international copyright treaties, the Digital Millennium Copyright Act (DMCA), and trade secret conventions. Any unauthorized copying, distribution, decompilation, framing, reverse engineering, commercial harvesting, or redistribution without express written consent from the publisher is strictly prohibited and subject to civil injunctions and criminal statutory penalties.
             </p>
           </section>
 
-          {/* Section 4: Acceptable Use */}
+          {/* Section 4: Prohibition of Scraping & Automated Harvesting */}
           <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
             <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Compass size={20} className="text-blue-400" />
-              <h2>4. Acceptable Use &amp; Automated Scraping</h2>
+              <Compass size={20} className="text-rose-400" />
+              <h2>4. Prohibition of Automated Scraping, Data Harvesting &amp; Reverse Engineering</h2>
             </div>
             <p>
-              You agree not to misuse Daily Tithi or attempt to disrupt the platform through denial-of-service attacks, abusive high-frequency automated scraping of our serverless endpoints, or reverse engineering proprietary compiled assets. Automated scraping must respect the directives specified in our <Link href="/robots.txt" className="text-orange-400 hover:underline">robots.txt</Link> file.
+              Automated scraping, bulk extraction, programmatic querying, content mirroring, and headless data scraping of Daily Tithi or its serverless API endpoints are strictly prohibited without prior written licensing agreements. 
             </p>
+            <p className="mt-3">
+              Users and automated clients are explicitly barred from:
+            </p>
+            <ul className="list-disc list-inside mt-2 space-y-1 text-xs sm:text-sm pl-2 text-neutral-300">
+              <li>Deploying automated spiders, crawlers, or scrapers to extract astronomical datasets or muhurat timings.</li>
+              <li>Circumventing technical protection measures, edge firewalls, or rate-limiting safeguards.</li>
+              <li>Attempting to probe, inject, or tamper with internal serverless endpoints or background synchronization workers.</li>
+              <li>Creating derivative applications, duplicate widgets, or competitor services incorporating scraped Daily Tithi data.</li>
+            </ul>
           </section>
 
           {/* Section 5: Modifications to Service & Terms */}

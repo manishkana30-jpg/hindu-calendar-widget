@@ -74,3 +74,27 @@ body {
 .celestial-card-glow {
   box-shadow: 0 0 30px rgba(245, 158, 11, 0.08);
 }
+
+/* ── Anti-Scraping & Content Theft Protection ── */
+.protected-data,
+.tithi-card,
+.panchang-grid,
+table,
+article,
+[data-protected="true"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Guarantee search bars, filters, and form inputs remain fully functional */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  user-select: text !important;
+}

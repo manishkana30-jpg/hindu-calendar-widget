@@ -17,8 +17,29 @@ const BOT_USER_AGENT_REGEX =
 
 export function middleware(req: NextRequest, event: NextFetchEvent) {
   const userAgent = req.headers.get('user-agent') || '';
+  const pathname = req.nextUrl.pathname.toLowerCase();
 
-  // 1. Bot & Spider Exclusion Filter
+  // 1. Security Firewall: Block exploit probes, path traversal, and dotfiles
+  if (
+    pathname.includes('..') ||
+    pathname.includes('.env') ||
+    pathname.includes('.git') ||
+    pathname.includes('.vscode') ||
+    pathname.startsWith('/wp-') ||
+    pathname.startsWith('/php') ||
+    pathname.endsWith('.php') ||
+    pathname.includes('xmlrpc') ||
+    pathname.includes('cgi-bin')
+  ) {
+    return new NextResponse('Access Denied: Protected Endpoint', { status: 403 });
+  }
+
+  // 2. Block known penetration testing & exploit scanners
+  if (/sqlmap|nikto|masscan|acunetix|dirbuster|wpscan|nmap/i.test(userAgent)) {
+    return new NextResponse('Access Denied: Automated Scanner Blocked', { status: 403 });
+  }
+
+  // 3. Bot & Spider Exclusion Filter (Allows standard crawlers to view content without logging to DB)
   if (BOT_USER_AGENT_REGEX.test(userAgent)) {
     return NextResponse.next();
   }
