@@ -222,14 +222,35 @@ export async function enableNotificationAlerts(): Promise<{
 
         if (sub) {
           pushSubscribed = true;
+          let p256dh = '';
+          let auth = '';
+          try {
+            const rawKey = sub.getKey('p256dh');
+            const rawAuth = sub.getKey('auth');
+            p256dh = rawKey ? btoa(String.fromCharCode(...new Uint8Array(rawKey))) : '';
+            auth = rawAuth ? btoa(String.fromCharCode(...new Uint8Array(rawAuth))) : '';
+          } catch {
+            const json = sub.toJSON();
+            p256dh = json.keys?.p256dh || '';
+            auth = json.keys?.auth || '';
+          }
+
           // Send to server to register with location and preferences
           const currentLoc = getSavedLocationState().location;
           const currentSettings = await getNotificationSettings();
+          const timezone = currentLoc?.ianaTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+
           await fetch('/api/push/subscribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              subscription: sub,
+              endpoint: sub.endpoint,
+              subscription: {
+                endpoint: sub.endpoint,
+                keys: { p256dh, auth }
+              },
+              keys: { p256dh, auth },
+              timezone,
               location: currentLoc,
               preferences: {
                 dailyNotification: currentSettings.dailyNotification !== false,
@@ -241,9 +262,12 @@ export async function enableNotificationAlerts(): Promise<{
                 vibration: currentSettings.vibration !== false
               },
               isActive: true,
+              is_active: true,
               sendWelcomeTest: true
             })
-          }).catch(() => {});
+          }).catch((err) => {
+            console.warn('[Push Setup] /api/push/subscribe post error:', err);
+          });
         }
       } catch (pushErr) {
         console.info('Push subscription setup note:', pushErr);

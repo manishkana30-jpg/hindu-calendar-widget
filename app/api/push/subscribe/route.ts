@@ -39,42 +39,38 @@ interface SubscribePayload {
  */
 function isOriginAllowed(req: NextRequest): boolean {
   const origin = req.headers.get('origin');
-  const host = req.headers.get('host');
-  const referer = req.headers.get('referer');
+  const host = req.headers.get('host')?.toLowerCase() || '';
 
-  // Allow server-to-server or test runners in non-production environments
-  if (!origin && !referer) {
-    if (process.env.NODE_ENV !== 'production') return true;
-    return false;
-  }
-
-  const expectedHost = host ? host.toLowerCase() : '';
-
-  if (origin) {
-    try {
-      const originUrl = new URL(origin);
-      const originHost = originUrl.host.toLowerCase();
-      if (expectedHost && originHost === expectedHost) return true;
-      if (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1') return true;
-      if (originUrl.hostname === 'dailytithi.com' || originUrl.hostname.endsWith('.dailytithi.com')) return true;
-      if (originUrl.hostname.endsWith('.vercel.app')) return true;
-    } catch {
-      return false;
+  // If host header matches our domain or localhost, allow
+  if (
+    host === 'dailytithi.com' ||
+    host.endsWith('.dailytithi.com') ||
+    host.endsWith('.vercel.app') ||
+    host.startsWith('localhost') ||
+    host.startsWith('127.0.0.1')
+  ) {
+    // If an explicit cross-origin header is present, check that it's not a third party
+    if (origin) {
+      try {
+        const originUrl = new URL(origin);
+        const originHost = originUrl.host.toLowerCase();
+        if (
+          originHost !== host &&
+          !originHost.includes('dailytithi.com') &&
+          !originHost.includes('localhost') &&
+          !originHost.endsWith('.vercel.app')
+        ) {
+          return false;
+        }
+      } catch {
+        return false;
+      }
     }
+    return true;
   }
 
-  if (referer) {
-    try {
-      const refererUrl = new URL(referer);
-      const refererHost = refererUrl.host.toLowerCase();
-      if (expectedHost && refererHost === expectedHost) return true;
-      if (refererUrl.hostname === 'localhost' || refererUrl.hostname === '127.0.0.1') return true;
-      if (refererUrl.hostname === 'dailytithi.com' || refererUrl.hostname.endsWith('.dailytithi.com')) return true;
-      if (refererUrl.hostname.endsWith('.vercel.app')) return true;
-    } catch {
-      return false;
-    }
-  }
+  // Fallback for dev / test runners
+  if (process.env.NODE_ENV !== 'production') return true;
 
   return false;
 }
