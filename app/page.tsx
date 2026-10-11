@@ -61,18 +61,13 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero Section with Live Widget & Dynamic Server Date ── */}
-      <section className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-3 sm:px-6 max-w-6xl mx-auto text-center">
-        
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white mb-2 leading-snug">
-          Real-Time High-Precision Vedic Panchang
+      <section className="pt-16 sm:pt-20 pb-12 sm:pb-16 px-3 sm:px-6 max-w-6xl mx-auto text-center">
+        <h1 className="sr-only">
+          Daily Tithi — Real-Time High-Precision Vedic Panchang
         </h1>
-        
-        <p className="text-xs sm:text-sm text-neutral-400 font-medium max-w-xl mx-auto mb-6">
-          Dharmashastra determination rules
-        </p>
 
         {/* ── Main Panchang Widget ── */}
-        <div className="my-4 sm:my-6">
+        <div className="my-2 sm:my-4">
           <HinduPanchangWidget />
         </div>
 
