@@ -164,10 +164,9 @@ async function main() {
       console.log('─'.repeat(95));
       console.log('ℹ️  Zero active devices registered in database. No test pushes dispatched.\n');
       console.log('💡 How to register a device:');
-      console.log('   1. Start dev server: `npm run dev`');
-      console.log('   2. Open http://localhost:3000 in your browser.');
-      console.log('   3. Enable notifications in the PWA settings modal.');
-      console.log('   4. Re-run `npm run push:test` to test instant lock-screen delivery.');
+      console.log('   1. Open https://dailytithi.com in your browser.');
+      console.log('   2. Enable notifications in the PWA settings modal.');
+      console.log('   3. Re-run `npm run push:test` to test instant lock-screen delivery.');
       console.log('─'.repeat(95) + '\n');
       return;
     }

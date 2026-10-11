@@ -65,7 +65,7 @@ async function main() {
 
   // Parse custom CLI arguments
   const args = process.argv.slice(2);
-  let targetHost = process.env.APP_URL || 'http://localhost:3000';
+  let targetHost = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://dailytithi.com';
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -73,6 +73,8 @@ async function main() {
       targetHost = args[++i];
     } else if (arg.startsWith('--url=')) {
       targetHost = arg.slice(6);
+    } else if (arg === '--local') {
+      targetHost = 'http://localhost:3000';
     } else if (arg === '--prod') {
       targetHost = 'https://dailytithi.com';
     }
@@ -150,14 +152,14 @@ async function main() {
     if (totalSent > 0) {
       console.log(`✨ Success! Dispatched daily Tithi notifications to ${totalSent} device(s).\n`);
     } else if (totalActive === 0) {
-      console.log('ℹ️  No active devices registered in database. Open http://localhost:3000 to enable alerts.\n');
+      console.log('ℹ️  No active devices registered in database. Open https://dailytithi.com to enable alerts.\n');
     } else {
       console.log('ℹ️  Execution completed with zero alerts sent (check metrics above).\n');
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`❌ Request Failed: ${msg}`);
-    console.log('\n💡 Tip: Verify the Next.js server is running (`npm run dev`) or pass `--prod` to test production.\n');
+    console.log('\n💡 Tip: Verify server connectivity or pass `--local` to test against http://localhost:3000.\n');
     process.exit(1);
   }
 }

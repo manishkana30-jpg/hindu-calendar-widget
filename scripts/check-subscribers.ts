@@ -132,7 +132,7 @@ async function main() {
       console.log('ℹ️  No active push subscriptions found in database (count: 0).\n');
       console.log('💡 Why is the count 0?');
       console.log('   1. We regenerated VAPID keys; client devices have not yet re-negotiated subscriptions.');
-      console.log('   2. Launch the app in your browser (http://localhost:3000) with notifications enabled.');
+      console.log('   2. Launch the app in your browser (https://dailytithi.com) with notifications enabled.');
       console.log('   3. The app will automatically execute silent auto-resubscription and save your device here.');
       console.log('─'.repeat(95) + '\n');
       return;
