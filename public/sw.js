@@ -149,7 +149,34 @@ self.addEventListener('push', (event) => {
   let title = payload.title || '🌅 Daily Tithi';
   let options;
 
-  if (payload.options && typeof payload.options === 'object') {
+  const isAppUpdate =
+    payload.tag === 'app-update' ||
+    Boolean(payload.data?.isAppUpdate) ||
+    Boolean(payload.isAppUpdate);
+
+  if (isAppUpdate) {
+    title = payload.title || '⚡ Daily Tithi Update Available';
+    options = {
+      body: payload.body || 'A new update is available. Tap to refresh Daily Tithi for new features.',
+      icon: payload.icon || '/icons/icon-192x192.png',
+      badge: payload.badge || '/icons/badge-72x72.png',
+      tag: 'app-update',
+      renotify: true,
+      requireInteraction: true,
+      vibrate: payload.vibrate || [200, 100, 200],
+      data: {
+        url: payload.url || payload.data?.url || 'https://dailytithi.com/',
+        isAppUpdate: true,
+        forceReload: payload.data?.forceReload !== false,
+        version: payload.data?.version || Date.now().toString(),
+        timestamp: Date.now()
+      },
+      actions: payload.actions || [
+        { action: 'update_now', title: '⚡ Update Now' },
+        { action: 'dismiss', title: 'Later' }
+      ]
+    };
+  } else if (payload.options && typeof payload.options === 'object') {
     options = {
       ...payload.options,
       icon: payload.options.icon || '/icons/icon-192x192.png',
@@ -218,7 +245,60 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
+  // If user tapped "Later", simply dismiss
+  if (event.action === 'dismiss') {
+    return;
+  }
+
   const baseUrl = self.location.origin;
+  const isAppUpdate =
+    event.notification.tag === 'app-update' ||
+    Boolean(event.notification.data?.isAppUpdate) ||
+    event.action === 'update_now';
+
+  if (isAppUpdate) {
+    const rawTarget = event.notification.data?.url || `${baseUrl}/`;
+    const forceReload = event.notification.data?.forceReload !== false;
+    const version = event.notification.data?.version || Date.now();
+    const updateUrl = forceReload
+      ? `${rawTarget}${rawTarget.includes('?') ? '&' : '?'}v=${version}&t=${Date.now()}`
+      : rawTarget;
+
+    event.waitUntil(
+      (async () => {
+        // Trigger Service Worker background update to fetch latest bundle
+        if (self.registration && self.registration.update) {
+          self.registration.update().catch(() => {});
+        }
+
+        const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+        
+        // If an existing Daily Tithi tab is open, reload it with fresh cache
+        for (const client of windowClients) {
+          if (client.url && client.url.startsWith(baseUrl)) {
+            client.postMessage({
+              type: 'APP_UPDATE_FORCE_RELOAD',
+              forceReload,
+              version
+            });
+
+            if ('navigate' in client) {
+              await client.navigate(updateUrl);
+            }
+            return client.focus();
+          }
+        }
+
+        // Cold start: open new window with cache-busting query parameter
+        if (clients.openWindow) {
+          return clients.openWindow(updateUrl);
+        }
+      })()
+    );
+    return;
+  }
+
+  // Standard Panchang / Muhurat Deep-Linking
   let targetUrl = `${baseUrl}/`;
   let viewAction = 'default';
 

@@ -1,29 +1,23 @@
 /**
- * Server-Side Daily Push Trigger & Cron Dispatch Engine
- * 
- * ─────────────────────────────────────────────────────────────────────────────
- * CRON FREQUENCY REALITY CHECK:
- * - Vercel Hobby Plan: Crons are strictly limited to ONCE DAILY (1 invocation/day).
- * - Vercel Pro Plan: Crons can run up to once per minute or hourly (e.g. `0 * * * *`).
- * This project defaults to a daily morning trigger cadence appropriate for Vercel
- * Hobby (e.g. `0 0 * * *` UTC / 05:30 AM IST).
- * Do NOT assume minute-level or sub-hourly cron execution without an active Vercel Pro plan.
- * ─────────────────────────────────────────────────────────────────────────────
- * 
- * VAPID KEY ROTATION SECURITY RULE:
- * Require VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT (mailto: contact).
- * Generate once using `npx web-push generate-vapid-keys`.
- * CAUTION: Regenerating VAPID keys immediately invalidates EVERY existing user
- * push subscription across all browser vendors. Never rotate keys casually.
- * ─────────────────────────────────────────────────────────────────────────────
+ * Server-Side GPS-Local Sunrise Tithi & Daily Panchang Push Dispatch Engine
+ * GET / POST /api/push/daily-trigger
+ *
+ * Dispatches hyper-personalized, astronomical sunrise notifications:
+ * 1. Queries active subscribers directly from Supabase PostgreSQL (via Service Role).
+ * 2. Computes exact astronomical sunrise for each subscriber's GPS coordinates (Swiss Ephemeris math).
+ * 3. Enforces a ±15-minute time window matching the user's local sunrise in their IANA timezone.
+ * 4. Strictly idempotent: records last_daily_date_notified (YYYY-MM-DD) to prevent duplicate alerts.
+ * 5. Automatically marks dead / uninstalled push endpoints (HTTP 404 / 410) as inactive in Supabase.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import webpush, { getWebPushInstance } from '@/src/lib/webpush';
+import { getSupabaseAdmin } from '@/src/lib/supabase/client';
 import {
   getAllSubscriptions,
   pruneIfStale,
   updateSubscriptionState,
+  isStaleSubscriptionError,
   PushSubscriptionRecord
 } from '@/src/lib/push/subscription-store';
 import {
@@ -45,30 +39,27 @@ import { getActivePanchakStatus } from '@/src/lib/dharmashastra-rules';
 import { getFestivalForDate } from '@/src/lib/festivals';
 import { isPanchakTrulyInauspicious } from '@/src/lib/notifications/state-diff';
 
-// Mandatory Vercel Serverless Node.js runtime enforcement
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Push notification delivery options per W3C Push API specification
 const PUSH_OPTIONS: webpush.RequestOptions = {
   TTL: 43200,                // 12-hour maximum validity window
-  urgency: 'high',           // Deliver immediately even on low battery / Doze
-  topic: 'panchang-daily'    // Replaces stale/unread daily notifications with the latest banner
+  urgency: 'high',           // Deliver immediately, waking low-power / Doze mode
+  topic: 'panchang-daily'    // Replaces older daily alerts
 };
 
 /**
  * Initializes webpush VAPID details from environment variables.
- * In development, provides a fallback to ensure local testing succeeds.
  */
 function ensureVapidConfig(): boolean {
   const wp = getWebPushInstance();
   if (wp) return true;
 
   if (process.env.NODE_ENV === 'production') {
-    console.error('[CRITICAL] VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY is missing in production environment.');
+    console.error('[CRITICAL] VAPID credentials missing in production environment.');
     return false;
   }
-  // Sandboxed development fallback keys
+
   const subject = process.env.VAPID_SUBJECT || 'mailto:contact@dailytithi.com';
   const DEV_PUBLIC = 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
   const DEV_PRIVATE = 'skKieBAhF18DZxm85wT2ZNBrZZVhdK8-84mh3syKYfM';
@@ -83,11 +74,9 @@ function ensureVapidConfig(): boolean {
 
 /**
  * Validates request authorization:
- * When CRON_SECRET is configured, requests must supply `Authorization: Bearer <CRON_SECRET>`.
- * In permissive mode (unconfigured in production or dev), logs a warning and permits execution.
+ * Supports Vercel native cron header ('x-vercel-cron') or CRON_SECRET token.
  */
 function isAuthorized(req: NextRequest): boolean {
-  // Support Vercel native cron request header (guaranteed by Vercel edge infrastructure)
   const vercelCronHeader = req.headers.get('x-vercel-cron');
   if (vercelCronHeader === '1') {
     return true;
@@ -96,12 +85,17 @@ function isAuthorized(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
     if (process.env.NODE_ENV !== 'production') return true;
-    console.warn('[SECURITY NOTE] CRON_SECRET is not configured in environment variables. Permitting cron execution.');
+    console.warn('[SECURITY] CRON_SECRET is unconfigured. Allowing request in permissive mode.');
     return true;
   }
 
   const authHeader = req.headers.get('authorization');
-  return authHeader === `Bearer ${cronSecret}`;
+  const cronHeader = req.headers.get('x-cron-secret');
+  return (
+    authHeader === `Bearer ${cronSecret}` ||
+    authHeader === cronSecret ||
+    cronHeader === cronSecret
+  );
 }
 
 export async function GET(req: NextRequest) {
@@ -154,23 +148,27 @@ function getLocalDateStr(date: Date, timeZone?: string, tzOffsetHours?: number):
 
 /**
  * Determines if the current moment is eligible for today's daily morning notification.
- * Window: Current time is at or past (targetTime - 10 minutes) AND not yet sent today.
+ * 
+ * Rules:
+ * 1. Idempotency: Must not have already been notified for today's local date.
+ * 2. Time-Window: Current server time must be within ±15 minutes of the user's astronomical sunrise.
  */
 function isEligibleForMorningPush(
   now: Date,
   userLoc: LocationCoordinates,
   preferredTime: string | undefined,
-  lastNotifiedDate: string | null | undefined
-): boolean {
+  lastNotifiedDate: string | null | undefined,
+  isForceAll: boolean = false
+): { eligible: boolean; diffMinutes?: number; sunriseIso?: string; reason?: string } {
   const userTz = resolveTimezoneOffset(now, userLoc);
   const todayDateStr = getLocalDateStr(now, userLoc.ianaTimezone, userTz);
 
-  // If already notified for this local date, do not resend
-  if (lastNotifiedDate === todayDateStr) {
-    return false;
+  // 1. Idempotency Check: Prevent duplicate sends on the same calendar day
+  if (!isForceAll && lastNotifiedDate === todayDateStr) {
+    return { eligible: false, reason: 'ALREADY_NOTIFIED_TODAY' };
   }
 
-  // Calculate local sunrise for today
+  // 2. Dynamic Astronomical Sunrise Calculation (Swiss Ephemeris with atmospheric refraction)
   const sunTimes = calculateSunTimesWithRefraction(
     now,
     userLoc.latitude,
@@ -181,6 +179,7 @@ function isEligibleForMorningPush(
 
   let targetDate: Date = sunriseDate;
 
+  // Custom user alert preference (defaults to local astronomical sunrise)
   if (preferredTime && preferredTime !== 'sunrise') {
     const match = preferredTime.match(/^(\d{1,2}):(\d{2})$/);
     if (match) {
@@ -193,11 +192,25 @@ function isEligibleForMorningPush(
     }
   }
 
-  // Allow trigger if now is at or past (targetTime - 2 hours)
-  // Wide window needed because Vercel Hobby cron fires at most once/day
-  // and GitHub Actions cron may drift due to throttling
-  const windowStartMs = targetDate.getTime() - 120 * 60 * 1000;
-  return now.getTime() >= windowStartMs;
+  // 3. Time-Window Matching: Current time within ±15 minutes (900,000 ms) of target
+  const diffMs = Math.abs(now.getTime() - targetDate.getTime());
+  const diffMinutes = Math.round(diffMs / 60000);
+  const isWithinWindow = diffMs <= 15 * 60 * 1000;
+
+  if (isForceAll || isWithinWindow) {
+    return {
+      eligible: true,
+      diffMinutes,
+      sunriseIso: sunriseDate.toISOString()
+    };
+  }
+
+  return {
+    eligible: false,
+    diffMinutes,
+    sunriseIso: sunriseDate.toISOString(),
+    reason: `OUTSIDE_WINDOW_${diffMinutes}M_FROM_SUNRISE`
+  };
 }
 
 /**
@@ -218,7 +231,6 @@ function evaluateTithiChangeTrigger(
   const currentTithiName = panchang.instantaneousTithi?.name || panchang.tithi.name;
   const transitionTime = now;
 
-  // First check: Seed without false alarm
   if (record.lastTithiIndexNotified === undefined || record.lastTithiIndexNotified === null) {
     return {
       hasChanged: false,
@@ -228,7 +240,6 @@ function evaluateTithiChangeTrigger(
     };
   }
 
-  // Tithi transition detected
   if (record.lastTithiIndexNotified !== currentTithiIndex) {
     return {
       hasChanged: true,
@@ -258,47 +269,7 @@ async function handleDispatch(req: NextRequest) {
     }
   }
 
-  // If this is a targeted test alert, bypass CRON_SECRET check and dispatch to target immediately
-  if (testPayload?.isTest && testPayload.subscription?.endpoint) {
-    const isReady = ensureVapidConfig();
-    if (!isReady) {
-      return NextResponse.json(
-        {
-          error: 'VAPID_NOT_CONFIGURED',
-          message: 'VAPID credentials are not configured in environment variables. Please set NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT.'
-        },
-        { status: 500 }
-      );
-    }
-
-    const targetSub = testPayload.subscription;
-    const loc: LocationCoordinates = testPayload.location || PRESET_LOCATIONS[0];
-    const today = new Date();
-    const dailyData = extractDailyPanchangData(today, loc);
-    const floatingPayload = buildDailyFloatingPayload(dailyData);
-    const notificationPayload = JSON.stringify(floatingPayload);
-
-    try {
-      await webpush.sendNotification(targetSub, notificationPayload, PUSH_OPTIONS);
-      console.info(`[Test Alert] Dispatched successfully to endpoint: ${targetSub.endpoint.slice(0, 32)}...`);
-      return NextResponse.json({
-        success: true,
-        message: 'Test notification dispatched successfully.',
-        deliveredTo: targetSub.endpoint
-      });
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Push dispatch failed';
-      console.error('[Test Alert Error]', err);
-      // Auto-prune if endpoint is stale
-      await pruneIfStale(targetSub.endpoint, err);
-      return NextResponse.json(
-        { error: 'Failed to deliver test notification', details: errorMsg },
-        { status: 500 }
-      );
-    }
-  }
-
-  // 2. Validate authorization for scheduled cron dispatch
+  // 2. Validate authorization
   if (!isAuthorized(req)) {
     return NextResponse.json(
       { error: 'Unauthorized: Invalid or missing CRON_SECRET.' },
@@ -312,40 +283,74 @@ async function handleDispatch(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'VAPID_NOT_CONFIGURED',
-        message: 'VAPID credentials are not configured in environment variables. Please set NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT.'
+        message: 'VAPID credentials are not configured in environment variables.'
       },
       { status: 500 }
     );
   }
 
-  // 4. Pre-compute daily event windows BEFORE querying the KV store
-  // Consumes output of morning-push / ephemeris without modifying core ephemeris math
   const now = new Date();
   const defaultLoc: LocationCoordinates = PRESET_LOCATIONS[0]; // New Delhi reference
-  const referenceMorningData = computeDailyMorningNotification(now, defaultLoc);
+  const isForceAll = Boolean(testPayload?.forceAll);
 
-  console.info(`[Daily Trigger] Pre-computed daily window: Tithi="${referenceMorningData.data.primaryTithi}", Panchak="${referenceMorningData.data.panchakType || 'None'}", Festival="${referenceMorningData.data.festivalOrVrat || 'None'}"`);
+  // 4. Query active subscriptions from Supabase (Service Role bypasses RLS)
+  const supabase = getSupabaseAdmin();
+  let subscriptions: PushSubscriptionRecord[] = [];
 
-  // 5. Query active subscriptions from the KV store
-  const subscriptions: PushSubscriptionRecord[] = await getAllSubscriptions();
+  if (supabase) {
+    const { data: dbRows, error: dbError } = await supabase
+      .from('push_subscriptions')
+      .select('*')
+      .eq('is_active', true);
+
+    if (dbError) {
+      console.warn('[Daily Trigger] Supabase query warning:', dbError.message);
+    } else if (dbRows && Array.isArray(dbRows)) {
+      subscriptions = dbRows.map((row) => ({
+        endpoint: row.endpoint,
+        endpointHash: row.endpoint_hash,
+        keys: { p256dh: row.p256dh, auth: row.auth },
+        timezone: row.user_timezone || 'Asia/Kolkata',
+        createdAt: row.created_at ? new Date(row.created_at).getTime() : now.getTime(),
+        lastValidated: row.last_validated_at ? new Date(row.last_validated_at).getTime() : now.getTime(),
+        location: (row.latitude !== null && row.longitude !== null) ? {
+          latitude: row.latitude,
+          longitude: row.longitude,
+          timezone: row.location_timezone_offset ?? 5.5,
+          ianaTimezone: row.user_timezone || 'Asia/Kolkata',
+          name: row.location_name || 'User Location'
+        } : undefined,
+        preferences: row.preferences || {},
+        lastDailyDateNotified: row.last_daily_date_notified,
+        lastTithiIndexNotified: row.last_tithi_index_notified,
+        lastTithiNotifiedAt: row.last_tithi_notified_at
+      }));
+    }
+  }
+
+  // Fallback to KV / in-memory store if Supabase returns 0 records
+  if (subscriptions.length === 0) {
+    subscriptions = await getAllSubscriptions();
+  }
+
   const totalCount = subscriptions.length;
-
   if (totalCount === 0) {
-    console.info('[Daily Trigger] No active push subscriptions found in the KV store.');
     return NextResponse.json({
       success: true,
-      message: 'Trigger executed successfully. Zero subscriptions in the KV store.',
+      message: 'Trigger executed successfully. Zero active subscribers in database.',
       total: 0,
       timestamp: now.toISOString()
     });
   }
 
-  // 6. Dual-Trigger Evaluation Engine (Morning Udaya + Tithi Change Alert)
-  const isForceAll = Boolean(testPayload?.forceAll);
+  // 5. Dual-Trigger Evaluation Engine (Morning Sunrise Udaya + Tithi Change Alert)
   let morningSentCount = 0;
   let tithiSentCount = 0;
   let failedCount = 0;
   let prunedCount = 0;
+  let skippedCount = 0;
+
+  const staleEndpoints: string[] = [];
 
   const dispatchPromises = subscriptions.map(async (record) => {
     const userLoc: LocationCoordinates = (record.location?.latitude && record.location?.longitude)
@@ -370,17 +375,18 @@ async function handleDispatch(req: NextRequest) {
     let sentMorning = false;
     let sentTithi = false;
 
-    // ── TRIGGER 1: Daily Morning Notification at Udaya / Sunrise ──
+    // ── TRIGGER 1: GPS-Local Sunrise Notification ──
     const dailyEnabled = record.preferences?.dailyNotification !== false;
     if (dailyEnabled) {
-      const isDueForMorning = isForceAll || isEligibleForMorningPush(
+      const eligibility = isEligibleForMorningPush(
         now,
         userLoc,
         record.preferences?.notificationTime,
-        record.lastDailyDateNotified
+        record.lastDailyDateNotified,
+        isForceAll
       );
 
-      if (isDueForMorning) {
+      if (eligibility.eligible) {
         const dailyData = extractDailyPanchangData(now, userLoc);
         const floatingPayload = buildDailyFloatingPayload(dailyData);
         const morningPayload = JSON.stringify(floatingPayload);
@@ -392,20 +398,33 @@ async function handleDispatch(req: NextRequest) {
           });
           sentMorning = true;
           morningSentCount++;
-          console.info(`[Daily Floating Push Sent] Sub ${record.endpointHash.slice(0, 8)} (${userLoc.name} @ ${todayDateStr})`);
+
+          // IMMEDIATELY update last_daily_date_notified in Supabase for idempotency
+          if (supabase) {
+            await supabase
+              .from('push_subscriptions')
+              .update({
+                last_daily_date_notified: todayDateStr,
+                last_validated_at: new Date().toISOString()
+              })
+              .eq('endpoint', record.endpoint);
+          }
+
           await updateSubscriptionState(record.endpoint, {
             lastDailyDateNotified: todayDateStr
           });
         } catch (err: unknown) {
           failedCount++;
-          const wasPruned = await pruneIfStale(record.endpoint, err);
-          if (wasPruned) {
-            prunedCount++;
+          if (isStaleSubscriptionError(err)) {
+            staleEndpoints.push(record.endpoint);
+            await pruneIfStale(record.endpoint, err);
             return { status: 'pruned', hash: record.endpointHash };
           }
           const errMsg = err instanceof Error ? err.message : 'Morning push failed';
           console.warn(`[Morning Push Failed] Sub ${record.endpointHash.slice(0, 8)}: ${errMsg}`);
         }
+      } else {
+        skippedCount++;
       }
     }
 
@@ -414,12 +433,10 @@ async function handleDispatch(req: NextRequest) {
     const tithiEval = evaluateTithiChangeTrigger(now, userLoc, record);
 
     if (record.lastTithiIndexNotified === undefined || record.lastTithiIndexNotified === null) {
-      // First observation: initialize the index so future transitions are accurately detected
       await updateSubscriptionState(record.endpoint, {
         lastTithiIndexNotified: tithiEval.currentTithiIndex
       });
     } else if (alertOnTithi && (tithiEval.hasChanged || isForceAll)) {
-      // Transition detected!
       const panchakResult = getActivePanchakStatus(now);
       const festivalResult = getFestivalForDate(now, userLoc);
 
@@ -459,16 +476,27 @@ async function handleDispatch(req: NextRequest) {
         });
         sentTithi = true;
         tithiSentCount++;
-        console.info(`[Tithi Alert Sent] Sub ${record.endpointHash.slice(0, 8)} -> ${tithiEval.currentTithiName}`);
+
+        if (supabase) {
+          await supabase
+            .from('push_subscriptions')
+            .update({
+              last_tithi_index_notified: tithiEval.currentTithiIndex,
+              last_tithi_notified_at: Date.now(),
+              last_validated_at: new Date().toISOString()
+            })
+            .eq('endpoint', record.endpoint);
+        }
+
         await updateSubscriptionState(record.endpoint, {
           lastTithiIndexNotified: tithiEval.currentTithiIndex,
           lastTithiNotifiedAt: Date.now()
         });
       } catch (err: unknown) {
         failedCount++;
-        const wasPruned = await pruneIfStale(record.endpoint, err);
-        if (wasPruned) {
-          prunedCount++;
+        if (isStaleSubscriptionError(err)) {
+          staleEndpoints.push(record.endpoint);
+          await pruneIfStale(record.endpoint, err);
           return { status: 'pruned', hash: record.endpointHash };
         }
         const errMsg = err instanceof Error ? err.message : 'Tithi push failed';
@@ -478,28 +506,34 @@ async function handleDispatch(req: NextRequest) {
 
     return {
       status: (sentMorning || sentTithi) ? 'sent' : 'skipped',
-      sentMorning,
-      sentTithi,
       hash: record.endpointHash
     };
   });
 
-  const results = await Promise.allSettled(dispatchPromises);
-  const totalSent = morningSentCount + tithiSentCount;
+  const settled = await Promise.allSettled(dispatchPromises);
 
-  console.info(`[Daily Trigger Summary] Total: ${totalCount}, Morning Sent: ${morningSentCount}, Tithi Sent: ${tithiSentCount}, Failed: ${failedCount}, Pruned: ${prunedCount}`);
+  // 6. Clean up dead endpoints in Supabase in bulk
+  if (staleEndpoints.length > 0 && supabase) {
+    prunedCount = staleEndpoints.length;
+    console.info(`[Auto-Prune] Marking ${prunedCount} dead endpoints as inactive in Supabase...`);
+    await supabase
+      .from('push_subscriptions')
+      .update({ is_active: false })
+      .in('endpoint', staleEndpoints);
+  }
 
   return NextResponse.json({
     success: true,
     timestamp: now.toISOString(),
     metrics: {
       total: totalCount,
-      totalSent,
+      totalSent: morningSentCount + tithiSentCount,
       morningSent: morningSentCount,
       tithiSent: tithiSentCount,
       failed: failedCount,
       pruned: prunedCount,
-      settledCount: results.length
+      skipped: skippedCount,
+      settledCount: settled.length
     }
   });
 }
