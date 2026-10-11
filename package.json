@@ -15,7 +15,8 @@
     "push:update": "tsx scripts/send-app-update.ts",
     "push:status": "tsx scripts/check-subscribers.ts",
     "push:test": "tsx scripts/send-test-push.ts",
-    "analytics:status": "tsx scripts/check-visitor-logs.ts"
+    "analytics:status": "tsx scripts/check-visitor-logs.ts",
+    "analytics:backfill": "tsx scripts/backfill-subscribers.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
