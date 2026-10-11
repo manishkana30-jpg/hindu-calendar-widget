@@ -23,6 +23,7 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
   const {
     isReady,
     isSubscribed,
+    isStandalone,
     isLoading,
     showIosTooltip,
     error,
@@ -35,8 +36,8 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
     return null;
   }
 
-  // 2. If already confirmed subscribed in Supabase, hide completely
-  if (isSubscribed) {
+  // 2. If already confirmed subscribed in Supabase or running in standalone PWA, hide completely
+  if (isSubscribed || isStandalone) {
     return null;
   }
 

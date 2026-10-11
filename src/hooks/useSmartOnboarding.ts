@@ -12,6 +12,7 @@ interface NavigatorWithStandalone extends Navigator {
 export interface SmartOnboardingState {
   isReady: boolean;
   isSubscribed: boolean;
+  isStandalone: boolean;
   isLoading: boolean;
   showIosTooltip: boolean;
   error: string | null;
@@ -36,6 +37,7 @@ const DEFAULT_VAPID_PUBLIC_KEY =
 export function useSmartOnboarding(): SmartOnboardingState {
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showIosTooltip, setShowIosTooltip] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +81,11 @@ export function useSmartOnboarding(): SmartOnboardingState {
       if (typeof window === 'undefined') {
         if (isMountedRef.current) setIsReady(true);
         return;
+      }
+
+      const standalone = checkIsStandalone();
+      if (isMountedRef.current) {
+        setIsStandalone(standalone);
       }
 
       // If browser doesn't support notifications or service workers, finalize as unsubscribed
@@ -378,6 +385,7 @@ export function useSmartOnboarding(): SmartOnboardingState {
   return {
     isReady,
     isSubscribed,
+    isStandalone,
     isLoading,
     showIosTooltip,
     error,

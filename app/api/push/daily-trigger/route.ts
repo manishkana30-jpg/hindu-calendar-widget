@@ -76,7 +76,8 @@ function ensureVapidConfig(): boolean {
 
 /**
  * Validates request authorization:
- * Supports Vercel native cron header ('x-vercel-cron') or CRON_SECRET token.
+ * Strictly validates CRON_SECRET via the `Authorization: Bearer` header.
+ * Also supports Vercel's automated cron runner header ('x-vercel-cron: 1').
  */
 function isAuthorized(req: NextRequest): boolean {
   const vercelCronHeader = req.headers.get('x-vercel-cron');
@@ -86,18 +87,16 @@ function isAuthorized(req: NextRequest): boolean {
 
   const cronSecret = process.env.CRON_SECRET;
   if (!cronSecret) {
-    if (process.env.NODE_ENV !== 'production') return true;
-    console.warn('[SECURITY] CRON_SECRET is unconfigured. Allowing request in permissive mode.');
-    return true;
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[SECURITY] CRON_SECRET is not configured. Permitting in non-production.');
+      return true;
+    }
+    console.error('[SECURITY CRITICAL] CRON_SECRET is not configured in production environment.');
+    return false;
   }
 
   const authHeader = req.headers.get('authorization');
-  const cronHeader = req.headers.get('x-cron-secret');
-  return (
-    authHeader === `Bearer ${cronSecret}` ||
-    authHeader === cronSecret ||
-    cronHeader === cronSecret
-  );
+  return authHeader === `Bearer ${cronSecret}`;
 }
 
 export async function GET(req: NextRequest) {
@@ -419,6 +418,12 @@ async function handleDispatch(req: NextRequest) {
           failedCount++;
           if (isStaleSubscriptionError(err)) {
             staleEndpoints.push(record.endpoint);
+            if (supabase) {
+              await supabase
+                .from('push_subscriptions')
+                .delete()
+                .eq('endpoint', record.endpoint);
+            }
             await pruneIfStale(record.endpoint, err);
             return { status: 'pruned', hash: record.endpointHash };
           }
@@ -498,6 +503,12 @@ async function handleDispatch(req: NextRequest) {
         failedCount++;
         if (isStaleSubscriptionError(err)) {
           staleEndpoints.push(record.endpoint);
+          if (supabase) {
+            await supabase
+              .from('push_subscriptions')
+              .delete()
+              .eq('endpoint', record.endpoint);
+          }
           await pruneIfStale(record.endpoint, err);
           return { status: 'pruned', hash: record.endpointHash };
         }
@@ -514,13 +525,13 @@ async function handleDispatch(req: NextRequest) {
 
   const settled = await Promise.allSettled(dispatchPromises);
 
-  // 6. Clean up dead endpoints in Supabase in bulk
+  // 6. Clean up dead endpoints in Supabase in bulk (DELETE query)
   if (staleEndpoints.length > 0 && supabase) {
     prunedCount = staleEndpoints.length;
-    console.info(`[Auto-Prune] Marking ${prunedCount} dead endpoints as inactive in Supabase...`);
+    console.info(`[Auto-Prune] Deleting ${prunedCount} dead endpoints from Supabase push_subscriptions...`);
     await supabase
       .from('push_subscriptions')
-      .update({ is_active: false })
+      .delete()
       .in('endpoint', staleEndpoints);
   }
 

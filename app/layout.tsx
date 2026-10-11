@@ -44,7 +44,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://dailytithi.com'),
   title: {
-    default: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
+    default: 'Daily Tithi | Vedic Panchang & Sunrise Alerts',
     template: '%s | Daily Tithi',
   },
   description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
@@ -62,25 +62,31 @@ export const metadata: Metadata = {
     icon: '/icon-192.svg',
     apple: '/icon-192.svg',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Daily Tithi',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://dailytithi.com',
     siteName: 'Daily Tithi',
-    title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
+    title: 'Daily Tithi | Vedic Panchang & Sunrise Alerts',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
     images: [
       {
         url: 'https://dailytithi.com/api/og',
         width: 1200,
         height: 630,
-        alt: 'Daily Tithi Live Vedic Panchang Preview Card'
+        alt: 'Daily Tithi Live Vedic Panchang & Sunrise Alerts Preview Card',
+        type: 'image/png'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Daily Tithi | Live Hindu Calendar, Panchang & Muhurat',
+    title: 'Daily Tithi | Vedic Panchang & Sunrise Alerts',
     description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
     images: ['https://dailytithi.com/api/og']
   },

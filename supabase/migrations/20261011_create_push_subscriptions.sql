@@ -68,30 +68,16 @@ CREATE TRIGGER trg_push_subs_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_push_subs_updated_at();
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Enable Row Level Security (RLS) - Server-Side Service Role Only
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
--- Allow operations via publishable / anon client and service role
-CREATE POLICY "Allow public insert to push_subscriptions" 
-    ON public.push_subscriptions FOR INSERT 
-    TO anon, authenticated, service_role 
+-- Block public/anon client access; allow backend Next.js operations via service_role
+CREATE POLICY "Allow service role full access to push_subscriptions"
+    ON public.push_subscriptions
+    FOR ALL
+    TO service_role
+    USING (true)
     WITH CHECK (true);
-
-CREATE POLICY "Allow public select from push_subscriptions" 
-    ON public.push_subscriptions FOR SELECT 
-    TO anon, authenticated, service_role 
-    USING (true);
-
-CREATE POLICY "Allow public update to push_subscriptions" 
-    ON public.push_subscriptions FOR UPDATE 
-    TO anon, authenticated, service_role 
-    USING (true) 
-    WITH CHECK (true);
-
-CREATE POLICY "Allow public delete from push_subscriptions" 
-    ON public.push_subscriptions FOR DELETE 
-    TO anon, authenticated, service_role 
-    USING (true);
 
 COMMENT ON TABLE public.push_subscriptions IS 'Web Push subscriptions and astrometric notification preferences for Daily Tithi PWA';
 COMMENT ON COLUMN public.push_subscriptions.endpoint IS 'Browser push service endpoint URL (FCM, Apple APNs, Mozilla autopush)';

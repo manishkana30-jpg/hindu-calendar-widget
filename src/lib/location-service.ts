@@ -202,13 +202,14 @@ export async function requestGpsLocation(): Promise<{
           errorMsg = 'Location request timed out. Using city dropdown fallback.';
         }
 
-        // Keep current saved or fallback location
+        // Keep current saved or fallback location (defaults to New Delhi)
         const current = getSavedLocationState();
-        persistLocationState(current.location, 'dropdown');
+        const fallbackLocation = current?.location || PRESET_LOCATIONS[0];
+        persistLocationState(fallbackLocation, 'dropdown');
 
         resolve({
           success: false,
-          location: current.location,
+          location: fallbackLocation,
           source: 'dropdown',
           error: errorMsg
         });
