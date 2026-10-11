@@ -392,6 +392,8 @@ export interface PanchangData {
   kaliYugaYear: number;
   samvatsaraName: string;
   hinduMonth: string;
+  amantaMonth?: string;
+  purnimantaMonth?: string;
   masaDisplay: string;
   ritu: string;
   ayana: string;
@@ -1743,6 +1745,8 @@ export function calculatePanchang(
     kaliYugaYear,
     samvatsaraName,
     hinduMonth: amantaMonth,
+    amantaMonth,
+    purnimantaMonth,
     masaDisplay,
     ritu: `${ritu.name} (${ritu.devanagari})`,
     ayana,

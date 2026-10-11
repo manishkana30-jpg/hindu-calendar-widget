@@ -1,18 +1,21 @@
 /**
- * KV-Backed Push Subscription Storage
+ * Hybrid Push Subscription Storage (Supabase PostgreSQL + KV + In-Memory Fallback)
  * 
- * Manages persistent Web Push subscriptions within the Redis-compatible KV store
- * (provisioned via Vercel Marketplace, backed by @upstash/redis).
+ * Manages persistent Web Push subscriptions with a resilient, multi-tiered hierarchy:
+ * 1. Supabase PostgreSQL (Primary): Persistent relational storage with indexed querying & RLS.
+ * 2. Vercel KV / Upstash Redis: Key-value cache and fallback.
+ * 3. In-Memory Map: High-speed local cache for tests and offline development.
  * 
  * Storage Architecture:
- * - Subscriptions are keyed by SHA-256 hash of the endpoint URL: `push_sub:{endpointHash}`.
- * - An index set `push_sub_endpoints` tracks all active hashes for fast batch retrieval.
+ * - Subscriptions are identified by their unique push service `endpoint`.
+ * - SHA-256 hash `endpointHash` is used for fast lookup indexing.
  * - Upsert logic preserves initial `createdAt` timestamp while updating keys, timezone, and `lastValidated`.
  * - Auto-prunes subscriptions on HTTP 404 / 410 errors returned by Push Services.
  */
 
 import { Redis } from '@upstash/redis';
 import crypto from 'crypto';
+import { getSupabaseAdmin } from '../supabase/client';
 
 export interface PushSubscriptionKeys {
   p256dh: string;
@@ -66,6 +69,27 @@ export interface UpsertSubscriptionInput {
   lastTithiNotifiedAt?: number | null;
 }
 
+interface SupabasePushSubscriptionRow {
+  id?: string;
+  endpoint: string;
+  endpoint_hash: string;
+  p256dh: string;
+  auth: string;
+  user_timezone?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_name?: string | null;
+  location_timezone_offset?: number | null;
+  preferences?: PushSubscriptionPreferences | null;
+  last_daily_date_notified?: string | null;
+  last_tithi_index_notified?: number | null;
+  last_tithi_notified_at?: number | null;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  last_validated_at?: string;
+}
+
 const KEY_PREFIX = 'push_sub:';
 const INDEX_SET_KEY = 'push_sub_endpoints';
 
@@ -98,7 +122,38 @@ function getKvClient(): Redis | null {
 }
 
 /**
- * Computes deterministic SHA-256 hash of an endpoint URL for indexing in the KV store.
+ * Transforms a Supabase PostgreSQL row into a standardized PushSubscriptionRecord.
+ */
+function rowToRecord(row: SupabasePushSubscriptionRow): PushSubscriptionRecord {
+  return {
+    endpoint: row.endpoint,
+    endpointHash: row.endpoint_hash,
+    keys: {
+      p256dh: row.p256dh,
+      auth: row.auth,
+    },
+    timezone: row.user_timezone || 'Asia/Kolkata',
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+    lastValidated: row.last_validated_at ? new Date(row.last_validated_at).getTime() : Date.now(),
+    location:
+      row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined
+        ? {
+            latitude: row.latitude,
+            longitude: row.longitude,
+            timezone: row.location_timezone_offset ?? 5.5,
+            ianaTimezone: row.user_timezone ?? 'Asia/Kolkata',
+            name: row.location_name ?? undefined,
+          }
+        : undefined,
+    preferences: row.preferences || {},
+    lastDailyDateNotified: row.last_daily_date_notified ?? null,
+    lastTithiIndexNotified: row.last_tithi_index_notified ?? null,
+    lastTithiNotifiedAt: row.last_tithi_notified_at ?? null,
+  };
+}
+
+/**
+ * Computes deterministic SHA-256 hash of an endpoint URL for indexing.
  */
 export function computeEndpointHash(endpoint: string): string {
   return crypto.createHash('sha256').update(endpoint.trim()).digest('hex');
@@ -109,86 +164,157 @@ export function computeEndpointHash(endpoint: string): string {
  */
 export async function getSubscription(endpoint: string): Promise<PushSubscriptionRecord | null> {
   if (!endpoint) return null;
-  const hash = computeEndpointHash(endpoint);
+  const cleanEndpoint = endpoint.trim();
+  const hash = computeEndpointHash(cleanEndpoint);
   const key = `${KEY_PREFIX}${hash}`;
 
+  // 1. Check Supabase PostgreSQL
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('*')
+        .eq('endpoint', cleanEndpoint)
+        .maybeSingle();
+
+      if (!error && data) {
+        const record = rowToRecord(data as SupabasePushSubscriptionRow);
+        getMemoryStore().set(hash, record);
+        return record;
+      }
+    } catch (err: unknown) {
+      console.warn(`[SubscriptionStore] Supabase get error for endpoint ${cleanEndpoint.slice(0, 32)}:`, err);
+    }
+  }
+
+  // 2. Check KV Store
   const kv = getKvClient();
   if (kv) {
     try {
       const record = await kv.get<PushSubscriptionRecord>(key);
-      if (record) return record;
+      if (record) {
+        getMemoryStore().set(hash, record);
+        return record;
+      }
     } catch (err: unknown) {
-      console.warn(`The KV store get error for ${key}:`, err);
+      console.warn(`[SubscriptionStore] KV store get error for ${key}:`, err);
     }
   }
 
+  // 3. Check In-Memory Store
   return getMemoryStore().get(hash) || null;
 }
 
 /**
- * Upserts a push subscription record in the KV store.
+ * Upserts a push subscription record in Supabase PostgreSQL, KV store, and memory.
  * If a subscription with the same endpoint already exists:
  * - Preserves original `createdAt` timestamp.
- * - Updates `keys`, `timezone`, `lastValidated`, and optional location.
+ * - Updates `keys`, `timezone`, `lastValidated`, and optional location/preferences.
  * - Prevents duplicate registrations from the same device.
  */
 export async function upsertSubscription(
   input: UpsertSubscriptionInput
 ): Promise<PushSubscriptionRecord> {
   const { endpoint, keys, timezone = 'Asia/Kolkata', location } = input;
-  const endpointHash = computeEndpointHash(endpoint);
+  const cleanEndpoint = endpoint.trim();
+  const endpointHash = computeEndpointHash(cleanEndpoint);
   const key = `${KEY_PREFIX}${endpointHash}`;
   const now = Date.now();
 
-  const existing = await getSubscription(endpoint);
+  const existing = await getSubscription(cleanEndpoint);
 
   const record: PushSubscriptionRecord = {
-    endpoint: endpoint.trim(),
+    endpoint: cleanEndpoint,
     endpointHash,
     keys: {
       p256dh: keys.p256dh.trim(),
-      auth: keys.auth.trim()
+      auth: keys.auth.trim(),
     },
     timezone: timezone || existing?.timezone || 'Asia/Kolkata',
     createdAt: existing?.createdAt || now,
     lastValidated: now,
     location: location || existing?.location,
     preferences: {
-      dailyNotification: input.preferences?.dailyNotification !== undefined
-        ? input.preferences.dailyNotification
-        : (existing?.preferences?.dailyNotification !== false),
-      notificationTime: input.preferences?.notificationTime || existing?.preferences?.notificationTime || 'sunrise',
-      alertOnTithiChange: input.preferences?.alertOnTithiChange !== undefined
-        ? input.preferences.alertOnTithiChange
-        : Boolean(existing?.preferences?.alertOnTithiChange),
-      autoUpdate: input.preferences?.autoUpdate !== undefined
-        ? input.preferences.autoUpdate
-        : (existing?.preferences?.autoUpdate !== false),
-      wifiOnly: input.preferences?.wifiOnly !== undefined
-        ? input.preferences.wifiOnly
-        : Boolean(existing?.preferences?.wifiOnly),
-      sound: input.preferences?.sound !== undefined
-        ? input.preferences.sound
-        : (existing?.preferences?.sound !== false),
-      vibration: input.preferences?.vibration !== undefined
-        ? input.preferences.vibration
-        : (existing?.preferences?.vibration !== false)
+      dailyNotification:
+        input.preferences?.dailyNotification !== undefined
+          ? input.preferences.dailyNotification
+          : (existing?.preferences?.dailyNotification !== false),
+      notificationTime:
+        input.preferences?.notificationTime || existing?.preferences?.notificationTime || 'sunrise',
+      alertOnTithiChange:
+        input.preferences?.alertOnTithiChange !== undefined
+          ? input.preferences.alertOnTithiChange
+          : Boolean(existing?.preferences?.alertOnTithiChange),
+      autoUpdate:
+        input.preferences?.autoUpdate !== undefined
+          ? input.preferences.autoUpdate
+          : (existing?.preferences?.autoUpdate !== false),
+      wifiOnly:
+        input.preferences?.wifiOnly !== undefined
+          ? input.preferences.wifiOnly
+          : Boolean(existing?.preferences?.wifiOnly),
+      sound:
+        input.preferences?.sound !== undefined
+          ? input.preferences.sound
+          : (existing?.preferences?.sound !== false),
+      vibration:
+        input.preferences?.vibration !== undefined
+          ? input.preferences.vibration
+          : (existing?.preferences?.vibration !== false),
     },
-    lastDailyDateNotified: input.lastDailyDateNotified !== undefined
-      ? input.lastDailyDateNotified
-      : (existing?.lastDailyDateNotified ?? null),
-    lastTithiIndexNotified: input.lastTithiIndexNotified !== undefined
-      ? input.lastTithiIndexNotified
-      : (existing?.lastTithiIndexNotified ?? null),
-    lastTithiNotifiedAt: input.lastTithiNotifiedAt !== undefined
-      ? input.lastTithiNotifiedAt
-      : (existing?.lastTithiNotifiedAt ?? null)
+    lastDailyDateNotified:
+      input.lastDailyDateNotified !== undefined
+        ? input.lastDailyDateNotified
+        : (existing?.lastDailyDateNotified ?? null),
+    lastTithiIndexNotified:
+      input.lastTithiIndexNotified !== undefined
+        ? input.lastTithiIndexNotified
+        : (existing?.lastTithiIndexNotified ?? null),
+    lastTithiNotifiedAt:
+      input.lastTithiNotifiedAt !== undefined
+        ? input.lastTithiNotifiedAt
+        : (existing?.lastTithiNotifiedAt ?? null),
   };
 
   // 1. In-memory store update
   getMemoryStore().set(endpointHash, record);
 
-  // 2. Persistent update in the KV store
+  // 2. Persistent update in Supabase PostgreSQL
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      const row = {
+        endpoint: record.endpoint,
+        endpoint_hash: record.endpointHash,
+        p256dh: record.keys.p256dh,
+        auth: record.keys.auth,
+        user_timezone: record.timezone,
+        latitude: record.location?.latitude ?? null,
+        longitude: record.location?.longitude ?? null,
+        location_name: record.location?.name ?? null,
+        location_timezone_offset: record.location?.timezone ?? null,
+        preferences: record.preferences,
+        last_daily_date_notified: record.lastDailyDateNotified ?? null,
+        last_tithi_index_notified: record.lastTithiIndexNotified ?? null,
+        last_tithi_notified_at: record.lastTithiNotifiedAt ?? null,
+        is_active: true,
+        last_validated_at: new Date(record.lastValidated).toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .upsert(row, { onConflict: 'endpoint' });
+
+      if (error) {
+        console.error('[SubscriptionStore] Supabase upsert failed:', error.message);
+      }
+    } catch (err: unknown) {
+      console.error('[SubscriptionStore] Supabase upsert exception:', err);
+    }
+  }
+
+  // 3. Persistent update in KV store (if provisioned)
   const kv = getKvClient();
   if (kv) {
     try {
@@ -228,39 +354,71 @@ export async function updateSubscriptionState(
     timezone: existing.timezone,
     location: existing.location,
     preferences: mergedPreferences,
-    lastDailyDateNotified: updates.lastDailyDateNotified !== undefined ? updates.lastDailyDateNotified : existing.lastDailyDateNotified,
-    lastTithiIndexNotified: updates.lastTithiIndexNotified !== undefined ? updates.lastTithiIndexNotified : existing.lastTithiIndexNotified,
-    lastTithiNotifiedAt: updates.lastTithiNotifiedAt !== undefined ? updates.lastTithiNotifiedAt : existing.lastTithiNotifiedAt
+    lastDailyDateNotified:
+      updates.lastDailyDateNotified !== undefined
+        ? updates.lastDailyDateNotified
+        : existing.lastDailyDateNotified,
+    lastTithiIndexNotified:
+      updates.lastTithiIndexNotified !== undefined
+        ? updates.lastTithiIndexNotified
+        : existing.lastTithiIndexNotified,
+    lastTithiNotifiedAt:
+      updates.lastTithiNotifiedAt !== undefined
+        ? updates.lastTithiNotifiedAt
+        : existing.lastTithiNotifiedAt,
   });
 }
 
 /**
- * Deletes a subscription from the KV store and index set.
+ * Deletes a subscription from Supabase PostgreSQL, KV store, and memory.
  */
 export async function deleteSubscription(endpoint: string): Promise<boolean> {
   if (!endpoint) return false;
-  const endpointHash = computeEndpointHash(endpoint);
+  const cleanEndpoint = endpoint.trim();
+  const endpointHash = computeEndpointHash(cleanEndpoint);
   const key = `${KEY_PREFIX}${endpointHash}`;
 
   getMemoryStore().delete(endpointHash);
 
+  let success = true;
+
+  // 1. Delete from Supabase PostgreSQL
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('endpoint', cleanEndpoint);
+
+      if (error) {
+        console.error('[SubscriptionStore] Supabase delete error:', error.message);
+        success = false;
+      }
+    } catch (err: unknown) {
+      console.error('[SubscriptionStore] Supabase delete exception:', err);
+      success = false;
+    }
+  }
+
+  // 2. Delete from KV Store
   const kv = getKvClient();
   if (kv) {
     try {
       await kv.del(key);
       await kv.srem(INDEX_SET_KEY, endpointHash);
-      return true;
     } catch (err: unknown) {
       console.error(`Failed to delete subscription from the KV store (${key}):`, err);
-      return false;
+      success = false;
     }
   }
 
-  return true;
+  return success;
 }
 
 /**
- * Retrieves all active push subscriptions from the KV store.
+ * Retrieves all active push subscriptions.
+ * Prioritizes Supabase PostgreSQL, falling back to KV store and in-memory pool.
  */
 export async function getAllSubscriptions(): Promise<PushSubscriptionRecord[]> {
   const memoryStore = getMemoryStore();
@@ -271,6 +429,28 @@ export async function getAllSubscriptions(): Promise<PushSubscriptionRecord[]> {
     recordsMap.set(hash, rec);
   }
 
+  // 1. Query Supabase PostgreSQL
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('*')
+        .eq('is_active', true);
+
+      if (!error && data && Array.isArray(data)) {
+        for (const row of data as SupabasePushSubscriptionRow[]) {
+          const rec = rowToRecord(row);
+          recordsMap.set(rec.endpointHash, rec);
+        }
+        return Array.from(recordsMap.values());
+      }
+    } catch (err: unknown) {
+      console.warn('[SubscriptionStore] Supabase bulk fetch error, falling back to KV/memory:', err);
+    }
+  }
+
+  // 2. Query KV Store
   const kv = getKvClient();
   if (kv) {
     try {
@@ -321,7 +501,7 @@ export function isStaleSubscriptionError(error: unknown): boolean {
 }
 
 /**
- * Automatically prunes a subscription from the KV store if the Push Service responded with 404 or 410.
+ * Automatically prunes a subscription if the Push Service responded with 404 or 410.
  * Returns true if the subscription was stale and pruned, false otherwise.
  */
 export async function pruneIfStale(endpoint: string, error: unknown): Promise<boolean> {

@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Sparkles, MapPin, ChevronDown, MoreVertical, X,
+  Sparkles, MapPin, ChevronDown, X,
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
-  ShieldAlert, ShieldCheck, ArrowUpRight, Bell, Code2
+  ShieldAlert, ShieldCheck, ArrowUpRight, Bell, Code2, RotateCcw
 } from 'lucide-react';
 import { 
   calculatePanchang, 
@@ -213,6 +213,50 @@ const ALL_LOCATIONS: LocationCoordinates[] = [
   ...CITY_LOCATIONS.filter(cl => !PRESET_LOCATIONS.some(pl => pl.name.toLowerCase().startsWith(cl.name.toLowerCase())) && cl.name.toLowerCase() !== 'kathmandu')
 ];
 
+// Localized Masa calculation according to region/GPS latitude (Task 5)
+function getLocalizedMasaString(
+  location: LocationCoordinates,
+  amantaMonth: string,
+  purnimantaMonth: string,
+  vikramSamvat: number,
+  shakaSamvat: number
+): string {
+  const region = (location.regionName || '').toLowerCase();
+  const city = (location.name || '').toLowerCase();
+
+  // Gujarat and Maharashtra follow Amanta tradition
+  const isGujaratOrMaharashtra = 
+    region.includes('gujarat') || region.includes('maharashtra') ||
+    city.includes('mumbai') || city.includes('pune') || 
+    city.includes('nagpur') || city.includes('ahmedabad') || 
+    city.includes('surat') || city.includes('vadodara') ||
+    city.includes('rajkot');
+
+  // North India: Latitude >= 21.5°N, excluding Gujarat/Maharashtra
+  const isNorthIndia = location.latitude >= 21.5 && !isGujaratOrMaharashtra;
+
+  const cleanAmanta = (amantaMonth || '').split('(')[0].trim() || 'Masa';
+  const cleanPurnimanta = (purnimantaMonth || '').split('(')[0].trim() || 'Masa';
+
+  if (isNorthIndia) {
+    return `${cleanPurnimanta} (Purnimanta) · VS ${vikramSamvat}`;
+  } else {
+    return `${cleanAmanta} (Amanta) · Shaka ${shakaSamvat}`;
+  }
+}
+
+// Shortened Tithi string output (e.g. "Shukla 1 (Pratipada)") (Task 5)
+function formatShortenedTithi(tithiIndex: number, fallbackName?: string): string {
+  const tithiObj = TITHIS[(tithiIndex - 1) % 30];
+  if (!tithiObj) return fallbackName || 'Tithi';
+
+  const paksha = tithiObj.paksha;
+  const pakshaDay = ((tithiIndex - 1) % 15) + 1;
+  const pureName = tithiObj.pureName;
+
+  return `${paksha} ${pakshaDay} (${pureName})`;
+}
+
 export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
     initialLocation || PRESET_LOCATIONS[0]
@@ -329,6 +373,23 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const muhuratProgress = activeMuhurat.progressPercent;
   const isPreSunrise = tithiDetails.isPreSunrise;
 
+  // Localized Masa & Shortened Tithi (Task 5)
+  const localizedMasa = getLocalizedMasaString(
+    selectedLocation,
+    panchang.amantaMonth || panchang.masaDisplay,
+    panchang.purnimantaMonth || panchang.masaDisplay,
+    panchang.vikramSamvat,
+    panchang.shakaSamvat
+  );
+
+  const shortenedTithi = formatShortenedTithi(
+    panchang.udayaTithi?.index || panchang.tithi.index,
+    panchang.udayaTithi?.name || panchang.tithi.name
+  );
+
+  const nextTithiIndex = (((panchang.udayaTithi?.index || panchang.tithi.index || 1) % 30) + 1);
+  const shortNextTithi = formatShortenedTithi(nextTithiIndex, nextTithiName);
+
   // Actions wired directly to SSOT
   const handlePrevDay = prevDay;
   const handleNextDay = nextDay;
@@ -364,233 +425,123 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] p-4 sm:p-6 text-left transition-all duration-300 font-sans relative overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-hidden">
         {/* Subtle celestial observatory ambient background lighting */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none -z-0" />
         
-        {/* ── Top Bar ── */}
-        <div className="flex items-center justify-between gap-3 pb-4 border-b border-white/10 relative z-10">
-          
-          {/* Left Controls & Location Selector */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Location Dropdown Pill */}
-            <div className="relative inline-flex items-center">
-              <MapPin size={13} className="absolute left-3 text-amber-400 pointer-events-none" />
-              <select
-                aria-label="Select City Location"
-                value={selectedLocation.name}
-                onChange={(e) => {
-                  const loc = ALL_LOCATIONS.find(l => l.name === e.target.value);
-                  if (loc) {
-                    const resolvedTz = resolveIanaTimezone(loc);
-                    const updated = resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc;
-                    setSelectedLocation(updated);
-                    setObserver(updated);
-                    setLocationSource('dropdown');
-                    persistLocationState(updated, 'dropdown');
-                  }
-                }}
-                className="pl-8 pr-7 py-1.5 bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 rounded-full text-xs font-medium text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm min-h-[36px]"
-              >
-                {ALL_LOCATIONS.map((loc) => (
-                  <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
-                    {loc.name} ({loc.country})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={12} className="absolute right-2.5 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* GPS Detection Button with Sacred Status Coding */}
-            <button
-              onClick={async () => {
-                setIsGpsDetecting(true);
-                try {
-                  const res = await requestGpsLocation();
-                  if (res.success && res.location) {
-                    setSelectedLocation(res.location);
-                    setObserver(res.location);
-                    setLocationSource('gps');
-                  }
-                } finally {
-                  setIsGpsDetecting(false);
+        {/* ── Compact Consolidated Header Row (Task 1: GPS, City, Date Controls, Live Clock) ── */}
+        {/* ── Compact Consolidated Header Row (City, GPS, Date Controls) ── */}
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-slate-900/60 rounded-2xl border border-white/10 text-xs relative z-10 mb-2">
+          {/* 1. Location Dropdown Pill */}
+          <div className="relative inline-flex items-center min-w-0">
+            <MapPin size={11} className="absolute left-2.5 text-amber-400 pointer-events-none" />
+            <select
+              aria-label="Select City Location"
+              value={selectedLocation.name}
+              onChange={(e) => {
+                const loc = ALL_LOCATIONS.find(l => l.name === e.target.value);
+                if (loc) {
+                  const resolvedTz = resolveIanaTimezone(loc);
+                  const updated = resolvedTz && resolvedTz !== loc.ianaTimezone ? { ...loc, ianaTimezone: resolvedTz } : loc;
+                  setSelectedLocation(updated);
+                  setObserver(updated);
+                  setLocationSource('dropdown');
+                  persistLocationState(updated, 'dropdown');
                 }
               }}
-              title="Detect your exact coordinates via GPS for accurate sunrise and Tithi times"
-              aria-label="Detect GPS Location"
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-sm min-h-[36px] font-sans ${
-                locationSource === 'gps'
-                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                  : 'bg-slate-900/80 hover:bg-slate-800/80 text-amber-300 hover:text-white border border-white/10 hover:border-amber-500/30'
-              }`}
+              className="pl-6 pr-5 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-medium text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[175px] truncate"
             >
-              <MapPin size={12} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
-              <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
-            </button>
-
-            {/* Subtitle / Center Coordinates info */}
-            <span className="hidden xl:inline-block text-slate-400 text-xs font-grotesk font-normal tabular-nums">
-              Center ({selectedLocation.latitude > 0 ? `${selectedLocation.latitude}°N` : `${Math.abs(selectedLocation.latitude)}°S`}, {selectedLocation.longitude > 0 ? `${selectedLocation.longitude}°E` : `${Math.abs(selectedLocation.longitude)}°W`})
-            </span>
+              {ALL_LOCATIONS.map((loc) => (
+                <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
+                  {loc.name} ({loc.country})
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={11} className="absolute right-2 text-slate-400 pointer-events-none" />
           </div>
 
-          {/* Right Menu & Close Controls (40x40px Touch Targets) */}
-          <div className="flex items-center gap-2">
-            {/* Direct Notification Settings Button */}
-            <button
-              onClick={() => setIsNotificationModalOpen(true)}
-              title="Panchang Alerts & Settings"
-              aria-label="Panchang Alerts & Settings"
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 flex items-center justify-center text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
-            >
-              <Bell size={16} />
-            </button>
+          {/* 2. GPS Detection Button */}
+          <button
+            onClick={async () => {
+              setIsGpsDetecting(true);
+              try {
+                const res = await requestGpsLocation();
+                if (res.success && res.location) {
+                  setSelectedLocation(res.location);
+                  setObserver(res.location);
+                  setLocationSource('gps');
+                }
+              } finally {
+                setIsGpsDetecting(false);
+              }
+            }}
+            title="Detect your exact coordinates via GPS"
+            aria-label="Detect GPS Location"
+            className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
+              locationSource === 'gps'
+                ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+                : 'bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-white/10 hover:border-amber-500/30'
+            }`}
+          >
+            <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
+            <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
+          </button>
 
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                title="More Options"
-                aria-label="More Options"
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <MoreVertical size={15} />
-              </button>
-              
-              {isMenuOpen && (
-                <div className="absolute right-0 top-11 w-60 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl py-2 z-30 text-xs animate-in fade-in zoom-in-95 duration-150">
-                  <button
-                    onClick={() => { setIsNotificationModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 cursor-pointer font-sans"
-                  >
-                    <Bell size={15} className="text-amber-400" />
-                    <span>Background Alerts & Settings</span>
-                  </button>
-                  <button
-                    onClick={() => { setIsTithiModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 cursor-pointer border-t border-white/10 font-sans"
-                  >
-                    <Calendar size={15} className="text-orange-400" />
-                    <span>Monthly Tithi Almanac</span>
-                  </button>
-                  <button
-                    onClick={() => { setIsMuhuratModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 cursor-pointer font-sans"
-                  >
-                    <Clock size={15} className="text-emerald-400" />
-                    <span>Daily 24h Muhurat Matrix</span>
-                  </button>
-                  <button
-                    onClick={() => { setIsPanchakModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 cursor-pointer font-sans"
-                  >
-                    <ShieldAlert size={15} className="text-amber-400" />
-                    <span>Panchak Calendar for Any Year</span>
-                  </button>
-                  <button
-                    onClick={async () => {
-                      setIsMenuOpen(false);
-                      const baseData = buildShareDataFromPanchang(
-                        selectedDate,
-                        panchang,
-                        activeMuhurat,
-                        observances.panchak?.isActive ? (observances.panchak.panchak?.type || 'Active Panchak') : 'No Active Panchak (Free)'
-                      );
-                      await sharePanchang(baseData);
-                    }}
-                    className="w-full text-left px-4 py-2.5 text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 flex items-center gap-2.5 cursor-pointer border-t border-white/10 font-sans"
-                  >
-                    <WhatsAppIcon className="w-4 h-4 text-emerald-400" />
-                    <span>Share Panchang on WhatsApp</span>
-                  </button>
-                  <button
-                    onClick={() => { setIsEmbedModalOpen(true); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-amber-400 hover:bg-amber-950/40 hover:text-amber-300 flex items-center gap-2.5 cursor-pointer border-t border-white/10 font-sans"
-                  >
-                    <Code2 size={15} className="text-amber-400" />
-                    <span>Embed on Your Site</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowDetails(!showDetails); setIsMenuOpen(false); }}
-                    className="w-full text-left px-4 py-2.5 text-slate-300 hover:bg-slate-800/80 hover:text-white flex items-center gap-2.5 border-t border-white/10 mt-1 pt-2 cursor-pointer font-sans"
-                  >
-                    <Layers size={15} className="text-orange-400" />
-                    <span>{showDetails ? 'Collapse Detailed View' : 'Expand Detailed View'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={() => setIsDismissed(true)}
-              title="Minimize Widget"
-              aria-label="Close Widget"
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              <X size={15} />
-            </button>
-          </div>
-
-        </div>
-
-        {/* ── Interactive Date & Year Navigator Bar (Travel to Any Date/Month/Year) ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 pb-3 border-b border-white/10 text-xs relative z-10">
-          <div className="flex flex-wrap items-center gap-2">
+          {/* 3. Date Controls (Positioned directly adjacent to GPS Active) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+            {/* Prev Day Button */}
             <button
               onClick={handlePrevDay}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans"
+              className="p-1 sm:px-2 sm:py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-0.5 cursor-pointer font-sans text-[11px] sm:text-xs shrink-0"
               title="Previous Day"
+              aria-label="Previous Day"
             >
-              <ChevronLeft size={14} />
-              <span>Prev Day</span>
+              <ChevronLeft size={13} />
+              <span className="hidden xs:inline">Prev</span>
             </button>
 
-            {/* Native Date Input Picker (Supports Any Year, Month & Date) */}
-            <div className="relative inline-flex items-center">
+            {/* Native Date Input Picker ("Date Dropbox") */}
+            <div className="relative inline-flex items-center min-w-0">
               <input
                 type="date"
                 value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
                 onChange={handleDateChange}
                 aria-label="Pick Any Date and Year"
-                className="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 rounded-xl text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm font-grotesk"
+                className="px-2 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm font-grotesk"
               />
             </div>
 
+            {/* Next Day Button */}
             <button
               onClick={handleNextDay}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800/80 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-sans"
+              className="p-1 sm:px-2 sm:py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-0.5 cursor-pointer font-sans text-[11px] sm:text-xs shrink-0"
               title="Next Day"
+              aria-label="Next Day"
             >
-              <span>Next Day</span>
-              <ChevronRight size={14} />
+              <span className="hidden xs:inline">Next</span>
+              <ChevronRight size={13} />
             </button>
+          </div>
 
-            {/* Live Clock / Today Reset Pill */}
+          {/* 4. Reset to Today (Shown ONLY when non-today date selected; no redundant live blink) */}
+          {!isLiveMode && (
             <button
               onClick={handleResetToLive}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold font-outfit transition-all flex items-center gap-1.5 cursor-pointer ${
-                isLiveMode
-                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                  : 'bg-amber-950/60 text-amber-300 hover:bg-amber-900/60 border border-amber-500/40 animate-pulse'
-              }`}
-              title={isLiveMode ? 'Live Clock Active' : 'Click to reset to real-time Today'}
+              className="px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold font-outfit bg-amber-950/60 text-amber-300 hover:bg-amber-900/60 border border-amber-500/40 transition-all flex items-center gap-1 cursor-pointer shrink-0 ml-auto sm:ml-0"
+              title="Reset to Today"
+              aria-label="Reset to Today"
             >
-              <span className={`w-2 h-2 rounded-full ${isLiveMode ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`}></span>
-              <span>{isLiveMode ? 'Live Real-Time' : '🔄 Return to Live Today'}</span>
+              <RotateCcw size={11} />
+              <span>Today</span>
             </button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 font-grotesk tabular-nums">
-            <span>{isLiveMode ? 'Perpetual Live Ephemeris Engine' : `Inspecting Date: ${selectedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</span>
-            <span className="text-slate-600 hidden sm:inline">•</span>
-            <span className="hidden sm:inline text-slate-400">Last updated: {lastUpdatedTime}</span>
-          </div>
+          )}
         </div>
 
-        {/* ── Main Top 3-Card Row ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4 relative z-10">
+        {/* ── Main Top 3-Card Row (Task 4: Compact Above-The-Fold Layout) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 pt-2.5 relative z-10">
           
-          {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD (CLICKABLE -> OPENS COMPLETE CALENDAR) */}
+          {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
           <div 
             onClick={() => setIsTithiModalOpen(true)}
             onKeyDown={(e) => {
@@ -605,26 +556,26 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isTithiModalOpen}
             title="Click to open Full Monthly Calendar & Almanac"
             aria-label="Open Full Monthly Calendar & Almanac"
-            className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99]"
+            className="p-3 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] min-w-0"
           >
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-amber-400 text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-amber-300 transition-colors">
-                  <Clock size={13} className="text-amber-400" />
-                  <span>{isLiveMode ? 'GREGORIAN LIVE CLOCK' : 'SELECTED DATE VIEW'}</span>
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-1.5 min-w-0">
+                <div className="flex items-center gap-1.5 text-amber-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-amber-300 transition-colors min-w-0">
+                  <Clock size={12} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{isLiveMode ? 'LIVE CLOCK' : 'SELECTED DATE'}</span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-outfit bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1">
-                    <Calendar size={10} />
-                    <span>Open Calendar</span>
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold font-outfit bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1">
+                    <Calendar size={9} />
+                    <span>Almanac</span>
                   </span>
-                  <ArrowUpRight size={13} className="text-slate-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ArrowUpRight size={12} className="text-slate-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
 
               {/* Metallic gradient tabular-nums clock */}
               <div 
-                className="text-3xl sm:text-4xl font-extrabold font-grotesk font-mono tracking-tight my-2 bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tabular-nums select-all"
+                className="text-2xl sm:text-3xl font-extrabold font-grotesk font-mono tracking-tight my-1 bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tabular-nums select-all"
                 aria-label={`Current time: ${displayTime}`}
               >
                 <span aria-hidden="true" suppressHydrationWarning>
@@ -632,34 +583,36 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 </span>
               </div>
 
-              <div className="text-slate-300 text-sm font-medium mb-2.5 flex items-center justify-between font-sans">
-                <span>{displayDate}</span>
-                <span className="text-[11px] text-amber-300/90 font-medium font-sans">
+              <div className="text-slate-300 text-xs font-medium mb-1.5 flex items-center justify-between font-sans gap-1 min-w-0">
+                <span className="truncate min-w-0">{displayDate}</span>
+                <span className="text-[10px] text-amber-300/90 font-medium font-sans shrink-0">
                   {selectedLocation.regionName}
                 </span>
               </div>
 
               {/* ── HOLIDAYS & ECLIPSE STATUS SECTION ── */}
-              <div className="space-y-1.5 mb-2">
+              <div className="space-y-1 mb-1.5 min-w-0">
                 
                 {/* 1. Today's Holiday Status */}
-                <div className={`p-2 rounded-xl border text-xs flex items-center justify-between gap-2 transition-all ${
+                <div className={`p-1.5 rounded-xl border text-[11px] flex items-center justify-between gap-1.5 transition-all min-w-0 ${
                   holidayDetails.todayHoliday.isHoliday
                     ? 'bg-amber-950/60 border-amber-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
                     : 'bg-slate-950/60 border-white/10 text-slate-300'
                 }`}>
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="text-sm select-none flex-shrink-0">{holidayDetails.todayHoliday.icon}</span>
-                    <div className="min-w-0 flex-1 truncate">
-                      <div className="text-[11px] font-bold text-white truncate font-sans">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <span className="text-xs select-none shrink-0">{holidayDetails.todayHoliday.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[10px] font-bold text-white break-words whitespace-normal font-sans">
                         {holidayDetails.todayHoliday.title}
                       </div>
-                      <div className="text-[10px] text-slate-400 truncate font-sans">
-                        {holidayDetails.todayHoliday.subtitle}
-                      </div>
+                      {holidayDetails.todayHoliday.subtitle && (
+                        <div className="text-[9px] text-slate-400 break-words whitespace-normal font-sans">
+                          {holidayDetails.todayHoliday.subtitle}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-extrabold flex-shrink-0 border font-outfit ${
+                  <span className={`px-1 py-0.5 rounded text-[8px] font-extrabold shrink-0 border font-outfit ${
                     holidayDetails.todayHoliday.isHoliday
                       ? 'bg-amber-950/60 border-amber-500/30 text-amber-300'
                       : 'bg-slate-800 text-slate-400 border-white/10'
@@ -668,45 +621,45 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </span>
                 </div>
 
-                {/* 2. Upcoming Holiday (Projecting next holiday/observance) */}
+                {/* 2. Upcoming Holiday */}
                 {holidayDetails.upcomingHoliday && (
-                  <div className="px-2.5 py-1.5 rounded-xl bg-slate-950/60 border border-white/10 text-[11px] flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-1 text-slate-300">
-                      <span className="text-amber-400 select-none flex-shrink-0">{holidayDetails.upcomingHoliday.icon}</span>
-                      <span className="text-slate-400 text-[10px] flex-shrink-0 font-sans">Next Holiday:</span>
-                      <strong className="text-white truncate font-semibold font-sans">{holidayDetails.upcomingHoliday.title}</strong>
+                  <div className="px-2 py-1 rounded-xl bg-slate-950/60 border border-white/10 text-[10px] flex items-center justify-between gap-1.5 min-w-0">
+                    <div className="flex items-center gap-1 min-w-0 flex-1 text-slate-300">
+                      <span className="text-amber-400 select-none shrink-0">{holidayDetails.upcomingHoliday.icon}</span>
+                      <span className="text-slate-400 text-[9px] shrink-0 font-sans">Next:</span>
+                      <strong className="text-white truncate font-semibold font-sans min-w-0">{holidayDetails.upcomingHoliday.title}</strong>
                     </div>
-                    <span className="text-[10px] text-amber-300 font-grotesk font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 flex-shrink-0 tabular-nums">
+                    <span className="text-[9px] text-amber-300 font-grotesk font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 shrink-0 tabular-nums">
                       {holidayDetails.upcomingHoliday.daysText}
                     </span>
                   </div>
                 )}
 
-                {/* 3. Astronomical Eclipse (Grahan) Status */}
-                <div className={`px-2.5 py-1.5 rounded-xl border text-[11px] flex items-center justify-between gap-2 ${
+                {/* 3. Astronomical Eclipse Status */}
+                <div className={`px-2 py-1 rounded-xl border text-[10px] flex items-center justify-between gap-1.5 min-w-0 ${
                   holidayDetails.eclipseInfo.hasEclipseToday
                     ? 'bg-rose-950/60 border-rose-500/30 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse'
                     : 'bg-slate-950/40 border-white/5 text-slate-400'
                 }`}>
                   <div className="flex items-center gap-1.5 min-w-0 flex-1 font-sans">
-                    <span>{holidayDetails.eclipseInfo.hasEclipseToday ? '🌑' : '✨'}</span>
+                    <span className="shrink-0">{holidayDetails.eclipseInfo.hasEclipseToday ? '🌑' : '✨'}</span>
                     {holidayDetails.eclipseInfo.hasEclipseToday ? (
-                      <span className="font-extrabold text-rose-300 truncate">
-                        {holidayDetails.eclipseInfo.activeEclipse?.nameHindi || 'Eclipse Today'} • Sutak Rules Apply
+                      <span className="font-extrabold text-rose-300 break-words whitespace-normal text-[10px]">
+                        {holidayDetails.eclipseInfo.activeEclipse?.nameHindi || 'Eclipse Today'} • Sutak
                       </span>
                     ) : (
-                      <span className="truncate">
-                        <strong className="text-slate-300 font-medium">No Eclipse Today</strong>
+                      <span className="break-words whitespace-normal text-[10px] text-slate-300">
+                        No Eclipse Today
                         {holidayDetails.eclipseInfo.nextEclipse && (
-                          <span className="text-[10px] text-slate-400 ml-1.5 font-grotesk">
-                            • Next: <span className="text-slate-200">{holidayDetails.eclipseInfo.nextEclipse.nameHindi} ({holidayDetails.eclipseInfo.nextEclipse.dateFormatted})</span>
+                          <span className="text-slate-400 ml-1">
+                            • Next: {holidayDetails.eclipseInfo.nextEclipse.nameHindi}
                           </span>
                         )}
                       </span>
                     )}
                   </div>
                   {holidayDetails.eclipseInfo.nextEclipse && !holidayDetails.eclipseInfo.hasEclipseToday && (
-                    <span className="text-[10px] text-slate-400 font-grotesk font-mono tabular-nums whitespace-nowrap hidden sm:inline">
+                    <span className="text-[9px] text-slate-400 font-grotesk font-mono tabular-nums whitespace-nowrap shrink-0">
                       {holidayDetails.eclipseInfo.nextEclipse.daysText}
                     </span>
                   )}
@@ -715,28 +668,28 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
             </div>
 
-            {/* Cohesive sunrise/sunset pill with sunrise and sunset icons side-by-side */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-xs border-t border-white/10 mt-auto">
-              <div className="px-3 py-1.5 rounded-full bg-slate-950/60 border border-white/10 flex items-center gap-3 text-[11px] font-medium text-slate-200 font-grotesk tabular-nums">
-                <span className="flex items-center gap-1.5">
-                  <Sun size={13} className="text-amber-400 flex-shrink-0" />
+            {/* Cohesive sunrise/sunset pill */}
+            <div className="flex items-center justify-between gap-2 pt-2 text-xs border-t border-white/10 mt-auto min-w-0">
+              <div className="px-2 py-1 rounded-full bg-slate-950/60 border border-white/10 flex items-center gap-2 text-[10px] font-medium text-slate-200 font-grotesk tabular-nums">
+                <span className="flex items-center gap-1">
+                  <Sun size={11} className="text-amber-400 shrink-0" />
                   <span>{panchang.sunrise}</span>
                 </span>
                 <span className="text-slate-600 select-none">•</span>
-                <span className="flex items-center gap-1.5">
-                  <Moon size={13} className="text-indigo-400 flex-shrink-0" />
+                <span className="flex items-center gap-1">
+                  <Moon size={11} className="text-indigo-400 shrink-0" />
                   <span>{panchang.sunset}</span>
                 </span>
               </div>
-              <div className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold font-outfit text-amber-300 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all flex items-center gap-1">
-                <Calendar size={11} />
-                <span>Almanac</span>
-                <ArrowUpRight size={11} />
+              <div className="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold font-outfit text-amber-300 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-all flex items-center gap-0.5 shrink-0">
+                <Calendar size={9} />
+                <span>Details</span>
+                <ArrowUpRight size={9} />
               </div>
             </div>
           </div>
 
-          {/* COLUMN 2: VEDIC PANCHANG CARD (HERO CARD WITH AMBIENT RADIAL GLOW) */}
+          {/* COLUMN 2: VEDIC PANCHANG CARD */}
           <div 
             onClick={() => setIsTithiModalOpen(true)}
             onKeyDown={(e) => {
@@ -751,132 +704,132 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isTithiModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
-            className="p-5 sm:p-6 rounded-3xl bg-slate-900/85 backdrop-blur-xl border border-amber-500/35 hover:border-amber-400/70 shadow-[0_0_30px_rgba(245,158,11,0.1)] hover:shadow-[0_0_40px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer transition-all duration-300 group relative active:scale-[0.99] font-sans overflow-hidden"
+            className="p-3 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-amber-500/35 hover:border-amber-400/70 shadow-[0_0_25px_rgba(245,158,11,0.1)] hover:shadow-[0_0_35px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer transition-all duration-300 group relative active:scale-[0.99] font-sans overflow-hidden min-w-0"
           >
             {/* Subtle ambient radial backdrop glow */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/12 via-purple-950/20 to-transparent" />
 
-            <div className="space-y-3.5 relative z-10">
-              {/* 1 & 2: Today's Day & Masa */}
-              <div className="space-y-2 pb-3 border-b border-white/10">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0 shadow-sm">
-                      <Sun size={15} />
-                    </div>
-                    <span className="font-serif font-devanagari text-amber-300 text-base sm:text-lg font-bold tracking-tight truncate drop-shadow-sm">
-                      {panchang.dayOfWeekName}
-                    </span>
+            <div className="space-y-2 relative z-10 min-w-0">
+              {/* 1: Day of Week & Today Badge */}
+              <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-white/10 min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="p-1 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0">
+                    <Sun size={13} />
                   </div>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.2)] shrink-0">
-                    TODAY
+                  <span className="font-serif font-devanagari text-amber-300 text-sm font-semibold tracking-tight truncate">
+                    {panchang.dayOfWeekName}
                   </span>
                 </div>
-
-                <div className="flex items-start gap-2 pt-1 text-xs text-slate-300">
-                  <span className="text-[10px] font-extrabold font-outfit text-amber-400/90 tracking-wider uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
-                    MASA
-                  </span>
-                  <span className="font-serif font-devanagari font-medium text-amber-100 text-xs sm:text-[13px] leading-snug">
-                    {panchang.masaDisplay}
-                  </span>
-                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shrink-0">
+                  TODAY
+                </span>
               </div>
 
-              {/* 3: Today's Tithi as per Dharmashastra rules with End Time */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles size={12} className="text-amber-400/80" />
-                    <span className="text-[10px] font-extrabold font-outfit tracking-widest uppercase text-amber-400/90">
+              {/* 2: Localized Masa Pill (Task 5: North Purnimanta vs South/West Amanta) */}
+              <div className="flex items-center gap-1.5 text-xs text-slate-300 min-w-0">
+                <span className="text-[9px] font-extrabold font-outfit text-amber-400/90 tracking-wider uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
+                  MASA
+                </span>
+                <span className="font-serif font-devanagari font-medium text-amber-100 text-xs truncate break-words whitespace-normal min-w-0">
+                  {localizedMasa}
+                </span>
+              </div>
+
+              {/* 3: Today's Tithi Header & Badge */}
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <div className="flex items-center gap-1 min-w-0">
+                    <Sparkles size={11} className="text-amber-400/80 shrink-0" />
+                    <span className="text-[9px] font-extrabold font-outfit tracking-wider uppercase text-amber-400/90 truncate">
                       TODAY&apos;S TITHI (DHARMASHASTRA)
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     {tithiResolution.isVriddhi && (
-                      <span className="px-2 py-0.5 rounded-full bg-purple-950/70 text-purple-300 border border-purple-500/40 text-[9px] font-extrabold font-outfit uppercase tracking-wider shadow-sm">
+                      <span className="px-1.5 py-0.5 rounded-full bg-purple-950/70 text-purple-300 border border-purple-500/40 text-[8px] font-extrabold font-outfit uppercase">
                         Vriddhi
                       </span>
                     )}
                     {tithiResolution.isKshaya && (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-950/70 text-rose-300 border border-rose-500/40 text-[9px] font-extrabold font-outfit uppercase tracking-wider shadow-sm">
-                        Kshaya Skipped
+                      <span className="px-1.5 py-0.5 rounded-full bg-rose-950/70 text-rose-300 border border-rose-500/40 text-[8px] font-extrabold font-outfit uppercase">
+                        Kshaya
                       </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap py-0.5">
-                  <h3 className="text-2xl sm:text-3xl font-serif font-devanagari font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 tracking-tight leading-tight group-hover:from-amber-100 group-hover:to-yellow-300 transition-colors drop-shadow">
-                    {panchang.udayaTithi?.name || panchang.tithi.name}
+                {/* Shortened Tithi Name (Task 5) & Badges */}
+                <div className="flex items-center gap-2 flex-wrap py-0.5 min-w-0">
+                  <h3 className="text-base sm:text-lg font-serif font-devanagari font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 tracking-tight leading-snug group-hover:from-amber-100 group-hover:to-yellow-300 transition-colors drop-shadow break-words whitespace-normal min-w-0">
+                    {shortenedTithi}
                   </h3>
                   {panchang.tithi.index === 15 && (
-                    <span className="text-2xl drop-shadow-[0_0_16px_rgba(251,191,36,0.7)] select-none animate-pulse" title="Purnima (Full Moon)">🌕</span>
+                    <span className="text-lg drop-shadow-[0_0_12px_rgba(251,191,36,0.7)] select-none animate-pulse shrink-0" title="Purnima (Full Moon)">🌕</span>
                   )}
                   {panchang.tithi.index === 30 && (
-                    <span className="text-2xl drop-shadow-[0_0_16px_rgba(168,85,247,0.5)] select-none" title="Amavasya (New Moon)">🌑</span>
+                    <span className="text-lg drop-shadow-[0_0_12px_rgba(168,85,247,0.5)] select-none shrink-0" title="Amavasya (New Moon)">🌑</span>
                   )}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-extrabold font-outfit shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                      ✨ Ekadashi Vrat
+                    <span className="px-2 py-0.5 rounded-full text-[9px] bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-extrabold font-outfit shrink-0">
+                      ✨ Ekadashi
                     </span>
                   )}
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0b101e]/80 border border-amber-500/20 text-xs font-grotesk tabular-nums shadow-sm">
-                  <Clock size={13} className="text-amber-400 shrink-0" />
-                  <span className="font-sans text-slate-400 font-medium text-[11px]">Ends:</span>
-                  <span className="font-bold text-white tracking-tight">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0b101e]/80 border border-amber-500/20 text-[11px] font-grotesk tabular-nums shadow-sm min-w-0">
+                  <Clock size={11} className="text-amber-400 shrink-0" />
+                  <span className="font-sans text-slate-400 font-medium text-[10px] shrink-0">Ends:</span>
+                  <span className="font-bold text-white tracking-tight truncate text-[11px]">
                     {currentTithiEndTime}
                   </span>
                 </div>
               </div>
 
-              {/* 4: New Tithi: Start Time & Will Be Observed When */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#0a0f1d] to-[#070b16] border border-[#1d2948] shadow-inner divide-y divide-white/5 space-y-2">
-                <div className="flex items-center justify-between text-xs gap-3">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">New Tithi:</span>
-                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-xs sm:text-[13px] truncate">
-                    {nextTithiName}
+              {/* 4: Compact Horizontal / Single-Line Next Tithi Box (Task 4) */}
+              <div className="p-2 rounded-xl bg-slate-950/70 border border-white/10 space-y-1 text-[11px] min-w-0">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Next Tithi:</span>
+                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-[11px] truncate min-w-0">
+                    {shortNextTithi}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs pt-2 gap-3">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">Starts:</span>
-                  <span className="font-grotesk font-mono tabular-nums text-slate-200 font-medium text-right text-xs">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Starts:</span>
+                  <span className="font-mono tabular-nums text-slate-200 text-right text-[10px] truncate min-w-0">
                     {newTithiStartTime}
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-xs pt-2 gap-3">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans shrink-0">Observed:</span>
-                  <span className="font-semibold text-emerald-300 font-sans text-right text-xs sm:text-[13px]">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Observed:</span>
+                  <span className="font-semibold text-emerald-300 text-right text-[10px] truncate min-w-0">
                     {newTithiObservedWhen}
                   </span>
                 </div>
               </div>
 
-              {/* 5: Pahar */}
-              <div className="flex items-center justify-between text-xs py-1 px-1">
-                <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 font-sans">
-                  <Compass size={13} className="text-amber-400 shrink-0" />
+              {/* 5: Pahar (Single-line) */}
+              <div className="flex items-center justify-between text-[11px] py-0.5 px-0.5 min-w-0">
+                <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1 font-sans shrink-0">
+                  <Compass size={11} className="text-amber-400 shrink-0" />
                   <span>Pahar:</span>
                 </span>
-                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[11px] bg-slate-950/80 border border-white/10 px-2.5 py-1 rounded-lg shadow-sm">
+                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[10px] bg-slate-950/80 border border-white/10 px-2 py-0.5 rounded shadow-sm truncate min-w-0">
                   {panchang.paharCapsuleText}
                 </span>
               </div>
             </div>
 
-            {/* 6: Link for Open Calendar */}
-            <div className="mt-3.5 pt-3 border-t border-white/10 relative z-10">
-              <div className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-xs font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-2 shadow-sm group-hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
-                <Calendar size={14} className="text-amber-400" />
+            {/* 6: Compact Link for Open Calendar */}
+            <div className="mt-2 pt-2 border-t border-white/10 relative z-10">
+              <div className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <Calendar size={12} className="text-amber-400" />
                 <span>Open 30-Day Almanac</span>
-                <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
           </div>
 
-          {/* COLUMN 3: ACTIVE MUHURAT & TIMING CARD (CLICKABLE -> OPENS COMPLETE DAILY MUHURAT) */}
+          {/* COLUMN 3: ACTIVE MUHURAT & TIMING CARD */}
           <div 
             onClick={() => setIsMuhuratModalOpen(true)}
             onKeyDown={(e) => {
@@ -891,30 +844,30 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isMuhuratModalOpen}
             title="Click to view 24h Muhurat Matrix & Choghadiya"
             aria-label="Open Daily Muhurat Timetable and Choghadiya Matrix"
-            className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] overflow-hidden"
+            className="p-3 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] overflow-hidden min-w-0"
           >
-            <div>
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="text-slate-400 text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1.5 flex-wrap">
-                  <span>ACTIVE MUHURAT & TIMING</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline flex-shrink-0">
-                    धर्मशास्त्र सम्मत
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-1.5 min-w-0">
+                <div className="text-slate-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1 min-w-0">
+                  <span className="truncate">ACTIVE MUHURAT</span>
+                  <span className="text-[8px] px-1 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
+                    धर्मशास्त्र
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-outfit flex items-center gap-1 ${
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold font-outfit flex items-center gap-1 ${
                     (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                      ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                      ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
                       : activeVedicMuhurat?.nature === 'Moderate'
-                      ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                      : 'bg-rose-950/60 border border-rose-500/30 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.15)]'
+                      ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
+                      : 'bg-rose-950/60 border border-rose-500/30 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.15)]'
                   }`}>
                     {(activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious') ? (
-                      <CheckCircle2 size={11} className="text-emerald-400 flex-shrink-0" />
+                      <CheckCircle2 size={10} className="text-emerald-400 shrink-0" />
                     ) : activeVedicMuhurat?.nature === 'Moderate' ? (
-                      <Sparkles size={11} className="text-amber-400 flex-shrink-0" />
+                      <Sparkles size={10} className="text-amber-400 shrink-0" />
                     ) : (
-                      <ShieldAlert size={11} className="text-rose-400 flex-shrink-0" />
+                      <ShieldAlert size={10} className="text-rose-400 shrink-0" />
                     )}
                     <span>
                       {activeVedicMuhurat?.nature === 'Highly Auspicious' ? 'HIGHLY AUSPICIOUS' :
@@ -922,12 +875,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                        activeVedicMuhurat?.nature === 'Moderate' ? 'MODERATE' : 'INAUSPICIOUS'}
                     </span>
                   </span>
-                  <ArrowUpRight size={14} className="text-slate-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
+                  <ArrowUpRight size={12} className="text-slate-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
                 </div>
               </div>
 
               {/* Main Active Vedic Muhurat Title */}
-              <div className={`text-xl sm:text-2xl font-extrabold my-2 leading-tight transition-colors break-words font-outfit ${
+              <div className={`text-sm sm:text-base font-semibold my-1.5 leading-snug transition-colors break-words whitespace-normal font-outfit min-w-0 ${
                 (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                   ? 'text-white group-hover:text-emerald-300'
                   : activeVedicMuhurat?.nature === 'Moderate'
@@ -938,29 +891,29 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Shastric Guidance Banner */}
-              <div className={`p-2 rounded-xl text-xs font-medium border mb-2.5 w-full ${
+              <div className={`p-1.5 rounded-xl text-[11px] font-medium border mb-1.5 w-full min-w-0 ${
                 (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                  ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.10)]'
+                  ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.10)]'
                   : activeVedicMuhurat?.nature === 'Moderate'
-                  ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.10)]'
-                  : 'bg-rose-950/60 border border-rose-500/30 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.10)]'
+                  ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.10)]'
+                  : 'bg-rose-950/60 border border-rose-500/30 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.10)]'
               }`}>
-                <div className="flex items-start gap-2">
-                  <span className="flex-shrink-0 text-sm leading-none mt-0.5 select-none">
+                <div className="flex items-start gap-1.5 min-w-0">
+                  <span className="shrink-0 text-xs leading-none mt-0.5 select-none">
                     {(activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious') ? '🌟' : activeVedicMuhurat?.nature === 'Moderate' ? '⚡' : '⚠️'}
                   </span>
-                  <span className="leading-snug break-words text-[11px] font-semibold flex-1 font-sans">
+                  <span className="leading-snug break-words whitespace-normal text-[10px] font-semibold flex-1 font-sans min-w-0">
                     {activeVedicMuhurat?.activity || (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious' ? 'Auspicious: Favorable for Sacred Actions' : 'Moderate: Routine Duties')}
                   </span>
                 </div>
               </div>
 
               {/* Styled Active Muhurat Progress Bar */}
-              <div className="w-full my-2">
-                <div className="flex items-center justify-between text-[10px] font-grotesk tabular-nums mb-1 text-slate-400">
+              <div className="w-full my-1.5">
+                <div className="flex items-center justify-between text-[9px] font-grotesk tabular-nums mb-0.5 text-slate-400">
                   <span className="flex items-center gap-1 font-sans text-slate-400">
-                    <Hourglass size={11} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
-                    Active Window Progress
+                    <Hourglass size={10} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
+                    Window Progress
                   </span>
                   <span className="font-bold text-slate-200">{muhuratProgress}%</span>
                 </div>
@@ -979,48 +932,48 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Structured Timing & Deity Matrix Details Box */}
-              <div className="p-2.5 rounded-xl bg-slate-950/60 border border-white/10 space-y-1.5">
-                <div className="flex items-center justify-between text-xs gap-2">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">Presiding Deity:</span>
-                  <span className="font-serif font-devanagari font-bold text-white text-right break-words">
+              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/10 space-y-1 text-[11px] min-w-0">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Deity:</span>
+                  <span className="font-serif font-devanagari font-bold text-white text-right break-words whitespace-normal text-[10px] truncate min-w-0">
                     {activeVedicMuhurat?.deity || 'Universal'}
                   </span>
                 </div>
 
                 {panchang.currentChoghadiya && (
-                  <div className="flex items-center justify-between text-xs gap-2">
-                    <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">Choghadiya:</span>
-                    <span className="font-semibold text-slate-200 text-right break-words font-sans">
+                  <div className="flex items-center justify-between gap-1.5 min-w-0">
+                    <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Choghadiya:</span>
+                    <span className="font-semibold text-slate-200 text-right break-words whitespace-normal font-sans text-[10px] truncate min-w-0">
                       {panchang.currentChoghadiya.displayName}
                     </span>
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10 gap-2">
-                  <span className="text-slate-400 text-[11px] font-medium font-sans flex-shrink-0">Window:</span>
-                  <span className="font-grotesk font-mono tabular-nums text-slate-100 font-semibold text-right">
+                <div className="flex items-center justify-between pt-1 border-t border-white/10 gap-1.5 min-w-0">
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Window:</span>
+                  <span className="font-mono tabular-nums text-slate-100 font-semibold text-right text-[10px] truncate min-w-0">
                     {activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/10 flex-wrap gap-2">
-              <div className="text-xs font-bold text-amber-400 flex items-center gap-1.5 flex-shrink-0 font-sans">
-                <Hourglass size={14} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
-                <span>Expires in <span className="font-grotesk font-mono tabular-nums">{activeVedicMuhurat?.remainingString || panchang.currentChoghadiya?.remainingString || '45m 00s'}</span></span>
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10 flex-wrap gap-1.5 min-w-0">
+              <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1 shrink-0 font-sans">
+                <Hourglass size={12} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
+                <span>Expires in <span className="font-mono tabular-nums">{activeVedicMuhurat?.remainingString || panchang.currentChoghadiya?.remainingString || '45m 00s'}</span></span>
               </div>
-              <div className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-[11px] font-bold font-outfit text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:border-emerald-400/50 transition-all flex items-center gap-1 flex-shrink-0">
-                <span>View 24h Matrix</span>
-                <ArrowUpRight size={12} />
+              <div className="px-2 py-0.5 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-[10px] font-bold font-outfit text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] group-hover:border-emerald-400/50 transition-all flex items-center gap-1 shrink-0">
+                <span>24h Matrix</span>
+                <ArrowUpRight size={10} />
               </div>
             </div>
           </div>
 
         </div>
 
-        {/* ── Bottom 3-Card Row (Today Vrat, Panchak, Upcoming Festival) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 relative z-10">
+        {/* ── Bottom 3-Card Row (Task 4: Immediately Visible Above/Near Fold) ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-2.5 relative z-10">
           
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT */}
           <div 
@@ -1041,35 +994,35 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               panchang.todayFestival.isMajor 
                 ? 'border-amber-500/40 hover:border-amber-400/70 bg-gradient-to-r from-amber-950/20 via-slate-900/80 to-amber-950/10 shadow-[0_0_20px_rgba(245,158,11,0.06)]'
                 : 'border-white/10 hover:border-amber-500/30'
-            } rounded-2xl p-4 flex items-center gap-3.5 shadow-xl cursor-pointer transition-all duration-300 group active:scale-[0.99]`}
+            } rounded-2xl p-3 flex items-center gap-2.5 shadow-xl cursor-pointer transition-all duration-300 group active:scale-[0.99] min-w-0`}
           >
-            <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 p-2.5 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-12 h-12">
+            <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 p-2 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10">
               {panchang.todayFestival.icon ? (
-                <span className="text-2xl leading-none select-none">{panchang.todayFestival.icon}</span>
+                <span className="text-xl leading-none select-none">{panchang.todayFestival.icon}</span>
               ) : (
-                <Calendar size={22} />
+                <Calendar size={18} />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <div className="text-orange-400 text-[11px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 truncate">
-                  <span>TODAY&apos;S FESTIVAL / VRAT</span>
+                <div className="text-orange-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1 min-w-0">
+                  <span className="truncate">TODAY&apos;S FESTIVAL</span>
                   {panchang.todayFestival.isMajor && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-950/60 border border-amber-500/30 text-amber-300 uppercase flex-shrink-0 font-outfit">
+                    <span className="px-1 py-0.5 rounded text-[8px] font-extrabold bg-amber-950/60 border border-amber-500/30 text-amber-300 uppercase shrink-0 font-outfit">
                       Festive
                     </span>
                   )}
                 </div>
-                <ArrowUpRight size={14} className="text-slate-400 group-hover:text-amber-400 transition-colors flex-shrink-0" />
+                <ArrowUpRight size={12} className="text-slate-400 group-hover:text-amber-400 transition-colors shrink-0" />
               </div>
-              <div className={`text-base font-bold mt-0.5 truncate transition-colors font-sans ${
+              <div className={`text-sm font-bold mt-0.5 transition-colors font-sans break-words whitespace-normal min-w-0 ${
                 panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
               }`}>
                 {panchang.todayFestival.title}
               </div>
-              <div className="text-xs text-slate-400 mt-0.5 truncate flex items-center justify-between font-sans">
-                <span>{panchang.todayFestival.description}</span>
-                <span className="hidden sm:inline text-[10px] text-amber-400/80 font-semibold group-hover:text-amber-300 transition-colors ml-1 flex-shrink-0 font-outfit">
+              <div className="text-[11px] text-slate-400 mt-0.5 flex items-center justify-between font-sans min-w-0 gap-1">
+                <span className="break-words whitespace-normal min-w-0">{panchang.todayFestival.description}</span>
+                <span className="hidden sm:inline text-[9px] text-amber-400/80 font-semibold group-hover:text-amber-300 transition-colors shrink-0 font-outfit">
                   Rules →
                 </span>
               </div>
@@ -1095,25 +1048,25 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               panchakStatus.isActive 
                 ? 'border-red-500/40 hover:border-red-400/70'
                 : 'border-white/10 hover:border-amber-500/30'
-            } rounded-2xl p-4 flex items-center gap-4 shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99]`}
+            } rounded-2xl p-3 flex items-center gap-2.5 shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] min-w-0`}
           >
             <div className={`rounded-xl ${
               panchakStatus.isActive 
                 ? 'text-red-400 bg-red-950/60 border border-red-500/40 animate-pulse'
                 : 'text-teal-400 bg-teal-950/50 border border-teal-500/30'
-            } p-3 flex-shrink-0 group-hover:scale-105 transition-transform`}>
+            } p-2 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10`}>
               {panchakStatus.isActive ? (
-                <ShieldAlert size={22} />
+                <ShieldAlert size={18} />
               ) : (
-                <ShieldCheck size={22} />
+                <ShieldCheck size={18} />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <div className="text-amber-400 text-[11px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1">
+              <div className="flex items-center justify-between gap-1">
+                <div className="text-amber-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1 min-w-0">
                   <span>PANCHAK <span className="font-serif font-devanagari font-normal">(पञ्चक)</span></span>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-outfit ${
+                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold font-outfit shrink-0 ${
                   panchakStatus.isActive 
                     ? 'text-red-400 bg-red-950/60 border border-red-500/40 animate-pulse'
                     : 'text-teal-400 bg-teal-950/50 border border-teal-500/30'
@@ -1123,7 +1076,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
               
               {/* Title: Shows Active Panchak or 'No active panchak' */}
-              <div className={`text-base font-bold mt-0.5 truncate transition-colors font-sans ${
+              <div className={`text-sm font-bold mt-0.5 transition-colors font-sans break-words whitespace-normal min-w-0 ${
                 panchakStatus.isActive 
                   ? 'text-red-400 group-hover:text-red-300'
                   : 'text-white group-hover:text-teal-300'
@@ -1135,8 +1088,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Subtitle: Shows exact start & end date-times if active, or next panchak timing if inactive */}
-              <div className="text-xs text-slate-400 mt-0.5 truncate flex items-center justify-between font-sans">
-                <span>
+              <div className="text-[11px] text-slate-400 mt-0.5 flex items-center justify-between font-sans min-w-0 gap-1">
+                <span className="break-words whitespace-normal min-w-0">
                   {panchakStatus.isActive && panchakStatus.panchak
                     ? `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`
                     : panchakStatus.nextPanchak 
@@ -1144,7 +1097,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       : 'No panchak in progress • Auspicious'
                   }
                 </span>
-                <span className="hidden sm:inline text-[10px] text-teal-300 font-semibold group-hover:text-teal-200 transition-colors ml-1 flex-shrink-0 font-outfit">
+                <span className="hidden sm:inline text-[9px] text-teal-300 font-semibold group-hover:text-teal-200 transition-colors shrink-0 font-outfit">
                   Calendar →
                 </span>
               </div>
@@ -1166,25 +1119,25 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isUpcomingFestivalsModalOpen}
             title="Click to open Monthly Calendar of Upcoming Festivals & Dharmashastra Rules"
             aria-label="View Upcoming Vedic Festivals and Observances"
-            className="bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xl cursor-pointer transition-all duration-300 group active:scale-[0.99]"
+            className="bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 rounded-2xl p-3 flex items-center justify-between gap-2.5 shadow-xl cursor-pointer transition-all duration-300 group active:scale-[0.99] min-w-0"
           >
-            <div className="flex items-center gap-3.5 min-w-0 flex-1">
-              <div className="rounded-xl bg-slate-950/60 border border-white/10 p-2.5 text-emerald-400 flex-shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-12 h-12">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="rounded-xl bg-slate-950/60 border border-white/10 p-2 text-emerald-400 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10">
                 {panchang.upcomingFestival.icon ? (
-                  <span className="text-2xl leading-none select-none">{panchang.upcomingFestival.icon}</span>
+                  <span className="text-xl leading-none select-none">{panchang.upcomingFestival.icon}</span>
                 ) : (
-                  <Moon size={22} />
+                  <Moon size={18} />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-emerald-400 text-[11px] font-bold font-outfit tracking-wider uppercase flex items-center justify-between">
-                  <span>UPCOMING OBSERVANCE</span>
-                  <ArrowUpRight size={14} className="text-slate-400 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                <div className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center justify-between gap-1">
+                  <span className="truncate">UPCOMING OBSERVANCE</span>
+                  <ArrowUpRight size={12} className="text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0" />
                 </div>
-                <div className="text-sm font-bold text-white mt-0.5 leading-snug truncate group-hover:text-emerald-300 transition-colors font-sans">
+                <div className="text-sm font-bold text-white mt-0.5 leading-snug break-words whitespace-normal group-hover:text-emerald-300 transition-colors font-sans min-w-0">
                   {panchang.upcomingFestival.title}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5 truncate font-sans">
+                <div className="text-[11px] text-slate-400 mt-0.5 break-words whitespace-normal font-sans min-w-0">
                   {panchang.upcomingFestival.dateFormatted ? (
                     <span>
                       <strong className="text-emerald-400 font-medium font-grotesk">{panchang.upcomingFestival.dateFormatted}</strong>
@@ -1199,7 +1152,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
             </div>
 
-            <span className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg text-[10px] font-bold font-outfit flex-shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <span className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-lg text-[9px] font-bold font-outfit shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
               {panchang.upcomingFestival.daysText || panchang.upcomingFestival.badge}
             </span>
           </div>

@@ -481,8 +481,8 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
         percentageElapsed: panchang.instantaneousTithi?.completionPercent || 50,
         endTime: panchang.instantaneousTithi?.endTime || 'Continuous'
       },
-      amantaMasa: panchang.hinduMonth,
-      purnimantaMasa: panchang.hinduMonth,
+      amantaMasa: panchang.amantaMonth || panchang.hinduMonth,
+      purnimantaMasa: panchang.purnimantaMonth || panchang.hinduMonth,
       masaDisplay: panchang.masaDisplay,
       pahar: panchang.paharCapsuleText,
       dayOfWeekName: panchang.dayOfWeekName,

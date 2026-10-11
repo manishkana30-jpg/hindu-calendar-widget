@@ -55,6 +55,16 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     return () => clearInterval(interval);
   }, [isOpen]);
 
+  // Lock background body scroll strictly while modal is open (Task 3)
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // Format Gregorian Live Clock values
@@ -178,7 +188,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl max-h-[92vh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
+      <div className="relative w-full max-w-5xl max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
         
         {/* ── Top Header ── */}
         <div className="p-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
@@ -329,8 +339,11 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
           </div>
         </div>
 
-        {/* ── Scrollable Content ── */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+        {/* ── Scrollable Content (Task 3: Smooth touch & overscroll containment) ── */}
+        <div 
+          className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4 md:p-6 space-y-5"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           
           {/* Brief Bilingual Dharmashastra Rule */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#0e1629] to-orange-500/10 border border-amber-500/30 text-xs">
