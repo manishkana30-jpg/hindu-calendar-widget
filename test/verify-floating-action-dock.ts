@@ -30,8 +30,8 @@ async function runFloatingDockAudit() {
   console.log('\n▸ 2. Verifying Compact Share Button in Consolidated Header Row:');
   const widgetContent = fs.readFileSync('app/components/HinduPanchangWidget.tsx', 'utf8');
   assert(widgetContent.includes('handleShare'), 'Widget implements handleShare function');
-  assert(widgetContent.includes('Share2'), 'Widget imports and renders Lucide Share2 icon');
-  assert(widgetContent.includes('aria-label="Share"'), 'Share button has accessible aria-label="Share"');
+  assert(widgetContent.includes('WhatsAppIcon'), 'Widget renders WhatsAppIcon');
+  assert(widgetContent.includes('aria-label="Share on WhatsApp"'), 'Share button has accessible aria-label="Share on WhatsApp"');
   assert(widgetContent.includes('Link copied to clipboard!'), 'Share handler provides clipboard toast fallback');
 
   // ── TEST 3: usePwaInstall Hook Architecture ─────────────────────────────────

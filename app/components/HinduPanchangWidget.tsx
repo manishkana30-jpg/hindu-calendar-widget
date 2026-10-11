@@ -28,7 +28,7 @@ import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { WhatsAppIcon } from './WhatsAppShareButton';
 import { EmbedWidgetModal } from '../../src/components/EmbedWidgetModal';
-import { sharePanchang, buildShareDataFromPanchang } from '../../src/lib/utils/sharePanchang';
+import { sharePanchang, buildShareDataFromPanchang, formatPanchangShareText } from '../../src/lib/utils/sharePanchang';
 import {
   getSavedLocationState,
   requestGpsLocation,
@@ -406,43 +406,50 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     e.stopPropagation();
     e.preventDefault();
 
-    const shareData = {
-      title: 'Daily Tithi — Vedic Panchang & Muhurat',
-      text: `Check today's Udaya Tithi, Muhurat, and Panchang on Daily Tithi:`,
-      url: typeof window !== 'undefined' ? window.location.href : 'https://dailytithi.com',
-    };
+    try {
+      const shareDataObj = buildShareDataFromPanchang(
+        selectedDate,
+        panchang,
+        activeMuhurat,
+        panchakStatus?.badgeText || panchakStatus?.displayTitle || ''
+      );
+      const formattedText = formatPanchangShareText(shareDataObj);
+      const appUrl = typeof window !== 'undefined' ? window.location.href : 'https://dailytithi.com';
 
-    if (
-      typeof navigator !== 'undefined' &&
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare(shareData)
-    ) {
-      try {
-        await navigator.share(shareData);
-      } catch (err: unknown) {
-        if ((err as Error)?.name !== 'AbortError') {
-          console.error(err);
+      if (
+        typeof navigator !== 'undefined' &&
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({ title: 'Daily Tithi — Vedic Panchang', text: formattedText, url: appUrl })
+      ) {
+        try {
+          await navigator.share({
+            title: 'Daily Tithi — Vedic Panchang',
+            text: formattedText,
+            url: appUrl
+          });
+          return;
+        } catch (err: unknown) {
+          if ((err as Error)?.name === 'AbortError') return;
         }
       }
-    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
+
+      // Open WhatsApp directly with the formatted Panchang card
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
+      const win = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      if (!win && typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(formattedText);
         if (shareToastTimeoutRef.current) clearTimeout(shareToastTimeoutRef.current);
         setShareToast('Link copied to clipboard!');
-        shareToastTimeoutRef.current = setTimeout(() => {
-          setShareToast(null);
-        }, 2500);
-      } catch {
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(
-            `${shareData.text} ${window.location.href}`
-          )}`,
-          '_blank'
-        );
+        shareToastTimeoutRef.current = setTimeout(() => setShareToast(null), 2500);
       }
+    } catch {
+      const fallbackUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+        `🌅 Daily Tithi — Vedic Panchang & Muhurat\n${typeof window !== 'undefined' ? window.location.href : 'https://dailytithi.com'}`
+      )}`;
+      window.open(fallbackUrl, '_blank');
     }
-  }, []);
+  }, [selectedDate, panchang, activeMuhurat, panchakStatus]);
 
   useEffect(() => {
     return () => {
@@ -482,12 +489,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none -z-0" />
         
-        {/* ── Compact Consolidated Header Row (City, GPS, Date Controls, Share) ── */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-slate-900/60 rounded-2xl border border-white/10 text-xs relative z-10 mb-2">
+        {/* ── Compact Consolidated Header Row (City, GPS, Date Controls, WhatsApp Share) ── */}
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-slate-900/60 rounded-2xl border border-white/10 text-xs relative z-10 mb-2 flex-nowrap overflow-x-auto no-scrollbar">
           {/* Left Group: Location & GPS */}
           <div className="flex items-center gap-1.5 min-w-0 shrink-0">
             {/* 1. Location Dropdown Pill */}
-            <div className="relative inline-flex items-center min-w-0">
+            <div className="relative inline-flex items-center min-w-0 shrink-0">
               <MapPin size={11} className="absolute left-2.5 text-amber-400 pointer-events-none" />
               <select
                 aria-label="Select City Location"
@@ -503,7 +510,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-6 pr-5 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-medium text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[120px] xs:max-w-[140px] sm:max-w-[175px] truncate"
+                className="pl-6 pr-5 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-medium text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[120px] xs:max-w-[140px] sm:max-w-[175px] truncate shrink-0"
               >
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
@@ -538,14 +545,15 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               }`}
             >
               <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
-              <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
+              <span className="hidden xs:inline">{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
+              <span className="xs:hidden">{isGpsDetecting ? '...' : (locationSource === 'gps' ? 'GPS' : 'GPS')}</span>
             </button>
           </div>
 
-          {/* Right Group: Date Controls & Share */}
+          {/* Right Group: Date Controls & WhatsApp Share */}
           <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 shrink-0 ml-auto">
             {/* 3. Date Controls (Prev, Date Input, Next) */}
-            <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 shrink-0">
               <button
                 onClick={handlePrevDay}
                 className="p-1 sm:px-2 sm:py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-0.5 cursor-pointer font-sans text-[11px] sm:text-xs shrink-0"
@@ -553,16 +561,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 aria-label="Previous Day"
               >
                 <ChevronLeft size={13} />
-                <span className="hidden xs:inline">Prev</span>
+                <span className="hidden md:inline">Prev</span>
               </button>
 
-              <div className="relative inline-flex items-center min-w-0">
+              <div className="relative inline-flex items-center min-w-0 shrink-0">
                 <input
                   type="date"
                   value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
                   onChange={handleDateChange}
                   aria-label="Pick Any Date and Year"
-                  className="px-1.5 sm:px-2 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm font-grotesk"
+                  className="px-1.5 sm:px-2 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm font-grotesk shrink-0"
                 />
               </div>
 
@@ -572,7 +580,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 title="Next Day"
                 aria-label="Next Day"
               >
-                <span className="hidden xs:inline">Next</span>
+                <span className="hidden md:inline">Next</span>
                 <ChevronRight size={13} />
               </button>
             </div>
@@ -590,16 +598,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </button>
             )}
 
-            {/* 5. Compact Share Button */}
+            {/* 5. WhatsApp Share Button */}
             <div className="relative inline-flex items-center shrink-0">
               <button
                 type="button"
                 onClick={handleShare}
-                title="Share today's Panchang & Muhurat"
-                aria-label="Share"
-                className="h-7 w-7 sm:h-8 sm:w-8 p-1 sm:p-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-emerald-500/40 text-emerald-400 hover:text-emerald-300 transition-all flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm"
+                title="Share today's Panchang & Muhurat on WhatsApp"
+                aria-label="Share on WhatsApp"
+                className="h-7 w-7 sm:h-8 sm:w-8 p-1 sm:p-1.5 rounded-xl bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-400 hover:text-emerald-300 transition-all flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)]"
               >
-                <Share2 size={13} className="shrink-0" />
+                <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
               </button>
 
               {shareToast && (
