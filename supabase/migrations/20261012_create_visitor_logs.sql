@@ -43,8 +43,8 @@ CREATE POLICY "Allow service role full access to visitor_logs"
     WITH CHECK (true);
 
 COMMENT ON TABLE public.visitor_logs IS 'Unique visitor logs with Cloudflare/Vercel headers and push conversion tracking';
-COMMENT COLUMN public.visitor_logs.session_id IS '24-hour unique visitor session UUID from visitor_session cookie';
-COMMENT COLUMN public.visitor_logs.is_subscribed IS 'True if the visitor has converted or is a recognized push subscriber';
+COMMENT ON COLUMN public.visitor_logs.session_id IS '24-hour unique visitor session UUID from visitor_session cookie';
+COMMENT ON COLUMN public.visitor_logs.is_subscribed IS 'True if the visitor has converted or is a recognized push subscriber';
 
 -- ============================================================================
 -- 4. One-Time Backfill Script: Historical Subscribers -> visitor_logs
