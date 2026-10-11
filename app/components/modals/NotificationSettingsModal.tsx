@@ -132,8 +132,12 @@ export function NotificationSettingsModal({
     const updated = await saveNotificationSettings({ [field]: value });
     setSettings(updated);
 
-    // Sync to backend push subscription
-    syncPreferencesToBackend({ [field]: value }, currentLocation || locationState?.location).catch(() => {});
+    // Sync to backend push subscription in Supabase PostgreSQL
+    try {
+      await syncPreferencesToBackend({ [field]: value }, currentLocation || locationState?.location);
+    } catch (err) {
+      console.warn('Backend preferences sync note:', err);
+    }
   };
 
   const handleGpsRequest = async () => {

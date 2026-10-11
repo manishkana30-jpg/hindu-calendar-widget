@@ -16,7 +16,6 @@ import {
   DailyPanchangCache,
   NotificationSettings
 } from './idb-storage';
-import { formatPanchangNotificationBody } from './state-diff';
 import { getSavedLocationState } from '../location-service';
 import { LocationCoordinates } from '../vedic-astronomy';
 
@@ -33,7 +32,7 @@ export interface NotificationCapabilities {
 /**
  * Converts a base64 string to a Uint8Array for VAPID applicationServerKey.
  */
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = window.atob(base64);
@@ -42,6 +41,55 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
+}
+
+/**
+ * Detects whether the current client device is running Apple iOS / iPadOS.
+ */
+export function isIOS(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = window.navigator.userAgent;
+  const isIOSPlatform = /iPad|iPhone|iPod/.test(ua);
+  const isIPadOS = Boolean(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return isIOSPlatform || isIPadOS;
+}
+
+/**
+ * Detects whether the PWA is installed and running in standalone display mode.
+ */
+export function isStandaloneMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  const isStandaloneMedia = window.matchMedia('(display-mode: standalone)').matches;
+  const isStandaloneNav = (navigator as unknown as { standalone?: boolean }).standalone === true;
+  return isStandaloneMedia || isStandaloneNav;
+}
+
+/**
+ * Compares an existing PushSubscription's applicationServerKey against the target VAPID public key.
+ * In the Push API, applicationServerKey is returned as an ArrayBuffer.
+ */
+export function isMatchingApplicationServerKey(
+  existingKeyBuffer: ArrayBuffer | null | undefined,
+  targetKeyBase64: string
+): boolean {
+  if (!existingKeyBuffer || !targetKeyBase64) return false;
+  try {
+    const targetKeyBytes = urlBase64ToUint8Array(targetKeyBase64);
+    const existingBytes = new Uint8Array(existingKeyBuffer);
+
+    if (existingBytes.length !== targetKeyBytes.length) {
+      return false;
+    }
+
+    for (let i = 0; i < existingBytes.length; i++) {
+      if (existingBytes[i] !== targetKeyBytes[i]) {
+        return false;
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -156,6 +204,15 @@ export async function enableNotificationAlerts(): Promise<{
         const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
         let sub = await reg.pushManager.getSubscription();
 
+        if (sub) {
+          const existingKey = sub.options?.applicationServerKey;
+          if (!isMatchingApplicationServerKey(existingKey, vapidPublicKey)) {
+            console.info('[Push Setup] Stale VAPID key detected. Replacing subscription...');
+            await sub.unsubscribe().catch(() => {});
+            sub = null;
+          }
+        }
+
         if (!sub && vapidPublicKey) {
           sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
@@ -179,8 +236,11 @@ export async function enableNotificationAlerts(): Promise<{
                 notificationTime: currentSettings.notificationTime || 'sunrise',
                 alertOnTithiChange: Boolean(currentSettings.alertOnTithiChange),
                 autoUpdate: currentSettings.autoUpdate !== false,
-                wifiOnly: Boolean(currentSettings.wifiOnly)
+                wifiOnly: Boolean(currentSettings.wifiOnly),
+                sound: currentSettings.sound !== false,
+                vibration: currentSettings.vibration !== false
               },
+              isActive: true,
               sendWelcomeTest: true
             })
           }).catch(() => {});
@@ -240,7 +300,14 @@ export async function disableNotificationAlerts(): Promise<void> {
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
           const endpoint = sub.endpoint;
-          await sub.unsubscribe();
+          // Mark subscription inactive on backend Supabase table
+          await fetch('/api/push/subscribe', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint, isActive: false, is_active: false })
+          }).catch(() => {});
+
+          await sub.unsubscribe().catch(() => {});
           await fetch('/api/push/subscribe', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -286,13 +353,9 @@ export async function seedServiceWorkerCacheFromClient(cacheData: DailyPanchangC
   }
 }
 
-import {
-  buildDailyFloatingPayload,
-  extractDailyPanchangData
-} from '../push/dailySummaryPayload';
-
 /**
- * Fires an immediate test notification using the new 5-line all-in-one floating lock-screen format.
+ * Fires an immediate test notification using the Server-Sent Web Push pipeline.
+ * Notifications are strictly received and displayed by the Service Worker push event listener.
  */
 export async function triggerImmediateNotificationTest(): Promise<{
   success: boolean;
@@ -312,61 +375,190 @@ export async function triggerImmediateNotificationTest(): Promise<{
   try {
     const reg = await navigator.serviceWorker.ready;
 
-    // First attempt: Cloud Web Push via Vercel to device (delivers the 5-line floating lock-screen payload)
     if (reg?.pushManager) {
-      try {
-        const sub = await reg.pushManager.getSubscription();
-        if (sub) {
-          let pushRes = await fetch('/api/push/test', {
+      let sub = await reg.pushManager.getSubscription();
+
+      // If no subscription yet, create one
+      if (!sub) {
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+        if (vapidPublicKey) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as unknown as BufferSource
+          }).catch(() => null);
+        }
+      }
+
+      if (sub) {
+        let pushRes = await fetch('/api/push/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub })
+        });
+        if (!pushRes.ok && pushRes.status === 404) {
+          pushRes = await fetch('/api/push/daily-trigger', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription: sub })
+            body: JSON.stringify({ subscription: sub, isTest: true })
           });
-          if (!pushRes.ok && pushRes.status === 404) {
-            pushRes = await fetch('/api/push/daily-trigger', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subscription: sub, isTest: true })
-            });
-          }
-          if (pushRes.ok) {
-            return { success: true, message: 'Daily floating lock-screen alert dispatched via Web Push! 🔔' };
-          }
         }
-      } catch (cloudErr) {
-        console.info('Cloud push attempt note, falling back to local service worker:', cloudErr);
+        if (pushRes.ok) {
+          return { success: true, message: 'Daily floating lock-screen alert dispatched via Web Push! 🔔' };
+        }
+
+        const errData = (await pushRes.json().catch(() => ({}))) as { error?: string; message?: string };
+        return {
+          success: false,
+          message: errData.message || errData.error || `Server returned HTTP ${pushRes.status}`
+        };
       }
     }
 
-    // Fallback: Format the new 5-line floating lock-screen notification directly
-    const now = new Date();
-    const loc = getSavedLocationState().location;
-    const dailyData = extractDailyPanchangData(now, loc);
-    const floating = buildDailyFloatingPayload(dailyData);
-
-    if (reg?.showNotification) {
-      const notifOptions: NotificationOptions & { renotify?: boolean } = {
-        body: floating.options.body,
-        icon: floating.options.icon,
-        badge: floating.options.badge,
-        tag: floating.options.tag,
-        requireInteraction: floating.options.requireInteraction,
-        renotify: floating.options.renotify,
-        data: floating.options.data
-      };
-      await reg.showNotification(floating.title, notifOptions);
-    } else {
-      new Notification(floating.title, {
-        body: floating.options.body,
-        icon: floating.options.icon,
-        badge: floating.options.badge,
-        tag: floating.options.tag
-      });
-    }
-    return { success: true, message: 'Daily floating lock-screen alert dispatched!' };
+    return {
+      success: false,
+      message: 'No active push subscription found on device. Please enable notifications first.'
+    };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     return { success: false, message: `Failed to trigger notification: ${msg}` };
+  }
+}
+
+/**
+ * Automatically reconciles and re-subscribes Web Push subscriptions on app launch.
+ * If notification permission is granted:
+ * - Checks if an active PushSubscription exists.
+ * - Compares the applicationServerKey against NEXT_PUBLIC_VAPID_PUBLIC_KEY.
+ * - If missing or mismatched from a previous VAPID rotation, unsubscribes and creates a fresh subscription.
+ * - Immediately POSTs the fresh subscription payload (endpoint, p256dh, auth, coordinates, and timezone) to /api/push/subscribe.
+ * - Gracefully handles iOS: Only attempts push subscription if running in standalone mode (display-mode: standalone / navigator.standalone).
+ */
+export async function autoSyncPushSubscription(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return false;
+
+  // 1. Silent check: only proceed if permission is already granted
+  if (Notification.permission !== 'granted') {
+    return false;
+  }
+
+  // 2. iOS graceful handling: Web Push is exclusively supported in standalone mode (Add to Home Screen)
+  if (isIOS() && !isStandaloneMode()) {
+    console.info('[Push Sync] iOS Web Push requires standalone mode (Add to Home Screen). Skipping auto-resubscription.');
+    return false;
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (!reg || !('pushManager' in reg)) return false;
+
+    let vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
+    if (!vapidPublicKey) {
+      try {
+        const res = await fetch('/api/push/subscribe');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.publicKey) vapidPublicKey = data.publicKey;
+        }
+      } catch {}
+    }
+
+    if (!vapidPublicKey) {
+      console.warn('[Push Sync] VAPID public key unavailable.');
+      return false;
+    }
+
+    let sub = await reg.pushManager.getSubscription();
+    let needsFreshSubscribe = !sub;
+
+    if (sub) {
+      const existingKeyBuffer = sub.options?.applicationServerKey;
+      if (!isMatchingApplicationServerKey(existingKeyBuffer, vapidPublicKey)) {
+        console.info('[Push Sync] Stale or mismatched VAPID key detected. Unsubscribing old subscription...');
+        await sub.unsubscribe().catch(() => {});
+        sub = null;
+        needsFreshSubscribe = true;
+      }
+    }
+
+    if (!sub && needsFreshSubscribe) {
+      console.info('[Push Sync] Creating fresh Web Push subscription with active VAPID key...');
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as unknown as BufferSource
+      });
+    }
+
+    if (sub) {
+      let p256dh = '';
+      let auth = '';
+      try {
+        const rawKey = sub.getKey('p256dh');
+        const rawAuth = sub.getKey('auth');
+        p256dh = rawKey ? btoa(String.fromCharCode(...new Uint8Array(rawKey))) : '';
+        auth = rawAuth ? btoa(String.fromCharCode(...new Uint8Array(rawAuth))) : '';
+      } catch {
+        const json = sub.toJSON();
+        p256dh = json.keys?.p256dh || '';
+        auth = json.keys?.auth || '';
+      }
+
+      const locState = getSavedLocationState().location;
+      const currentSettings = await getNotificationSettings();
+      const timezone = locState?.ianaTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata';
+
+      const syncPayload = {
+        endpoint: sub.endpoint,
+        subscription: {
+          endpoint: sub.endpoint,
+          keys: { p256dh, auth }
+        },
+        keys: { p256dh, auth },
+        timezone,
+        location: locState ? {
+          latitude: locState.latitude,
+          longitude: locState.longitude,
+          name: locState.name,
+          timezone: locState.timezone,
+          ianaTimezone: locState.ianaTimezone
+        } : undefined,
+        preferences: {
+          dailyNotification: currentSettings.dailyNotification !== false,
+          notificationTime: currentSettings.notificationTime || 'sunrise',
+          alertOnTithiChange: Boolean(currentSettings.alertOnTithiChange),
+          autoUpdate: currentSettings.autoUpdate !== false,
+          wifiOnly: Boolean(currentSettings.wifiOnly),
+          sound: currentSettings.sound !== false,
+          vibration: currentSettings.vibration !== false
+        },
+        isActive: true,
+        is_active: true
+      };
+
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(syncPayload)
+      });
+
+      if (res.ok) {
+        await saveNotificationSettings({
+          enabled: true,
+          permission: 'granted',
+          pushSubscribed: true
+        });
+        console.info('[Push Sync] Successfully synchronized active subscription with Supabase.');
+        return true;
+      } else {
+        console.warn('[Push Sync] /api/push/subscribe returned status', res.status);
+        return false;
+      }
+    }
+
+    return false;
+  } catch (err: unknown) {
+    console.warn('[Push Sync] Auto-sync exception:', err);
+    return false;
   }
 }
 
@@ -380,28 +572,9 @@ export function initClientNotificationScheduler(): () => void {
   // Register Service Worker and sync push registration if permission already granted
   getOrRegisterServiceWorker().then(async (reg) => {
     if (reg && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      try {
-        await saveNotificationSettings({ enabled: true, permission: 'granted' });
-        if ('pushManager' in reg) {
-          const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BFtksPslrqWiKgmwNbXvC5TDbAGAcswktRZg8dgdGz6dl4_SHsEMw3XL1uaucS7ZimTAz4Fnbnt1dmqSb19bAFo';
-          let sub = await reg.pushManager.getSubscription();
-          if (!sub && vapidKey) {
-            sub = await reg.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(vapidKey) as unknown as BufferSource
-            }).catch(() => null);
-          }
-          if (sub) {
-            fetch('/api/push/subscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subscription: sub })
-            }).catch(() => {});
-          }
-        }
-      } catch (syncErr) {
-        console.info('Auto push sync note:', syncErr);
-      }
+      await autoSyncPushSubscription().catch((err) => {
+        console.warn('[Push Sync] Auto-sync failed in scheduler:', err);
+      });
     }
   }).catch(() => {});
 
@@ -415,7 +588,8 @@ export function initClientNotificationScheduler(): () => void {
  */
 export async function syncPreferencesToBackend(
   preferences?: Partial<NotificationSettings>,
-  location?: LocationCoordinates
+  location?: LocationCoordinates,
+  isActive?: boolean
 ): Promise<boolean> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return false;
 
@@ -434,19 +608,44 @@ export async function syncPreferencesToBackend(
       notificationTime: preferences?.notificationTime || currentSettings.notificationTime || 'sunrise',
       alertOnTithiChange: preferences?.alertOnTithiChange !== undefined ? preferences.alertOnTithiChange : Boolean(currentSettings.alertOnTithiChange),
       autoUpdate: preferences?.autoUpdate !== undefined ? preferences.autoUpdate : currentSettings.autoUpdate !== false,
-      wifiOnly: preferences?.wifiOnly !== undefined ? preferences.wifiOnly : Boolean(currentSettings.wifiOnly)
+      wifiOnly: preferences?.wifiOnly !== undefined ? preferences.wifiOnly : Boolean(currentSettings.wifiOnly),
+      sound: preferences?.sound !== undefined ? preferences.sound : (currentSettings.sound !== false),
+      vibration: preferences?.vibration !== undefined ? preferences.vibration : (currentSettings.vibration !== false),
+      quietHoursEnabled: preferences?.quietHoursEnabled !== undefined ? preferences.quietHoursEnabled : Boolean(currentSettings.quietHoursEnabled),
+      quietHoursStart: preferences?.quietHoursStart || currentSettings.quietHoursStart || '22:00',
+      quietHoursEnd: preferences?.quietHoursEnd || currentSettings.quietHoursEnd || '06:00'
     };
 
-    const res = await fetch('/api/push/subscribe', {
-      method: 'POST',
+    const activeStatus = isActive !== undefined ? isActive : (currentSettings.enabled !== false);
+
+    // Try PATCH first for fast preferences update in Supabase
+    let res = await fetch('/api/push/subscribe', {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        endpoint: sub.endpoint,
         subscription: sub,
         location: locState,
         preferences: mergedPreferences,
-        sendWelcomeTest: false
+        isActive: activeStatus,
+        is_active: activeStatus
       })
     });
+
+    // Fall back to POST if PATCH returns 404 or 405
+    if (!res.ok && (res.status === 404 || res.status === 405)) {
+      res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscription: sub,
+          location: locState,
+          preferences: mergedPreferences,
+          isActive: activeStatus,
+          sendWelcomeTest: false
+        })
+      });
+    }
 
     return res.ok;
   } catch (err) {

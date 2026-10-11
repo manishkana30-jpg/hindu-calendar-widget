@@ -30,6 +30,9 @@ export interface PushSubscriptionPreferences {
   wifiOnly?: boolean;
   sound?: boolean;
   vibration?: boolean;
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string;
+  quietHoursEnd?: string;
 }
 
 export interface PushSubscriptionRecord {
@@ -67,6 +70,8 @@ export interface UpsertSubscriptionInput {
   lastDailyDateNotified?: string | null;
   lastTithiIndexNotified?: number | null;
   lastTithiNotifiedAt?: number | null;
+  isActive?: boolean;
+  is_active?: boolean;
 }
 
 interface SupabasePushSubscriptionRow {
@@ -298,7 +303,7 @@ export async function upsertSubscription(
         last_daily_date_notified: record.lastDailyDateNotified ?? null,
         last_tithi_index_notified: record.lastTithiIndexNotified ?? null,
         last_tithi_notified_at: record.lastTithiNotifiedAt ?? null,
-        is_active: true,
+        is_active: input.isActive !== undefined ? input.isActive : (input.is_active !== undefined ? input.is_active : true),
         last_validated_at: new Date(record.lastValidated).toISOString(),
       };
 
@@ -367,6 +372,133 @@ export async function updateSubscriptionState(
         ? updates.lastTithiNotifiedAt
         : existing.lastTithiNotifiedAt,
   });
+}
+
+export interface UpdateSubscriptionPreferencesInput {
+  endpoint: string;
+  isActive?: boolean;
+  is_active?: boolean;
+  preferences?: Partial<PushSubscriptionPreferences>;
+  location?: {
+    latitude: number;
+    longitude: number;
+    timezone?: number;
+    ianaTimezone?: string;
+    name?: string;
+  };
+  timezone?: string;
+}
+
+/**
+ * Updates an existing subscription's active state, preferences, and/or location in Supabase PostgreSQL and caches.
+ */
+export async function updateSubscriptionPreferences(
+  input: UpdateSubscriptionPreferencesInput
+): Promise<boolean> {
+  if (!input.endpoint) return false;
+  const cleanEndpoint = input.endpoint.trim();
+  const endpointHash = computeEndpointHash(cleanEndpoint);
+  const activeStatus = input.isActive !== undefined ? input.isActive : (input.is_active !== undefined ? input.is_active : undefined);
+
+  let success = true;
+
+  // 1. Supabase PostgreSQL update
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    try {
+      const updateData: Record<string, unknown> = {
+        last_validated_at: new Date().toISOString(),
+      };
+
+      if (activeStatus !== undefined) {
+        updateData.is_active = activeStatus;
+      }
+
+      if (input.preferences) {
+        // Fetch existing preferences first to merge cleanly
+        const { data: existingRow } = await supabase
+          .from('push_subscriptions')
+          .select('preferences')
+          .eq('endpoint', cleanEndpoint)
+          .maybeSingle();
+
+        const currentPrefs = (existingRow?.preferences as PushSubscriptionPreferences) || {};
+        updateData.preferences = {
+          ...currentPrefs,
+          ...input.preferences
+        };
+      }
+
+      if (input.location) {
+        updateData.latitude = input.location.latitude;
+        updateData.longitude = input.location.longitude;
+        updateData.location_name = input.location.name ?? null;
+        updateData.location_timezone_offset = input.location.timezone ?? null;
+        if (input.location.ianaTimezone) {
+          updateData.user_timezone = input.location.ianaTimezone;
+        }
+      }
+
+      if (input.timezone) {
+        updateData.user_timezone = input.timezone;
+      }
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .update(updateData)
+        .eq('endpoint', cleanEndpoint);
+
+      if (error) {
+        console.error('[SubscriptionStore] Supabase update preferences failed:', error.message);
+        success = false;
+      }
+    } catch (err: unknown) {
+      console.error('[SubscriptionStore] Supabase update exception:', err);
+      success = false;
+    }
+  }
+
+  // 2. Memory store update
+  const memStore = getMemoryStore();
+  const existingMem = memStore.get(endpointHash);
+  if (existingMem) {
+    if (input.preferences) {
+      existingMem.preferences = {
+        ...existingMem.preferences,
+        ...input.preferences
+      };
+    }
+    if (input.location) {
+      existingMem.location = input.location;
+    }
+    existingMem.lastValidated = Date.now();
+  }
+
+  // 3. KV store update (if provisioned)
+  const kv = getKvClient();
+  if (kv) {
+    try {
+      const key = `${KEY_PREFIX}${endpointHash}`;
+      const existingKv = await kv.get<PushSubscriptionRecord>(key);
+      if (existingKv) {
+        if (input.preferences) {
+          existingKv.preferences = {
+            ...existingKv.preferences,
+            ...input.preferences
+          };
+        }
+        if (input.location) {
+          existingKv.location = input.location;
+        }
+        existingKv.lastValidated = Date.now();
+        await kv.set(key, existingKv);
+      }
+    } catch (kvErr) {
+      console.warn('[SubscriptionStore] KV update note:', kvErr);
+    }
+  }
+
+  return success;
 }
 
 /**

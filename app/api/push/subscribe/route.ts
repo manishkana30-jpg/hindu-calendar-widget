@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getVapidPublicKey, isVapidConfigured } from '@/src/lib/webpush';
 import {
   upsertSubscription,
+  updateSubscriptionPreferences,
   deleteSubscription,
-  PushSubscriptionKeys
+  PushSubscriptionKeys,
+  PushSubscriptionPreferences
 } from '@/src/lib/push/subscription-store';
 import { saveSubscription, removeSubscription } from '@/src/lib/notifications/subscription-store';
 
@@ -26,13 +28,9 @@ interface SubscribePayload {
     ianaTimezone?: string;
     name?: string;
   };
-  preferences?: {
-    dailyNotification?: boolean;
-    notificationTime?: string;
-    alertOnTithiChange?: boolean;
-    autoUpdate?: boolean;
-    wifiOnly?: boolean;
-  };
+  preferences?: PushSubscriptionPreferences;
+  isActive?: boolean;
+  is_active?: boolean;
 }
 
 /**
@@ -169,6 +167,8 @@ export async function POST(req: NextRequest) {
       ? body.timezone.trim()
       : (body.location?.ianaTimezone || 'Asia/Kolkata');
 
+    const isActive = body.isActive !== undefined ? body.isActive : (body.is_active !== undefined ? body.is_active : true);
+
     // 3. Upsert into primary KV subscription store (keyed by SHA-256 hash)
     const record = await upsertSubscription({
       endpoint,
@@ -178,7 +178,8 @@ export async function POST(req: NextRequest) {
       },
       timezone,
       location: body.location,
-      preferences: body.preferences
+      preferences: body.preferences,
+      isActive
     });
 
     // 4. Synchronize with legacy subscription store for backward compatibility
@@ -229,6 +230,62 @@ export async function POST(req: NextRequest) {
 }
 
 /**
+ * PATCH /api/push/subscribe
+ * Updates subscription preferences, location, or is_active toggle in Supabase PostgreSQL.
+ */
+export async function PATCH(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json(
+      { error: 'Forbidden: Cross-origin request rejected.' },
+      { status: 403 }
+    );
+  }
+
+  try {
+    let body: SubscribePayload;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'Bad Request: Malformed JSON payload.' },
+        { status: 400 }
+      );
+    }
+
+    const endpoint = body.subscription?.endpoint || body.endpoint;
+    if (!isValidPushEndpoint(endpoint)) {
+      return NextResponse.json(
+        { error: 'Bad Request: Valid push subscription endpoint URL is required.' },
+        { status: 400 }
+      );
+    }
+
+    const isActive = body.isActive !== undefined ? body.isActive : (body.is_active !== undefined ? body.is_active : undefined);
+
+    const success = await updateSubscriptionPreferences({
+      endpoint,
+      isActive,
+      preferences: body.preferences,
+      location: body.location,
+      timezone: body.timezone || body.location?.ianaTimezone
+    });
+
+    return NextResponse.json({
+      success,
+      message: 'Subscription updated successfully.',
+      isActive,
+      preferences: body.preferences
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown update failure';
+    return NextResponse.json(
+      { error: 'Failed to update subscription', details: message },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * DELETE /api/push/subscribe
  * Removes a subscription when the user disables alerts in-app or uninstalls.
  */
@@ -259,6 +316,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
+    await updateSubscriptionPreferences({ endpoint, isActive: false });
     await deleteSubscription(endpoint);
     await removeSubscription(endpoint).catch(() => {});
 

@@ -8,6 +8,8 @@
  * 3. Enforces a ±15-minute time window matching the user's local sunrise in their IANA timezone.
  * 4. Strictly idempotent: records last_daily_date_notified (YYYY-MM-DD) to prevent duplicate alerts.
  * 5. Automatically marks dead / uninstalled push endpoints (HTTP 404 / 410) as inactive in Supabase.
+ *
+ * NOTE on Vercel Hobby Plan: Crons are strictly limited to ONCE DAILY in production vercel.json.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
