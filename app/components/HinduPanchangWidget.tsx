@@ -489,13 +489,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none -z-0" />
         
-        {/* ── Compact Consolidated Header Row (City, GPS, Date Controls, WhatsApp Share) ── */}
-        <div className="flex items-center justify-between gap-1.5 sm:gap-2 p-2 sm:p-2.5 bg-slate-900/60 rounded-2xl border border-white/10 text-xs relative z-10 mb-2 flex-nowrap overflow-x-auto no-scrollbar">
-          {/* Left Group: Location & GPS */}
-          <div className="flex items-center gap-1.5 min-w-0 shrink-0">
-            {/* 1. Location Dropdown Pill */}
-            <div className="relative inline-flex items-center min-w-0 shrink-0">
-              <MapPin size={11} className="absolute left-2.5 text-amber-400 pointer-events-none" />
+        {/* ── Consolidated Header Row: City • GPS • WhatsApp Share Only ── */}
+        <div className="flex items-center justify-between gap-2 p-2 sm:p-2.5 bg-slate-900/60 rounded-2xl border border-white/10 text-xs relative z-10 mb-2">
+          {/* Left Group: City Dropdown & GPS Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            {/* 1. City Dropdown */}
+            <div className="relative inline-flex items-center min-w-0">
+              <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none" />
               <select
                 aria-label="Select City Location"
                 value={selectedLocation.name}
@@ -510,7 +510,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-6 pr-5 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-medium text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[120px] xs:max-w-[140px] sm:max-w-[175px] truncate shrink-0"
+                className="pl-6 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[190px] truncate"
               >
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
@@ -518,11 +518,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </option>
                 ))}
               </select>
-              <ChevronDown size={11} className="absolute right-2 text-slate-400 pointer-events-none" />
+              <ChevronDown size={12} className="absolute right-2 text-slate-400 pointer-events-none" />
             </div>
 
-            {/* 2. GPS Detection Button */}
+            {/* 2. GPS Button */}
             <button
+              type="button"
               onClick={async () => {
                 setIsGpsDetecting(true);
                 try {
@@ -538,89 +539,41 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               }}
               title="Detect your exact coordinates via GPS"
               aria-label="Detect GPS Location"
-              className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
+              className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
                 locationSource === 'gps'
                   ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
                   : 'bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-white/10 hover:border-amber-500/30'
               }`}
             >
               <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
-              <span className="hidden xs:inline">{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
-              <span className="xs:hidden">{isGpsDetecting ? '...' : (locationSource === 'gps' ? 'GPS' : 'GPS')}</span>
+              <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
             </button>
           </div>
 
-          {/* Right Group: Date Controls & WhatsApp Share */}
-          <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 shrink-0 ml-auto">
-            {/* 3. Date Controls (Prev, Date Input, Next) */}
-            <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 shrink-0">
-              <button
-                onClick={handlePrevDay}
-                className="p-1 sm:px-2 sm:py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-0.5 cursor-pointer font-sans text-[11px] sm:text-xs shrink-0"
-                title="Previous Day"
-                aria-label="Previous Day"
-              >
-                <ChevronLeft size={13} />
-                <span className="hidden md:inline">Prev</span>
-              </button>
+          {/* Right Group: WhatsApp Share Button */}
+          <div className="relative inline-flex items-center shrink-0 ml-auto">
+            <button
+              type="button"
+              onClick={handleShare}
+              title="Share today's Panchang & Muhurat on WhatsApp"
+              aria-label="Share on WhatsApp"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 cursor-pointer shrink-0"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="hidden sm:inline">Share on WhatsApp</span>
+              <span className="sm:hidden">Share</span>
+            </button>
 
-              <div className="relative inline-flex items-center min-w-0 shrink-0">
-                <input
-                  type="date"
-                  value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`}
-                  onChange={handleDateChange}
-                  aria-label="Pick Any Date and Year"
-                  className="px-1.5 sm:px-2 py-1 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-sm font-grotesk shrink-0"
-                />
+            {shareToast && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="absolute -top-8 right-0 z-50 whitespace-nowrap px-2.5 py-1 rounded-lg bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 text-[10px] font-medium shadow-xl flex items-center gap-1 animate-in fade-in slide-in-from-bottom-1 duration-150 pointer-events-none"
+              >
+                <Check size={11} className="text-emerald-400 shrink-0" />
+                <span>{shareToast}</span>
               </div>
-
-              <button
-                onClick={handleNextDay}
-                className="p-1 sm:px-2 sm:py-1 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 text-slate-300 hover:text-white transition-colors flex items-center gap-0.5 cursor-pointer font-sans text-[11px] sm:text-xs shrink-0"
-                title="Next Day"
-                aria-label="Next Day"
-              >
-                <span className="hidden md:inline">Next</span>
-                <ChevronRight size={13} />
-              </button>
-            </div>
-
-            {/* 4. Reset to Today (Shown ONLY when non-today date selected) */}
-            {!isLiveMode && (
-              <button
-                onClick={handleResetToLive}
-                className="px-1.5 sm:px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold font-outfit bg-amber-950/60 text-amber-300 hover:bg-amber-900/60 border border-amber-500/40 transition-all flex items-center gap-1 cursor-pointer shrink-0"
-                title="Reset to Today"
-                aria-label="Reset to Today"
-              >
-                <RotateCcw size={11} />
-                <span>Today</span>
-              </button>
             )}
-
-            {/* 5. WhatsApp Share Button */}
-            <div className="relative inline-flex items-center shrink-0">
-              <button
-                type="button"
-                onClick={handleShare}
-                title="Share today's Panchang & Muhurat on WhatsApp"
-                aria-label="Share on WhatsApp"
-                className="h-7 w-7 sm:h-8 sm:w-8 p-1 sm:p-1.5 rounded-xl bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-400 hover:text-emerald-300 transition-all flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)]"
-              >
-                <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-              </button>
-
-              {shareToast && (
-                <div
-                  role="status"
-                  aria-live="polite"
-                  className="absolute -top-8 right-0 z-50 whitespace-nowrap px-2 py-0.5 rounded-lg bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 text-[10px] font-medium shadow-xl flex items-center gap-1 animate-in fade-in slide-in-from-bottom-1 duration-150 pointer-events-none"
-                >
-                  <Check size={11} className="text-emerald-400 shrink-0" />
-                  <span>{shareToast}</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
