@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVapidPublicKey, isVapidConfigured } from '@/src/lib/webpush';
+import { getSupabaseAdmin } from '@/src/lib/supabase/client';
 import {
   upsertSubscription,
   updateSubscriptionPreferences,
@@ -31,6 +32,8 @@ interface SubscribePayload {
   preferences?: PushSubscriptionPreferences;
   isActive?: boolean;
   is_active?: boolean;
+  visitorSession?: string;
+  session_id?: string;
 }
 
 /**
@@ -178,7 +181,31 @@ export async function POST(req: NextRequest) {
       isActive
     });
 
-    // 4. Synchronize with legacy subscription store for backward compatibility
+    // 4. Track Conversion: Update visitor_logs for current session
+    const visitorSession =
+      req.cookies.get('visitor_session')?.value ||
+      body.visitorSession ||
+      body.session_id;
+
+    if (visitorSession) {
+      const supabase = getSupabaseAdmin();
+      if (supabase) {
+        try {
+          const { error: logErr } = await supabase
+            .from('visitor_logs')
+            .update({ is_subscribed: true })
+            .eq('session_id', visitorSession);
+
+          if (logErr) {
+            console.warn('[Conversion Tracking] visitor_logs update note:', logErr.message);
+          }
+        } catch (err: unknown) {
+          console.warn('[Conversion Tracking] visitor_logs update exception:', err);
+        }
+      }
+    }
+
+    // 5. Synchronize with legacy subscription store for backward compatibility
     await saveSubscription({
       subscription: {
         endpoint,

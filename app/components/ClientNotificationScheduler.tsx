@@ -27,6 +27,11 @@ export function ClientNotificationScheduler() {
       console.warn('[Push Sync] Auto-resubscription warning:', err);
     });
 
+    // 3. Sync returning subscriber session to visitor_logs
+    if (typeof window !== 'undefined' && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      fetch('/api/log-visitor/sync', { method: 'POST' }).catch(() => {});
+    }
+
     return () => {
       cleanupScheduler();
     };
