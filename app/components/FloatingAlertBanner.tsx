@@ -13,13 +13,15 @@ export interface FloatingAlertBannerProps {
  * 
  * High-visibility, sticky floating pill banner replacing fragmented onboarding modals.
  * 
- * Features:
- * - Direct 1-tap onboarding chaining GPS, Notification Permission, and VAPID registration.
- * - Platform-intelligent: On iOS non-standalone browsers, presents a targeted downward tooltip guiding the user to "Add to Home Screen".
- * - Fully disappears once the device is subscribed in push_subscriptions.
+ * Reliability guarantees:
+ * - Returns null until `isReady` is true (eliminates UI pop-in and disappearing flicker).
+ * - Fully disappears once the device subscription is verified in Supabase PostgreSQL.
+ * - Platform-intelligent: Guides iOS Safari browsers to "Add to Home Screen" first.
+ * - Zero auto-dismiss timeouts; remains stable until user interaction.
  */
 export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps) {
   const {
+    isReady,
     isSubscribed,
     isLoading,
     showIosTooltip,
@@ -28,7 +30,12 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
     dismissIosTooltip
   } = useSmartOnboarding();
 
-  // If already subscribed, hide this component completely
+  // 1. Never render prematurely while the hook is verifying subscription state
+  if (!isReady) {
+    return null;
+  }
+
+  // 2. If already confirmed subscribed in Supabase, hide completely
   if (isSubscribed) {
     return null;
   }
@@ -36,14 +43,14 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
   return (
     <aside
       aria-label="Daily Tithi Notification Setup"
-      className={`fixed bottom-4 left-4 right-4 z-50 flex flex-col items-center pointer-events-none select-none max-w-md mx-auto ${className}`}
+      className={`fixed bottom-4 left-4 right-4 z-50 flex flex-col items-center pointer-events-none select-none max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 ${className}`}
     >
       {/* ── Downward-Pointing iOS Safari "Add to Home Screen" Tooltip ── */}
       {showIosTooltip && (
         <div
           role="alert"
           aria-live="polite"
-          className="pointer-events-auto w-full mb-2 p-3.5 rounded-2xl bg-[#0c1427]/95 border border-amber-500/50 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.7)] text-white text-xs animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="pointer-events-auto w-full mb-2.5 p-3.5 rounded-2xl bg-[#0c1427]/95 border border-amber-500/50 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.7)] text-white text-xs animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
           <div className="flex items-start justify-between gap-2.5">
             <div className="flex items-start gap-2.5">
