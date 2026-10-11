@@ -9,10 +9,18 @@ let supabaseClientInstance: SupabaseClient | null = null;
  * (in API routes, cron triggers, and server actions).
  */
 export function getSupabaseAdmin(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-  // STRICT SECURITY: Exclusively use SUPABASE_SERVICE_ROLE_KEY on the server
-  // to safely bypass RLS without relying on anon/public keys.
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
+
+  // Support common variations of the service role key name
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !serviceKey) {
     return null;
