@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Outfit, Noto_Serif_Devanagari, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
+import { Outfit, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
@@ -12,13 +12,6 @@ const outfit = Outfit({
   subsets: ['latin'], 
   variable: '--font-outfit',
   display: 'swap' 
-});
-
-const notoSerifDevanagari = Noto_Serif_Devanagari({
-  subsets: ['devanagari', 'latin'],
-  variable: '--font-devanagari',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
 });
 
 const spaceGrotesk = Space_Grotesk({
@@ -220,6 +213,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Daily Tithi" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500;600;700;800&display=swap"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
@@ -234,7 +233,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${outfit.variable} ${plusJakarta.variable} ${notoSerifDevanagari.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen overflow-x-hidden selection:bg-orange-500/30 selection:text-orange-200`}>
+      <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen overflow-x-hidden selection:bg-orange-500/30 selection:text-orange-200`}>
         <Suspense fallback={null}>
           <NotificationNavigationHandler />
         </Suspense>

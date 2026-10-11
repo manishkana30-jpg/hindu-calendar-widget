@@ -5,6 +5,7 @@
 :root {
   --background: #09090b;
   --foreground: #fafafa;
+  --font-devanagari: 'Noto Serif Devanagari', Georgia, serif;
 }
 
 body {
