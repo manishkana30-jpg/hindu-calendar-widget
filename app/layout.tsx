@@ -6,6 +6,7 @@ import './globals.css';
 import { FloatingActionDock } from '@/src/components/FloatingActionDock';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
+import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
@@ -231,6 +232,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <NotificationNavigationHandler />
         </Suspense>
+        <ClientNotificationScheduler />
         {children}
         <FloatingActionDock />
         <PwaUpdatePrompt />

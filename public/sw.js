@@ -2,7 +2,7 @@
 // Compliant with W3C Service Worker & Push API standards
 // Notifications are strictly received and rendered via Server-Sent Web Push events
 
-const CACHE_NAME = 'vedic-panchang-pwa-v11';
+const CACHE_NAME = 'vedic-panchang-pwa-v12';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',

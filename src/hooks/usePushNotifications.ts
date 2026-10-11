@@ -8,6 +8,7 @@ import {
   urlBase64ToUint8Array
 } from '../lib/push/register-sw';
 import { LocationCoordinates, PRESET_LOCATIONS } from '../lib/vedic-astronomy';
+import { isMatchingApplicationServerKey } from '../lib/notifications/subscription-manager';
 
 interface NavigatorWithStandalone extends Navigator {
   standalone?: boolean;
@@ -148,6 +149,15 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
 
       // Step D: Create PushSubscription
       let sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        const existingKey = sub.options?.applicationServerKey;
+        if (!isMatchingApplicationServerKey(existingKey, publicKey)) {
+          console.info('[Push Setup] Stale VAPID key detected. Replacing subscription...');
+          await sub.unsubscribe().catch(() => {});
+          sub = null;
+        }
+      }
+
       if (!sub) {
         const appServerKey = urlBase64ToUint8Array(publicKey) as unknown as BufferSource;
         sub = await reg.pushManager.subscribe({
@@ -156,7 +166,21 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
         });
       }
 
-      // Step E: Store in Server KV Store
+      // Step E: Explicitly extract encryption keys (p256dh, auth)
+      let p256dh = '';
+      let auth = '';
+      try {
+        const rawKey = sub.getKey('p256dh');
+        const rawAuth = sub.getKey('auth');
+        p256dh = rawKey ? btoa(String.fromCharCode(...new Uint8Array(rawKey))) : '';
+        auth = rawAuth ? btoa(String.fromCharCode(...new Uint8Array(rawAuth))) : '';
+      } catch {
+        const json = sub.toJSON();
+        p256dh = json.keys?.p256dh || '';
+        auth = json.keys?.auth || '';
+      }
+
+      // Step F: Store in Server Store
       const loc = customLocation || PRESET_LOCATIONS[0];
       const res = await fetch('/api/push/subscribe', {
         method: 'POST',
@@ -164,7 +188,12 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          subscription: sub.toJSON(),
+          endpoint: sub.endpoint,
+          subscription: {
+            endpoint: sub.endpoint,
+            keys: { p256dh, auth }
+          },
+          keys: { p256dh, auth },
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata',
           location: {
             latitude: loc.latitude,
@@ -172,7 +201,9 @@ export function usePushNotifications(customLocation?: LocationCoordinates): Push
             timezone: loc.timezone,
             ianaTimezone: loc.ianaTimezone,
             name: loc.name
-          }
+          },
+          isActive: true,
+          is_active: true
         })
       });
 

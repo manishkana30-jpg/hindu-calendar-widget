@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
-import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
 import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
 import { Footer } from '@/src/components/Footer';
 import { CITIES } from '@/src/lib/cities';
@@ -21,9 +20,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden">
-      
-      <ClientNotificationScheduler />
-
       {/* Decorative ambient lighting */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-orange-600/10 blur-[140px] rounded-full" />
