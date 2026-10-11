@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
+import { PWAInstallButton } from './components/PWAInstallButton';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
 import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
@@ -44,13 +45,16 @@ export default function LandingPage() {
             </div>
           </div>
           
-          {/* Top Right: Compact Live Astrometry Indicator */}
-          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-[#11192e] border border-[#233152] text-xs font-medium text-neutral-300 shadow-sm shrink-0">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <span className="font-mono text-[10px] sm:text-[11px] text-neutral-300 whitespace-nowrap">
-              <span className="inline sm:hidden">Live</span>
-              <span className="hidden sm:inline">Live Astrometry</span>
-            </span>
+          {/* Top Right: Install Button & Compact Live Astrometry Indicator */}
+          <div className="flex items-center gap-2 shrink-0">
+            <PWAInstallButton />
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-[#11192e] border border-[#233152] text-xs font-medium text-neutral-300 shadow-sm shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="font-mono text-[10px] sm:text-[11px] text-neutral-300 whitespace-nowrap">
+                <span className="inline sm:hidden">Live</span>
+                <span className="hidden sm:inline">Live Astrometry</span>
+              </span>
+            </div>
           </div>
 
         </div>

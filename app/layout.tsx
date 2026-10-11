@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Outfit, Noto_Serif_Devanagari, Space_Grotesk, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import { FloatingActionDock } from '@/src/components/FloatingActionDock';
 import { PwaUpdatePrompt } from './components/PwaUpdatePrompt';
 import { NotificationNavigationHandler } from './components/NotificationNavigationHandler';
 import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
@@ -236,7 +235,6 @@ export default function RootLayout({
         <ClientNotificationScheduler />
         {children}
         <FloatingAlertBanner />
-        <FloatingActionDock />
         <PwaUpdatePrompt />
       </body>
     </html>
