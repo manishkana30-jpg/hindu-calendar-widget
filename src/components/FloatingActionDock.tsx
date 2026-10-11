@@ -3,15 +3,12 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { 
-  Bell, 
   ArrowDownToLine, 
   Check, 
   Sparkles 
 } from 'lucide-react';
 import { WhatsAppIcon } from '@/app/components/WhatsAppShareButton';
-import { usePushNotifications } from '@/src/hooks/usePushNotifications';
 import { usePwaInstall } from '@/src/hooks/usePwaInstall';
-import { DeviceSetupModal } from '@/src/components/DeviceSetupModal';
 import { PWAInstallModal } from '@/app/components/PWAInstallModal';
 import { 
   sharePanchang, 
@@ -32,23 +29,14 @@ export interface FloatingActionDockProps {
 /**
  * FloatingActionDock Component
  * 
- * Luxury, high-converting unified floating action dock pinned to the bottom viewport.
+ * Luxury, high-converting floating action dock pinned to the bottom viewport.
  * Consolidates:
  * 1. 💬 Share Today's Panchang (1-click WhatsApp & native share)
- * 2. 🔔 Daily Alerts (Push notifications toggle & device reliability modal)
- * 3. 📲 Get App (PWA install trigger & guide modal)
+ * 2. 📲 Get App (PWA install trigger & guide modal)
+ * 
+ * Note: Legacy "Daily Alerts" button has been migrated to the unified FloatingAlertBanner.
  */
 export function FloatingActionDock({ location, className = '' }: FloatingActionDockProps) {
-  // Push Notification state
-  const {
-    isSubscribed,
-    isLoading: isPushLoading,
-    isSendingTest,
-    subscribe,
-    sendTestAlert,
-    isIOS
-  } = usePushNotifications(location);
-
   // PWA Install state
   const {
     isStandalone,
@@ -57,7 +45,6 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
   } = usePwaInstall();
 
   // Modals state
-  const [isDeviceModalOpen, setIsDeviceModalOpen] = useState<boolean>(false);
   const [isPwaModalOpen, setIsPwaModalOpen] = useState<boolean>(false);
 
   // Micro-toast state
@@ -104,33 +91,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
     }
   }, [location, showToast]);
 
-  // 2. Daily Alerts Handler
-  const handleAlertsClick = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (isSubscribed) {
-      // Already subscribed: open device reliability setup & sound modal to test alerts
-      setIsDeviceModalOpen(true);
-      return;
-    }
-
-    // Unsubscribed: trigger native browser permission request & VAPID subscription
-    try {
-      const success = await subscribe();
-      if (success) {
-        showToast('Daily Alerts Enabled! 🔔');
-        setIsDeviceModalOpen(true);
-      } else {
-        // If permission was denied or requires manual gesture, open setup modal guide
-        setIsDeviceModalOpen(true);
-      }
-    } catch {
-      setIsDeviceModalOpen(true);
-    }
-  }, [isSubscribed, subscribe, showToast]);
-
-  // 3. Get App (PWA) Handler
+  // 2. Get App (PWA) Handler
   const handleGetAppClick = useCallback(async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -157,7 +118,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
       {/* ── UNIFIED FLOATING QUICK-ACTION DOCK ── */}
       <aside
         aria-label="Daily Tithi Quick Actions"
-        className={`fixed bottom-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-40 flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-slate-900/85 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none w-max max-w-[92vw] transition-all duration-300 ${className}`}
+        className={`fixed bottom-20 sm:bottom-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-40 flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-full bg-slate-900/85 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none w-max max-w-[92vw] transition-all duration-300 ${className}`}
       >
         {/* Subtle Ambient Radial Glow */}
         <div className="absolute inset-0 pointer-events-none rounded-full bg-gradient-to-r from-emerald-500/5 via-amber-500/5 to-sky-500/5 -z-10" />
@@ -175,30 +136,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
           <span className="sm:hidden">Share</span>
         </button>
 
-        {/* Action B: Daily Alerts (Push Notifications) */}
-        <button
-          type="button"
-          onClick={handleAlertsClick}
-          disabled={isPushLoading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 min-h-[40px] rounded-full text-xs font-semibold bg-amber-950/70 hover:bg-amber-900/90 border border-amber-500/40 text-amber-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0"
-          title={isSubscribed ? "Daily Alerts active — Click to test sound & settings" : "Enable lock-screen sunrise & tithi notifications"}
-          aria-label={isSubscribed ? "Daily Alerts active" : "Enable Daily Alerts"}
-        >
-          <div className="relative flex items-center justify-center flex-shrink-0">
-            <Bell className={`w-3.5 h-3.5 ${isSubscribed ? 'text-emerald-400' : 'text-amber-400'}`} />
-            {!isSubscribed && (
-              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping opacity-75 pointer-events-none" />
-            )}
-          </div>
-          <span className="hidden sm:inline">
-            {isSubscribed ? 'Alerts Active' : 'Daily Alerts'}
-          </span>
-          <span className="sm:hidden">
-            Alerts
-          </span>
-        </button>
-
-        {/* Action C: Get App (PWA Install) */}
+        {/* Action B: Get App (PWA Install) */}
         <button
           type="button"
           onClick={handleGetAppClick}
@@ -234,14 +172,7 @@ export function FloatingActionDock({ location, className = '' }: FloatingActionD
         )}
       </aside>
 
-      {/* ── MODALS INTEGRATION ── */}
-      <DeviceSetupModal
-        isOpen={isDeviceModalOpen}
-        onClose={() => setIsDeviceModalOpen(false)}
-        onSendTestAlert={sendTestAlert}
-        isSendingTest={isSendingTest}
-      />
-
+      {/* ── MODAL INTEGRATION ── */}
       <PWAInstallModal
         isOpen={isPwaModalOpen}
         onClose={() => setIsPwaModalOpen(false)}

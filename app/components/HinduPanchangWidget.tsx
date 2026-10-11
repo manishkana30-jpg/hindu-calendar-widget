@@ -25,7 +25,6 @@ import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
-import { NotificationPermissionBanner } from './NotificationPermissionBanner';
 import { WhatsAppIcon } from './WhatsAppShareButton';
 import { EmbedWidgetModal } from '../../src/components/EmbedWidgetModal';
 import { sharePanchang, buildShareDataFromPanchang } from '../../src/lib/utils/sharePanchang';
@@ -1386,11 +1385,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         currentDate={selectedDate}
       />
 
-      {/* ── Background Notification System: Graceful Banner & Settings Modal ── */}
-      <NotificationPermissionBanner
-        onOpenSettings={() => setIsNotificationModalOpen(true)}
-      />
-
+      {/* ── Background Notification System: Settings Modal ── */}
       <NotificationSettingsModal
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}

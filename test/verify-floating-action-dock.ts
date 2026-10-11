@@ -57,7 +57,6 @@ async function runFloatingDockAudit() {
 
   // ── TEST 3: Modal & Dialog Hooks Wiring ─────────────────────────────────────
   console.log('\n▸ 3. Verifying Integrated Modal Dialogs:');
-  assert(dockContent.includes('<DeviceSetupModal'), 'Dock mounts DeviceSetupModal for alerts & sound guide');
   assert(dockContent.includes('<PWAInstallModal'), 'Dock mounts PWAInstallModal for manual/iOS PWA guide');
 
   // ── TEST 4: App Layout Wiring & Redundancy Removal ──────────────────────────
