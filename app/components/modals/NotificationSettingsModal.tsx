@@ -18,8 +18,10 @@ import {
   RefreshCw,
   Sun,
   Volume2,
-  Moon
+  Moon,
+  Smartphone
 } from 'lucide-react';
+import { PhoneSetupWizardModal } from '@/src/components/PhoneSetupWizardModal';
 import {
   checkNotificationCapabilities,
   enableNotificationAlerts,
@@ -82,6 +84,7 @@ export function NotificationSettingsModal({
   const [testMessage, setTestMessage] = useState<string>('');
   const [previewPayload, setPreviewPayload] = useState<DailyMorningPushPayload | null>(null);
   const [floatingPreview, setFloatingPreview] = useState<{ title: string; body: string } | null>(null);
+  const [isWizardOpen, setIsWizardOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -271,6 +274,32 @@ export function NotificationSettingsModal({
                 <Loader2 size={14} className="animate-spin text-neutral-600 m-1" />
               )}
             </span>
+          </button>
+        </div>
+
+        {/* ── Section 1B: Recommended Phone & Lock Screen Settings Guide ── */}
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex items-center justify-between gap-3 mb-5 shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shrink-0">
+              <Smartphone size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-xs font-bold text-white">Recommended Phone Settings</h4>
+                <span className="text-[9px] uppercase font-bold font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Step-by-Step
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-300 mt-0.5 leading-snug">
+                Configure lock-screen banners and unrestricted battery for Samsung, Xiaomi, OnePlus, Pixel & iOS.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsWizardOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold transition-all shrink-0 cursor-pointer shadow-md active:scale-95"
+          >
+            Setup Guide
           </button>
         </div>
 
@@ -600,6 +629,18 @@ export function NotificationSettingsModal({
           </p>
         )}
       </div>
+
+      <PhoneSetupWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        permission={capabilities?.permission}
+        onRequestPermission={async () => {
+          await enableNotificationAlerts();
+          const cap = await checkNotificationCapabilities();
+          setCapabilities(cap);
+        }}
+        onSendTestAlert={triggerImmediateNotificationTest}
+      />
     </div>
   );
 }

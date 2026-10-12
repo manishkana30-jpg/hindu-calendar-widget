@@ -9,10 +9,12 @@ import {
   CheckCircle2,
   Share2,
   Loader2,
-  Sparkles
+  Sparkles,
+  Smartphone
 } from 'lucide-react';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { LocationCoordinates } from '../lib/vedic-astronomy';
+import { PhoneSetupWizardModal } from './PhoneSetupWizardModal';
 
 export interface BackgroundAlertsSetupProps {
   location?: LocationCoordinates;
@@ -42,6 +44,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   } = usePushNotifications(location);
 
   const [testSentMessage, setTestSentMessage] = useState<string | null>(null);
+  const [isWizardOpen, setIsWizardOpen] = useState<boolean>(false);
 
   const handleTestAlert = async () => {
     setTestSentMessage(null);
@@ -59,29 +62,46 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   // ── State 1: iOS Browser Not Yet Installed to Home Screen ───────────────────
   if (isIOS && !isStandalone) {
     return (
-      <div className={`p-4 rounded-2xl bg-[#0e1628]/95 border border-amber-500/30 text-white shadow-lg backdrop-blur-md ${className}`}>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-              <Share2 size={20} />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-amber-200">iOS Setup Required for Lock-Screen Alerts</h3>
-              <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
-                {"To enable lock-screen alerts on iOS, tap Share (⎋) → 'Add to Home Screen' first."}
-              </p>
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141e33] border border-[#233152] text-[11px] text-neutral-300 font-mono">
-                <span>Step: Safari Share ⎋</span>
-                <span>→</span>
-                <span>Add to Home Screen ⊞</span>
+      <>
+        <div className={`p-4 rounded-2xl bg-[#0e1628]/95 border border-amber-500/30 text-white shadow-lg backdrop-blur-md ${className}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                <Share2 size={20} />
               </div>
-              <p className="text-[10px] text-neutral-400 mt-2">
-                Note: Apple restricts push notification APIs to installed home-screen web apps.
-              </p>
+              <div>
+                <h3 className="text-sm font-bold text-amber-200">iOS Setup Required for Lock-Screen Alerts</h3>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
+                  {"To enable lock-screen alerts on iOS, tap Share (⎋) → 'Add to Home Screen' first."}
+                </p>
+                <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141e33] border border-[#233152] text-[11px] text-neutral-300 font-mono">
+                  <span>Step: Safari Share ⎋</span>
+                  <span>→</span>
+                  <span>Add to Home Screen ⊞</span>
+                </div>
+                <p className="text-[10px] text-neutral-400 mt-2">
+                  Note: Apple restricts push notification APIs to installed home-screen web apps.
+                </p>
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="mt-3 px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Smartphone size={13} />
+                  <span>View Full iPhone Setup Guide</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        <PhoneSetupWizardModal
+          isOpen={isWizardOpen}
+          onClose={() => setIsWizardOpen(false)}
+          permission={permission}
+          onRequestPermission={subscribe}
+          onSendTestAlert={sendTestAlert}
+        />
+      </>
     );
   }
 
@@ -104,78 +124,168 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   // ── State 3: Notification Permission Denied at OS / Browser Level ───────────
   if (permission === 'denied') {
     return (
-      <div className={`p-4 rounded-2xl bg-red-950/30 border border-red-500/40 text-red-200 shadow-md ${className}`}>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
-              <BellOff size={20} />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-red-300">Notifications Blocked</h3>
-              <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
-                Notifications are blocked at the OS level. Enable them in your device settings.
-              </p>
-              <p className="text-[11px] text-neutral-400 mt-2">
-                Click the lock or site settings icon in your browser address bar and switch Notifications to &apos;Allow&apos;.
-              </p>
+      <>
+        <div className={`p-4 rounded-2xl bg-red-950/30 border border-red-500/40 text-red-200 shadow-md ${className}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
+                <BellOff size={20} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-red-300">Notifications Blocked</h3>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
+                  Notifications are blocked at the OS level. Enable them in your device settings.
+                </p>
+                <p className="text-[11px] text-neutral-400 mt-2">
+                  Click the lock or site settings icon in your browser address bar and switch Notifications to &apos;Allow&apos;.
+                </p>
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="mt-3 px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-200 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Smartphone size={13} />
+                  <span>How to Unblock in Phone Settings</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        <PhoneSetupWizardModal
+          isOpen={isWizardOpen}
+          onClose={() => setIsWizardOpen(false)}
+          permission={permission}
+          onRequestPermission={subscribe}
+          onSendTestAlert={sendTestAlert}
+        />
+      </>
     );
   }
 
   // ── State 4: Already Subscribed ─────────────────────────────────────────────
   if (isSubscribed) {
     return (
-      <div className={`p-4 sm:p-5 rounded-2xl bg-[#091522]/95 border border-emerald-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
+      <>
+        <div className={`p-4 sm:p-5 rounded-2xl bg-[#091522]/95 border border-emerald-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                <CheckCircle2 size={22} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-emerald-200">Daily Tithi Alerts Active</h3>
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                    High Urgency
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
+                  Your device is registered for local sunrise panchang briefings and real-time Tithi alerts.
+                </p>
+                <p className="text-[10px] text-neutral-400 mt-1.5">
+                  Notifications delivered at High Urgency. If alerts are delayed on locked devices, configure your phone battery and lock-screen permissions.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-center flex-wrap sm:flex-nowrap">
+              <button
+                onClick={() => setIsWizardOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+              >
+                <Smartphone size={13} />
+                <span>Phone Setup Guide</span>
+              </button>
+
+              <button
+                onClick={handleTestAlert}
+                disabled={isSendingTest}
+                className="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+              >
+                {isSendingTest ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                <span>{isSendingTest ? 'Sending...' : 'Send Test Alert'}</span>
+              </button>
+
+              <button
+                onClick={unsubscribe}
+                disabled={isLoading}
+                className="px-3 py-2 rounded-xl bg-[#141e33] hover:bg-neutral-800 border border-[#233152] text-neutral-400 hover:text-neutral-200 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Disable
+              </button>
+            </div>
+          </div>
+
+          {testSentMessage && (
+            <div className="mt-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+              <CheckCircle2 size={14} className="shrink-0" />
+              <span>{testSentMessage}</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-3 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
+              <AlertTriangle size={14} className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+
+        <PhoneSetupWizardModal
+          isOpen={isWizardOpen}
+          onClose={() => setIsWizardOpen(false)}
+          permission={permission}
+          onRequestPermission={subscribe}
+          onSendTestAlert={sendTestAlert}
+        />
+      </>
+    );
+  }
+
+  // ── State 5: Unsubscribed (Default / Ready to Subscribe) ────────────────────
+  return (
+    <>
+      <div className={`p-4 sm:p-5 rounded-2xl bg-[#091122]/95 border border-amber-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
-              <CheckCircle2 size={22} />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+              <Bell size={22} className="animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-emerald-200">Daily Tithi Alerts Active</h3>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                  High Urgency
+                <h3 className="text-sm font-bold text-white">Daily Vedic Panchang Alerts</h3>
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                  Lock Screen
                 </span>
               </div>
               <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
-                Your device is registered for local sunrise panchang briefings and real-time Tithi alerts.
+                Receive a glanceable sunrise briefing: primary Tithi, inauspicious Panchak periods (🔴), and major festivals even when the browser is closed.
               </p>
               <p className="text-[10px] text-neutral-400 mt-1.5">
-                Notifications delivered at High Urgency. If alerts are delayed on locked devices, configure your phone battery and lock-screen permissions.
+                Zero spam. High-priority collapsed topic. Delivery subject to OS power management constraints.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center flex-wrap sm:flex-nowrap">
             <button
-              onClick={handleTestAlert}
-              disabled={isSendingTest}
-              className="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+              onClick={() => setIsWizardOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-[#141e33] hover:bg-[#1a2640] border border-[#233152] text-amber-300 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              {isSendingTest ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-              <span>{isSendingTest ? 'Sending...' : 'Send Test Alert'}</span>
+              <Smartphone size={14} />
+              <span>Phone Setup Guide</span>
             </button>
 
             <button
-              onClick={unsubscribe}
+              onClick={handleSubscribe}
               disabled={isLoading}
-              className="px-3 py-2 rounded-xl bg-[#141e33] hover:bg-neutral-800 border border-[#233152] text-neutral-400 hover:text-neutral-200 text-xs font-semibold transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-extrabold transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
             >
-              Disable
+              {isLoading ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+              <span>{isLoading ? 'Enabling...' : 'Enable Lock-Screen Alerts'}</span>
             </button>
           </div>
         </div>
-
-        {testSentMessage && (
-          <div className="mt-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
-            <CheckCircle2 size={14} className="shrink-0" />
-            <span>{testSentMessage}</span>
-          </div>
-        )}
 
         {error && (
           <div className="mt-3 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
@@ -184,51 +294,14 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
           </div>
         )}
       </div>
-    );
-  }
 
-  // ── State 5: Unsubscribed (Default / Ready to Subscribe) ────────────────────
-  return (
-    <div className={`p-4 sm:p-5 rounded-2xl bg-[#091122]/95 border border-amber-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-            <Bell size={22} className="animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white">Daily Vedic Panchang Alerts</h3>
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
-                Lock Screen
-              </span>
-            </div>
-            <p className="text-xs text-neutral-300 mt-1 leading-relaxed">
-              Receive a glanceable sunrise briefing: primary Tithi, inauspicious Panchak periods (🔴), and major festivals even when the browser is closed.
-            </p>
-            <p className="text-[10px] text-neutral-400 mt-1.5">
-              Zero spam. High-priority collapsed topic. Delivery subject to OS power management constraints.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0 self-start sm:self-center flex-wrap sm:flex-nowrap">
-          <button
-            onClick={handleSubscribe}
-            disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-extrabold transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-          >
-            {isLoading ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
-            <span>{isLoading ? 'Enabling...' : 'Enable Lock-Screen Alerts'}</span>
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mt-3 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
-          <AlertTriangle size={14} className="shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-    </div>
+      <PhoneSetupWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        permission={permission}
+        onRequestPermission={subscribe}
+        onSendTestAlert={sendTestAlert}
+      />
+    </>
   );
 }
