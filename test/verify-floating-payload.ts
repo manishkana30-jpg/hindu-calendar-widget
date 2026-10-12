@@ -69,7 +69,7 @@ async function runAudit() {
   // Options verification
   assert(payload.options.tag === 'daily-floating-panchang', 'Tag is "daily-floating-panchang"');
   assert(payload.options.requireInteraction === true, 'requireInteraction is true for persistent lock-screen docking');
-  assert(payload.options.renotify === false, 'renotify is false for peaceful in-place update');
+  assert(payload.options.renotify === true, 'renotify is true for lock-screen alert and vibration');
   assert(payload.options.actions?.length === 2, 'Contains exactly 2 action buttons');
   assert(payload.options.actions?.[0].action === 'open_panchang', 'Action 1 is open_panchang');
   assert(payload.options.actions?.[1].action === 'open_muhurat', 'Action 2 is open_muhurat');
