@@ -29,7 +29,7 @@ export interface PhoneSetupWizardModalProps {
   onSendTestAlert?: () => Promise<unknown>;
 }
 
-type PhoneBrand = 'samsung' | 'xiaomi' | 'oneplus' | 'pixel' | 'ios';
+type PhoneBrand = 'vivo' | 'xiaomi' | 'samsung' | 'oneplus' | 'pixel' | 'ios';
 
 export function PhoneSetupWizardModal({
   isOpen,
@@ -39,7 +39,7 @@ export function PhoneSetupWizardModal({
   onSendTestAlert
 }: PhoneSetupWizardModalProps) {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [selectedBrand, setSelectedBrand] = useState<PhoneBrand>('samsung');
+  const [selectedBrand, setSelectedBrand] = useState<PhoneBrand>('vivo');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [testSent, setTestSent] = useState<boolean>(false);
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -51,16 +51,18 @@ export function PhoneSetupWizardModal({
     const ua = navigator.userAgent.toLowerCase();
     if (/iphone|ipad|ipod/.test(ua)) {
       setSelectedBrand('ios');
-    } else if (/samsung|sm-[a-z0-9]+/i.test(ua)) {
-      setSelectedBrand('samsung');
+    } else if (/vivo|iqoo|origin/i.test(ua)) {
+      setSelectedBrand('vivo');
     } else if (/redmi|miui|poco|xiaomi/i.test(ua)) {
       setSelectedBrand('xiaomi');
+    } else if (/samsung|sm-[a-z0-9]+/i.test(ua)) {
+      setSelectedBrand('samsung');
     } else if (/oneplus|oppo|realme/i.test(ua)) {
       setSelectedBrand('oneplus');
     } else if (/pixel/i.test(ua)) {
       setSelectedBrand('pixel');
     } else {
-      setSelectedBrand('samsung');
+      setSelectedBrand('vivo');
     }
   }, []);
 
@@ -89,16 +91,27 @@ export function PhoneSetupWizardModal({
       if (onSendTestAlert) {
         await onSendTestAlert();
       } else {
-        // Fallback test via API
-        await fetch('/api/push/test', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: '🌅 Vedic Panchang Lock-Screen Test',
-            body: 'Shukla Dashami • Sunrise 06:20 AM\nAlert successfully woke your lock screen with vibration!',
-            tag: 'test-lockscreen'
-          })
-        });
+        // Fallback test via API with active device push subscription
+        let sub: PushSubscription | null = null;
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+          try {
+            const reg = await navigator.serviceWorker.ready;
+            sub = await reg.pushManager.getSubscription();
+          } catch {}
+        }
+
+        if (sub) {
+          await fetch('/api/push/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subscription: sub,
+              title: '🌅 Vedic Panchang Lock-Screen Test',
+              body: 'Shukla Dashami • Sunrise 06:20 AM\nAlert successfully woke your lock screen with vibration!',
+              tag: 'test-lockscreen'
+            })
+          });
+        }
       }
       setTestSent(true);
     } catch (err) {
@@ -367,12 +380,13 @@ export function PhoneSetupWizardModal({
               </div>
 
               {/* Brand Selector Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                 {[
+                  { id: 'vivo', label: 'Vivo / iQOO' },
+                  { id: 'xiaomi', label: 'Xiaomi / Poco' },
                   { id: 'samsung', label: 'Samsung' },
-                  { id: 'xiaomi', label: 'Xiaomi / Redmi' },
                   { id: 'oneplus', label: 'OnePlus / Oppo' },
-                  { id: 'pixel', label: 'Pixel / Stock' },
+                  { id: 'pixel', label: 'Pixel / Moto' },
                   { id: 'ios', label: 'iPhone / iOS' }
                 ].map((b) => (
                   <button
@@ -391,6 +405,29 @@ export function PhoneSetupWizardModal({
 
               {/* Brand Details Card */}
               <div className="p-4 rounded-2xl bg-[#0e1628] border border-white/10 text-xs space-y-3">
+                {selectedBrand === 'vivo' && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                      <Smartphone size={16} />
+                      <span>Vivo / iQOO (OriginOS & Funtouch OS) Settings:</span>
+                    </div>
+                    <ul className="space-y-2 text-neutral-300 pl-4 list-disc leading-relaxed">
+                      <li>
+                        <strong>High Background Power (Crucial)</strong>: Settings → Battery → Background power consumption management → Select Chrome / Daily Tithi → Change from Smart Control to <strong className="text-emerald-300">High background power consumption</strong>. <em>(OriginOS otherwise freezes background network sockets when the screen is locked).</em>
+                      </li>
+                      <li>
+                        <strong>Lock Screen Display</strong>: Settings → Notifications & status bar → App notification management → Chrome / Daily Tithi → Ensure <strong className="text-emerald-300">Show on Lock screen</strong> is ON and set style to <strong className="text-emerald-300">Show content</strong>.
+                      </li>
+                      <li>
+                        <strong>Wake Screen for Notifications</strong>: Settings → Notifications & status bar → Turn ON <strong className="text-emerald-300">Wake screen for notifications</strong> so alerts light up your screen.
+                      </li>
+                      <li>
+                        <strong>Autostart via iManager</strong>: Open pre-installed <strong>iManager</strong> app → App Manager → Auto Start Management → Enable <strong className="text-emerald-300">Chrome / Daily Tithi</strong>.
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
                 {selectedBrand === 'samsung' && (
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
@@ -415,17 +452,17 @@ export function PhoneSetupWizardModal({
                   <div className="space-y-2.5">
                     <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
                       <Smartphone size={16} />
-                      <span>Xiaomi / Redmi / POCO (MIUI / HyperOS) Settings:</span>
+                      <span>Xiaomi / Redmi / POCO (HyperOS & MIUI) Settings:</span>
                     </div>
                     <ul className="space-y-2 text-neutral-300 pl-4 list-disc leading-relaxed">
                       <li>
-                        <strong>Autostart</strong>: Settings → Apps → Manage Apps → Chrome → Enable <strong>Autostart</strong>.
+                        <strong>Autostart</strong>: Settings → Apps → Manage Apps → Chrome / Daily Tithi → Enable <strong className="text-emerald-300">Autostart</strong>.
                       </li>
                       <li>
-                        <strong>Battery Saver</strong>: In the same menu, scroll to <strong>Battery saver</strong> and select <strong>No restrictions</strong>. (MIUI will otherwise terminate background workers).
+                        <strong>Battery Saver</strong>: In the same menu, scroll to <strong>Battery saver</strong> and select <strong className="text-emerald-300">No restrictions</strong>. (HyperOS will otherwise terminate background listeners).
                       </li>
                       <li>
-                        <strong>Lock screen notifications</strong>: Settings → Notifications & Control center → Lock screen → Allow Chrome notifications.
+                        <strong>Lock screen notifications</strong>: Settings → Notifications & status bar → Lock screen → Allow Chrome / Daily Tithi notifications and set to <strong className="text-emerald-300">Show all notifications and their contents</strong>.
                       </li>
                     </ul>
                   </div>

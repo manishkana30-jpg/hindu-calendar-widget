@@ -6,6 +6,7 @@ import {
   ArrowDownToLine, ShieldCheck, Sparkles
 } from 'lucide-react';
 import { BeforeInstallPromptEvent } from '@/src/hooks/usePwaInstall';
+import { PhoneSetupWizardModal } from '@/src/components/PhoneSetupWizardModal';
 
 interface Props {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface Props {
 
 export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredPrompt }: Props) {
   const [activePlatform, setActivePlatform] = useState<'windows' | 'android' | 'ios'>('windows');
+  const [isWizardOpen, setIsWizardOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -206,6 +208,25 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
                     </p>
                   </div>
                 </div>
+
+                {/* Android Phone Settings & Battery Guide Callout */}
+                <div className="p-3.5 rounded-2xl bg-[#0e1628] border border-amber-500/30 flex items-center justify-between gap-3 mt-3">
+                  <div>
+                    <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <Smartphone size={14} className="text-amber-400" />
+                      <span>Phone Settings Guide (Vivo, Xiaomi, Samsung, etc.)</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-300 mt-0.5">
+                      Configure battery & lock-screen permissions so Tithi & sunrise alerts ring on locked screen.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsWizardOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold transition-all cursor-pointer shrink-0"
+                  >
+                    Open Guide
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -253,6 +274,25 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
                     </p>
                   </div>
                 </div>
+
+                {/* iPhone Lock Screen Guide Callout */}
+                <div className="p-3.5 rounded-2xl bg-[#0e1628] border border-amber-500/30 flex items-center justify-between gap-3 mt-3">
+                  <div>
+                    <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                      <Smartphone size={14} className="text-amber-400" />
+                      <span>iOS Notifications & Lock-Screen Setup</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-300 mt-0.5">
+                      Step-by-step setup to enable persistent lock-screen alerts on iOS 16.4+.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsWizardOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold transition-all cursor-pointer shrink-0"
+                  >
+                    Open Guide
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -277,6 +317,11 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
         </div>
 
       </div>
+
+      <PhoneSetupWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+      />
     </div>
   );
 }
