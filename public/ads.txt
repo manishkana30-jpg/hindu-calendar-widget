@@ -1,2 +1,1 @@
-# Google AdSense Publisher ID - Replace with your verified ID upon approval
-# Example: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-4999722531202967, DIRECT, f08c47fec0942fa0

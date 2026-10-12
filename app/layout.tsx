@@ -91,6 +91,7 @@ export const metadata: Metadata = {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google2779ca9c3cc8b844.html',
     other: {
       'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '54274A593A0417D0C42AC6F422F4A71C',
+      'google-adsense-account': 'ca-pub-4999722531202967',
     },
   },
 };
@@ -235,6 +236,13 @@ export default function RootLayout({
             })(window, document, "clarity", "script", "yvla08wyc6");
           `}
         </Script>
+        <Script
+          id="google-adsense"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4999722531202967"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-screen overflow-x-hidden selection:bg-orange-500/30 selection:text-orange-200`}>
         <Suspense fallback={null}>
