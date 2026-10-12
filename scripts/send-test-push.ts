@@ -179,8 +179,9 @@ async function main() {
       icon: '/icons/icon-192x192.png',
       badge: '/icons/badge-72x72.png',
       tag: 'test-push',
-      renotify: true,
       requireInteraction: true,
+      renotify: true,
+      silent: false,
       vibrate: [200, 100, 200],
       data: {
         url: 'https://dailytithi.com/',

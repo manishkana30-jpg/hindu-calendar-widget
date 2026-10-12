@@ -40,6 +40,7 @@ export interface FloatingPushOptions {
   tag: string;
   requireInteraction: boolean;
   renotify: boolean;
+  silent?: boolean;
   vibrate: number[];
   data: {
     url: string;
@@ -131,8 +132,9 @@ export function buildDailyFloatingPayload(data: DailyPanchangData): DailyFloatin
       badge: '/icons/badge-72x72.png',
       tag: 'daily-floating-panchang', // Replaces previous day's alert in-place
       requireInteraction: true,        // Keeps notification docked on lock screen
-      renotify: false,
-      vibrate: [100, 50, 100],
+      renotify: true,                  // Forces OS lock-screen banner and buzz even on tag update
+      silent: false,                   // Informs Android not to demote to silent channel
+      vibrate: [200, 100, 200],
       data: {
         url: 'https://dailytithi.com',
         type: 'DAILY_FLOATING_SUMMARY',

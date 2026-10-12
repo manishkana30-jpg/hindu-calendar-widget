@@ -1,8 +1,8 @@
-// Service Worker for Hindu Calendar & Live Panchang PWA (Production v11)
+// Service Worker for Hindu Calendar & Live Panchang PWA (Production v14)
 // Compliant with W3C Service Worker & Push API standards
 // Notifications are strictly received and rendered via Server-Sent Web Push events
 
-const CACHE_NAME = 'vedic-panchang-pwa-v12';
+const CACHE_NAME = 'vedic-panchang-pwa-v14';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon-192.svg',
@@ -141,6 +141,10 @@ self.addEventListener('push', (event) => {
       ...payload.options,
       icon: payload.options.icon || '/icons/icon-192x192.png',
       badge: payload.options.badge || '/icons/badge-72x72.png',
+      renotify: true,
+      requireInteraction: true,
+      silent: false,
+      vibrate: payload.options.vibrate || [200, 100, 200],
       data: {
         url: 'https://dailytithi.com',
         ...payload.options.data
@@ -162,9 +166,10 @@ self.addEventListener('push', (event) => {
       icon: payload.icon || '/icons/icon-192x192.png',
       badge: payload.badge || '/icons/badge-72x72.png',
       tag: finalTag,
-      renotify: payload.renotify === true,
-      requireInteraction: payload.requireInteraction !== false,
-      vibrate: payload.vibrate || [100, 50, 100],
+      renotify: true,
+      requireInteraction: true,
+      silent: false,
+      vibrate: payload.vibrate || [200, 100, 200],
       data: {
         url: payload.url || payload.data?.url || 'https://dailytithi.com',
         timestamp: Date.now(),
@@ -180,23 +185,34 @@ self.addEventListener('push', (event) => {
 
   // Crucial: All async work MUST be wrapped in event.waitUntil(...)
   // Failure to wrap causes OS process termination before notification renders
-  event.waitUntil(self.registration.showNotification(title, options).then(() => {
-    // If this is a test broadcast, report receipt confirmation back to server silently
-    const isTestBroadcast = Boolean(options.data?.isTestBroadcast);
-    if (isTestBroadcast && options.data?.testId && options.data?.subId) {
-      return fetch('/api/push/test-confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          testId: options.data.testId,
-          subId: options.data.subId,
-          event: 'received',
-          platform: navigator.userAgentData?.platform || 'Unknown',
-          browser: 'ServiceWorker'
-        })
-      }).catch((err) => console.warn('[SW] Confirmation delivery failed:', err));
-    }
-  }));
+  event.waitUntil(self.registration.showNotification(title, options)
+    .catch((err) => {
+      console.warn('[SW] Advanced notification display failed; falling back to core layout:', err);
+      return self.registration.showNotification(title, {
+        body: options.body || 'Vedic Panchang update available.',
+        icon: options.icon || '/icons/icon-192x192.png',
+        badge: options.badge || '/icons/badge-72x72.png',
+        tag: options.tag || 'daily-floating-panchang'
+      });
+    })
+      .then(() => {
+        // If this is a test broadcast, report receipt confirmation back to server silently
+        const isTestBroadcast = Boolean(options.data?.isTestBroadcast);
+        if (isTestBroadcast && options.data?.testId && options.data?.subId) {
+          return fetch('/api/push/test-confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              testId: options.data.testId,
+              subId: options.data.subId,
+              event: 'received',
+              platform: navigator.userAgentData?.platform || 'Unknown',
+              browser: 'ServiceWorker'
+            })
+          }).catch((err) => console.warn('[SW] Confirmation delivery failed:', err));
+        }
+      })
+  );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

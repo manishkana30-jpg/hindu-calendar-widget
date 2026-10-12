@@ -152,7 +152,14 @@ function getLocalDateStr(date: Date, timeZone?: string, tzOffsetHours?: number):
  * 
  * Rules:
  * 1. Idempotency: Must not have already been notified for today's local date.
- * 2. Time-Window: Current server time must be within ±15 minutes of the user's astronomical sunrise.
+ * 2. Local Morning Window: User must be in their local morning hours (04:30 AM to 12:00 PM noon).
+ *    - For 'sunrise' (default):
+ *      Eligible if current local time is within the morning window (04:30 AM to 12:00 PM).
+ *      This accommodates all seasons across the year (winter solstice to summer), geographic variations
+ *      across India and worldwide, and cloud scheduler queue delays.
+ *    - For custom preferredTime (e.g. '07:00'):
+ *      Eligible if local time is within 15 minutes before preferred time up to 12:00 PM.
+ * 3. Force-All override: Always eligible if isForceAll is true.
  */
 function isEligibleForMorningPush(
   now: Date,
@@ -177,40 +184,52 @@ function isEligibleForMorningPush(
     userTz
   );
   const sunriseDate = sunTimes.sunriseDate;
+  const sunriseIso = sunriseDate.toISOString();
 
-  let targetDate: Date = sunriseDate;
+  if (isForceAll) {
+    return { eligible: true, sunriseIso };
+  }
 
-  // Custom user alert preference (defaults to local astronomical sunrise)
+  // 3. Local Time in Subscriber's Timezone
+  const localTimeMs = now.getTime() + userTz * 3600000;
+  const localDate = new Date(localTimeMs);
+  const localHourDecimal = localDate.getUTCHours() + localDate.getUTCMinutes() / 60;
+
+  // 4. Custom User Alert Time Preference (e.g., "07:00", "08:00")
   if (preferredTime && preferredTime !== 'sunrise') {
     const match = preferredTime.match(/^(\d{1,2}):(\d{2})$/);
     if (match) {
-      const targetHour = parseInt(match[1], 10);
-      const targetMin = parseInt(match[2], 10);
-      const localSunriseMs = sunriseDate.getTime() + userTz * 3600000;
-      const d = new Date(localSunriseMs);
-      d.setUTCHours(targetHour, targetMin, 0, 0);
-      targetDate = new Date(d.getTime() - userTz * 3600000);
+      const targetHour = parseInt(match[1], 10) + parseInt(match[2], 10) / 60;
+      // Allow window starting 15 minutes before target hour up to noon (12:00 PM)
+      const earliestAllowed = Math.max(4.5, targetHour - 0.25);
+      if (localHourDecimal >= earliestAllowed && localHourDecimal <= 12.0) {
+        return { eligible: true, sunriseIso };
+      }
+      return {
+        eligible: false,
+        sunriseIso,
+        reason: `OUTSIDE_PREFERRED_WINDOW_LOCAL_${localHourDecimal.toFixed(2)}H_TARGET_${targetHour.toFixed(2)}H`
+      };
     }
   }
 
-  // 3. Time-Window Matching: Current time within ±15 minutes (900,000 ms) of target
-  const diffMs = Math.abs(now.getTime() - targetDate.getTime());
-  const diffMinutes = Math.round(diffMs / 60000);
-  const isWithinWindow = diffMs <= 15 * 60 * 1000;
-
-  if (isForceAll || isWithinWindow) {
+  // 5. Default 'sunrise' (Udaya) Behavior:
+  // Eligible if current local time is morning: between 04:30 AM (Brahma Muhurat dawn)
+  // and 12:00 PM (noon).
+  if (localHourDecimal >= 4.5 && localHourDecimal <= 12.0) {
+    const diffMs = now.getTime() - sunriseDate.getTime();
+    const diffMinutes = Math.round(diffMs / 60000);
     return {
       eligible: true,
       diffMinutes,
-      sunriseIso: sunriseDate.toISOString()
+      sunriseIso
     };
   }
 
   return {
     eligible: false,
-    diffMinutes,
-    sunriseIso: sunriseDate.toISOString(),
-    reason: `OUTSIDE_WINDOW_${diffMinutes}M_FROM_SUNRISE`
+    sunriseIso,
+    reason: `OUTSIDE_MORNING_WINDOW_LOCAL_HOUR_${localHourDecimal.toFixed(2)}`
   };
 }
 
@@ -292,7 +311,8 @@ async function handleDispatch(req: NextRequest) {
 
   const now = new Date();
   const defaultLoc: LocationCoordinates = PRESET_LOCATIONS[0]; // New Delhi reference
-  const isForceAll = Boolean(testPayload?.forceAll);
+  const searchParams = req.nextUrl.searchParams;
+  const isForceAll = Boolean(testPayload?.forceAll || searchParams.get('forceAll') === 'true');
 
   // 4. Query active subscriptions from Supabase (Service Role bypasses RLS)
   const supabase = getSupabaseAdmin();
@@ -440,6 +460,15 @@ async function handleDispatch(req: NextRequest) {
     const tithiEval = evaluateTithiChangeTrigger(now, userLoc, record);
 
     if (record.lastTithiIndexNotified === undefined || record.lastTithiIndexNotified === null) {
+      if (supabase) {
+        await supabase
+          .from('push_subscriptions')
+          .update({
+            last_tithi_index_notified: tithiEval.currentTithiIndex,
+            last_validated_at: new Date().toISOString()
+          })
+          .eq('endpoint', record.endpoint);
+      }
       await updateSubscriptionState(record.endpoint, {
         lastTithiIndexNotified: tithiEval.currentTithiIndex
       });
@@ -468,6 +497,10 @@ async function handleDispatch(req: NextRequest) {
         icon: '/icons/icon-192x192.png',
         badge: '/icons/badge-72x72.png',
         tag: `tithi-change-${tithiEval.currentTithiIndex}`,
+        requireInteraction: true,
+        renotify: true,
+        silent: false,
+        vibrate: [200, 100, 200],
         data: {
           url: '/',
           tithiIndex: tithiEval.currentTithiIndex,
