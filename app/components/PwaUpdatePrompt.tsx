@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
 import { usePwaUpdate } from '@/src/hooks/usePwaUpdate';
@@ -11,12 +11,28 @@ export function PwaUpdatePrompt() {
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
+  useEffect(() => {
+    try {
+      const dismissed = sessionStorage.getItem('pwa_update_dismissed');
+      if (dismissed && Date.now() - Number(dismissed) < 30 * 60 * 1000) {
+        setIsDismissed(true);
+      }
+    } catch {}
+  }, []);
+
   if (pathname?.startsWith('/embed')) return null;
   if (!updateAvailable || isDismissed) return null;
 
   const handleRefresh = () => {
     setIsRefreshing(true);
     refreshApp();
+  };
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    try {
+      sessionStorage.setItem('pwa_update_dismissed', Date.now().toString());
+    } catch {}
   };
 
   return (
@@ -47,7 +63,7 @@ export function PwaUpdatePrompt() {
         </button>
 
         <button
-          onClick={() => setIsDismissed(true)}
+          onClick={handleDismiss}
           aria-label="Dismiss update notification"
           className="w-6 h-6 rounded-lg text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
         >

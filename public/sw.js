@@ -29,6 +29,13 @@ self.addEventListener('install', (event) => {
   );
 });
 
+// Handle SKIP_WAITING message from PWA update prompt
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.type === 'SKIP_WAITING' || event.data === 'skipWaiting')) {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
