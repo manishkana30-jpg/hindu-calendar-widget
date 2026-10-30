@@ -1225,31 +1225,37 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           <div className="mt-4 pt-4 border-t border-white/10 space-y-6 animate-in fade-in duration-200 relative z-10">
             
             {/* Tabs header */}
-            <div className="flex overflow-x-auto gap-2 pb-2 border-b border-white/10 touch-pan-y">
-              {[
-                { id: 'panchang', label: '5-Limbs of Panchang' },
-                { id: 'choghadiya', label: '24h Choghadiya Matrix' },
-                { id: 'muhurat', label: 'Shubh & Ashubh Muhurats' },
-                { id: 'astrometry', label: 'Surya & Chandra Astrometry' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    if (tab.id === 'muhurat') {
-                      handleMuhuratClick();
-                    } else {
-                      setActiveTab(tab.id as WidgetTabType);
-                    }
-                  }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-outfit transition-all whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                      : 'bg-slate-900/80 text-slate-400 hover:text-white border border-white/5'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="relative">
+              <div 
+                className="flex overflow-x-auto gap-2 pb-2.5 pt-0.5 border-b border-white/10 scroll-smooth snap-x snap-proximity overscroll-x-contain horizontal-tabs-scroll [-webkit-overflow-scrolling:touch]"
+                style={{ touchAction: 'pan-x pan-y' }}
+              >
+                {[
+                  { id: 'panchang', label: '5-Limbs of Panchang' },
+                  { id: 'choghadiya', label: '24h Choghadiya Matrix' },
+                  { id: 'muhurat', label: 'Shubh & Ashubh Muhurats' },
+                  { id: 'astrometry', label: 'Surya & Chandra Astrometry' },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={(e) => {
+                      e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      if (tab.id === 'muhurat') {
+                        handleMuhuratClick();
+                      } else {
+                        setActiveTab(tab.id as WidgetTabType);
+                      }
+                    }}
+                    className={`shrink-0 snap-start px-3.5 py-1.5 rounded-xl text-xs font-bold font-outfit transition-all whitespace-nowrap cursor-pointer active:scale-95 ${
+                      activeTab === tab.id
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                        : 'bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-white/5'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Tab 1: 5 Limbs */}

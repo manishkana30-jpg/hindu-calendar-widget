@@ -98,3 +98,30 @@ select,
   -moz-user-select: text !important;
   user-select: text !important;
 }
+
+/* Horizontal scrollbar for tabs and mobile tables */
+.horizontal-tabs-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+}
+
+.horizontal-tabs-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.horizontal-tabs-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+}
+
+.horizontal-tabs-scroll::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.45);
+  border-radius: 9999px;
+}
+
+.horizontal-tabs-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.85);
+}
+

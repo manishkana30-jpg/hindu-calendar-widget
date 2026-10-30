@@ -429,10 +429,9 @@ export function MonthlyVedicCalendar({
         </div>
       )}
 
-      {/* ── View 2: Clean List / Table View ── */}
       {viewMode === 'list' && (
         <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-          <div className="overflow-x-auto touch-pan-y">
+          <div className="overflow-x-auto overscroll-x-contain horizontal-tabs-scroll" style={{ touchAction: 'pan-x pan-y' }}>
             <table className="w-full text-left text-xs">
               <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                 <tr>
