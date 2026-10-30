@@ -107,7 +107,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
   const popularCities = CITIES.filter((c) => c.slug !== city.slug).slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden">
+    <div className="min-h-dvh bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden touch-pan-y">
       
       {/* Decorative ambient lighting */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">

@@ -108,7 +108,7 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     category: 'Major Festival',
     isMajor: true,
     priority: 100,
-    tithiIndex: [29, 30], // Krishna Amavasya (or Nishita Chaturdashi-Amavasya junction)
+    tithiIndex: 30, // Krishna Amavasya (Strictly Amavasya in Pradosha & Nishita Kaal per Nirnayasindhu)
     amantaMonthIndex: 6, // Ashwina in Amanta
     purnimantaMonthIndex: 7, // Kartika in Purnimanta
     kalaRequirement: 'Pradosha',
@@ -127,14 +127,14 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     icon: '🪔',
     category: 'Major Festival',
     isMajor: true,
-    priority: 88,
+    priority: 92,
     tithiIndex: 29, // Krishna Chaturdashi
     amantaMonthIndex: 6, // Ashwina in Amanta
     purnimantaMonthIndex: 7, // Kartika in Purnimanta
-    kalaRequirement: 'Arunodaya',
+    kalaRequirement: 'Pradosha',
     briefRule: {
-      hindi: 'निर्णयसिन्धु: सूर्योदय पूर्व अरुणोदय काल में तैल-अभ्यङ्ग स्नान एवं प्रदोष काल में यमराज हेतु चतुर्मुखी दीपदान अनिवार्य है।',
-      english: 'Nirnayasindhu: Pre-dawn Abhyanga holy bath and sunset twilight Yam Deepdaan are mandatory to dispel fear of untimely demise.'
+      hindi: 'निर्णयसिन्धु: प्रदोष काल में यमराज हेतु चतुर्मुखी दीपदान एवं चतुर्दशी युक्त अरुणोदय काल में तैल-अभ्यङ्ग स्नान अनिवार्य है।',
+      english: 'Nirnayasindhu: Sunset twilight Yam Deepdaan on Chaturdashi and pre-dawn Abhyanga holy bath dispel fear of untimely demise.'
     },
     shastraReferences: ['Nirnayasindhu', 'Padma Purana']
   },
@@ -334,7 +334,7 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     category: 'Major Festival',
     isMajor: true,
     priority: 100,
-    tithiIndex: [28, 29], // Krishna Chaturdashi (or Nishita Trayodashi/Chaturdashi)
+    tithiIndex: 29, // Krishna Chaturdashi (Strictly Chaturdashi prevailing at Nishita Kaal per Nirnayasindhu)
     amantaMonthIndex: 10, // Magha in Amanta
     purnimantaMonthIndex: 11, // Phalguna in Purnimanta
     kalaRequirement: 'Nishita',
@@ -563,7 +563,7 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
     tithiIndex: 19, // Krishna Chaturthi
     amantaMonthIndex: 6, // Ashwina in Amanta
     purnimantaMonthIndex: 7, // Kartika in Purnimanta
-    kalaRequirement: 'Ratri',
+    kalaRequirement: 'Chandrodaya',
     briefRule: {
       hindi: 'धर्मसिन्धु: चन्द्रोदय-व्यापिनी चतुर्थी ही करवा चौथ व्रत हेतु ग्राह्य है; चन्द्र दर्शन व अर्घ्य के उपरान्त ही व्रत का पारण होता है।',
       english: 'Dharmasindhu: Karwa Chauth fast requires Chaturthi prevailing at Moonrise; offering arghya to the Moon completes the sacred fast.'

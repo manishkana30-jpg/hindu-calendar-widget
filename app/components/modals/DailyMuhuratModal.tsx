@@ -55,15 +55,27 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Lock background body scroll strictly while modal is open (Task 3)
+  // Lock background body scroll strictly while modal is open with guaranteed cleanup
   useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  // ESC key listener for accessibility
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -187,8 +199,16 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   })();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-5xl max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
+    <div 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Daily 24-Hour Muhurat Matrix"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+    >
+      <div className="relative w-full max-w-5xl max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] overflow-hidden">
         
         {/* ── Top Header ── */}
         <div className="p-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
@@ -314,24 +334,24 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
         )}
 
         {/* ── 🔘 HIGH-VISIBILITY CLICKABLE NAVIGATION TABS (PROMINENT PILLS - NEVER HIDDEN) ── */}
-        <div className="p-2.5 sm:px-6 bg-[#0c1222] border-b border-[#1a233a] flex-shrink-0">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#080d1a] p-1.5 rounded-2xl border border-[#1e2942]">
+        <div className="p-2 sm:px-6 bg-[#0c1222] border-b border-[#1a233a] shrink-0">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-[#080d1a] p-1.5 rounded-2xl border border-[#1e2942]">
             {[
-              { id: 'all30', label: '🌟 All 30 Day & Night Muhurats', sub: 'Dates & Exact Times' },
-              { id: 'choghadiya', label: '🕉️ 24h Day & Night Choghadiya', sub: '8 Day + 8 Night Slots' },
-              { id: 'shubhAshubh', label: '⚖️ Shubh vs Ashubh Windows', sub: 'Auspicious & Inauspicious' },
+              { id: 'all30', label: '🌟 All 30 Muhurats', sub: 'Dates & Exact Times' },
+              { id: 'choghadiya', label: '🕉️ 24h Choghadiya', sub: '8 Day + 8 Night Slots' },
+              { id: 'shubhAshubh', label: '⚖️ Shubh / Ashubh', sub: 'Auspicious & Inauspicious' },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as MuhuratTabType)}
-                className={`py-2 px-3 rounded-xl text-xs font-extrabold transition-all text-center flex flex-col items-center justify-center cursor-pointer active:scale-98 ${
+                className={`py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-extrabold transition-all text-center flex flex-col items-center justify-center cursor-pointer active:scale-98 ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/25 ring-1 ring-orange-400'
                     : 'bg-[#11192e] text-neutral-300 hover:bg-[#18233d] hover:text-white border border-[#233152]'
                 }`}
               >
-                <span className="leading-tight">{tab.label}</span>
-                <span className={`text-[10px] font-medium mt-0.5 ${activeTab === tab.id ? 'text-amber-100' : 'text-neutral-400'}`}>
+                <span className="leading-tight truncate w-full">{tab.label}</span>
+                <span className={`text-[10px] font-medium mt-0.5 hidden sm:inline ${activeTab === tab.id ? 'text-amber-100' : 'text-neutral-400'}`}>
                   {tab.sub}
                 </span>
               </button>
@@ -339,9 +359,9 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
           </div>
         </div>
 
-        {/* ── Scrollable Content (Task 3: Smooth touch & overscroll containment) ── */}
+        {/* ── Scrollable Content (Smooth touch & overscroll containment) ── */}
         <div 
-          className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-4 md:p-6 space-y-5"
+          className="flex-1 min-h-0 max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y p-3.5 sm:p-6 pb-24 space-y-5 [-webkit-overflow-scrolling:touch]"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           
@@ -378,7 +398,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                 </div>
 
                 <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto touch-pan-y">
                     <table className="w-full text-left text-xs">
                       <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                         <tr>
@@ -464,7 +484,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                 </p>
 
                 <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto touch-pan-y">
                     <table className="w-full text-left text-xs">
                       <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                         <tr>

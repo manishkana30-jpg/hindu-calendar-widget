@@ -4,6 +4,7 @@
 import {
   LocationCoordinates,
   calculateSunTimes,
+  calculateMoonTimes,
   getJulianDay,
   getElongationAngle,
   getSunLongitude,
@@ -20,7 +21,8 @@ export type KalaType =
   | 'Nishita'
   | 'Arunodaya'
   | 'Udaya'
-  | 'Ratri';
+  | 'Ratri'
+  | 'Chandrodaya';
 
 export interface KalaTimeSpan {
   kala: KalaType;
@@ -368,6 +370,12 @@ export function getKalaSpan(kalas: DayKalaSchedule, kalaType?: KalaType): KalaTi
       end: kalas.nextSunrise,
       durationMinutes: kalas.nightLengthMinutes
     };
+    case 'Chandrodaya': return {
+      kala: 'Chandrodaya',
+      start: new Date(kalas.sunset.getTime() + 60 * 60000),
+      end: new Date(kalas.sunset.getTime() + 180 * 60000),
+      durationMinutes: 120
+    };
     case 'Udaya':
     default:
       return {
@@ -546,6 +554,13 @@ export function evaluateEkadashi(
   const prevKalas = calculateDailyKalas(prevDate, location);
   const prevSunriseTithi = getTithiAtTimestamp(prevKalas.sunrise);
 
+  // Check Dashami in yesterday's Arunodaya (to detect if yesterday was abandoned per Nirnayasindhu)
+  const prevArunodayaStart = getTithiAtTimestamp(prevKalas.arunodaya.start);
+  const prevArunodayaEnd = getTithiAtTimestamp(prevKalas.arunodaya.end);
+  const prevTouchedDashami = 
+    (prevSunriseTithi === 11 && (prevArunodayaStart === 10 || prevArunodayaEnd === 10)) ||
+    (prevSunriseTithi === 26 && (prevArunodayaStart === 25 || prevArunodayaEnd === 25));
+
   // Check Dashami in today's Arunodaya
   const arunodayaTithiStart = getTithiAtTimestamp(kalas.arunodaya.start);
   const arunodayaTithiEnd = getTithiAtTimestamp(kalas.arunodaya.end);
@@ -554,7 +569,28 @@ export function evaluateEkadashi(
     (isCandidateToday && sunriseTithi === 26 && (arunodayaTithiStart === 25 || arunodayaTithiEnd === 25));
 
   if (isCandidateToday) {
+    // Check if tomorrow is also Ekadashi at sunrise (Vriddhi Ekadashi)
+    const nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 12, 0, 0);
+    const nextKalas = calculateDailyKalas(nextDate, location);
+    const nextSunriseTithi = getTithiAtTimestamp(nextKalas.sunrise);
+    const isNextAlsoEkadashi = nextSunriseTithi === 11 || nextSunriseTithi === 26;
+
+    // Check if yesterday was also Ekadashi at sunrise
+    const isPrevAlsoEkadashi = prevSunriseTithi === 11 || prevSunriseTithi === 26;
+
     if (touchesDashamiToday) {
+      // If tomorrow is ALSO Ekadashi at sunrise (Shuddha Ekadashi), then per Nirnayasindhu:
+      // "शुद्धाधिक्ये तु पूर्वविद्धायास्त्याग एव" - The preceding Dashami-viddha day is completely abandoned by both Smartas and Vaishnavas!
+      if (isNextAlsoEkadashi) {
+        return {
+          isEkadashiDay: false,
+          isDashamiViddha: true,
+          isVaishnavaPushed: true,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'Dashami touches Arunodaya (Dashami-Viddha) and tomorrow has Shuddha Ekadashi; today is abandoned per Nirnayasindhu.'
+        };
+      }
+
       if (sampradaya === 'vaishnava') {
         return {
           isEkadashiDay: false,
@@ -569,7 +605,63 @@ export function evaluateEkadashi(
           isDashamiViddha: true,
           isVaishnavaPushed: false,
           activeTithiAtSunrise: sunriseTithi,
-          reason: 'Dashami touches Arunodaya (Dashami-Viddha); observed today per Smarta tradition.'
+          reason: 'Dashami touches Arunodaya (Dashami-Viddha); observed today per Smarta tradition as tomorrow has no Ekadashi.'
+        };
+      }
+    }
+
+    // Two-day Ekadashi at Sunrise (Vriddhi Ekadashi):
+    // If yesterday was also Ekadashi:
+    // If yesterday was Dashami-Viddha and today is Shuddha, yesterday was abandoned per Nirnayasindhu:
+    // "शुद्धाधिक्ये तु पूर्वविद्धायास्त्याग एव" -> Today is the pure Shuddha fasting day for BOTH Smartas and Vaishnavas!
+    if (isPrevAlsoEkadashi) {
+      if (prevTouchedDashami) {
+        return {
+          isEkadashiDay: true,
+          isDashamiViddha: false,
+          isVaishnavaPushed: false,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'Preceding day was Dashami-Viddha and abandoned per Nirnayasindhu; Shuddha Ekadashi fast is observed today.'
+        };
+      }
+
+      if (sampradaya === 'smarta') {
+        return {
+          isEkadashiDay: false,
+          isDashamiViddha: false,
+          isVaishnavaPushed: false,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'Second day of Vriddhi Ekadashi; Smarta fast was observed on Day 1 (today is Parana).'
+        };
+      } else {
+        return {
+          isEkadashiDay: true,
+          isDashamiViddha: false,
+          isVaishnavaPushed: true,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'Second day of Vriddhi Ekadashi; Vaishnavas observe fast today on Day 2.'
+        };
+      }
+    }
+
+    // If today is Day 1 of Vriddhi Ekadashi and tomorrow is also Ekadashi:
+    // Smarta observes today (Day 1); Vaishnava observes tomorrow (Day 2).
+    if (isNextAlsoEkadashi) {
+      if (sampradaya === 'vaishnava') {
+        return {
+          isEkadashiDay: false,
+          isDashamiViddha: false,
+          isVaishnavaPushed: true,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'First day of Vriddhi Ekadashi; Vaishnavas observe fast on Day 2.'
+        };
+      } else {
+        return {
+          isEkadashiDay: true,
+          isDashamiViddha: false,
+          isVaishnavaPushed: false,
+          activeTithiAtSunrise: sunriseTithi,
+          reason: 'First day of Vriddhi Ekadashi; Smartas observe fast today on Day 1.'
         };
       }
     }
@@ -633,8 +725,15 @@ export function determineFestivalForDate(
   const { udayaTithiIndex, amantaMonthIndex, purnimantaMonthIndex, suryaRashiIndex, isAdhika, dayOfWeek } = coords;
 
   // 1. Solar Festivals Check (e.g. Makar Sankranti)
-  const isJanuaryMid = targetDate.getMonth() === 0 && (targetDate.getDate() === 14 || targetDate.getDate() === 15);
-  if (suryaRashiIndex === 9 && (isJanuaryMid || (coords.sunSiderealDeg >= 269.8 && coords.sunSiderealDeg <= 271.5))) {
+  const prevDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() - 1, 12, 0, 0);
+  const prevTz = resolveTimezoneOffset(prevDate, location);
+  const prevSun = calculateSunTimes(prevDate, location.latitude, location.longitude, prevTz);
+  const prevSunriseJd = getJulianDay(prevSun.sunriseDate);
+  const prevSunSidereal = normalizeDeg(getSunLongitude(prevSunriseJd) - getLahiriAyanamsha(prevSunriseJd));
+
+  // Makar Sankranti occurs when the sidereal Sun crosses into Makara (Rashi 9, >= 270.0°)
+  const isMakarIngressToday = targetDate.getMonth() === 0 && (prevSunSidereal < 270.0 && coords.sunSiderealDeg >= 270.0);
+  if (suryaRashiIndex === 9 && isMakarIngressToday) {
     const solFest = festivalsList.find(f => f.isSolar && f.solarRashiIndex === 9);
     if (solFest) {
       return {
@@ -671,9 +770,21 @@ export function determineFestivalForDate(
 
   const candidates: CandidateMatch[] = [];
 
+  // Evaluate Ekadashi early so festival matching strictly respects Ekadashi determinations
+  const ekadashiEval = evaluateEkadashi(targetDate, location, options?.sampradaya || 'smarta');
+
   // 2. Major Festivals Match via Kala Vyapti
   for (const fest of festivalsList) {
     if (fest.isSolar) continue;
+
+    // Per Nirnayasindhu: Annual festivals, Jayantis, and Naimittika rites are prohibited in Adhika Masa;
+    // they must be celebrated only in Nija Masa.
+    if (coords.isAdhika) continue;
+
+    // Ekadashi festivals (or Gita Jayanti tied to Mokshada Ekadashi) must strictly adhere to evaluateEkadashi
+    if (fest.category === 'Ekadashi' || fest.id === 'gita-jayanti') {
+      if (!ekadashiEval.isEkadashiDay) continue;
+    }
 
     // Month Check
     let monthMatches = false;
@@ -692,6 +803,96 @@ export function determineFestivalForDate(
       : (fest.tithiIndex !== undefined ? [fest.tithiIndex] : []);
 
     if (targetTithis.length === 0) continue;
+
+    // Canonical Handler: Raksha Bandhan (Nirnayasindhu Bhadra & Udaya Purnima precedence)
+    if (fest.id === 'raksha-bandhan') {
+      const nextDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() + 1, 12, 0, 0);
+      const nextCoords = getAstrometricCoordinatesForDate(nextDate, location);
+      
+      // If tomorrow has Udaya Purnima, Nirnayasindhu mandates observing Raksha Bandhan tomorrow (Day 2)
+      // to avoid Bhadra and adhere to pure Udaya-Vyapini Purnima.
+      if (nextCoords.udayaTithiIndex === 15) {
+        continue;
+      }
+
+      if (udayaTithiIndex === 15 || calculateKalaVyapti(15, getKalaSpan(kalas, 'Aparahna')).overlaps) {
+        candidates.push({
+          name: fest.name,
+          shortName: fest.shortName,
+          hindiName: fest.hindiName,
+          description: fest.description,
+          icon: fest.icon,
+          category: fest.category,
+          isMajor: fest.isMajor,
+          priority: fest.priority,
+          badge: 'Major Festival',
+          briefRule: fest.briefRule,
+          shastraReferences: fest.shastraReferences
+        });
+        continue;
+      }
+    }
+
+    // Canonical Handler: Rangwali Holi / Dhulandi (Bhavishya Purana: celebrated on morning after Holika Dahan)
+    if (fest.id === 'holi') {
+      const prevDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() - 1, 12, 0, 0);
+      const prevKalas = calculateDailyKalas(prevDate, location);
+      const prevPradoshaPurnima = calculateKalaVyapti(15, prevKalas.pradosha).overlaps;
+      const prevCoords = getAstrometricCoordinatesForDate(prevDate, location);
+      const wasYesterdayHolikaDahan = prevPradoshaPurnima && (prevCoords.amantaMonthIndex === 11 || prevCoords.purnimantaMonthIndex === 11);
+
+      if (wasYesterdayHolikaDahan) {
+        candidates.push({
+          name: fest.name,
+          shortName: fest.shortName,
+          hindiName: fest.hindiName,
+          description: fest.description,
+          icon: fest.icon,
+          category: fest.category,
+          isMajor: fest.isMajor,
+          priority: fest.priority,
+          badge: 'Major Festival',
+          briefRule: fest.briefRule,
+          shastraReferences: fest.shastraReferences
+        });
+      }
+      continue;
+    }
+
+    // Canonical Handler: Karwa Chauth (Dharmasindhu Chandrodaya / Moonrise Vyapti)
+    if (fest.id === 'karwa-chauth') {
+      const tz = resolveTimezoneOffset(targetDate, location);
+      const moonTimes = calculateMoonTimes(targetDate, location.latitude, location.longitude, tz);
+      const moonriseTithi = moonTimes.moonriseDate ? getTithiAtTimestamp(moonTimes.moonriseDate) : null;
+
+      let isKarwaToday = moonriseTithi === 19;
+      // If at Moonrise today it was not Chaturthi (starts after Moonrise), then observe on Day 2 (Udaya Chaturthi):
+      if (!isKarwaToday && udayaTithiIndex === 19) {
+        const prevDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() - 1, 12, 0, 0);
+        const prevMoonTimes = calculateMoonTimes(prevDate, location.latitude, location.longitude, tz);
+        const prevMoonriseTithi = prevMoonTimes.moonriseDate ? getTithiAtTimestamp(prevMoonTimes.moonriseDate) : null;
+        if (prevMoonriseTithi !== 19) {
+          isKarwaToday = true;
+        }
+      }
+
+      if (isKarwaToday) {
+        candidates.push({
+          name: fest.name,
+          shortName: fest.shortName,
+          hindiName: fest.hindiName,
+          description: fest.description,
+          icon: fest.icon,
+          category: fest.category,
+          isMajor: fest.isMajor,
+          priority: fest.priority,
+          badge: 'Major Festival',
+          briefRule: fest.briefRule,
+          shastraReferences: fest.shastraReferences
+        });
+        continue;
+      }
+    }
 
     // Kala Vyapti Evaluation
     if (fest.kalaRequirement && fest.kalaRequirement !== 'Udaya') {
@@ -775,8 +976,7 @@ export function determineFestivalForDate(
   }
 
   // 3. Ekadashi Evaluation (Smarta vs Vaishnava configurable with Dashami-Viddha check)
-  const ekadashiEval = evaluateEkadashi(targetDate, location, options?.sampradaya || 'smarta');
-  if (ekadashiEval.isEkadashiDay) {
+  if (ekadashiEval.isEkadashiDay && !candidates.some(c => c.category === 'Ekadashi')) {
     const isShukla = udayaTithiIndex === 11 || (ekadashiEval.isVaishnavaPushed && udayaTithiIndex === 12);
     const targetMonthIdx = isShukla ? amantaMonthIndex : purnimantaMonthIndex;
     const monthData = EKADASHI_DATABASE[targetMonthIdx] || EKADASHI_DATABASE[0];
@@ -919,22 +1119,25 @@ export function determineFestivalForDate(
   }
 
   if (udayaTithiIndex === 19) {
-    candidates.push({
-      name: 'Sankashti Chaturthi (संकष्टी चतुर्थी)',
-      shortName: 'Sankashti Chaturthi',
-      hindiName: 'संकष्टी चतुर्थी',
-      description: 'Moonrise Ganesha arghya & crisis alleviation vow',
-      icon: '🌙',
-      category: 'Vrat',
-      isMajor: false,
-      priority: 60,
-      badge: 'Ganesh Vrat',
-      briefRule: {
-        hindi: 'भविष्य पुराण: कृष्ण पक्ष की चतुर्थी को दिनभर उपवास रहकर चन्द्रोदय के समय चन्द्रमा व श्रीगणेश को अर्घ्य देकर पारण करें।',
-        english: 'Bhavishya Purana: Fasting until moonrise and offering arghya to Chandra and Ganesha dispels severe distress.'
-      },
-      shastraReferences: ['Bhavishya Purana', 'Vratraj']
-    });
+    const hasMajorChaturthi = candidates.some(c => c.shortName === 'Karwa Chauth' || c.shortName === 'Ganesh Chaturthi');
+    if (!hasMajorChaturthi) {
+      candidates.push({
+        name: 'Sankashti Chaturthi (संकष्टी चतुर्थी)',
+        shortName: 'Sankashti Chaturthi',
+        hindiName: 'संकष्टी चतुर्थी',
+        description: 'Moonrise Ganesha arghya & crisis alleviation vow',
+        icon: '🌙',
+        category: 'Vrat',
+        isMajor: false,
+        priority: 60,
+        badge: 'Ganesh Vrat',
+        briefRule: {
+          hindi: 'भविष्य पुराण: कृष्ण पक्ष की चतुर्थी को दिनभर उपवास रहकर चन्द्रोदय के समय चन्द्रमा व श्रीगणेश को अर्घ्य देकर पारण करें।',
+          english: 'Bhavishya Purana: Fasting until moonrise and offering arghya to Chandra and Ganesha dispels severe distress.'
+        },
+        shastraReferences: ['Bhavishya Purana', 'Vratraj']
+      });
+    }
   }
 
   // Return highest priority match

@@ -355,6 +355,31 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<WidgetTabType>('panchang');
+
+  // Smooth scroll / tab jump to 5-Limbs of Panchang
+  const handleFiveLimbsClick = () => {
+    setShowDetails(true);
+    setActiveTab('panchang');
+    setTimeout(() => {
+      const el = document.getElementById('five-limbs-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
+  // Smooth scroll / tab jump to Muhurat section
+  const handleMuhuratClick = () => {
+    setShowDetails(true);
+    setActiveTab('muhurat');
+    setTimeout(() => {
+      const el = document.getElementById('muhurat-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
@@ -493,7 +518,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-x-hidden touch-pan-y">
         {/* Subtle celestial observatory ambient background lighting */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none -z-0" />
@@ -877,24 +902,24 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* COLUMN 3: ACTIVE MUHURAT & TIMING CARD */}
+          {/* COLUMN 3: ACTIVE MUHURAT CARD (CLEAN & LINKED TO 5 LIMBS) */}
           <div 
-            onClick={() => setIsMuhuratModalOpen(true)}
+            id="muhurat-card"
+            onClick={handleFiveLimbsClick}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsMuhuratModalOpen(true);
+                handleFiveLimbsClick();
               }
             }}
             role="button"
             tabIndex={0}
-            aria-haspopup="dialog"
-            aria-expanded={isMuhuratModalOpen}
-            title="Click to view 24h Muhurat Matrix & Choghadiya"
-            aria-label="Open Daily Muhurat Timetable and Choghadiya Matrix"
-            className="p-3 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] overflow-hidden min-w-0"
+            aria-label="View 5-Limbs of Panchang for Muhurat"
+            title="Click to view 5-Limbs of Panchang"
+            className="scroll-mt-20 p-3 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] overflow-hidden min-w-0 touch-pan-y"
           >
             <div className="min-w-0">
+              {/* Header: Label + Nature Badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0">
                 <div className="text-slate-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1 min-w-0">
                   <span className="truncate">ACTIVE MUHURAT</span>
@@ -928,92 +953,66 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Main Active Vedic Muhurat Title */}
-              <div className={`text-sm sm:text-base font-semibold my-1.5 leading-snug transition-colors break-words whitespace-normal font-outfit min-w-0 ${
+              <div className={`text-base sm:text-lg font-bold my-1 leading-snug transition-colors font-outfit truncate ${
                 (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                   ? 'text-white group-hover:text-emerald-300'
                   : activeVedicMuhurat?.nature === 'Moderate'
                   ? 'text-white group-hover:text-amber-300'
                   : 'text-rose-400 group-hover:text-rose-300'
               }`}>
-                {activeVedicMuhurat ? `Muhurat #${activeVedicMuhurat.index}: ${activeVedicMuhurat.name}` : (panchang.currentChoghadiya?.displayName || 'Abhijit Muhurat')}
+                {activeVedicMuhurat ? activeVedicMuhurat.name : (panchang.currentChoghadiya?.displayName || 'Abhijit Muhurat')}
               </div>
 
-              {/* Shastric Guidance Banner */}
-              <div className={`p-1.5 rounded-xl text-[11px] font-medium border mb-1.5 w-full min-w-0 ${
-                (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                  ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.10)]'
-                  : activeVedicMuhurat?.nature === 'Moderate'
-                  ? 'bg-amber-950/60 border border-amber-500/30 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.10)]'
-                  : 'bg-rose-950/60 border border-rose-500/30 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.10)]'
-              }`}>
-                <div className="flex items-start gap-1.5 min-w-0">
-                  <span className="shrink-0 text-xs leading-none mt-0.5 select-none">
-                    {(activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious') ? '🌟' : activeVedicMuhurat?.nature === 'Moderate' ? '⚡' : '⚠️'}
-                  </span>
-                  <span className="leading-snug break-words whitespace-normal text-[10px] font-semibold flex-1 font-sans min-w-0">
-                    {activeVedicMuhurat?.activity || (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious' ? 'Auspicious: Favorable for Sacred Actions' : 'Moderate: Routine Duties')}
-                  </span>
-                </div>
+              {/* Timing Window & Expiry Pill */}
+              <div className="flex items-center justify-between text-xs text-slate-300 font-mono tabular-nums mb-2">
+                <span className="flex items-center gap-1 text-slate-300">
+                  <Clock size={11} className="text-amber-400 shrink-0" />
+                  <span>{activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}</span>
+                </span>
+                <span className="text-[10px] text-amber-400 font-semibold font-sans">
+                  Expires in <span className="font-mono">{activeVedicMuhurat?.remainingString || panchang.currentChoghadiya?.remainingString || '45m'}</span>
+                </span>
               </div>
 
-              {/* Styled Active Muhurat Progress Bar */}
-              <div className="w-full my-1.5">
-                <div className="flex items-center justify-between text-[9px] font-grotesk tabular-nums mb-0.5 text-slate-400">
-                  <span className="flex items-center gap-1 font-sans text-slate-400">
-                    <Hourglass size={10} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
-                    Window Progress
-                  </span>
-                  <span className="font-bold text-slate-200">{muhuratProgress}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-slate-800/80 rounded-full overflow-hidden border border-white/5">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-1000 ${
-                      (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                        : activeVedicMuhurat?.nature === 'Moderate'
-                        ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
-                        : 'bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
-                    }`}
-                    style={{ width: `${muhuratProgress}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Structured Timing & Deity Matrix Details Box */}
-              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/10 space-y-1 text-[11px] min-w-0">
-                <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Deity:</span>
-                  <span className="font-serif font-devanagari font-bold text-white text-right break-words whitespace-normal text-[10px] truncate min-w-0">
-                    {activeVedicMuhurat?.deity || 'Universal'}
+              {/* 5-Limbs Quick Alignment Grid */}
+              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/10 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-medium text-slate-400">
+                  <span className="font-outfit uppercase tracking-wider text-amber-400/90 font-bold">5-Limbs Alignment:</span>
+                  <span className={`font-semibold ${panchang.yoga.nature === 'Shubh' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {panchang.yoga.nature === 'Shubh' ? 'Yoga Auspicious' : 'Yoga Inauspicious'}
                   </span>
                 </div>
-
-                {panchang.currentChoghadiya && (
-                  <div className="flex items-center justify-between gap-1.5 min-w-0">
-                    <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Choghadiya:</span>
-                    <span className="font-semibold text-slate-200 text-right break-words whitespace-normal font-sans text-[10px] truncate min-w-0">
-                      {panchang.currentChoghadiya.displayName}
-                    </span>
+                <div className="grid grid-cols-5 gap-1 text-[10px] text-center">
+                  <div className="p-1 rounded bg-slate-900 border border-white/10 truncate">
+                    <div className="text-[8px] text-slate-400 uppercase font-outfit">Tithi</div>
+                    <div className="font-semibold text-slate-200 truncate">{panchang.tithi.name}</div>
                   </div>
-                )}
-
-                <div className="flex items-center justify-between pt-1 border-t border-white/10 gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Window:</span>
-                  <span className="font-mono tabular-nums text-slate-100 font-semibold text-right text-[10px] truncate min-w-0">
-                    {activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}
-                  </span>
+                  <div className="p-1 rounded bg-slate-900 border border-white/10 truncate">
+                    <div className="text-[8px] text-slate-400 uppercase font-outfit">Nakshatra</div>
+                    <div className="font-semibold text-slate-200 truncate">{panchang.nakshatra.name}</div>
+                  </div>
+                  <div className="p-1 rounded bg-slate-900 border border-white/10 truncate">
+                    <div className="text-[8px] text-slate-400 uppercase font-outfit">Yoga</div>
+                    <div className="font-semibold text-slate-200 truncate">{panchang.yoga.name}</div>
+                  </div>
+                  <div className="p-1 rounded bg-slate-900 border border-white/10 truncate">
+                    <div className="text-[8px] text-slate-400 uppercase font-outfit">Karana</div>
+                    <div className="font-semibold text-slate-200 truncate">{panchang.karana.name}</div>
+                  </div>
+                  <div className="p-1 rounded bg-slate-900 border border-white/10 truncate">
+                    <div className="text-[8px] text-slate-400 uppercase font-outfit">Vaar</div>
+                    <div className="font-semibold text-slate-200 truncate">{panchang.vaar.name}</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10 flex-wrap gap-1.5 min-w-0">
-              <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1 shrink-0 font-sans">
-                <Hourglass size={12} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
-                <span>Expires in <span className="font-mono tabular-nums">{activeVedicMuhurat?.remainingString || panchang.currentChoghadiya?.remainingString || '45m 00s'}</span></span>
-              </div>
-              <div className="px-2 py-0.5 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-[10px] font-bold font-outfit text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)] group-hover:border-emerald-400/50 transition-all flex items-center gap-1 shrink-0">
-                <span>24h Matrix</span>
-                <ArrowUpRight size={10} />
+            {/* Bottom Link: View 5-Limbs of Panchang */}
+            <div className="mt-2 pt-2 border-t border-white/10 relative z-10">
+              <div className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <Layers size={12} className="text-amber-400" />
+                <span>View 5-Limbs of Panchang</span>
+                <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </div>
           </div>
@@ -1226,7 +1225,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           <div className="mt-4 pt-4 border-t border-white/10 space-y-6 animate-in fade-in duration-200 relative z-10">
             
             {/* Tabs header */}
-            <div className="flex overflow-x-auto gap-2 pb-2 border-b border-white/10">
+            <div className="flex overflow-x-auto gap-2 pb-2 border-b border-white/10 touch-pan-y">
               {[
                 { id: 'panchang', label: '5-Limbs of Panchang' },
                 { id: 'choghadiya', label: '24h Choghadiya Matrix' },
@@ -1235,7 +1234,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as WidgetTabType)}
+                  onClick={() => {
+                    if (tab.id === 'muhurat') {
+                      handleMuhuratClick();
+                    } else {
+                      setActiveTab(tab.id as WidgetTabType);
+                    }
+                  }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-outfit transition-all whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
@@ -1249,7 +1254,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
             {/* Tab 1: 5 Limbs */}
             {activeTab === 'panchang' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div 
+                id="five-limbs-section"
+                className="scroll-mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 touch-pan-y"
+              >
                 <div className="p-3.5 rounded-xl bg-slate-950/60 border border-white/10">
                   <div className="text-[10px] text-amber-400 font-bold font-outfit uppercase">1. TITHI</div>
                   <div className="text-sm font-bold text-white mt-1 font-serif font-devanagari">{panchang.tithi.name}</div>
@@ -1340,7 +1348,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
             {/* Tab 3: Muhurats */}
             {activeTab === 'muhurat' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div 
+                id="muhurat-section"
+                className="scroll-mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 touch-pan-y"
+              >
                 <div className="p-3 rounded-xl bg-slate-950/60 border border-emerald-500/30">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit">Brahma Muhurat</span>

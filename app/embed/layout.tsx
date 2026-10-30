@@ -16,7 +16,7 @@ export default function EmbedLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full min-h-screen bg-transparent flex items-center justify-center p-2 sm:p-3 overflow-hidden">
+    <div className="w-full min-h-dvh bg-transparent flex items-center justify-center p-2 sm:p-3 overflow-x-hidden touch-pan-y">
       {children}
     </div>
   );

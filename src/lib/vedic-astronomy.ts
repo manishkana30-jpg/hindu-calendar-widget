@@ -939,7 +939,12 @@ export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz
 // ─────────────────────────────────────────────────────────────────────────────
 // ASTRONOMICAL MOONRISE AND MOONSET CALCULATION ENGINE (MEEUS CH. 15)
 // ─────────────────────────────────────────────────────────────────────────────
-export function calculateMoonTimes(targetDate: Date, lat: number, lng: number, tz: number): { moonrise: string; moonset: string } {
+export function calculateMoonTimes(targetDate: Date, lat: number, lng: number, tz: number): { 
+  moonrise: string; 
+  moonset: string; 
+  moonriseDate?: Date | null; 
+  moonsetDate?: Date | null; 
+} {
   const year = targetDate.getFullYear();
   const month = targetDate.getMonth();
   const day = targetDate.getDate();
@@ -1023,10 +1028,12 @@ export function calculateMoonTimes(targetDate: Date, lat: number, lng: number, t
     prevAlt = curAlt;
   }
 
-  const moonrise = riseMs ? formatUtcDateToLocalTime(new Date(riseMs), tz) : 'No Moonrise';
-  const moonset = setMs ? formatUtcDateToLocalTime(new Date(setMs), tz) : 'No Moonset';
+  const moonriseDate = riseMs ? new Date(riseMs) : null;
+  const moonsetDate = setMs ? new Date(setMs) : null;
+  const moonrise = moonriseDate ? formatUtcDateToLocalTime(moonriseDate, tz) : 'No Moonrise';
+  const moonset = moonsetDate ? formatUtcDateToLocalTime(moonsetDate, tz) : 'No Moonset';
 
-  return { moonrise, moonset };
+  return { moonrise, moonset, moonriseDate, moonsetDate };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

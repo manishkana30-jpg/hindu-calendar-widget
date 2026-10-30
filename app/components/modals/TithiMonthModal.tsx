@@ -49,9 +49,9 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
       role="dialog"
       aria-modal="true"
       aria-label="Vedic Monthly Calendar and Udaya Tithi Almanac"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-6xl max-h-[94vh] bg-[#070b16] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-6xl max-h-[90dvh] bg-[#070b16] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Top Navigation Bar */}
         <div className="p-3.5 px-5 bg-[#090e1a] border-b border-[#1a233a] flex items-center justify-between gap-3">
@@ -91,7 +91,7 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
         </div>
 
         {/* Scrollable Monthly Vedic Calendar Content */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-3 sm:p-6 pb-24 [-webkit-overflow-scrolling:touch]">
           <MonthlyVedicCalendar 
             initialLocation={location} 
             onSelectDate={(d) => {

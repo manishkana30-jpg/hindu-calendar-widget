@@ -432,7 +432,7 @@ export function MonthlyVedicCalendar({
       {/* ── View 2: Clean List / Table View ── */}
       {viewMode === 'list' && (
         <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto touch-pan-y">
             <table className="w-full text-left text-xs">
               <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                 <tr>
@@ -543,8 +543,15 @@ export function MonthlyVedicCalendar({
 
       {/* ── Day Detail Interactive Modal Popup ── */}
       {selectedDayDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-lg bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden p-5 sm:p-6 text-left">
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedDayDetail(null);
+          }}
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
+        >
+          <div className="relative w-full max-w-lg max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] p-5 sm:p-6 pb-20 text-left">
             
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2942]">

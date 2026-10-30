@@ -58,8 +58,8 @@ const holikaPanchang = calculatePanchang(new Date(2026, 2, 2, 6, 0, 0), delhi);
 assert(holikaPanchang.todayFestival.title.includes('Holika Dahan'), 'Phalguna Purnima is Holika Dahan');
 assert(holikaPanchang.todayFestival.icon === '🔥', 'Holika Dahan icon is 🔥');
 
-const holiPanchang = calculatePanchang(new Date(2026, 2, 4, 6, 0, 0), delhi);
-assert(holiPanchang.todayFestival.title.includes('Holi'), 'Pratipada is Rangwali Holi');
+const holiPanchang = calculatePanchang(new Date(2026, 2, 3, 6, 0, 0), delhi);
+assert(holiPanchang.todayFestival.title.includes('Holi'), 'Day after Holika Dahan is Rangwali Holi');
 assert(holiPanchang.todayFestival.icon === '🎨', 'Holi icon is 🎨');
 assert(holiPanchang.todayFestival.isMajor === true, 'Holi marked as major festival');
 
