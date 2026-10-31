@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  X, Clock, BookOpen, Sun, Moon, CheckCircle2, 
+  X, Clock, Sun, Moon, CheckCircle2, 
   AlertTriangle, Hourglass, Sparkles, Star, Shield, ArrowUpRight
 } from 'lucide-react';
 import { PanchangData } from '../../../src/lib/vedic-astronomy';
@@ -361,25 +361,9 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
 
         {/* ── Scrollable Content (Smooth touch & overscroll containment) ── */}
         <div 
-          className="flex-1 min-h-0 max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y p-3.5 sm:p-6 pb-24 space-y-5 [-webkit-overflow-scrolling:touch]"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-3.5 sm:p-6 pb-24 space-y-5 [-webkit-overflow-scrolling:touch]"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          
-          {/* Brief Bilingual Dharmashastra Rule */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#0e1629] to-orange-500/10 border border-amber-500/30 text-xs">
-            <div className="flex items-center gap-2 text-amber-300 font-bold uppercase tracking-wider mb-1.5">
-              <BookOpen size={15} />
-              <span>📜 Dharmashastra Determination Rule (मुहूर्त निर्णय शास्त्र नियम)</span>
-            </div>
-            <div className="space-y-1.5 text-neutral-200">
-              <p>
-                <strong className="text-amber-300">हिंदी:</strong> २४ घण्टों को ३० वैदिक मुहूर्तों (दैविक कर्म/आराधना) तथा १६ चौघड़ियों (लौकिक कार्य/यात्रा) में विभाजित किया गया है। उदाहरणार्थ, रात्रि में &apos;विष्णु मुहूर्त&apos; ईश्वर स्मरण, जप व शांति हेतु अत्यंत शुभ है, जबकि सांसारिक कार्यों के लिए उसी समय &apos;रोग चौघड़िया&apos; वर्जित है (मुहूर्तचिन्तामणि)।
-              </p>
-              <p className="text-neutral-300">
-                <strong className="text-amber-300">English:</strong> A 24-hour cycle is governed by two distinct timing frameworks: 30 Vedic Muhurats for spiritual devotion/Japa, and 16 Choghadiyas for worldly tasks/travel. For example, &apos;Vishnu Muhurat&apos; is spiritually highly auspicious for prayer, while worldly business in &apos;Rog Choghadiya&apos; should be avoided (Muhurta Chintamani).
-              </p>
-            </div>
-          </div>
 
           {/* ── TAB 1: ALL 30 MUHURATS WITH EXACT DATES, START & END TIMES ── */}
           {activeTab === 'all30' && (
