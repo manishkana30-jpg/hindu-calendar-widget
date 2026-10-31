@@ -24,9 +24,9 @@ export function PanchakModal({ isOpen, onClose }: Props) {
       }}
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-5xl max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full max-w-none sm:max-w-5xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Header */}
         <div className="p-4 sm:p-6 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -240,7 +240,7 @@ export function PanchakModal({ isOpen, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#0c1222] border-t border-[#1e2942] flex items-center justify-between text-xs text-neutral-400">
+        <div className="p-4 bg-[#0c1222] border-t border-[#1e2942] flex items-center justify-between text-xs text-neutral-400 shrink-0">
           <div>Authority: <strong>Muhurta Chintamani & Dharmasindhu</strong></div>
           <button
             onClick={onClose}
