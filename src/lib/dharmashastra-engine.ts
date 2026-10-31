@@ -217,7 +217,7 @@ export interface VedicFestivalDefinitionRef {
   hindiName: string;
   description: string;
   icon: string;
-  category: 'Major Festival' | 'Vrat' | 'Jayanti' | 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya';
+  category: 'Major Festival' | 'Vrat' | 'Jayanti' | 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya' | 'Ashtami';
   isMajor: boolean;
   priority: number;
   tithiIndex?: number | number[];
@@ -1138,6 +1138,136 @@ export function determineFestivalForDate(
         shastraReferences: ['Bhavishya Purana', 'Vratraj']
       });
     }
+  }
+
+  // 7. Ashtami Vrats (Shukla Ashtami = 8, Krishna Ashtami = 23)
+  if (udayaTithiIndex === 8) {
+    const hasMajorAshtami = candidates.some(c => c.isMajor || c.name.includes('Ashtami'));
+    if (!hasMajorAshtami) {
+      if (dayOfWeek === 3) { // Wednesday = Budhashtami
+        candidates.push({
+          name: 'Budhashtami Vrat (बुधाष्टमी व्रत)',
+          shortName: 'Budhashtami',
+          hindiName: 'बुधाष्टमी व्रत',
+          description: 'Auspicious Shukla Ashtami on Wednesday, eradicating sins across lifetimes',
+          icon: '🔱',
+          category: 'Ashtami',
+          isMajor: true,
+          priority: 76,
+          badge: 'Budhashtami Mahavrat',
+          briefRule: {
+            hindi: 'भविष्य पुराण: बुधवार को पड़ने वाली शुक्ल पक्ष की अष्टमी ‘बुधाष्टमी’ कहलाती है; इस दिन शिव-पार्वती पूजन व उपवास कोटि पापों का क्षय करता है।',
+            english: 'Bhavishya Purana: Shukla Ashtami falling on Wednesday is sacred Budhashtami; observing this fast cleanses severe karmic transgressions.'
+          },
+          shastraReferences: ['Bhavishya Purana', 'Dharmasindhu', 'Vratraj']
+        });
+      } else {
+        candidates.push({
+          name: 'Masik Durgashtami (मासिक दुर्गाष्टमी)',
+          shortName: 'Masik Durgashtami',
+          hindiName: 'मासिक दुर्गाष्टमी',
+          description: 'Monthly sacred fast of Maa Durga, Ashta Matrikas & obstacle elimination',
+          icon: '🔱',
+          category: 'Ashtami',
+          isMajor: false,
+          priority: 72,
+          badge: 'Durga Ashtami Vrat',
+          briefRule: {
+            hindi: 'देवी पुराण: प्रत्येक माह की शुक्ल अष्टमी को भगवती दुर्गा के निमित्त उपवास व मन्त्र जप करने से शत्रुबाधा व विपत्तियों का नाश होता है।',
+            english: 'Devi Purana: Monthly fast on Shukla Ashtami dedicated to Maa Durga protects from afflictions and bestows divine courage.'
+          },
+          shastraReferences: ['Devi Purana', 'Dharmasindhu', 'Vratraj']
+        });
+      }
+    }
+  }
+
+  if (udayaTithiIndex === 23) {
+    const hasMajorKalashtami = candidates.some(c => c.isMajor || c.name.includes('Janmashtami') || c.name.includes('Ashtami'));
+    if (!hasMajorKalashtami) {
+      candidates.push({
+        name: 'Masik Kalashtami (मासिक कालाष्टमी)',
+        shortName: 'Masik Kalashtami',
+        hindiName: 'मासिक कालाष्टमी (भैरवाष्टमी)',
+        description: 'Monthly sacred fast of Lord Kalabhairav, fear dispelling & obstacle removal',
+        icon: '🔱',
+        category: 'Ashtami',
+        isMajor: false,
+        priority: 72,
+        badge: 'Bhairav Kalashtami',
+        briefRule: {
+          hindi: 'रुद्रयामल तन्त्र: प्रत्येक माह की कृष्ण अष्टमी को कालभैरव के निमित्त उपवास व दीपदान करने से समस्त भय, ग्रहपीड़ा एवं अकाल मृत्यु का निवारण होता है।',
+          english: 'Rudra Yamala: Monthly fast on Krishna Ashtami dedicated to Lord Kalabhairav dispels phobias, negative energies, and untimely hardships.'
+        },
+        shastraReferences: ['Rudra Yamala', 'Dharmasindhu', 'Skanda Purana']
+      });
+    }
+  }
+
+  // 8. Masik Shivaratri (Krishna Chaturdashi = 29)
+  if (udayaTithiIndex === 29) {
+    const hasMajorShivaratri = candidates.some(c => c.shortName === 'Maha Shivaratri' || c.shortName === 'Chhoti Diwali');
+    if (!hasMajorShivaratri) {
+      candidates.push({
+        name: 'Masik Shivaratri (मासिक शिवरात्रि)',
+        shortName: 'Masik Shivaratri',
+        hindiName: 'मासिक शिवरात्रि व्रत',
+        description: 'Monthly sacred vigil & fast of Lord Shiva for peace, health & liberation',
+        icon: '🔱',
+        category: 'Vrat',
+        isMajor: false,
+        priority: 76,
+        badge: 'Shiva Vrat',
+        briefRule: {
+          hindi: 'शिव पुराण: प्रत्येक माह के कृष्ण पक्ष की चतुर्दशी (निशीथ व्यापिनी) को मासिक शिवरात्रि का व्रत रखने से जीवन के समस्त पापों का संहार होता है।',
+          english: 'Shiva Purana: Monthly Shivaratri observed on Nishita-prevalent Krishna Chaturdashi brings profound inner peace and destroys accumulated karmas.'
+        },
+        shastraReferences: ['Shiva Purana', 'Nirnayasindhu', 'Dharmasindhu']
+      });
+    }
+  }
+
+  // 9. Skanda Sashti (Shukla Shashthi = 6)
+  if (udayaTithiIndex === 6) {
+    const hasMajorSashti = candidates.some(c => c.shortName === 'Chhath Puja');
+    if (!hasMajorSashti) {
+      candidates.push({
+        name: 'Skanda Sashti (स्कन्द षष्ठी)',
+        shortName: 'Skanda Sashti',
+        hindiName: 'मासिक स्कन्द षष्ठी (कार्तिकेय पूजन)',
+        description: 'Monthly worship of Lord Kartikeya (Murugan) for victory, health & valor',
+        icon: '🦚',
+        category: 'Vrat',
+        isMajor: false,
+        priority: 65,
+        badge: 'Skanda Vrat',
+        briefRule: {
+          hindi: 'स्कन्द पुराण: शुक्ल षष्ठी को भगवान कार्तिकेय की उपासना से पराक्रम, संतान सुख एवं रोग-शोक से मुक्ति प्राप्त होती है।',
+          english: 'Skanda Purana: Worshipping Lord Skanda on Shukla Shashthi grants valor, progeny welfare, and protection from illnesses.'
+        },
+        shastraReferences: ['Skanda Purana', 'Dharmasindhu']
+      });
+    }
+  }
+
+  // 10. Bhanu Saptami (Shukla Saptami = 7 on Sunday)
+  if (udayaTithiIndex === 7 && dayOfWeek === 0) {
+    candidates.push({
+      name: 'Bhanu Saptami (भानु सप्तमी)',
+      shortName: 'Bhanu Saptami',
+      hindiName: 'भानु सप्तमी (सूर्य सप्तमी महापर्व)',
+      description: 'Sacred Sunday Shukla Saptami, Surya Arghya & cure of chronic ailments',
+      icon: '☀️',
+      category: 'Major Festival',
+      isMajor: true,
+      priority: 82,
+      badge: 'Surya Mahaparva',
+      briefRule: {
+        hindi: 'भविष्य पुराण: रविवार युक्त शुक्ल सप्तमी ‘भानु सप्तमी’ कहलाती है; इसमें सूर्य अर्घ्य व आदित्य हृदय स्तोत्र पाठ से असाध्य रोगों की निवृत्ति होती है।',
+        english: 'Bhavishya Purana: Shukla Saptami falling on Sunday is Bhanu Saptami; offering arghya to Surya cures ailments and grants radiant health.'
+      },
+      shastraReferences: ['Bhavishya Purana', 'Dharmasindhu']
+    });
   }
 
   // Return highest priority match

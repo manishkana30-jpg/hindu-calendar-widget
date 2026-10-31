@@ -30,7 +30,7 @@ export interface VedicFestivalDefinition {
   hindiName: string;
   description: string;
   icon: string;
-  category: 'Major Festival' | 'Vrat' | 'Jayanti' | 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya';
+  category: 'Major Festival' | 'Vrat' | 'Jayanti' | 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya' | 'Ashtami';
   isMajor: boolean;
   priority: number; // Higher number wins if multiple festivals match
 
@@ -489,6 +489,167 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
       english: 'Kalika Purana: Sandhi Puja at the precise junction of Ashtami and Navami invokes Maa Chamunda to vanquish insurmountable obstacles.'
     },
     shastraReferences: ['Kalika Purana', 'Dharmasindhu']
+  },
+  // ── MAJOR ANNUAL ASHTAMIS ──
+  {
+    id: 'chaitra-ashtami',
+    name: 'Chaitra Durga Ashtami (चैत्र दुर्गाष्टमी)',
+    shortName: 'Chaitra Durga Ashtami',
+    hindiName: 'चैत्र दुर्गाष्टमी (महाष्टमी / महागौरी पूजन)',
+    description: 'Chaitra Navratri Maha Ashtami, Mahagauri Puja & Kanya Pujan',
+    icon: '🔱',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 92,
+    tithiIndex: 8, // Shukla Ashtami
+    amantaMonthIndex: 0, // Chaitra
+    purnimantaMonthIndex: 0,
+    kalaRequirement: 'Madhyahna',
+    briefRule: {
+      hindi: 'देवी पुराण: चैत्र शुक्ल अष्टमी को महागौरी पूजन एवं कन्या पूजन करने से साधक को समस्त सिद्धियां एवं ऐश्वर्य प्राप्त होता है।',
+      english: 'Devi Purana: Worshipping Devi Mahagauri and Kumaris on Chaitra Shukla Ashtami destroys sins and bestows divine grace.'
+    },
+    shastraReferences: ['Devi Purana', 'Nirnayasindhu']
+  },
+  {
+    id: 'radha-ashtami',
+    name: 'Radha Ashtami (श्री राधाष्टमी)',
+    shortName: 'Radha Ashtami',
+    hindiName: 'श्री राधाष्टमी (राधा जन्मोत्सव / महालक्ष्मी व्रत प्रारम्भ)',
+    description: 'Divine Appearance of Shri Radha Rani at Midday & Mahalakshmi Vrat',
+    icon: '🪷',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 95,
+    tithiIndex: 8, // Shukla Ashtami
+    amantaMonthIndex: 5, // Bhadrapada
+    purnimantaMonthIndex: 5,
+    kalaRequirement: 'Madhyahna',
+    briefRule: {
+      hindi: 'पद्म पुराण एवं ब्रह्मवैवर्त पुराण: भाद्रपद शुक्ल अष्टमी को मध्याह्न काल (12:00 PM) में श्रीराधारानी का प्राकट्य हुआ था; मध्याह्न व्यापिनी अष्टमी में युगल पूजन सर्वश्रेष्ठ है।',
+      english: 'Padma Purana: Shri Radha manifested at solar noon (Madhyahna) in Barsana; worshipping the Divine Couple on Madhyahna-prevalent Ashtami yields eternal Bhakti.'
+    },
+    shastraReferences: ['Padma Purana', 'Brahma Vaivarta Purana', 'Hari Bhakti Vilasa']
+  },
+  {
+    id: 'gopashtami',
+    name: 'Gopashtami (गोपाष्टमी)',
+    shortName: 'Gopashtami',
+    hindiName: 'गोपाष्टमी (गौ संवर्धन / सुरभि पूजन)',
+    description: 'Veneration of Sacred Cow Mata, Kamadhenu & Krishna Gau-charan',
+    icon: '🐄',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 92,
+    tithiIndex: 8, // Shukla Ashtami
+    amantaMonthIndex: 7, // Kartika
+    purnimantaMonthIndex: 7,
+    kalaRequirement: 'Pratah',
+    briefRule: {
+      hindi: 'पद्म पुराण: कार्तिक शुक्ल अष्टमी को भगवान श्रीकृष्ण व बलराम को गोचारण की दीक्षा दी गई थी; इस दिन गौमाता को वस्त्र-तिलक व ग्रास अर्पण से कोटि पुण्य प्राप्त होता है।',
+      english: 'Padma Purana: Lord Krishna initiated cow grazing on Kartika Shukla Ashtami; feeding, decorating, and circumambulating sacred cows dispels all sins.'
+    },
+    shastraReferences: ['Padma Purana', 'Hari Bhakti Vilasa', 'Dharmasindhu']
+  },
+  {
+    id: 'ahoi-ashtami',
+    name: 'Ahoi Ashtami (अहोई अष्टमी)',
+    shortName: 'Ahoi Ashtami',
+    hindiName: 'अहोई अष्टमी (अहोई आठे व्रत)',
+    description: 'Sacred Fast for Children Longevity & Evening Star-Rise Arghya',
+    icon: '🌟',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 94,
+    tithiIndex: 23, // Krishna Ashtami
+    amantaMonthIndex: 6, // Ashwina in Amanta
+    purnimantaMonthIndex: 7, // Kartika in Purnimanta
+    kalaRequirement: 'Sayahna',
+    briefRule: {
+      hindi: 'भविष्य पुराण: कार्तिक कृष्ण अष्टमी को सायंकाल तारों के उदय होने पर अर्घ्य देकर संतान की दीर्घायु व आरोग्य हेतु अहोई माता का व्रत-पूजन किया जाता है।',
+      english: 'Bhavishya Purana: Mothers observe a strict fast on Krishna Ashtami, offering arghya to evening stars for the longevity, health, and prosperity of children.'
+    },
+    shastraReferences: ['Bhavishya Purana', 'Vratraj', 'Dharmasindhu']
+  },
+  {
+    id: 'kalabhairav-jayanti',
+    name: 'Kalabhairav Jayanti (कालभैरव जयन्ती)',
+    shortName: 'Kalabhairav Jayanti',
+    hindiName: 'कालभैरव जयन्ती (भैरवाष्टमी / महाकाल भैरव प्राकट्य)',
+    description: 'Advent of Lord Kalabhairav, Fear Annihilation & Midnight Vigil',
+    icon: '🔱',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 95,
+    tithiIndex: 23, // Krishna Ashtami
+    amantaMonthIndex: 7, // Kartika in Amanta
+    purnimantaMonthIndex: 8, // Margashirsha in Purnimanta
+    kalaRequirement: 'Nishita',
+    briefRule: {
+      hindi: 'शिव पुराण: मार्गशीर्ष कृष्ण अष्टमी को मध्यरात्रि में भगवान शिव के रौद्र अंश कालभैरव का प्राकट्य हुआ था; भैरव पूजन व दीपदान से समस्त ग्रहबाधा व भय नष्ट होते हैं।',
+      english: 'Shiva Purana: Lord Kalabhairav manifested from Lord Shiva on Margashirsha Krishna Ashtami; nocturnal vigil and mustard oil lamps destroy evil forces and fears.'
+    },
+    shastraReferences: ['Shiva Purana', 'Nirnayasindhu', 'Dharmasindhu']
+  },
+  {
+    id: 'sheetala-ashtami',
+    name: 'Sheetala Ashtami / Basoda (शीतलाष्टमी)',
+    shortName: 'Sheetala Ashtami',
+    hindiName: 'शीतलाष्टमी (बासोड़ा / शीतला माता पूजन)',
+    description: 'Mata Sheetala Puja with Cold Offerings (Basoda) for Health & Immunity',
+    icon: '🌸',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 90,
+    tithiIndex: 23, // Krishna Ashtami
+    amantaMonthIndex: 11, // Phalguna in Amanta
+    purnimantaMonthIndex: 0, // Chaitra in Purnimanta
+    kalaRequirement: 'Pratah',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: चैत्र कृष्ण अष्टमी को बासोड़ा (शीतल नैवेद्य) अर्पण कर भगवती शीतला का पूजन किया जाता है; इस दिन अग्नि प्रज्वलन वर्जित है जिससे संक्रामक रोगों का नाश होता है।',
+      english: 'Skanda Purana: Worshipping Devi Sheetala with pre-prepared cold food (Basoda) without lighting kitchen fire cures epidemics and grants immunity.'
+    },
+    shastraReferences: ['Skanda Purana', 'Dharmasindhu', 'Vratraj']
+  },
+  {
+    id: 'bhishma-ashtami',
+    name: 'Bhishma Ashtami (भीष्म अष्टमी)',
+    shortName: 'Bhishma Ashtami',
+    hindiName: 'भीष्म अष्टमी (पितामह भीष्म निर्वाण / तर्पण)',
+    description: 'Pitamah Bhishma Uttarayan Liberation & Sacred Ancestral Tarpana',
+    icon: '🏹',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 90,
+    tithiIndex: 8, // Shukla Ashtami
+    amantaMonthIndex: 10, // Magha
+    purnimantaMonthIndex: 10,
+    kalaRequirement: 'Madhyahna',
+    briefRule: {
+      hindi: 'महाभारत व निर्णयसिन्धु: माघ शुक्ल अष्टमी को शरशय्या पर स्थित भीष्म पितामह ने देहत्याग किया था; इस दिन कुश-तिल से भीष्म तर्पण करने से पितृदोष की शान्ति होती है।',
+      english: 'Mahabharata: Bhishma Pitamah departed his mortal frame on Magha Shukla Ashtami; offering sesamum tarpana to him satisfies ancestors across generations.'
+    },
+    shastraReferences: ['Mahabharata', 'Nirnayasindhu', 'Dharmasindhu']
+  },
+  {
+    id: 'janaki-jayanti',
+    name: 'Janaki Jayanti / Sita Ashtami (जानकी जयन्ती)',
+    shortName: 'Janaki Jayanti',
+    hindiName: 'जानकी जयन्ती (सीताष्टमी / भगवती सीता प्राकट्य)',
+    description: 'Divine Advent of Mata Sita from Mother Earth in King Janaka Realm',
+    icon: '🪷',
+    category: 'Major Festival',
+    isMajor: true,
+    priority: 88,
+    tithiIndex: 23, // Krishna Ashtami
+    amantaMonthIndex: 10, // Magha in Amanta
+    purnimantaMonthIndex: 11, // Phalguna in Purnimanta
+    kalaRequirement: 'Pratah',
+    briefRule: {
+      hindi: 'वाल्मीकि रामायण: फाल्गुन कृष्ण अष्टमी को राजा जनक के हल जोतने पर पृथ्वी से भगवती सीता का प्राकट्य हुआ था; सीता-राम युगल पूजन से दाम्पत्य सुख व अखण्ड सौभाग्य की प्राप्ति होती है।',
+      english: 'Valmiki Ramayana: Devi Sita manifested from the cosmic furrow on Phalguna Krishna Ashtami; worshipping Sita-Rama grants marital bliss and eternal virtue.'
+    },
+    shastraReferences: ['Valmiki Ramayana', 'Nirnayasindhu']
   },
   {
     id: 'maha-navami',

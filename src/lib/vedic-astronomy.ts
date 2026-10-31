@@ -1,7 +1,7 @@
 // High-Precision Vedic Astronomy and Panchang Calculation Engine
 // Built with Jean Meeus (VSOP87 / ELP2000-82) astronomical series and Lahiri (Chitra Paksha) Nirayana Ayanamsha
 
-import { getFestivalForDate, findUpcomingMajorFestival } from './festivals';
+import { getFestivalForDate, findUpcomingMajorFestival, ActiveFestivalResult } from './festivals';
 
 export interface LocationCoordinates {
   name: string;
@@ -488,6 +488,7 @@ export interface MonthCalendarDay {
     isPurnima: boolean;
     isAmavasya: boolean;
     isEkadashi: boolean;
+    isAshtami?: boolean;
     isKshayaTithi?: boolean;
     isVriddhiTithi?: boolean;
     kshayaTithiDetails?: {
@@ -523,6 +524,7 @@ export interface MonthCalendarDay {
   
   // Observance / Festival
   festival?: string;
+  festivalDetails?: ActiveFestivalResult;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1883,10 +1885,12 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
     const isPurnima = udayaTithiIndex === 15;
     const isAmavasya = udayaTithiIndex === 30;
     const isEkadashi = udayaTithiIndex === 11 || udayaTithiIndex === 26;
+    const isAshtami = udayaTithiIndex === 8 || udayaTithiIndex === 23;
 
     // High-precision dynamic Festival detector
     const dayFest = getFestivalForDate(targetDate, location);
     const festival = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest.name : undefined;
+    const festivalDetails = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest : undefined;
 
     days.push({
       dayNumber: d,
@@ -1904,6 +1908,7 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
         isPurnima,
         isAmavasya,
         isEkadashi,
+        isAshtami,
       },
       tithiEndTime: endStr,
       tithiEndDate: endTimeUtc,
@@ -1923,6 +1928,7 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
       sunrise: formatMinutesToTimeShort(sunTimes.sunriseMinutes),
       sunset: formatMinutesToTimeShort(sunTimes.sunsetMinutes),
       festival,
+      festivalDetails,
     });
   }
 

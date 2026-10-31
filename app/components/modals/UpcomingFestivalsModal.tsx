@@ -24,10 +24,12 @@ export function UpcomingFestivalsModal({ isOpen, onClose, location, currentDate 
 
   if (!isOpen) return null;
 
-  const categories = ['All', 'Major Festival', 'Ekadashi', 'Pradosh'];
+  const categories = ['All', 'Major Festival', 'Ashtami / Vrat', 'Ekadashi', 'Pradosh'];
 
   const filteredFestivals = selectedCategory === 'All'
     ? allUpcoming
+    : selectedCategory === 'Ashtami / Vrat'
+    ? allUpcoming.filter(f => f.category === 'Ashtami' || f.category === 'Vrat' || f.name.includes('Ashtami'))
     : allUpcoming.filter(f => f.category === selectedCategory || (selectedCategory === 'Major Festival' && f.isMajor));
 
   return (

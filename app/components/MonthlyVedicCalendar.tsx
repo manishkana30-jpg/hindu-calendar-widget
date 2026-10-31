@@ -257,6 +257,9 @@ export function MonthlyVedicCalendar({
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
             ✨ Ekadashi Vrat
           </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/40 text-orange-300">
+            🔱 Ashtami Vrat
+          </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/40 text-purple-300">
             🔄 Vriddhi (Extended)
           </span>
@@ -312,6 +315,7 @@ export function MonthlyVedicCalendar({
               const isPurnima = day.udayaTithi.isPurnima;
               const isAmavasya = day.udayaTithi.isAmavasya;
               const isEkadashi = day.udayaTithi.isEkadashi;
+              const isAshtami = day.udayaTithi.isAshtami;
               const isToday = day.isToday;
 
               return (
@@ -335,6 +339,8 @@ export function MonthlyVedicCalendar({
                       ? 'bg-gradient-to-b from-[#1b122e] via-[#100d1e] to-[#0a0c16] border-indigo-500/60 hover:border-indigo-400 shadow-md shadow-indigo-500/10'
                       : isEkadashi
                       ? 'bg-gradient-to-b from-[#0e241e] via-[#091714] to-[#080d1a] border-emerald-500/50 hover:border-emerald-400 shadow-sm'
+                      : isAshtami
+                      ? 'bg-gradient-to-b from-[#20150d] via-[#130f1a] to-[#0a0c16] border-orange-500/50 hover:border-orange-400 shadow-sm'
                       : 'bg-[#0a0f1d] hover:bg-[#10172c] border-[#1b253f] hover:border-orange-500/40'
                   }`}
                 >
@@ -351,7 +357,7 @@ export function MonthlyVedicCalendar({
                     <div className="flex items-center justify-between gap-1">
                       <div className="flex items-center gap-1">
                         <span className={`text-sm sm:text-base font-extrabold ${
-                          isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : 'text-white'
+                          isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isAshtami ? 'text-orange-300' : 'text-white'
                         }`}>
                           {day.dayNumber}
                         </span>
@@ -362,7 +368,7 @@ export function MonthlyVedicCalendar({
                         )}
                       </div>
 
-                      {/* Icon for Purnima / Amavasya / Ekadashi */}
+                      {/* Icon for Purnima / Amavasya / Ekadashi / Ashtami */}
                       <div>
                         {isPurnima && (
                           <span title="Purnima (Full Moon)" className="text-base sm:text-lg animate-pulse leading-none">
@@ -379,6 +385,11 @@ export function MonthlyVedicCalendar({
                             ✨
                           </span>
                         )}
+                        {isAshtami && !isPurnima && !isAmavasya && !isEkadashi && (
+                          <span title="Sacred Ashtami Vrat" className="text-xs text-orange-400 leading-none">
+                            🔱
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -391,6 +402,8 @@ export function MonthlyVedicCalendar({
                           ? 'text-indigo-300'
                           : isEkadashi
                           ? 'text-emerald-300'
+                          : isAshtami
+                          ? 'text-orange-300'
                           : day.udayaTithi.paksha === 'Shukla'
                           ? 'text-orange-200'
                           : 'text-neutral-200'
@@ -566,31 +579,86 @@ export function MonthlyVedicCalendar({
           }}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150"
         >
-          <div className="relative w-full max-w-lg max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] p-5 sm:p-6 pb-20 text-left">
+          <div className="relative w-full max-w-none sm:max-w-xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl flex flex-col font-sans overflow-hidden text-left overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#1e2942]">
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] uppercase font-bold text-orange-400 tracking-wider">
-                  Vedic Astrometry Details
+                  Vedic Astrometry &amp; Vrat Details
                 </span>
-                <h3 className="text-lg font-extrabold text-white">
+                <h3 className="text-base sm:text-lg font-extrabold text-white">
                   {selectedDayDetail.dateFormatted} ({selectedDayDetail.dayOfWeek})
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedDayDetail(null)}
-                className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1e2b4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+                className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1e2b4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                title="Close"
+                aria-label="Close"
               >
                 <X size={15} />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="py-4 space-y-3.5 text-xs">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] p-4 sm:p-6 space-y-3.5 text-xs pb-10">
               
+              {/* Sacred Festival / Vrat Details Card */}
+              {selectedDayDetail.festival && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#0e172a] to-orange-500/15 border border-amber-500/40 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-amber-400" />
+                      <span>SACRED VRAT / PARVA OBSERVANCE (व्रत एवं पर्व)</span>
+                    </span>
+                    {selectedDayDetail.festivalDetails?.badge && (
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        {selectedDayDetail.festivalDetails.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl shrink-0 select-none">
+                      {selectedDayDetail.festivalDetails?.icon || '🕉️'}
+                    </span>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-white">
+                        {selectedDayDetail.festival}
+                      </h4>
+                      {selectedDayDetail.festivalDetails?.description && (
+                        <p className="text-[11px] text-neutral-300 mt-0.5">
+                          {selectedDayDetail.festivalDetails.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedDayDetail.festivalDetails?.briefRule && (
+                    <div className="pt-2 border-t border-amber-500/20 space-y-1.5 text-[11px]">
+                      <div className="text-amber-200/95 leading-relaxed bg-[#0a0f1d]/70 p-2.5 rounded-xl border border-amber-500/20">
+                        <span className="font-bold text-amber-300 block mb-0.5">धर्मशास्त्र निर्णय नियम:</span>
+                        {selectedDayDetail.festivalDetails.briefRule.hindi}
+                      </div>
+                      <div className="text-neutral-300 leading-relaxed pl-1 text-[10px]">
+                        <strong className="text-neutral-200">Shastra Canonical Rule: </strong>
+                        {selectedDayDetail.festivalDetails.briefRule.english}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedDayDetail.festivalDetails?.shastraReferences && selectedDayDetail.festivalDetails.shastraReferences.length > 0 && (
+                    <div className="text-[10px] text-amber-300/80 font-mono flex items-center gap-1 pt-1">
+                      <span>📜 References:</span>
+                      <span>{selectedDayDetail.festivalDetails.shastraReferences.join(' • ')}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Udaya Tithi Card */}
               <div className="p-3.5 rounded-2xl bg-[#0e1629] border border-[#1e2942] space-y-1.5">
                 <div className="text-neutral-400 font-bold uppercase text-[10px]">1. PREVAILING UDAYA TITHI (सूर्योदय कालीन तिथि)</div>
@@ -598,6 +666,8 @@ export function MonthlyVedicCalendar({
                   <span>{selectedDayDetail.udayaTithi.name}</span>
                   {selectedDayDetail.udayaTithi.isPurnima && <span>🌕</span>}
                   {selectedDayDetail.udayaTithi.isAmavasya && <span>🌑</span>}
+                  {selectedDayDetail.udayaTithi.isEkadashi && <span>✨</span>}
+                  {selectedDayDetail.udayaTithi.isAshtami && <span>🔱</span>}
                 </div>
                 <div className="text-amber-300 font-mono font-semibold pt-1">
                   ⏱️ Tithi Concludes: {selectedDayDetail.tithiEndTime}
@@ -654,7 +724,7 @@ export function MonthlyVedicCalendar({
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[11px] text-orange-200">
                 <div className="font-bold mb-0.5 flex items-center gap-1">
                   <BookOpen size={12} />
-                  <span>Surya Siddhanta & Nirnayasindhu Shastra Rule:</span>
+                  <span>Surya Siddhanta &amp; Nirnayasindhu Shastra Rule:</span>
                 </div>
                 The Udaya Tithi at local sunrise ({selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious duties.
               </div>
@@ -662,10 +732,13 @@ export function MonthlyVedicCalendar({
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-3 border-t border-[#1e2942] flex justify-end">
+            <div className="p-3 sm:p-4 border-t border-[#1e2942] bg-[#0c1222] flex items-center justify-between shrink-0">
+              <span className="text-[11px] text-neutral-400 font-mono">
+                Surya Siddhanta &amp; Nirnayasindhu
+              </span>
               <button
                 onClick={() => setSelectedDayDetail(null)}
-                className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors"
+                className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors cursor-pointer active:scale-95 shadow-md"
               >
                 Close
               </button>

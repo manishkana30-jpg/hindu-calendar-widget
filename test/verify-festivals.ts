@@ -108,6 +108,65 @@ assert(upcomingList.length >= 5, `Retrieved ${upcomingList.length} upcoming fest
 assert(upcomingList.some(f => f.name.includes('Ganesh Chaturthi')), 'Includes Ganesh Chaturthi in forward list');
 assert(upcomingList.some(f => f.name.includes('Ekadashi')), 'Includes Ekadashis in forward list');
 
+// 11. RADHA ASHTAMI (Bhadrapada Shukla Ashtami in Madhyahna)
+console.log('\n▸ 11. Verifying Radha Ashtami (Bhadrapada Shukla Ashtami):');
+const radhaPanchang = calculatePanchang(new Date(2026, 8, 19, 6, 0, 0), delhi);
+assert(radhaPanchang.todayFestival.title.includes('Radha Ashtami'), 'Bhadrapada Shukla Ashtami is Radha Ashtami');
+assert(radhaPanchang.todayFestival.icon === '🪷', 'Radha Ashtami icon is 🪷');
+assert(radhaPanchang.todayFestival.isMajor === true, 'Radha Ashtami marked as major festival');
+assert(Boolean(radhaPanchang.todayFestival.briefRule?.hindi), 'Radha Ashtami has bilingual Dharmashastra rule');
+
+// 12. AHOI ASHTAMI (Kartika Krishna Ashtami in Sayahna)
+console.log('\n▸ 12. Verifying Ahoi Ashtami (Kartika Krishna Ashtami):');
+const ahoiPanchang = calculatePanchang(new Date(2026, 10, 1, 6, 0, 0), delhi);
+assert(ahoiPanchang.todayFestival.title.includes('Ahoi Ashtami'), 'Kartika Krishna Ashtami is Ahoi Ashtami');
+assert(ahoiPanchang.todayFestival.icon === '🌟', 'Ahoi Ashtami icon is 🌟');
+assert(ahoiPanchang.todayFestival.isMajor === true, 'Ahoi Ashtami marked as major festival');
+
+// 13. GOPASHTAMI (Kartika Shukla Ashtami)
+console.log('\n▸ 13. Verifying Gopashtami (Kartika Shukla Ashtami):');
+const gopPanchang = calculatePanchang(new Date(2026, 10, 17, 6, 0, 0), delhi);
+assert(gopPanchang.todayFestival.title.includes('Gopashtami'), 'Kartika Shukla Ashtami is Gopashtami');
+assert(gopPanchang.todayFestival.icon === '🐄', 'Gopashtami icon is 🐄');
+assert(gopPanchang.todayFestival.isMajor === true, 'Gopashtami marked as major festival');
+
+// 14. KALABHAIRAV JAYANTI (Margashirsha Krishna Ashtami in Nishita)
+console.log('\n▸ 14. Verifying Kalabhairav Jayanti (Margashirsha Krishna Ashtami):');
+const bhairavPanchang = calculatePanchang(new Date(2026, 10, 30, 6, 0, 0), delhi);
+assert(bhairavPanchang.todayFestival.title.includes('Kalabhairav Jayanti'), 'Margashirsha Krishna Ashtami is Kalabhairav Jayanti');
+assert(bhairavPanchang.todayFestival.icon === '🔱', 'Kalabhairav Jayanti icon is 🔱');
+assert(bhairavPanchang.todayFestival.isMajor === true, 'Kalabhairav Jayanti marked as major festival');
+
+// 15. SHEETALA ASHTAMI (Chaitra Krishna Ashtami / Basoda)
+console.log('\n▸ 15. Verifying Sheetala Ashtami (Chaitra Krishna Ashtami):');
+const sheetalaPanchang = calculatePanchang(new Date(2026, 2, 11, 6, 0, 0), delhi);
+assert(sheetalaPanchang.todayFestival.title.includes('Sheetala Ashtami'), 'Chaitra Krishna Ashtami is Sheetala Ashtami');
+assert(sheetalaPanchang.todayFestival.icon === '🌸', 'Sheetala Ashtami icon is 🌸');
+
+// 16. BHISHMA ASHTAMI (Magha Shukla Ashtami)
+console.log('\n▸ 16. Verifying Bhishma Ashtami (Magha Shukla Ashtami):');
+const bhishmaPanchang = calculatePanchang(new Date(2026, 0, 26, 6, 0, 0), delhi);
+assert(bhishmaPanchang.todayFestival.title.includes('Bhishma Ashtami'), 'Magha Shukla Ashtami is Bhishma Ashtami');
+assert(bhishmaPanchang.todayFestival.icon === '🏹', 'Bhishma Ashtami icon is 🏹');
+
+// 17. MASIK DURGASHTAMI (Monthly Shukla Ashtami)
+console.log('\n▸ 17. Verifying Masik Durgashtami (Monthly Shukla Ashtami):');
+const masikDurgaPanchang = calculatePanchang(new Date(2026, 3, 24, 6, 0, 0), delhi);
+assert(masikDurgaPanchang.todayFestival.title.includes('Masik Durgashtami'), 'Vaishakha Shukla Ashtami is Masik Durgashtami');
+assert(masikDurgaPanchang.todayFestival.icon === '🔱', 'Masik Durgashtami icon is 🔱');
+
+// 18. MASIK KALASHTAMI (Monthly Krishna Ashtami)
+console.log('\n▸ 18. Verifying Masik Kalashtami (Monthly Krishna Ashtami):');
+const masikKalaPanchang = calculatePanchang(new Date(2026, 4, 10, 6, 0, 0), delhi);
+assert(masikKalaPanchang.todayFestival.title.includes('Masik Kalashtami'), 'Vaishakha Krishna Ashtami is Masik Kalashtami');
+assert(masikKalaPanchang.todayFestival.icon === '🔱', 'Masik Kalashtami icon is 🔱');
+
+// 19. MASIK SHIVARATRI (Monthly Krishna Chaturdashi)
+console.log('\n▸ 19. Verifying Masik Shivaratri (Monthly Krishna Chaturdashi):');
+const masikShivaPanchang = calculatePanchang(new Date(2026, 6, 13, 6, 0, 0), delhi);
+assert(masikShivaPanchang.todayFestival.title.includes('Masik Shivaratri'), 'Ashadha Krishna Chaturdashi is Masik Shivaratri');
+assert(masikShivaPanchang.todayFestival.icon === '🔱', 'Masik Shivaratri icon is 🔱');
+
 console.log('\n═══════════════════════════════════════════════════════════════════════════════════');
 console.log(`  RESULTS: ${passed}/${total} Assertions Passed`);
 if (passed === total) {

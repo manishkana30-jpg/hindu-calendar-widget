@@ -35,7 +35,7 @@ export interface FestivalDetail {
   dayOfWeek: string;
   tithi: string;
   paksha: 'Shukla' | 'Krishna';
-  category: 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya' | 'Ganesh Chaturthi' | 'Major Festival' | 'Vrat';
+  category: 'Ekadashi' | 'Pradosh' | 'Purnima' | 'Amavasya' | 'Ganesh Chaturthi' | 'Major Festival' | 'Vrat' | 'Ashtami';
   udayaTime: string;
   startTime: string;
   endTime: string;
@@ -572,6 +572,57 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
       english: 'Kalamadhava: Janmashtami fast is fixed when Ashtami Tithi and Rohini Nakshatra coincide with solar midnight (Nishita Kaal).'
     },
     shastraReferences: ['Kalamadhava', 'Nirnayasindhu', 'Shrimad Bhagavatam']
+  },
+  {
+    name: 'Radha Ashtami',
+    hindiName: 'श्री राधाष्टमी',
+    date: 'Sunday, 20 Sep 2026',
+    dayOfWeek: 'Sunday (रविवार)',
+    tithi: 'Shukla Ashtami',
+    paksha: 'Shukla',
+    category: 'Major Festival',
+    udayaTime: '06:08 AM',
+    startTime: '19 Sep 2026, 10:20 AM',
+    endTime: '20 Sep 2026, 11:45 AM',
+    briefRule: {
+      hindi: 'पद्म पुराण: भाद्रपद शुक्ल अष्टमी को मध्याह्न काल में श्रीराधारानी का प्राकट्य हुआ था; मध्याह्न व्यापिनी अष्टमी में युगल पूजन सर्वश्रेष्ठ है।',
+      english: 'Padma Purana: Shri Radha manifested at solar noon (Madhyahna) in Barsana; worshipping the Divine Couple on Madhyahna Ashtami yields eternal Bhakti.'
+    },
+    shastraReferences: ['Padma Purana', 'Brahma Vaivarta Purana', 'Hari Bhakti Vilasa']
+  },
+  {
+    name: 'Ahoi Ashtami',
+    hindiName: 'अहोई अष्टमी',
+    date: 'Tuesday, 03 Nov 2026',
+    dayOfWeek: 'Tuesday (मंगलवार)',
+    tithi: 'Krishna Ashtami',
+    paksha: 'Krishna',
+    category: 'Major Festival',
+    udayaTime: '06:34 AM',
+    startTime: '02 Nov 2026, 08:15 PM',
+    endTime: '03 Nov 2026, 09:30 PM',
+    briefRule: {
+      hindi: 'भविष्य पुराण: कार्तिक कृष्ण अष्टमी को सायंकाल तारों के दर्शन एवं अर्घ्य समर्पण के उपरान्त संतान की दीर्घायु हेतु अहोई माता का पूजन किया जाता है।',
+      english: 'Bhavishya Purana: Mothers observe a strict fast on Krishna Ashtami, offering evening arghya to stars for the longevity of their children.'
+    },
+    shastraReferences: ['Bhavishya Purana', 'Vratraj', 'Dharmasindhu']
+  },
+  {
+    name: 'Gopashtami',
+    hindiName: 'गोपाष्टमी',
+    date: 'Wednesday, 18 Nov 2026',
+    dayOfWeek: 'Wednesday (बुधवार)',
+    tithi: 'Shukla Ashtami',
+    paksha: 'Shukla',
+    category: 'Major Festival',
+    udayaTime: '06:46 AM',
+    startTime: '17 Nov 2026, 01:10 PM',
+    endTime: '18 Nov 2026, 02:40 PM',
+    briefRule: {
+      hindi: 'पद्म पुराण: कार्तिक शुक्ल अष्टमी को भगवान श्रीकृष्ण को गोचारण की दीक्षा दी गई थी; इस दिन गौमाता का पूजन व परिक्रमा महापुण्यप्रद है।',
+      english: 'Padma Purana: Lord Krishna initiated cow grazing on Kartika Shukla Ashtami; worshipping and feeding sacred cows dispels all sins.'
+    },
+    shastraReferences: ['Padma Purana', 'Hari Bhakti Vilasa']
   },
   {
     name: 'Ganesh Chaturthi',
