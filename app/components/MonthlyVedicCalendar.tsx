@@ -37,6 +37,18 @@ export function MonthlyVedicCalendar({
     }
   }, [initialLocation]);
 
+  // ESC key listener for day detail modal
+  React.useEffect(() => {
+    if (!selectedDayDetail) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedDayDetail(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDayDetail]);
+
   const monthNames = [
     'January (पौष / माघ)', 'February (माघ / फाल्गुन)', 'March (फाल्गुन / चैत्र)',
     'April (चैत्र / वैशाख)', 'May (वैशाख / ज्येष्ठ)', 'June (ज्येष्ठ / आषाढ़)',
@@ -306,6 +318,12 @@ export function MonthlyVedicCalendar({
                 <div
                   key={day.dayNumber}
                   onClick={() => handleDayClick(day)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleDayClick(day);
+                    }
+                  }}
                   role="button"
                   tabIndex={0}
                   className={`min-h-[105px] sm:min-h-[130px] p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden text-left ${

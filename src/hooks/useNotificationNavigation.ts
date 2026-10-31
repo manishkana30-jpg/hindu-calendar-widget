@@ -19,7 +19,7 @@ export function useNotificationNavigation() {
 
   const openMuhuratModal = useCallback((): boolean => {
     const el = document.querySelector<HTMLElement>(
-      '[aria-label="Open Daily Muhurat Timetable and Choghadiya Matrix"], [title*="24h Muhurat Matrix"]'
+      '#muhurat-card, [aria-label*="Muhurat"], [title*="Muhurat"], [title*="24h Muhurat Matrix"]'
     );
     if (el) {
       el.click();
@@ -31,7 +31,7 @@ export function useNotificationNavigation() {
 
   const openCalendarModal = useCallback((): boolean => {
     const el = document.querySelector<HTMLElement>(
-      '[aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"], [title*="Monthly Calendar of Tithis"]'
+      '[aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"], [aria-label*="Monthly Calendar"], [title*="Monthly Calendar"], [title*="Full Monthly Calendar"]'
     );
     if (el) {
       el.click();

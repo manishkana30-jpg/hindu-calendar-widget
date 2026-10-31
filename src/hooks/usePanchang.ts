@@ -436,7 +436,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     } catch {
       return panchang.dateString;
     }
-  }, [targetDayKey, ianaTz, panchang.dateString]);
+  }, [targetInstant, targetDayKey, ianaTz, panchang.dateString]);
 
   // ── Step 3: Card 2 (Vedic Day & Udaya Tithi) Synchronization ──
   const tithiDetails: TithiDetailsState = useMemo(() => {
