@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Clock, Sun, Moon, CheckCircle2, 
-  AlertTriangle, Hourglass, Sparkles, Star, Shield, ArrowUpRight
+  AlertTriangle, Sparkles
 } from 'lucide-react';
 import { PanchangData } from '../../../src/lib/vedic-astronomy';
 import { COMPLETE_MUHURATS_LIST } from '../../../src/lib/dharmashastra-rules';
@@ -183,21 +183,6 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
     };
   });
 
-  // Currently active 30-Muhurat
-  const active30Muhurat = [...dayMuhuratsWithTimes, ...nightMuhuratsWithTimes].find(m => m.isCurrent);
-
-  // Countdown remaining string for active 30-Muhurat
-  const activeMuhuratRemaining = (() => {
-    if (!active30Muhurat) return null;
-    const endMins = parseTimeToMinutes(active30Muhurat.endTime);
-    let diff = endMins - (currentMinutes % 1440);
-    if (diff < 0) diff += 1440;
-    const totalSec = Math.max(0, Math.floor(diff * 60));
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    return `${mins}m ${secs < 10 ? '0' + secs : secs}s`;
-  })();
-
   return (
     <div 
       onClick={(e) => {
@@ -249,89 +234,6 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
             </button>
           </div>
         </div>
-
-        {/* ── ⭐ DEDICATED PROMINENT ACTIVE VEDIC MUHURAT BANNER (OBSERVED PER DHARMASHASTRA RULES) ── */}
-        {active30Muhurat && (
-          <div className={`p-3 sm:px-6 sm:py-2.5 bg-gradient-to-r from-[#0d1c33] via-[#10223d] to-[#0d1c33] border-b ${
-            (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
-              ? 'border-emerald-500/40 shadow-emerald-500/5'
-              : active30Muhurat.nature === 'Moderate'
-              ? 'border-yellow-500/40 shadow-yellow-500/5'
-              : 'border-rose-500/40 shadow-rose-500/5'
-          } flex flex-wrap items-center justify-between gap-2.5 shadow-inner flex-shrink-0`}>
-            <div className="flex items-center gap-2.5">
-              <div className={`p-2 rounded-xl border flex-shrink-0 animate-pulse ${
-                (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
-                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                  : active30Muhurat.nature === 'Moderate'
-                  ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
-                  : 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-              }`}>
-                {(active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious') ? (
-                  <Sparkles size={18} />
-                ) : active30Muhurat.nature === 'Moderate' ? (
-                  <Star size={18} />
-                ) : (
-                  <AlertTriangle size={18} />
-                )}
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
-                    (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
-                      ? 'text-emerald-400'
-                      : active30Muhurat.nature === 'Moderate'
-                      ? 'text-yellow-300'
-                      : 'text-rose-400'
-                  }`}>
-                    CURRENTLY ACTIVE VEDIC MUHURAT (धर्मशास्त्र सम्मत)
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                    (active30Muhurat.nature === 'Highly Auspicious' || active30Muhurat.nature === 'Auspicious')
-                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                      : active30Muhurat.nature === 'Moderate'
-                      ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40'
-                      : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                  }`}>
-                    {active30Muhurat.nature === 'Highly Auspicious' && '🌟 HIGHLY AUSPICIOUS (परम शुभ)'}
-                    {active30Muhurat.nature === 'Auspicious' && '✅ AUSPICIOUS (शुभ)'}
-                    {active30Muhurat.nature === 'Moderate' && '⚡ MODERATE (मध्यम)'}
-                    {active30Muhurat.nature === 'Inauspicious' && '⚠️ INAUSPICIOUS (अशुभ)'}
-                  </span>
-                </div>
-                <div className="text-sm sm:text-base font-extrabold text-white flex flex-wrap items-center gap-2 mt-0.5">
-                  <span className="text-amber-300 font-bold">Muhurat #{active30Muhurat.index}: {active30Muhurat.name}</span>
-                  <span className="text-xs text-neutral-300 font-normal">
-                    • Presiding Deity: <strong className="text-white">{active30Muhurat.deity}</strong>
-                  </span>
-                </div>
-                <div className="text-[11px] text-neutral-300 mt-0.5">
-                  <span className="text-amber-400/90 font-medium">Activity & Guidance:</span> {active30Muhurat.activity}
-                </div>
-              </div>
-            </div>
-
-            {/* Active Timing Window & Countdown Pill */}
-            <div className="flex items-center gap-2">
-              <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-[#233152] text-xs">
-                <span className="text-[10px] text-neutral-400 uppercase font-bold mr-1.5">Window:</span>
-                <span className="font-mono font-bold text-white text-xs">
-                  {active30Muhurat.startTime} — {active30Muhurat.endTime}
-                </span>
-              </div>
-
-              {activeMuhuratRemaining && (
-                <div className="px-3 py-1 rounded-xl bg-[#090e1a] border border-amber-500/40 text-xs flex items-center gap-1.5">
-                  <Hourglass size={12} className="text-amber-400 animate-spin" />
-                  <span className="text-[10px] text-amber-400 uppercase font-bold hidden sm:inline">Remaining:</span>
-                  <span className="font-mono font-extrabold text-amber-300 text-xs">
-                    {activeMuhuratRemaining}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* ── 🔘 HIGH-VISIBILITY CLICKABLE NAVIGATION TABS (PROMINENT PILLS - NEVER HIDDEN) ── */}
         <div className="p-2 sm:px-6 bg-[#0c1222] border-b border-[#1a233a] shrink-0">
