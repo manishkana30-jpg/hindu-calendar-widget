@@ -49,12 +49,12 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
       role="dialog"
       aria-modal="true"
       aria-label="Vedic Monthly Calendar and Udaya Tithi Almanac"
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-6xl max-h-[90dvh] bg-[#070b16] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full max-w-none sm:max-w-6xl h-dvh sm:h-auto sm:max-h-[90dvh] bg-[#070b16] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in fade-in sm:zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Top Navigation Bar */}
-        <div className="p-3.5 px-5 bg-[#090e1a] border-b border-[#1a233a] flex items-center justify-between gap-3">
+        <div className="p-3.5 px-5 bg-[#090e1a] border-b border-[#1a233a] flex items-center justify-between gap-3 shrink-0">
           
           <div className="flex items-center gap-3">
             {/* Back Button */}
@@ -102,7 +102,7 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400">
+        <div className="p-3 px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400 shrink-0">
           <div>Authority: <strong>Surya Siddhanta & Nirnayasindhu</strong> (Lahiri Sidereal Ayanamsha)</div>
           <button
             onClick={onClose}
