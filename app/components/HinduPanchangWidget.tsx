@@ -919,50 +919,32 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* COLUMN 3: ACTIVE MUHURAT CARD (CLEAN & LINKED TO 5 LIMBS) */}
+          {/* COLUMN 3: CURRENTLY ACTIVE VEDIC MUHURAT CARD */}
           <div 
             id="muhurat-card"
-            onClick={() => openLimbModal('tithi')}
+            onClick={() => setIsMuhuratModalOpen(true)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                openLimbModal('tithi');
+                setIsMuhuratModalOpen(true);
               }
             }}
             role="button"
             tabIndex={0}
-            aria-label="View 5-Limbs of Panchang for Muhurat"
-            title="Click to view 5-Limbs of Panchang"
+            aria-label="View Daily 24-Hour Muhurats and Choghadiya"
+            title="Click to view Daily 30 Muhurats & Choghadiya"
             className="scroll-mt-28 p-3 rounded-2xl bg-slate-900/70 backdrop-blur-xl border border-white/10 hover:border-amber-500/30 flex flex-col justify-between shadow-xl cursor-pointer transition-all duration-300 group relative active:scale-[0.99] overflow-hidden min-w-0"
           >
             <div className="min-w-0">
-              {/* Header: Label + Nature Badge (Clicking Muhurat opens DailyMuhuratModal) */}
+              {/* Header: Label + Nature Badge (Clicking opens DailyMuhuratModal) */}
               <div className="flex items-center justify-between gap-1.5 min-w-0">
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMuhuratModalOpen(true);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  title="Click to view Daily 30 Muhurats"
-                  className="text-slate-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1 min-w-0 hover:text-amber-300 cursor-pointer"
-                >
-                  <span className="truncate">ACTIVE MUHURAT</span>
+                <div className="text-slate-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1 min-w-0">
+                  <span className="truncate">CURRENTLY ACTIVE VEDIC MUHURAT</span>
                   <span className="text-[8px] px-1 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
-                    धर्मशास्त्र
+                    धर्मशास्त्र सम्मत
                   </span>
                 </div>
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMuhuratModalOpen(true);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  title="Click to view 30 Muhurats & Choghadiya"
-                  className="flex items-center gap-1 shrink-0 cursor-pointer"
-                >
+                <div className="flex items-center gap-1 shrink-0">
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold font-outfit flex items-center gap-1 ${
                     (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                       ? 'bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
@@ -979,35 +961,34 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     )}
                     <span>
                       {activeVedicMuhurat?.nature === 'Highly Auspicious' ? 'HIGHLY AUSPICIOUS' :
-                       activeVedicMuhurat?.nature === 'Auspicious' ? 'AUSPICIOUS' :
-                       activeVedicMuhurat?.nature === 'Moderate' ? 'MODERATE' : 'INAUSPICIOUS'}
+                       activeVedicMuhurat?.nature === 'Auspicious' ? 'AUSPICIOUS (शुभ)' :
+                       activeVedicMuhurat?.nature === 'Moderate' ? 'MODERATE (मध्यम)' : 'INAUSPICIOUS (अशुभ)'}
                     </span>
                   </span>
                   <ArrowUpRight size={12} className="text-slate-400 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
                 </div>
               </div>
 
-              {/* Main Active Vedic Muhurat Title */}
-              <div 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMuhuratModalOpen(true);
-                }}
-                role="button"
-                tabIndex={0}
-                title="Click to view 30 Muhurats"
-                className={`text-base sm:text-lg font-bold my-1 leading-snug transition-colors font-outfit truncate cursor-pointer hover:underline ${
-                (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
-                  ? 'text-white group-hover:text-emerald-300'
-                  : activeVedicMuhurat?.nature === 'Moderate'
-                  ? 'text-white group-hover:text-amber-300'
-                  : 'text-rose-400 group-hover:text-rose-300'
-              }`}>
-                {activeVedicMuhurat ? activeVedicMuhurat.name : (panchang.currentChoghadiya?.displayName || 'Abhijit Muhurat')}
+              {/* Main Active Vedic Muhurat Title & Deity */}
+              <div className="my-1.5 leading-snug">
+                <div className={`text-base sm:text-lg font-bold font-outfit truncate ${
+                  (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
+                    ? 'text-white group-hover:text-emerald-300'
+                    : activeVedicMuhurat?.nature === 'Moderate'
+                    ? 'text-white group-hover:text-amber-300'
+                    : 'text-rose-400 group-hover:text-rose-300'
+                }`}>
+                  {activeVedicMuhurat ? `Muhurat #${activeVedicMuhurat.index}: ${activeVedicMuhurat.name}` : (panchang.currentChoghadiya?.displayName || 'Abhijit Muhurat')}
+                </div>
+                {activeVedicMuhurat?.deity && (
+                  <div className="text-xs text-neutral-300 mt-0.5 truncate">
+                    • Presiding Deity: <strong className="text-white font-serif font-devanagari">{activeVedicMuhurat.deity}</strong>
+                  </div>
+                )}
               </div>
 
               {/* Timing Window & Expiry Pill */}
-              <div className="flex items-center justify-between text-xs text-slate-300 font-mono tabular-nums mb-2">
+              <div className="flex items-center justify-between text-xs text-slate-300 font-mono tabular-nums mb-1.5">
                 <span className="flex items-center gap-1 text-slate-300">
                   <Clock size={11} className="text-amber-400 shrink-0" />
                   <span>{activeVedicMuhurat ? `${activeVedicMuhurat.startTime} — ${activeVedicMuhurat.endTime}` : (panchang.currentChoghadiya?.windowString || '08:14 PM — 09:37 PM')}</span>
@@ -1017,110 +998,43 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 </span>
               </div>
 
-              {/* 5-Limbs Quick Alignment Grid (Interactive: Click any limb to open its details) */}
-              <div className="p-2 rounded-xl bg-slate-950/60 border border-white/10 space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] font-medium text-slate-400">
-                  <span className="font-outfit uppercase tracking-wider text-amber-400/90 font-bold flex items-center gap-1">
-                    <Layers size={10} className="text-amber-400" />
-                    <span>5-Limbs Alignment:</span>
+              {/* Shastric Activity & Guidance Banner */}
+              <div className="p-2 rounded-xl bg-slate-950/70 border border-white/10 text-[11px] text-slate-300 mb-2">
+                <span className="text-amber-400 font-semibold">Activity & Guidance:</span>{' '}
+                <span className="text-neutral-200">{activeVedicMuhurat?.activity || 'Favorable for auspicious beginnings, prayers, and sacred deeds.'}</span>
+              </div>
+
+              {/* Styled Active Muhurat Progress Bar */}
+              <div className="w-full mb-1">
+                <div className="flex items-center justify-between text-[9px] font-grotesk tabular-nums mb-0.5 text-slate-400">
+                  <span className="flex items-center gap-1 font-sans text-slate-400">
+                    <Hourglass size={10} className="text-amber-400 animate-spin" style={{ animationDuration: '6s' }} />
+                    Active Muhurat Progress
                   </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('yoga');
-                    }}
-                    className={`font-semibold cursor-pointer hover:underline text-[9px] ${panchang.yoga.nature === 'Shubh' ? 'text-emerald-400' : 'text-rose-400'}`}
-                    title="View Yoga details"
-                  >
-                    {panchang.yoga.nature === 'Shubh' ? 'Yoga Auspicious ↗' : 'Yoga Inauspicious ↗'}
-                  </button>
+                  <span className="font-bold text-slate-200">{muhuratProgress}%</span>
                 </div>
-                <div className="grid grid-cols-5 gap-1 text-[10px] text-center">
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('tithi');
-                    }}
-                    title="Click to view Tithi details"
-                    aria-label={`View Tithi: ${panchang.tithi.name}`}
-                    className="p-1 rounded bg-slate-900/90 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/50 truncate cursor-pointer transition-all active:scale-95 text-center focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  >
-                    <div className="text-[8px] text-amber-400/90 uppercase font-outfit font-semibold">Tithi</div>
-                    <div className="font-semibold text-slate-200 hover:text-white truncate text-[10px]">{panchang.tithi.name}</div>
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('nakshatra');
-                    }}
-                    title="Click to view Nakshatra details"
-                    aria-label={`View Nakshatra: ${panchang.nakshatra.name}`}
-                    className="p-1 rounded bg-slate-900/90 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/50 truncate cursor-pointer transition-all active:scale-95 text-center focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  >
-                    <div className="text-[8px] text-amber-400/90 uppercase font-outfit font-semibold">Nakshatra</div>
-                    <div className="font-semibold text-slate-200 hover:text-white truncate text-[10px]">{panchang.nakshatra.name}</div>
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('yoga');
-                    }}
-                    title="Click to view Yoga details"
-                    aria-label={`View Yoga: ${panchang.yoga.name}`}
-                    className="p-1 rounded bg-slate-900/90 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/50 truncate cursor-pointer transition-all active:scale-95 text-center focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  >
-                    <div className="text-[8px] text-amber-400/90 uppercase font-outfit font-semibold">Yoga</div>
-                    <div className="font-semibold text-slate-200 hover:text-white truncate text-[10px]">{panchang.yoga.name}</div>
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('karana');
-                    }}
-                    title="Click to view Karana details"
-                    aria-label={`View Karana: ${panchang.karana.name}`}
-                    className="p-1 rounded bg-slate-900/90 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/50 truncate cursor-pointer transition-all active:scale-95 text-center focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  >
-                    <div className="text-[8px] text-amber-400/90 uppercase font-outfit font-semibold">Karana</div>
-                    <div className="font-semibold text-slate-200 hover:text-white truncate text-[10px]">{panchang.karana.name}</div>
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openLimbModal('vaar');
-                    }}
-                    title="Click to view Vaar details"
-                    aria-label={`View Vaar: ${panchang.vaar.name}`}
-                    className="p-1 rounded bg-slate-900/90 hover:bg-amber-950/40 border border-white/10 hover:border-amber-500/50 truncate cursor-pointer transition-all active:scale-95 text-center focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  >
-                    <div className="text-[8px] text-amber-400/90 uppercase font-outfit font-semibold">Vaar</div>
-                    <div className="font-semibold text-slate-200 hover:text-white truncate text-[10px]">{panchang.vaar.name}</div>
-                  </button>
+                <div className="w-full h-1.5 bg-slate-800/80 rounded-full overflow-hidden border border-white/5">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${
+                      (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                        : activeVedicMuhurat?.nature === 'Moderate'
+                        ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                        : 'bg-gradient-to-r from-rose-600 to-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+                    }`}
+                    style={{ width: `${muhuratProgress}%` }}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Bottom Link: View 5-Limbs of Panchang */}
+            {/* Bottom Link: View Daily 30 Muhurats & Choghadiya */}
             <div className="mt-2 pt-2 border-t border-white/10 relative z-10">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openLimbModal('tithi');
-                }}
-                aria-label="Open 5-Limbs of Panchang Modal"
-                className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-98"
-              >
-                <Layers size={12} className="text-amber-400" />
-                <span>View 5-Limbs of Panchang</span>
+              <div className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/15 hover:from-amber-500/25 hover:to-amber-500/25 border border-amber-500/30 group-hover:border-amber-400/70 text-amber-300 group-hover:text-amber-200 text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                <Clock size={12} className="text-amber-400" />
+                <span>View Daily 30 Muhurats & Choghadiya</span>
                 <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
+              </div>
             </div>
           </div>
 
