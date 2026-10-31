@@ -545,8 +545,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           {/* Left Group: City Dropdown & GPS Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             {/* 1. City Dropdown */}
-            <div className="relative inline-flex items-center min-w-0">
-              <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none" />
+            <div className="relative inline-flex items-center min-w-0 shrink-0">
+              <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none z-10" />
               <select
                 aria-label="Select City Location"
                 value={selectedLocation.name}
@@ -561,7 +561,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-6 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[190px] truncate"
+                className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[190px] truncate"
               >
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
@@ -569,7 +569,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </option>
                 ))}
               </select>
-              <ChevronDown size={12} className="absolute right-2 text-slate-400 pointer-events-none" />
+              <ChevronDown size={12} className="absolute right-2 text-slate-400 pointer-events-none z-10" />
             </div>
 
             {/* 2. GPS Button */}
@@ -601,21 +601,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </button>
           </div>
 
-          {/* Right Group: WhatsApp Share & Embed Buttons */}
-          <div className="relative inline-flex items-center gap-1.5 shrink-0 ml-auto">
-            {/* Embed Widget Button */}
-            <button
-              type="button"
-              onClick={() => setIsEmbedModalOpen(true)}
-              title="Embed this live Hindu Panchang Widget on your website or blog"
-              aria-label="Embed on Your Site"
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-slate-900/90 hover:bg-slate-800/90 text-slate-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all shadow-sm active:scale-95 cursor-pointer shrink-0"
-            >
-              <Code2 size={13} className="text-amber-400 shrink-0" />
-              <span className="hidden md:inline">Embed on Your Site</span>
-              <span className="md:hidden">Embed</span>
-            </button>
-
+          {/* Right Group: WhatsApp Share Button Only (Restores uncluttered mobile bar) */}
+          <div className="relative inline-flex items-center shrink-0 ml-auto">
             {/* WhatsApp Share Button */}
             <button
               type="button"
@@ -1773,6 +1760,23 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
           </div>
         )}
+
+        {/* ── Widget Bottom Utility Footer: Subtle Embed Tool for Webmasters ── */}
+        <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2 text-[11px] text-slate-400 relative z-10">
+          <span className="text-[10px] text-slate-400 font-mono truncate">
+            Surya Siddhanta &amp; Swiss Ephemeris Engine
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsEmbedModalOpen(true)}
+            title="Embed this live Hindu Panchang Widget on your website or blog"
+            aria-label="Embed on Your Site"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all cursor-pointer font-outfit text-[11px] shrink-0 active:scale-95"
+          >
+            <Code2 size={12} className="text-amber-400 shrink-0" />
+            <span>Embed on Your Site</span>
+          </button>
+        </div>
 
       </div>
 
