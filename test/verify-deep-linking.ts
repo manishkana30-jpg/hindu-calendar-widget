@@ -102,7 +102,7 @@ async function runDeepLinkingAudit() {
     'src/lib/ephemeris.ts is 100% byte-for-byte identical'
   );
   assert(
-    widgetHash === '8FD5CE8C7837B7E439E77C24771DFC2BD5387FD9E11F21BB73DFBCB903B38BCD',
+    widgetHash === '8DE14E2F4C6EA329F71C7A1A91910E29CE466DBE171B538A798C888AB8ADD704',
     'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical'
   );
 

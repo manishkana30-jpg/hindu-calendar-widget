@@ -1761,26 +1761,25 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           </div>
         )}
 
-        {/* ── Widget Bottom Utility Footer: Subtle Embed Tool for Webmasters ── */}
+        {/* ── Widget Bottom Utility Footer ── */}
         <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2 text-[11px] text-slate-400 relative z-10">
-          <span className="text-[10px] text-slate-400 font-mono truncate">
-            Surya Siddhanta &amp; Swiss Ephemeris Engine
+          <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono truncate">
+            Surya Siddhanta &amp; Swiss Ephemeris Engine (DE431)
           </span>
-          <button
-            type="button"
-            onClick={() => setIsEmbedModalOpen(true)}
-            title="Embed this live Hindu Panchang Widget on your website or blog"
-            aria-label="Embed on Your Site"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all cursor-pointer font-outfit text-[11px] shrink-0 active:scale-95"
-          >
-            <Code2 size={12} className="text-amber-400 shrink-0" />
-            <span>Embed on Your Site</span>
-          </button>
+          <span className="text-[10px] text-slate-500 font-mono shrink-0">
+            Lahiri Ayanamsha
+          </span>
         </div>
 
       </div>
 
       {/* ── Interactive Modals ── */}
+      {/* Embed on Your Site: modal container */}
+      <EmbedWidgetModal
+        isOpen={isEmbedModalOpen}
+        onClose={() => setIsEmbedModalOpen(false)}
+        defaultCity={selectedLocation.name}
+      />
       <TithiMonthModal
         isOpen={isTithiModalOpen}
         onClose={() => setIsTithiModalOpen(false)}
@@ -1841,12 +1840,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             : undefined
         }}
         festivalOrVratName={panchang.festivals && panchang.festivals.length > 0 ? panchang.festivals[0] : null}
-      />
-
-      <EmbedWidgetModal
-        isOpen={isEmbedModalOpen}
-        onClose={() => setIsEmbedModalOpen(false)}
-        defaultCity={selectedLocation.name}
       />
 
     </>
