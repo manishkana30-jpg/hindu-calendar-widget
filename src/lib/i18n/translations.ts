@@ -114,6 +114,22 @@ export interface TranslationDictionary {
   colMobileVrat: string;
   tapToInspect: string;
 
+  // Muhurat & Choghadiya Table Headers & Modes
+  colMuhurat: string;
+  colNature: string;
+  colStartTime: string;
+  colEndTime: string;
+  colStatusDuration: string;
+  colDeity: string;
+  colActivity: string;
+  activeNow: string;
+  muhuratMatrix: string;
+  all30Muhurats: string;
+  dayMuhurats: string;
+  nightMuhurats: string;
+  shubhAshubhWindows: string;
+  viewTable: string;
+
   // Five Limbs
   fiveLimbsTitle: string;
   nakshatra: string;
@@ -263,6 +279,21 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     colMobileVrat: 'Vrat / Tyohar',
     tapToInspect: 'Details',
 
+    colMuhurat: 'Muhurat',
+    colNature: 'Type / Nature',
+    colStartTime: 'Start Time',
+    colEndTime: 'End Time',
+    colStatusDuration: 'Status / Duration',
+    colDeity: 'Presiding Deity',
+    colActivity: 'Activity & Guidance',
+    activeNow: 'Active Now',
+    muhuratMatrix: 'Daily 24-Hour Muhurat Matrix',
+    all30Muhurats: 'All 30 Muhurats',
+    dayMuhurats: '15 Day Muhurats',
+    nightMuhurats: '15 Night Muhurats',
+    shubhAshubhWindows: 'Shubh & Ashubh Windows',
+    viewTable: 'Table View',
+
     fiveLimbsTitle: 'Five Limbs of Vedic Panchang',
     nakshatra: 'Nakshatra',
     yoga: 'Yoga',
@@ -404,6 +435,21 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     colMobileTithiPakshaMasa: 'तिथि, पक्ष व मास',
     colMobileVrat: 'व्रत / पर्व',
     tapToInspect: 'विवरण',
+
+    colMuhurat: 'मुहूर्त',
+    colNature: 'प्रकृति',
+    colStartTime: 'प्रारम्भ समय',
+    colEndTime: 'समाप्ति समय',
+    colStatusDuration: 'अवधि / स्थिति',
+    colDeity: 'अधिष्ठाता देवता',
+    colActivity: 'कार्य एवं मार्गदर्शन',
+    activeNow: 'सक्रिय',
+    muhuratMatrix: 'दैनिक २४ घंटे मुहूर्त तालिका',
+    all30Muhurats: 'सम्पूर्ण ३० मुहूर्त',
+    dayMuhurats: 'दिन के १५ मुहूर्त',
+    nightMuhurats: 'रात्रि के १५ मुहूर्त',
+    shubhAshubhWindows: 'शुभ एवं अशुभ मुहूर्त',
+    viewTable: 'तालिका दृश्य',
 
     fiveLimbsTitle: 'पञ्चाङ्ग के पाँच मूल अंग',
     nakshatra: 'नक्षत्र',
@@ -547,6 +593,21 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     colMobileVrat: 'व्रतम् / पर्व',
     tapToInspect: 'विवरणम्',
 
+    colMuhurat: 'मुहूर्तः',
+    colNature: 'प्रकृतिः',
+    colStartTime: 'प्रारम्भसमयः',
+    colEndTime: 'समाप्तिसमयः',
+    colStatusDuration: 'अवधिः / स्थितिः',
+    colDeity: 'अधिष्ठातृदेवता',
+    colActivity: 'कार्यं मार्गदर्शनं च',
+    activeNow: 'सक्रियः',
+    muhuratMatrix: 'दैनिक २४होरा मुहूर्ततालिका',
+    all30Muhurats: 'सम्पूर्ण ३० मुहूर्ताः',
+    dayMuhurats: 'दिनस्य १५ मुहूर्ताः',
+    nightMuhurats: 'रात्रेः १५ मुहूर्ताः',
+    shubhAshubhWindows: 'शुभाशुभमुहूर्ताः',
+    viewTable: 'तालिकादृश्यम्',
+
     fiveLimbsTitle: 'पञ्चाङ्गस्य पञ्च अङ्गानि',
     nakshatra: 'नक्षत्रम्',
     yoga: 'योगः',
@@ -689,6 +750,21 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     colMobileVrat: 'व्रत / सण',
     tapToInspect: 'तपशील',
 
+    colMuhurat: 'मुहूर्त',
+    colNature: 'प्रकृती',
+    colStartTime: 'प्रारंभ वेळ',
+    colEndTime: 'समाप्ती वेळ',
+    colStatusDuration: 'कालावधी / स्थिती',
+    colDeity: 'अधिष्ठाता देवता',
+    colActivity: 'कार्य व मार्गदर्शन',
+    activeNow: 'सक्रिय',
+    muhuratMatrix: 'दैनिक २४ तास मुहूर्त सारणी',
+    all30Muhurats: 'सर्व ३० मुहूर्त',
+    dayMuhurats: 'दिवसाचे १५ मुहूर्त',
+    nightMuhurats: 'रात्रीचे १५ मुहूर्त',
+    shubhAshubhWindows: 'शुभ व अशुभ मुहूर्त',
+    viewTable: 'सारणी दृश्य',
+
     fiveLimbsTitle: 'पंचांगाची पाच मुख्य अंगे',
     nakshatra: 'नक्षत्र',
     yoga: 'योग',
@@ -830,6 +906,21 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     colMobileTithiPakshaMasa: 'તિથિ, પક્ષ અને માસ',
     colMobileVrat: 'વ્રત / પર્વ',
     tapToInspect: 'વિગત',
+
+    colMuhurat: 'મુહૂર્ત',
+    colNature: 'પ્રકૃતિ',
+    colStartTime: 'પ્રારંભ સમય',
+    colEndTime: 'સમાપ્તિ સમય',
+    colStatusDuration: 'અવધિ / સ્થિતિ',
+    colDeity: 'અધિષ્ઠાતા દેવતા',
+    colActivity: 'કાર્ય અને માર્ગદર્શન',
+    activeNow: 'સક્રિય',
+    muhuratMatrix: 'દૈનિક ૨૪ કલાક મુહૂર્ત કોષ્ટક',
+    all30Muhurats: 'બધા ૩૦ મુહૂર્ત',
+    dayMuhurats: 'દિવસના ૧૫ મુહૂર્ત',
+    nightMuhurats: 'રાત્રિના ૧૫ મુહૂર્ત',
+    shubhAshubhWindows: 'શુભ અને અશુભ મુહૂર્ત',
+    viewTable: 'કોષ્ટક દ્રશ્ય',
 
     fiveLimbsTitle: 'પંચાંગના પાંચ મુખ્ય અંગ',
     nakshatra: 'નક્ષત્ર',
@@ -1075,6 +1166,16 @@ export const ASTROLOGICAL_TERMS: Record<string, Record<SupportedLanguage, string
   'sayahna sandhya': { en: 'Sayahna Sandhya', hi: 'सायाह्न सन्ध्या', sa: 'सायाह्नसान्ध्या', mr: 'सायान्ह संध्या', gu: 'સાયાહ્ન સંધ્યા' },
   'pratah sandhya': { en: 'Pratah Sandhya', hi: 'प्रातः सन्ध्या', sa: 'प्रातःसान्ध्या', mr: 'प्रातः संध्या', gu: 'પ્રાતઃ સંધ્યા' },
   'nishita kaal': { en: 'Nishita Kaal', hi: 'निशीथ काल', sa: 'निशीथकालः', mr: 'निशीथ काळ', gu: 'નિશીથ કાળ' },
+  'amrit kaal': { en: 'Amrit Kaal', hi: 'अमृत काल', sa: 'अमृतकालः', mr: 'अमृत काळ', gu: 'અમૃત કાળ' },
+  'dur muhurat': { en: 'Dur Muhurat', hi: 'दुर्मुहूर्त', sa: 'दुर्मुहूर्तः', mr: 'दुर्मुहूर्त', gu: 'દુર્મુહૂર્ત' },
+  'varjyam': { en: 'Varjyam', hi: 'वर्ज्यम्', sa: 'वर्ज्यम्', mr: 'वर्ज्यम्', gu: 'વર્જ્યમ્' },
+  'gulika kaal': { en: 'Gulika Kaal', hi: 'गुलिक काल', sa: 'गुलिककालः', mr: 'गुलिक काळ', gu: 'ગુલિક કાળ' },
+  'highly auspicious': { en: 'Highly Auspicious', hi: 'परम शुभ', sa: 'परमशुभम्', mr: 'अत्यंत शुभ', gu: 'અત્યંત શુભ' },
+  'auspicious': { en: 'Auspicious', hi: 'शुभ', sa: 'शुभम्', mr: 'शुभ', gu: 'શુભ' },
+  'moderate': { en: 'Moderate', hi: 'मध्यम', sa: 'मध्यमम्', mr: 'मध्यम', gu: 'મધ્યમ' },
+  'inauspicious': { en: 'Inauspicious', hi: 'अशुभ', sa: 'अशुभम्', mr: 'अशुभ', gu: 'અશુભ' },
+  'neutral': { en: 'Neutral', hi: 'मध्यम', sa: 'मध्यमम्', mr: 'मध्यम', gu: 'મધ્યમ' },
+  'choghadiya': { en: 'Choghadiya', hi: 'चौघड़िया', sa: 'चौघडिया', mr: 'चौघडिया', gu: 'ચોઘડિયા' },
 
   // Ayana & Ritu
   'uttarayana': { en: 'Uttarayana', hi: 'उत्तरायण', sa: 'उत्तरायणम्', mr: 'उत्तरायण', gu: 'ઉત્તરાયણ' },

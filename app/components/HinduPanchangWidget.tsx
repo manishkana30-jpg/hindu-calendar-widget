@@ -468,6 +468,41 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     return getUpcomingFestivalsList(targetInstant, selectedLocation, 4, 90);
   }, [targetInstant, selectedLocation]);
 
+  // Dedicated Gregorian Date formatters (strictly decoupled from Vedic calendar)
+  const gregorianDayNumber = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(localeCode, {
+        day: '2-digit',
+        timeZone: observer.timezone
+      }).format(targetInstant);
+    } catch {
+      return String(targetInstant.getDate()).padStart(2, '0');
+    }
+  }, [targetInstant, observer.timezone, localeCode]);
+
+  const gregorianMonthYear = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(localeCode, {
+        month: 'long',
+        year: 'numeric',
+        timeZone: observer.timezone
+      }).format(targetInstant);
+    } catch {
+      return targetInstant.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' });
+    }
+  }, [targetInstant, observer.timezone, localeCode]);
+
+  const gregorianWeekday = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(localeCode, {
+        weekday: 'long',
+        timeZone: observer.timezone
+      }).format(targetInstant);
+    } catch {
+      return targetInstant.toLocaleDateString(localeCode, { weekday: 'long' });
+    }
+  }, [targetInstant, observer.timezone, localeCode]);
+
   // Formatted date string for native date input (YYYY-MM-DD)
   const selectedDateYyyyMmDd = useMemo(() => {
     const d = selectedDate;
@@ -744,138 +779,60 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isCalendarModalOpen}
             title="Click to open Full Monthly Calendar & Almanac"
             aria-label="Open Full Monthly Calendar & Almanac"
-            className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0"
+            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
-              <div className="flex items-center justify-between gap-1.5 min-w-0">
+              {/* Top Header: Live Indicator & Location Timezone Badge */}
+              <div className="flex items-center justify-between gap-1.5 min-w-0 mb-2">
                 <div className="flex items-center gap-1.5 text-amber-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-amber-300 transition-colors min-w-0">
                   <Clock size={12} className="text-amber-400 shrink-0" />
                   <span className="whitespace-nowrap shrink-0">{isLiveMode ? t('liveClock') : t('selectedDate')}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
-                    <Calendar size={11} className="text-orange-400 shrink-0" />
-                    <span>{t('almanac30Day')}</span>
-                    <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#11192e] border border-white/10 text-amber-300 text-[10px] font-mono font-medium shadow-sm">
+                    <span className="truncate max-w-[120px] sm:max-w-[160px]">{selectedLocation.name}</span>
+                    <span className="text-slate-500">•</span>
+                    <span>{formattedTzOffset}</span>
                   </span>
                 </div>
               </div>
 
-              {/* Metallic gradient tabular-nums clock */}
-              <div 
-                className="text-2xl sm:text-3xl font-extrabold font-grotesk font-mono tracking-tight my-1 bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tabular-nums select-all"
-                aria-label={`Current time: ${displayTime}`}
-              >
-                <span aria-hidden="true" suppressHydrationWarning>
-                  {displayTime}
-                </span>
-              </div>
-
-              <div className="text-slate-300 text-xs font-medium mb-1.5 flex items-center justify-between font-sans gap-1 min-w-0">
-                <span className="break-words whitespace-normal leading-snug min-w-0">{displayDate}</span>
-                <span className="text-[10px] text-amber-300/90 font-medium font-sans shrink-0">
-                  {selectedLocation.regionName}
-                </span>
-              </div>
-
-              {/* ── HOLIDAYS & ECLIPSE STATUS SECTION ── */}
-              <div className="space-y-1 mb-1.5 min-w-0">
-                
-                {/* 1. Today's Holiday Status */}
-                <div className={`p-1.5 rounded-xl border text-[11px] flex items-center justify-between gap-1.5 transition-all min-w-0 ${
-                  holidayDetails.todayHoliday.isHoliday
-                    ? 'bg-amber-950/60 border-amber-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                    : 'bg-slate-950/60 border-white/10 text-slate-300'
-                }`}>
-                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                    <span className="text-xs select-none shrink-0">{holidayDetails.todayHoliday.icon}</span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[10px] font-bold text-white break-words whitespace-normal font-sans">
-                        {holidayDetails.todayHoliday.title}
-                      </div>
-                      {holidayDetails.todayHoliday.subtitle && (
-                        <div className="text-[9px] text-slate-400 break-words whitespace-normal font-sans">
-                          {holidayDetails.todayHoliday.subtitle}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <span className={`px-1 py-0.5 rounded text-[8px] font-extrabold shrink-0 border font-outfit ${
-                    holidayDetails.todayHoliday.isHoliday
-                      ? 'bg-amber-950/60 border-amber-500/30 text-amber-300'
-                      : 'bg-slate-800 text-slate-400 border-white/10'
-                  }`}>
-                    {holidayDetails.todayHoliday.badge}
+              {/* Prominent Gregorian Hero Day & Date */}
+              <div className="flex items-center gap-3 my-2 min-w-0">
+                <div className="text-4xl sm:text-5xl font-extrabold font-grotesk tracking-tight text-white tabular-nums drop-shadow shrink-0">
+                  {gregorianDayNumber}
+                </div>
+                <div className="min-w-0 flex flex-col justify-center">
+                  <span className="text-base sm:text-lg font-bold text-amber-300 font-sans leading-tight break-words">
+                    {gregorianWeekday}
+                  </span>
+                  <span className="text-xs sm:text-sm text-slate-300 font-medium font-sans leading-tight break-words mt-0.5">
+                    {gregorianMonthYear}
                   </span>
                 </div>
+              </div>
 
-                {/* 2. Upcoming Holiday */}
-                {holidayDetails.upcomingHoliday && (
-                  <div className="px-2 py-1 rounded-xl bg-slate-950/60 border border-white/10 text-[10px] flex items-center justify-between gap-1.5 min-w-0">
-                    <div className="flex items-center gap-1 min-w-0 flex-1 text-slate-300">
-                      <span className="text-amber-400 select-none shrink-0">{holidayDetails.upcomingHoliday.icon}</span>
-                      <span className="text-slate-400 text-[9px] shrink-0 font-sans">{t('nextHoliday')}</span>
-                      <strong className="text-white break-words whitespace-normal leading-snug font-semibold font-sans min-w-0">{translateTerm(holidayDetails.upcomingHoliday.title, language)}</strong>
-                    </div>
-                    <span className="text-[9px] text-amber-300 font-grotesk font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 shrink-0 tabular-nums">
-                      {holidayDetails.upcomingHoliday.daysText}
+              {/* Metallic gradient tabular-nums clock & Region Name */}
+              <div className="p-2 sm:p-2.5 rounded-xl bg-slate-950/70 border border-white/10 flex items-center justify-between gap-2 min-w-0 mb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span 
+                    className="text-xl sm:text-2xl font-extrabold font-grotesk font-mono tracking-tight bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tabular-nums select-all"
+                    aria-label={`Current time: ${displayTime}`}
+                  >
+                    <span aria-hidden="true" suppressHydrationWarning>
+                      {displayTime}
                     </span>
-                  </div>
-                )}
-
-                {/* 3. Astronomical Eclipse Status */}
-                <div className={`px-2 py-1 rounded-xl border text-[10px] flex items-center justify-between gap-1.5 min-w-0 ${
-                  holidayDetails.eclipseInfo.hasEclipseToday
-                    ? 'bg-rose-950/60 border-rose-500/30 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse'
-                    : 'bg-slate-950/40 border-white/5 text-slate-400'
-                }`}>
-                  <div className="flex items-center gap-1.5 min-w-0 flex-1 font-sans">
-                    <span className="shrink-0">{holidayDetails.eclipseInfo.hasEclipseToday ? '🌑' : '✨'}</span>
-                    {holidayDetails.eclipseInfo.hasEclipseToday ? (
-                      <span className="font-extrabold text-rose-300 break-words whitespace-normal text-[10px]">
-                        {holidayDetails.eclipseInfo.activeEclipse?.nameHindi || t('eclipseToday')} • {t('sutakActive')}
-                      </span>
-                    ) : (
-                      <span className="break-words whitespace-normal text-[10px] text-slate-300">
-                        {t('noEclipseToday')}
-                        {holidayDetails.eclipseInfo.nextEclipse && (
-                          <span className="text-slate-400 ml-1">
-                            • {t('nextHoliday')} {translateTerm(holidayDetails.eclipseInfo.nextEclipse.nameHindi, language)}
-                          </span>
-                        )}
-                      </span>
-                    )}
-                  </div>
-                  {holidayDetails.eclipseInfo.nextEclipse && !holidayDetails.eclipseInfo.hasEclipseToday && (
-                    <span className="text-[9px] text-slate-400 font-grotesk font-mono tabular-nums whitespace-nowrap shrink-0">
-                      {holidayDetails.eclipseInfo.nextEclipse.daysText}
-                    </span>
-                  )}
+                  </span>
                 </div>
-
+                <span className="text-[10px] text-slate-400 font-sans font-medium shrink-0">
+                  {selectedLocation.regionName || selectedLocation.name}
+                </span>
               </div>
             </div>
 
-            {/* Cohesive Sunrise/Sunset and Value-Driven Tap Micro-CTA Footer */}
-            <div className="pt-2 border-t border-[#1e2d4f] mt-auto space-y-1.5 min-w-0">
-              <div className="flex items-center justify-between gap-2 text-xs min-w-0">
-                <div className="px-2 py-0.5 rounded-full bg-slate-950/70 border border-white/10 flex items-center gap-2 text-[10px] font-medium text-slate-200 font-grotesk tabular-nums shrink-0">
-                  <span className="flex items-center gap-1">
-                    <Sun size={11} className="text-amber-400 shrink-0" />
-                    <span>{panchang.sunrise}</span>
-                  </span>
-                  <span className="text-slate-600 select-none">•</span>
-                  <span className="flex items-center gap-1">
-                    <Moon size={11} className="text-indigo-400 shrink-0" />
-                    <span>{panchang.sunset}</span>
-                  </span>
-                </div>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 font-outfit shrink-0">
-                  {t('almanac30Day')}
-                </span>
-              </div>
-
-              {/* Value-Driven Tap Micro-CTA */}
+            {/* Value-Driven Tap Micro-CTA Footer */}
+            <div className="pt-2 border-t border-[#1e2d4f] mt-auto min-w-0">
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
@@ -1662,180 +1619,270 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
             )}
 
-            {/* Tab 2: Choghadiya */}
+            {/* Tab 2: Choghadiya (Table-Only View with Dual Scroll) */}
             {activeTab === 'choghadiya' && (
               <div className="space-y-4">
+                {/* 1. Day Choghadiya Table */}
                 <div>
-                  <div className="text-xs font-bold text-slate-300 mb-2 font-outfit">☀️ {t('daytimeChoghadiya')}</div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {panchang.dayChoghadiya.map((slot, i) => (
-                      <div key={i} className={`p-2.5 rounded-xl border text-xs ${slot.isCurrent ? 'bg-slate-800/90 border-amber-500 ring-1 ring-amber-500' : 'bg-slate-950/60 border-white/10'}`}>
-                        <div className="flex justify-between font-bold text-white">
-                          <span className="font-serif font-devanagari">{translateTerm(slot.name, language)}</span>
-                          <span className={`text-[10px] px-1.5 rounded font-bold border font-outfit ${
-                            slot.nature === 'AUSPICIOUS' 
-                              ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300' 
-                              : slot.nature === 'NEUTRAL' 
-                              ? 'bg-amber-950/60 border-amber-500/30 text-amber-300' 
-                              : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
-                          }`}>{translateTerm(slot.quality, language)}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-400 font-grotesk font-mono tabular-nums mt-1">{slot.startTime} - {slot.endTime}</div>
-                      </div>
-                    ))}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold text-amber-300 font-outfit flex items-center gap-1.5">
+                      <Sun size={13} className="text-amber-400 shrink-0" />
+                      <span>{t('daytimeChoghadiya')}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono tabular-nums">
+                      {panchang.sunrise} — {panchang.sunset}
+                    </span>
+                  </div>
+
+                  <div className="relative w-full max-h-[380px] sm:max-h-[440px] overflow-x-auto overflow-y-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a] shadow-inner">
+                    <table className="w-full min-w-[560px] border-collapse text-left">
+                      <thead className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90">
+                        <tr>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colMuhurat')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colNature')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colStartTime')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colEndTime')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colStatusDuration')}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#162038] text-xs sm:text-sm">
+                        {panchang.dayChoghadiya.map((slot, i) => (
+                          <tr 
+                            key={i} 
+                            className={`transition-colors ${
+                              slot.isCurrent 
+                                ? 'bg-orange-500/10 border-l-4 border-l-orange-500 font-semibold text-white' 
+                                : 'hover:bg-[#11192e]/60 text-slate-300'
+                            }`}
+                          >
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              <div className="font-bold text-white font-devanagari leading-snug">
+                                {translateTerm(slot.name, language)}
+                              </div>
+                              {slot.ruler && (
+                                <div className="text-[10px] text-slate-400 font-sans leading-tight mt-0.5">
+                                  {t('ruler')}: {translateTerm(slot.ruler, language)}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border font-outfit uppercase ${
+                                slot.nature === 'AUSPICIOUS' 
+                                  ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300' 
+                                  : slot.nature === 'NEUTRAL' 
+                                  ? 'bg-amber-950/70 border-amber-500/40 text-amber-300' 
+                                  : 'bg-rose-950/70 border-rose-500/40 text-rose-300'
+                              }`}>
+                                {translateTerm(slot.quality, language)}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {slot.startTime}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {slot.endTime}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              {slot.isCurrent ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40 animate-pulse inline-flex items-center gap-1 font-outfit">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                                  {t('activeNow')}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 font-mono text-xs tabular-nums">
+                                  1.5h
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
+
+                {/* 2. Night Choghadiya Table */}
                 <div>
-                  <div className="text-xs font-bold text-slate-300 mb-2 font-outfit">🌙 {t('nighttimeChoghadiya')}</div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {panchang.nightChoghadiya.map((slot, i) => (
-                      <div key={i} className={`p-2.5 rounded-xl border text-xs ${slot.isCurrent ? 'bg-slate-800/90 border-amber-500 ring-1 ring-amber-500' : 'bg-slate-950/60 border-white/10'}`}>
-                        <div className="flex justify-between font-bold text-white">
-                          <span className="font-serif font-devanagari">{translateTerm(slot.name, language)}</span>
-                          <span className={`text-[10px] px-1.5 rounded font-bold border font-outfit ${
-                            slot.nature === 'AUSPICIOUS' 
-                              ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300' 
-                              : slot.nature === 'NEUTRAL' 
-                              ? 'bg-amber-950/60 border-amber-500/30 text-amber-300' 
-                              : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
-                          }`}>{translateTerm(slot.quality, language)}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-400 font-grotesk font-mono tabular-nums mt-1">{slot.startTime} - {slot.endTime}</div>
-                      </div>
-                    ))}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold text-indigo-300 font-outfit flex items-center gap-1.5">
+                      <Moon size={13} className="text-indigo-400 shrink-0" />
+                      <span>{t('nighttimeChoghadiya')}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono tabular-nums">
+                      {panchang.sunset} — {panchang.sunrise}
+                    </span>
+                  </div>
+
+                  <div className="relative w-full max-h-[380px] sm:max-h-[440px] overflow-x-auto overflow-y-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a] shadow-inner">
+                    <table className="w-full min-w-[560px] border-collapse text-left">
+                      <thead className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90">
+                        <tr>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colMuhurat')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colNature')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colStartTime')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colEndTime')}</th>
+                          <th className="px-3.5 py-3 whitespace-nowrap">{t('colStatusDuration')}</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#162038] text-xs sm:text-sm">
+                        {panchang.nightChoghadiya.map((slot, i) => (
+                          <tr 
+                            key={i} 
+                            className={`transition-colors ${
+                              slot.isCurrent 
+                                ? 'bg-orange-500/10 border-l-4 border-l-orange-500 font-semibold text-white' 
+                                : 'hover:bg-[#11192e]/60 text-slate-300'
+                            }`}
+                          >
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              <div className="font-bold text-white font-devanagari leading-snug">
+                                {translateTerm(slot.name, language)}
+                              </div>
+                              {slot.ruler && (
+                                <div className="text-[10px] text-slate-400 font-sans leading-tight mt-0.5">
+                                  {t('ruler')}: {translateTerm(slot.ruler, language)}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border font-outfit uppercase ${
+                                slot.nature === 'AUSPICIOUS' 
+                                  ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300' 
+                                  : slot.nature === 'NEUTRAL' 
+                                  ? 'bg-amber-950/70 border-amber-500/40 text-amber-300' 
+                                  : 'bg-rose-950/70 border-rose-500/40 text-rose-300'
+                              }`}>
+                                {translateTerm(slot.quality, language)}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {slot.startTime}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {slot.endTime}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              {slot.isCurrent ? (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40 animate-pulse inline-flex items-center gap-1 font-outfit">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                                  {t('activeNow')}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400 font-mono text-xs tabular-nums">
+                                  1.5h
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Tab 3: Muhurats */}
+            {/* Tab 3: Muhurats (Table-Only View with Dual Scroll) */}
             {activeTab === 'muhurat' && (
-              <div 
-                id="muhurat-section"
-                className="scroll-mt-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-              >
-                {/* 1. BRAHMA MUHURAT */}
-                <div 
-                  onClick={() => setIsMuhuratModalOpen(true)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsMuhuratModalOpen(true); }}}
-                  title="Click to view all 30 Vedic Muhurats"
-                  aria-label="View Brahma Muhurat and All 30 Muhurats"
-                  className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-emerald-500/35 hover:border-emerald-400/60 cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between shadow-lg min-w-0"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Brahma Muhurat', language)}</span>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-outfit uppercase">{t('auspicious').toUpperCase()}</span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
-                          <span>{language === 'en' ? '30 Muhurats' : (language === 'hi' ? '३० मुहूर्त' : (language === 'sa' ? '३० मुहूर्ताः' : (language === 'mr' ? '३० मुहूर्त' : '૩૦ મુહૂર્ત')))}</span>
-                          <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold font-grotesk font-mono tabular-nums text-emerald-300 mt-1">{panchang.muhurats.brahmaMuhurat.start} - {panchang.muhurats.brahmaMuhurat.end}</div>
-                  </div>
-                  <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
-                      <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
-                    </div>
-                  </div>
+              <div id="muhurat-section" className="scroll-mt-28 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-amber-300 font-outfit flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-amber-400 shrink-0" />
+                    <span>{t('shubhAshubhWindows')}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsMuhuratModalOpen(true)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit hover:bg-orange-500/25 transition-all cursor-pointer"
+                  >
+                    <Clock size={11} className="text-orange-400 shrink-0" />
+                    <span>{t('all30Muhurats')}</span>
+                    <ChevronRight size={12} className="text-orange-400 shrink-0" />
+                  </button>
                 </div>
 
-                {/* 2. ABHIJIT MUHURAT */}
-                <div 
-                  onClick={() => setIsMuhuratModalOpen(true)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsMuhuratModalOpen(true); }}}
-                  title="Click to view all 30 Vedic Muhurats"
-                  aria-label="View Abhijit Muhurat and All 30 Muhurats"
-                  className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-emerald-500/35 hover:border-emerald-400/60 cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between shadow-lg min-w-0"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Abhijit Muhurat', language)}</span>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-outfit uppercase">{t('auspicious').toUpperCase()}</span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
-                          <span>{language === 'en' ? '30 Muhurats' : (language === 'hi' ? '३० मुहूर्त' : (language === 'sa' ? '३० मुहूर्ताः' : (language === 'mr' ? '३० मुहूर्त' : '૩૦ મુહૂર્ત')))}</span>
-                          <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold font-grotesk font-mono tabular-nums text-emerald-300 mt-1">{panchang.muhurats.abhijitMuhurat.start} - {panchang.muhurats.abhijitMuhurat.end}</div>
-                  </div>
-                  <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
-                      <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
-                    </div>
-                  </div>
+                <div className="relative w-full max-h-[380px] sm:max-h-[440px] overflow-x-auto overflow-y-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a] shadow-inner">
+                  <table className="w-full min-w-[560px] border-collapse text-left">
+                    <thead className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90">
+                      <tr>
+                        <th className="px-3.5 py-3 whitespace-nowrap">{t('colMuhurat')}</th>
+                        <th className="px-3.5 py-3 whitespace-nowrap">{t('colNature')}</th>
+                        <th className="px-3.5 py-3 whitespace-nowrap">{t('colStartTime')}</th>
+                        <th className="px-3.5 py-3 whitespace-nowrap">{t('colEndTime')}</th>
+                        <th className="px-3.5 py-3 whitespace-nowrap">{t('colStatusDuration')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#162038] text-xs sm:text-sm">
+                      {[
+                        { name: 'Brahma Muhurat', nature: 'Auspicious', start: panchang.muhurats.brahmaMuhurat.start, end: panchang.muhurats.brahmaMuhurat.end },
+                        { name: 'Abhijit Muhurat', nature: 'Highly Auspicious', start: panchang.muhurats.abhijitMuhurat.start, end: panchang.muhurats.abhijitMuhurat.end },
+                        { name: 'Amrit Kaal', nature: 'Auspicious', start: panchang.muhurats.amritKaal.start, end: panchang.muhurats.amritKaal.end },
+                        { name: 'Vijaya Muhurat', nature: 'Auspicious', start: panchang.muhurats.vijayaMuhurat.start, end: panchang.muhurats.vijayaMuhurat.end },
+                        { name: 'Godhuli Muhurat', nature: 'Auspicious', start: panchang.muhurats.godhuliMuhurat.start, end: panchang.muhurats.godhuliMuhurat.end },
+                        { name: 'Sayahna Sandhya', nature: 'Moderate', start: panchang.muhurats.sayahnaSandhya.start, end: panchang.muhurats.sayahnaSandhya.end },
+                        { name: 'Gulika Kaal', nature: 'Moderate', start: panchang.muhurats.gulikaKaal.start, end: panchang.muhurats.gulikaKaal.end },
+                        { name: 'Rahu Kaal', nature: 'Inauspicious', start: panchang.muhurats.rahuKaal.start, end: panchang.muhurats.rahuKaal.end },
+                        { name: 'Yamaganda', nature: 'Inauspicious', start: panchang.muhurats.yamaganda.start, end: panchang.muhurats.yamaganda.end },
+                        { name: 'Dur Muhurat', nature: 'Inauspicious', start: panchang.muhurats.durMuhurat.start, end: panchang.muhurats.durMuhurat.end },
+                        { name: 'Varjyam', nature: 'Inauspicious', start: panchang.muhurats.varjyam.start, end: panchang.muhurats.varjyam.end },
+                      ].map((item, idx) => {
+                        const isAuspicious = item.nature === 'Highly Auspicious' || item.nature === 'Auspicious';
+                        const isModerate = item.nature === 'Moderate';
+                        return (
+                          <tr 
+                            key={idx}
+                            onClick={() => setIsMuhuratModalOpen(true)}
+                            className="hover:bg-[#11192e]/60 text-slate-300 transition-colors cursor-pointer"
+                          >
+                            <td className="px-3.5 py-3 whitespace-nowrap font-bold text-white font-devanagari">
+                              {translateTerm(item.name, language)}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border font-outfit uppercase ${
+                                isAuspicious 
+                                  ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-300' 
+                                  : isModerate 
+                                  ? 'bg-amber-950/70 border-amber-500/40 text-amber-300' 
+                                  : 'bg-rose-950/70 border-rose-500/40 text-rose-300'
+                              }`}>
+                                {translateTerm(item.nature, language)}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {item.start}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap font-mono font-medium text-slate-200 tabular-nums">
+                              {item.end}
+                            </td>
+                            <td className="px-3.5 py-3 whitespace-nowrap text-slate-400 font-mono text-xs tabular-nums">
+                              <span className="inline-flex items-center gap-1 text-orange-400/90 hover:text-orange-300 text-[11px] font-sans">
+                                <span>{t('tapToInspect')}</span>
+                                <ChevronRight size={11} />
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* 3. GULIKA KAAL */}
-                <div 
-                  onClick={() => setIsMuhuratModalOpen(true)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsMuhuratModalOpen(true); }}}
-                  title="Click to view all 30 Vedic Muhurats"
-                  aria-label="View Gulika Kaal and All 30 Muhurats"
-                  className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-amber-500/35 hover:border-amber-400/60 cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between shadow-lg min-w-0"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-amber-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Gulika Kaal', language)}</span>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-950/60 border border-amber-500/30 text-amber-300 font-outfit uppercase">{t('neutral').toUpperCase()}</span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
-                          <span>{language === 'en' ? '30 Muhurats' : (language === 'hi' ? '३० मुहूर्त' : (language === 'sa' ? '३० मुहूर्ताः' : (language === 'mr' ? '३० मुहूर्त' : '૩૦ મુહૂર્ત')))}</span>
-                          <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                        </span>
-                      </div>
+                {/* Micro-CTA Footer */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setIsMuhuratModalOpen(true)}
+                    className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 text-orange-200 hover:text-white text-xs font-semibold font-outfit transition-all flex items-center justify-between shadow-sm cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Clock size={13} className="text-orange-400 shrink-0" />
+                      <span>{t('tap24hMuhurat')}</span>
                     </div>
-                    <div className="text-sm font-bold font-grotesk font-mono tabular-nums text-amber-300 mt-1">{panchang.muhurats.gulikaKaal.start} - {panchang.muhurats.gulikaKaal.end}</div>
-                  </div>
-                  <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
-                      <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4. RAHU KAAL */}
-                <div 
-                  onClick={() => setIsMuhuratModalOpen(true)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsMuhuratModalOpen(true); }}}
-                  title="Click to view all 30 Vedic Muhurats"
-                  aria-label="View Rahu Kaal and All 30 Muhurats"
-                  className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-rose-500/35 hover:border-rose-400/60 cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between shadow-lg min-w-0"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-rose-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Rahu Kaal', language)}</span>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-rose-950/60 border border-rose-500/30 text-rose-300 font-outfit uppercase">{t('inauspicious').toUpperCase()}</span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
-                          <span>{language === 'en' ? '30 Muhurats' : (language === 'hi' ? '३० मुहूर्त' : (language === 'sa' ? '३० मुहूर्ताः' : (language === 'mr' ? '३० मुहूर्त' : '૩૦ મુહૂર્ત')))}</span>
-                          <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-sm font-bold font-grotesk font-mono tabular-nums text-rose-300 mt-1">{panchang.muhurats.rahuKaal.start} - {panchang.muhurats.rahuKaal.end}</div>
-                  </div>
-                  <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
-                      <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
-                    </div>
-                  </div>
+                    <span className="text-[11px] text-amber-300 font-mono font-bold flex items-center gap-1">
+                      +30 Muhurats
+                      <ChevronRight size={13} />
+                    </span>
+                  </button>
                 </div>
               </div>
             )}
