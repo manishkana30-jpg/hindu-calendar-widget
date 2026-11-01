@@ -26,6 +26,7 @@ import { CITIES } from '../../src/lib/cities';
 import { getActivePanchakStatus, calculateActive30Muhurat } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal, CalendarFilterTab } from './modals/TithiMonthModal';
 import { DailyMuhuratModal } from './modals/DailyMuhuratModal';
+import { GregorianCalendarModal } from './modals/GregorianCalendarModal';
 import { FiveLimbsModal, LimbTabType } from './modals/FiveLimbsModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { getUpcomingFestivalsList } from '../../src/lib/festivals';
@@ -269,6 +270,38 @@ function formatShortenedTithi(tithiIndex: number, lang: SupportedLanguage = 'en'
   return `${paksha} ${pakshaDay} (${pureName})`;
 }
 
+// Check if target instant falls within a 12-hour or 24-hour time slot
+function isTimeWithinSlot(targetDate: Date, startStr: string, endStr: string): boolean {
+  if (!startStr || !endStr) return false;
+  try {
+    const parseSlotMinutes = (str: string): number => {
+      const match = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+      if (!match) return -1;
+      let h = parseInt(match[1], 10);
+      const m = parseInt(match[2], 10);
+      const ampm = match[3]?.toUpperCase();
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      return h * 60 + m;
+    };
+
+    const startMin = parseSlotMinutes(startStr);
+    const endMin = parseSlotMinutes(endStr);
+    if (startMin === -1 || endMin === -1) return false;
+
+    const currentMin = targetDate.getHours() * 60 + targetDate.getMinutes();
+
+    if (endMin >= startMin) {
+      return currentMin >= startMin && currentMin < endMin;
+    } else {
+      // Slot crosses midnight (e.g., 11:30 PM to 01:15 AM)
+      return currentMin >= startMin || currentMin < endMin;
+    }
+  } catch {
+    return false;
+  }
+}
+
 export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
     initialLocation || PRESET_LOCATIONS[0]
@@ -415,6 +448,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   }, []);
 
   // Modal states for click interactions
+  const [isGregorianCalendarModalOpen, setIsGregorianCalendarModalOpen] = useState<boolean>(false);
   const [isMuhuratModalOpen, setIsMuhuratModalOpen] = useState<boolean>(false);
   const [isFiveLimbsModalOpen, setIsFiveLimbsModalOpen] = useState<boolean>(false);
   const [activeLimbForModal, setActiveLimbForModal] = useState<LimbTabType>('tithi');
@@ -766,20 +800,20 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           
           {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
           <div 
-            onClick={() => openCalendar('all')}
+            onClick={() => setIsGregorianCalendarModalOpen(true)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                openCalendar('all');
+                setIsGregorianCalendarModalOpen(true);
               }
             }}
             role="button"
             tabIndex={0}
             aria-haspopup="dialog"
-            aria-expanded={isCalendarModalOpen}
-            title="Click to open Full Monthly Calendar & Almanac"
-            aria-label="Open Full Monthly Calendar & Almanac"
-            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
+            aria-expanded={isGregorianCalendarModalOpen}
+            title="Click to open Full Gregorian Calendar & Holidays"
+            aria-label="Open Full Gregorian Calendar & Holidays"
+            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-blue-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
               {/* Top Header: Live Indicator & Location Timezone Badge */}
@@ -829,16 +863,65 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   {selectedLocation.regionName || selectedLocation.name}
                 </span>
               </div>
+
+              {/* Dynamic Holiday Badge: Today's Holiday or Next Upcoming Holiday */}
+              {holidayDetails.todayHoliday.isHoliday ? (
+                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-between gap-2 min-w-0 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm shrink-0">{holidayDetails.todayHoliday.icon || '🎉'}</span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-emerald-200 truncate">
+                        {translateTerm(holidayDetails.todayHoliday.title)}
+                      </div>
+                      <div className="text-[10px] text-emerald-400/80 truncate">
+                        {holidayDetails.todayHoliday.subtitle}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 shrink-0">
+                    {t('todayHolidayBadge')}
+                  </span>
+                </div>
+              ) : holidayDetails.upcomingHoliday ? (
+                <div className="p-2 sm:p-2.5 rounded-xl bg-[#0b1222] border border-[#1e2d4f] flex items-center justify-between gap-2 min-w-0 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm shrink-0">{holidayDetails.upcomingHoliday.icon || '📅'}</span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold text-neutral-200 truncate">
+                        <span className="text-neutral-400 mr-1">{t('nextHoliday')}</span>
+                        <span>{translateTerm(holidayDetails.upcomingHoliday.title)}</span>
+                      </div>
+                      <div className="text-[10px] text-neutral-400 truncate">
+                        {holidayDetails.upcomingHoliday.dateFormatted} • {holidayDetails.upcomingHoliday.daysText}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/25 shrink-0">
+                    {holidayDetails.upcomingHoliday.badge || t('publicHoliday')}
+                  </span>
+                </div>
+              ) : (
+                <div className="p-2 sm:p-2.5 rounded-xl bg-[#0b1222] border border-[#1e2d4f] flex items-center justify-between gap-2 min-w-0 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm shrink-0">⚪</span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold text-neutral-300 truncate">
+                        {t('noHolidaysInMonth')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Value-Driven Tap Micro-CTA Footer */}
             <div className="pt-2 border-t border-[#1e2d4f] mt-auto min-w-0">
-              <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit transition-all flex items-center justify-between shadow-sm">
+              <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-blue-500/15 via-indigo-500/10 to-blue-500/15 border border-blue-500/30 group-hover:border-blue-400/60 text-blue-200 group-hover:text-white text-[11px] font-semibold font-outfit transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="break-words whitespace-normal leading-snug">{t('tapFullCalendar')}</span>
+                  <Calendar size={12} className="text-blue-400 shrink-0" />
+                  <span className="break-words whitespace-normal leading-snug">{t('tapGregorianCalendar')}</span>
                 </div>
-                <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                <ChevronRight size={13} className="text-blue-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
               </div>
             </div>
           </div>
@@ -1828,11 +1911,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       ].map((item, idx) => {
                         const isAuspicious = item.nature === 'Highly Auspicious' || item.nature === 'Auspicious';
                         const isModerate = item.nature === 'Moderate';
+                        const isActiveNow = isLiveMode && isTimeWithinSlot(targetInstant, item.start, item.end);
                         return (
                           <tr 
                             key={idx}
                             onClick={() => setIsMuhuratModalOpen(true)}
-                            className="hover:bg-[#11192e]/60 text-slate-300 transition-colors cursor-pointer"
+                            className={`transition-colors cursor-pointer ${
+                              isActiveNow
+                                ? 'bg-orange-500/10 border-l-4 border-l-orange-500 font-semibold text-white'
+                                : 'hover:bg-[#11192e]/60 text-slate-300'
+                            }`}
                           >
                             <td className="px-3.5 py-3 whitespace-nowrap font-bold text-white font-devanagari">
                               {translateTerm(item.name, language)}
@@ -1855,10 +1943,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                               {item.end}
                             </td>
                             <td className="px-3.5 py-3 whitespace-nowrap text-slate-400 font-mono text-xs tabular-nums">
-                              <span className="inline-flex items-center gap-1 text-orange-400/90 hover:text-orange-300 text-[11px] font-sans">
-                                <span>{t('tapToInspect')}</span>
-                                <ChevronRight size={11} />
-                              </span>
+                              {isActiveNow ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                  {t('activeNow')}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-orange-400/90 hover:text-orange-300 text-[11px] font-sans">
+                                  <span>{t('tapToInspect')}</span>
+                                  <ChevronRight size={11} />
+                                </span>
+                              )}
                             </td>
                           </tr>
                         );
@@ -1930,6 +2025,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         isOpen={isEmbedModalOpen}
         onClose={() => setIsEmbedModalOpen(false)}
         defaultCity={selectedLocation.name}
+      />
+
+      {/* ── Interactive Gregorian Calendar with Holidays Modal ── */}
+      <GregorianCalendarModal
+        isOpen={isGregorianCalendarModalOpen}
+        onClose={() => setIsGregorianCalendarModalOpen(false)}
+        selectedDate={targetInstant}
+        onSelectDate={(d) => {
+          setSelectedDate(d);
+        }}
+        location={selectedLocation}
       />
 
       {/* ── Unified Master List Calendar & Almanac Modal ── */}

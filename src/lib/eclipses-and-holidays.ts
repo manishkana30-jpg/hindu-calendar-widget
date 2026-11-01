@@ -284,8 +284,8 @@ export function getHolidayAndEclipseDetails(
   if (fixedHoliday) {
     todayHoliday = {
       isHoliday: true,
-      title: `${fixedHoliday.title} (${fixedHoliday.hindi})`,
-      subtitle: fixedHoliday.isGazetted ? 'National Gazetted Holiday (राष्ट्रीय अवकाश)' : 'Public Holiday',
+      title: fixedHoliday.title,
+      subtitle: fixedHoliday.isGazetted ? 'National Gazetted Holiday' : 'Public Holiday',
       icon: fixedHoliday.icon,
       badge: fixedHoliday.isGazetted ? 'National Holiday' : 'Holiday',
       type: fixedHoliday.isGazetted ? 'National' : 'Gazetted'
@@ -302,8 +302,8 @@ export function getHolidayAndEclipseDetails(
   } else {
     todayHoliday = {
       isHoliday: false,
-      title: 'No Holiday Today (आज कोई अवकाश नहीं)',
-      subtitle: 'Regular Civil Day (सामान्य दिवस)',
+      title: 'No Holiday Today',
+      subtitle: 'Regular Civil Day',
       icon: '⚪',
       badge: 'Civil Day',
       type: 'None'
@@ -330,7 +330,7 @@ export function getHolidayAndEclipseDetails(
         month: 'short'
       });
       upcomingHoliday = {
-        title: `${nextFixed.title} (${nextFixed.hindi})`,
+        title: nextFixed.title,
         dateFormatted,
         daysRemaining: offset,
         daysText,
@@ -422,4 +422,77 @@ export function getHolidayAndEclipseDetails(
       nextEclipse
     }
   };
+}
+
+export interface MonthHolidayItem {
+  date: Date;
+  dateKey: string;
+  dayNumber: number;
+  weekdayShort: string;
+  dateFormatted: string;
+  title: string;
+  subtitle: string;
+  type: 'Gazetted' | 'Public' | 'Religious' | 'Observance';
+  isGazetted: boolean;
+  icon: string;
+}
+
+/**
+ * Returns all public, gazetted, and major religious holidays for a given month.
+ */
+export function getMonthlyHolidays(
+  year: number,
+  month: number, // 1 to 12
+  location: LocationCoordinates
+): MonthHolidayItem[] {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const list: MonthHolidayItem[] = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dayDate = new Date(year, month - 1, d, 6, 0, 0);
+    const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const weekdayShort = dayDate.toLocaleDateString('en-US', { weekday: 'short' });
+    const dateFormatted = `${String(d).padStart(2, '0')} ${dayDate.toLocaleDateString('en-US', { month: 'short' })}`;
+
+    // 1. Check Fixed Gregorian Holiday
+    const fixed = FIXED_GREGORIAN_HOLIDAYS.find(h => h.month === month && h.day === d);
+
+    // 2. Check Vedic Festival / Observance
+    const fest = getFestivalForDate(dayDate, location);
+    const isMajorVedic = fest.isMajor && fest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)';
+
+    if (fixed) {
+      list.push({
+        date: dayDate,
+        dateKey,
+        dayNumber: d,
+        weekdayShort,
+        dateFormatted,
+        title: fixed.title,
+        subtitle: fixed.isGazetted ? 'National Gazetted Holiday' : 'Public Holiday',
+        type: fixed.isGazetted ? 'Gazetted' : 'Public',
+        isGazetted: fixed.isGazetted,
+        icon: fixed.icon
+      });
+    }
+
+    if (isMajorVedic) {
+      if (!fixed || fixed.title.toLowerCase() !== fest.name.toLowerCase()) {
+        list.push({
+          date: dayDate,
+          dateKey,
+          dayNumber: d,
+          weekdayShort,
+          dateFormatted,
+          title: fest.name,
+          subtitle: fest.category || 'Major Festival / Vrat',
+          type: 'Religious',
+          isGazetted: true,
+          icon: fest.icon || '🪔'
+        });
+      }
+    }
+  }
+
+  return list;
 }

@@ -130,6 +130,16 @@ export interface TranslationDictionary {
   shubhAshubhWindows: string;
   viewTable: string;
 
+  // Gregorian Calendar & Holidays Modal
+  tapGregorianCalendar: string;
+  gregorianCalendarTitle: string;
+  holidaysInMonth: string;
+  noHolidaysInMonth: string;
+  gazettedHoliday: string;
+  publicHoliday: string;
+  observanceHoliday: string;
+  todayHolidayBadge: string;
+
   // Five Limbs
   fiveLimbsTitle: string;
   nakshatra: string;
@@ -294,6 +304,16 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     shubhAshubhWindows: 'Shubh & Ashubh Windows',
     viewTable: 'Table View',
 
+    // Gregorian Calendar & Holidays Modal
+    tapGregorianCalendar: 'Tap for Full Gregorian Calendar & Holidays ›',
+    gregorianCalendarTitle: 'Gregorian Calendar & Holidays',
+    holidaysInMonth: 'Holidays & Observances in',
+    noHolidaysInMonth: 'No major public holidays scheduled for this month.',
+    gazettedHoliday: 'Gazetted Holiday',
+    publicHoliday: 'Public Holiday',
+    observanceHoliday: 'Observance',
+    todayHolidayBadge: "Today's Holiday",
+
     fiveLimbsTitle: 'Five Limbs of Vedic Panchang',
     nakshatra: 'Nakshatra',
     yoga: 'Yoga',
@@ -450,6 +470,16 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     nightMuhurats: 'रात्रि के १५ मुहूर्त',
     shubhAshubhWindows: 'शुभ एवं अशुभ मुहूर्त',
     viewTable: 'तालिका दृश्य',
+
+    // Gregorian Calendar & Holidays Modal
+    tapGregorianCalendar: 'पूर्ण ग्रेगोरियन कैलेंडर और छुट्टियां देखें ›',
+    gregorianCalendarTitle: 'ग्रेगोरियन कैलेंडर एवं अवकाश',
+    holidaysInMonth: 'माह के अवकाश एवं पर्व',
+    noHolidaysInMonth: 'इस माह में कोई प्रमुख सार्वजनिक अवकाश निर्धारित नहीं है।',
+    gazettedHoliday: 'राजपत्रित अवकाश',
+    publicHoliday: 'सार्वजनिक अवकाश',
+    observanceHoliday: 'ऐच्छिक / पर्व',
+    todayHolidayBadge: 'आज का अवकाश',
 
     fiveLimbsTitle: 'पञ्चाङ्ग के पाँच मूल अंग',
     nakshatra: 'नक्षत्र',
@@ -608,6 +638,16 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     shubhAshubhWindows: 'शुभाशुभमुहूर्ताः',
     viewTable: 'तालिकादृश्यम्',
 
+    // Gregorian Calendar & Holidays Modal
+    tapGregorianCalendar: 'सम्पूर्ण ग्रेगोरियन दिनदर्शिकां पश्यन्तु ›',
+    gregorianCalendarTitle: 'ग्रेगोरियन दिनदर्शिका तथा अवकाशाः',
+    holidaysInMonth: 'मासस्य अवकाशाः उत्सवाश्च',
+    noHolidaysInMonth: 'अस्मिन् मासे कोऽपि प्रमुखः सार्वजनिकः अवकाशः नास्ति।',
+    gazettedHoliday: 'राजपत्रितावकाशः',
+    publicHoliday: 'सार्वजनिक अवकाशः',
+    observanceHoliday: 'उत्सवः',
+    todayHolidayBadge: 'अद्य अवकाशः',
+
     fiveLimbsTitle: 'पञ्चाङ्गस्य पञ्च अङ्गानि',
     nakshatra: 'नक्षत्रम्',
     yoga: 'योगः',
@@ -765,6 +805,16 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     shubhAshubhWindows: 'शुभ व अशुभ मुहूर्त',
     viewTable: 'सारणी दृश्य',
 
+    // Gregorian Calendar & Holidays Modal
+    tapGregorianCalendar: 'संपूर्ण ग्रेगोरियन दिनदर्शिका व सुट्ट्या पहा ›',
+    gregorianCalendarTitle: 'ग्रेगोरियन दिनदर्शिका व सुट्ट्या',
+    holidaysInMonth: 'महिन्यातील सुट्ट्या व सण',
+    noHolidaysInMonth: 'या महिन्यात कोणतीही मोठी सार्वजनिक सुट्टी नाही.',
+    gazettedHoliday: 'राजपत्रित सुट्टी',
+    publicHoliday: 'सार्वजनिक सुट्टी',
+    observanceHoliday: 'सण / उत्सव',
+    todayHolidayBadge: 'आजची सुट्टी',
+
     fiveLimbsTitle: 'पंचांगाची पाच मुख्य अंगे',
     nakshatra: 'नक्षत्र',
     yoga: 'योग',
@@ -921,6 +971,16 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     nightMuhurats: 'રાત્રિના ૧૫ મુહૂર્ત',
     shubhAshubhWindows: 'શુભ અને અશુભ મુહૂર્ત',
     viewTable: 'કોષ્ટક દ્રશ્ય',
+
+    // Gregorian Calendar & Holidays Modal
+    tapGregorianCalendar: 'સંપૂર્ણ ગ્રેગોરિયન કેલેન્ડર અને રજાઓ જુઓ ›',
+    gregorianCalendarTitle: 'ગ્રેગોરિયન કેલેન્ડર અને રજાઓ',
+    holidaysInMonth: 'મહિનાની રજાઓ અને તહેવારો',
+    noHolidaysInMonth: 'આ મહિનામાં કોઈ મોટી જાહેર રજા નિર્ધારિત નથી.',
+    gazettedHoliday: 'ગેઝેટેડ રજા',
+    publicHoliday: 'જાહેર રજા',
+    observanceHoliday: 'તહેવાર / ઉજવણી',
+    todayHolidayBadge: 'આજની રજા',
 
     fiveLimbsTitle: 'પંચાંગના પાંચ મુખ્ય અંગ',
     nakshatra: 'નક્ષત્ર',
@@ -1281,6 +1341,19 @@ export const ASTROLOGICAL_TERMS: Record<string, Record<SupportedLanguage, string
   'sharad navratri': { en: 'Sharad Navratri', hi: 'शारदीय नवरात्रि', sa: 'शारदीय नवरात्रम्', mr: 'शारदीय नवरात्र', gu: 'શારદીય નવરાત્રિ' },
   'dussehra': { en: 'Dussehra', hi: 'विजयादशमी', sa: 'विजयादशमी', mr: 'दसरा', gu: 'વિજયાદશમી' },
   'nitya panchang': { en: 'Nitya Panchang', hi: 'नित्य पञ्चाङ्ग', sa: 'नित्यपञ्चाङ्गम्', mr: 'नित्य पंचांग', gu: 'નિત્ય પંચાંગ' },
+
+  // Gregorian National & Public Holidays
+  'republic day': { en: 'Republic Day', hi: 'गणतंत्र दिवस', sa: 'गणतन्त्रदिवसः', mr: 'प्रजासत्ताक दिन', gu: 'પ્રજાસત્તાક દિવસ' },
+  'independence day': { en: 'Independence Day', hi: 'स्वतंत्रता दिवस', sa: 'स्वातन्त्र्यदिवसः', mr: 'स्वातंत्र्य दिन', gu: 'સ્વાતંત્ર્ય દિવસ' },
+  'gandhi jayanti': { en: 'Mahatma Gandhi Jayanti', hi: 'गांधी जयन्ती', sa: 'गान्धीजयन्ती', mr: 'गांधी जयंती', gu: 'ગાંધી જયંતી' },
+  'mahatma gandhi jayanti': { en: 'Mahatma Gandhi Jayanti', hi: 'गांधी जयन्ती', sa: 'गान्धीजयन्ती', mr: 'गांधी जयंती', gu: 'ગાંધી જયંતી' },
+  'christmas day': { en: 'Christmas Day', hi: 'क्रिसमस', sa: 'क्रिसमस', mr: 'नाताळ', gu: 'નાતાળ' },
+  'christmas': { en: 'Christmas', hi: 'क्रिसमस', sa: 'क्रिसमस', mr: 'नाताळ', gu: 'નાતાળ' },
+  "new year's day": { en: "New Year's Day", hi: 'नव वर्ष दिवस', sa: 'नववर्षदिनम्', mr: 'नवीन वर्ष दिन', gu: 'નવા વર્ષ દિવસ' },
+  'new year': { en: 'New Year', hi: 'नव वर्ष', sa: 'नववर्षम्', mr: 'नवीन वर्ष', gu: 'નવું વર્ષ' },
+  'international labour day': { en: 'International Labour Day', hi: 'अंतर्राष्ट्रीय श्रमिक दिवस', sa: 'अन्तर्राष्ट्रीयश्रमदिवसः', mr: 'कामगार दिन', gu: 'કામદાર દિવસ' },
+  'labour day': { en: 'Labour Day', hi: 'श्रमिक दिवस', sa: 'श्रमदिवसः', mr: 'कामगार दिन', gu: 'કામદાર દિવસ' },
+  'may day': { en: 'May Day', hi: 'मई दिवस', sa: 'मे दिवसः', mr: 'कामगार दिन', gu: 'કામદાર દિવસ' },
 };
 
 /**
