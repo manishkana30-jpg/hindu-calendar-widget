@@ -29,6 +29,7 @@ import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { WhatsAppIcon } from './WhatsAppShareButton';
+import { LanguageToggleButton } from './LanguageToggleButton';
 import { EmbedWidgetModal } from '../../src/components/EmbedWidgetModal';
 import { sharePanchang, buildShareDataFromPanchang, formatPanchangShareText } from '../../src/lib/utils/sharePanchang';
 import {
@@ -268,7 +269,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [locationSource, setLocationSource] = useState<'gps' | 'dropdown' | 'fallback'>('fallback');
   const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('Just now');
   const [isGpsDetecting, setIsGpsDetecting] = useState<boolean>(false);
-  const { language, isHindi, toggleLanguage } = useUserLanguage();
+  const { language, isHindi, toggleLanguage, setLanguage, t } = useUserLanguage();
 
   // Single Source of Truth (SSOT) Cascading Panchang Hook
   const {
@@ -591,7 +592,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 }
               }}
               title="Detect your exact coordinates via GPS"
-              aria-label="Detect GPS Location"
+              aria-label={t('useGps')}
               className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
                 locationSource === 'gps'
                   ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
@@ -599,35 +600,26 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               }`}
             >
               <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
-              <span>{isGpsDetecting ? 'Detecting...' : (locationSource === 'gps' ? 'GPS Active' : 'Use GPS')}</span>
+              <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
             </button>
           </div>
 
           {/* Right Group: Language Switcher & WhatsApp Share */}
           <div className="relative inline-flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
-            {/* Preferred Language Toggle: English / हिन्दी */}
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              title={isHindi ? "Switch display language to English" : "भाषा बदलकर हिन्दी करें"}
-              aria-label="Toggle Preferred Language"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
-            >
-              <Globe size={11} className="text-amber-400" />
-              <span>{isHindi ? 'हिन्दी' : 'English'}</span>
-            </button>
+            {/* Preferred Language Toggle Pill */}
+            <LanguageToggleButton variant="widget" />
 
             {/* WhatsApp Share Button */}
             <button
               type="button"
               onClick={handleShare}
-              title="Share Panchang on WhatsApp"
-              aria-label="Share on WhatsApp"
+              title={t('shareOnWhatsApp')}
+              aria-label={t('shareOnWhatsApp')}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 cursor-pointer shrink-0"
             >
               <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="hidden sm:inline">Share Panchang on WhatsApp</span>
-              <span className="sm:hidden">Share</span>
+              <span className="hidden sm:inline">{t('shareOnWhatsApp')}</span>
+              <span className="sm:hidden">{t('share')}</span>
             </button>
 
             {shareToast && (
@@ -667,12 +659,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="flex items-center justify-between gap-1.5 min-w-0">
                 <div className="flex items-center gap-1.5 text-amber-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-amber-300 transition-colors min-w-0">
                   <Clock size={12} className="text-amber-400 shrink-0" />
-                  <span className="truncate">{isLiveMode ? 'LIVE CLOCK' : 'SELECTED DATE'}</span>
+                  <span className="truncate">{isLiveMode ? t('liveClock') : t('selectedDate')}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
                     <Calendar size={11} className="text-orange-400 shrink-0" />
-                    <span>30-Day Almanac</span>
+                    <span>{isHindi ? '३०-दिवसीय पञ्चाङ्ग' : '30-Day Almanac'}</span>
                     <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </span>
                 </div>
@@ -788,7 +780,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </span>
                 </div>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 font-outfit shrink-0">
-                  30-Day View
+                  {isHindi ? '३०-दिवसीय' : '30-Day View'}
                 </span>
               </div>
 
@@ -796,7 +788,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">Tap for Full Calendar & Tithi Timings</span>
+                  <span className="truncate">{t('tapFullCalendar')}</span>
                 </div>
                 <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
               </div>
@@ -836,11 +828,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shrink-0">
-                    TODAY
+                    {t('today')}
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
                     <Calendar size={11} className="text-orange-400 shrink-0" />
-                    <span>Full Almanac</span>
+                    <span>{t('fullAlmanac')}</span>
                     <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                   </span>
                 </div>
@@ -849,7 +841,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* 2: Localized Masa Pill (Task 5: North Purnimanta vs South/West Amanta) */}
               <div className="flex items-center gap-1.5 text-xs text-slate-300 min-w-0">
                 <span className="text-[9px] font-extrabold font-outfit text-amber-400/90 tracking-wider uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
-                  MASA
+                  {t('masa')}
                 </span>
                 <span className="font-serif font-devanagari font-medium text-amber-100 text-xs truncate break-words whitespace-normal min-w-0">
                   {localizedMasa}
@@ -862,24 +854,24 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className="flex items-center gap-1 min-w-0">
                     <Sparkles size={11} className="text-amber-400/80 shrink-0" />
                     <span className="text-[9px] font-extrabold font-outfit tracking-wider uppercase text-amber-400/90 truncate">
-                      TODAY&apos;S TITHI (DHARMASHASTRA)
+                      {isHindi ? 'आज की औदयिक तिथि (धर्मशास्त्र)' : "TODAY'S TITHI (DHARMASHASTRA)"}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {tithiResolution.isVriddhi && (
                       <span className="px-1.5 py-0.5 rounded-full bg-purple-950/70 text-purple-300 border border-purple-500/40 text-[8px] font-extrabold font-outfit uppercase">
-                        Vriddhi
+                        {isHindi ? 'वृद्धि' : 'Vriddhi'}
                       </span>
                     )}
                     {tithiResolution.isKshaya && (
                       <span className="px-1.5 py-0.5 rounded-full bg-rose-950/70 text-rose-300 border border-rose-500/40 text-[8px] font-extrabold font-outfit uppercase">
-                        Kshaya
+                        {isHindi ? 'क्षय' : 'Kshaya'}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Shortened Tithi Name (Task 5) & Badges */}
+                {/* Shortened Tithi Name & Badges */}
                 <div className="flex items-center gap-2 flex-wrap py-0.5 min-w-0">
                   <h3 className="text-base sm:text-lg font-serif font-devanagari font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400 tracking-tight leading-snug group-hover:from-amber-100 group-hover:to-yellow-300 transition-colors drop-shadow break-words whitespace-normal min-w-0">
                     {shortenedTithi}
@@ -892,14 +884,14 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
                     <span className="px-2 py-0.5 rounded-full text-[9px] bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-extrabold font-outfit shrink-0">
-                      ✨ Ekadashi
+                      ✨ {isHindi ? 'एकादशी व्रत' : 'Ekadashi'}
                     </span>
                   )}
                 </div>
 
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0b101e]/80 border border-amber-500/20 text-[11px] font-grotesk tabular-nums shadow-sm min-w-0">
                   <Clock size={11} className="text-amber-400 shrink-0" />
-                  <span className="font-sans text-slate-400 font-medium text-[10px] shrink-0">Ends:</span>
+                  <span className="font-sans text-slate-400 font-medium text-[10px] shrink-0">{t('tithiEnds')}:</span>
                   <span className="font-bold text-white tracking-tight truncate text-[11px]">
                     {currentTithiEndTime}
                   </span>
@@ -909,13 +901,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* 4: Compact Horizontal / Single-Line Next Tithi Box (Task 4) */}
               <div className="p-2 rounded-xl bg-slate-950/70 border border-white/10 space-y-1 text-[11px] min-w-0">
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Next Tithi:</span>
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('nextTithi')}:</span>
                   <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-[11px] truncate min-w-0">
                     {shortNextTithi}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">Starts:</span>
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('starts')}:</span>
                   <span className="font-mono tabular-nums text-slate-200 text-right text-[10px] truncate min-w-0">
                     {newTithiStartTime}
                   </span>
@@ -1119,16 +1111,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* Header row: Label + Festive Badge + Action Pill */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
                 <div className="text-orange-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 min-w-0">
-                  <span className="truncate">TODAY&apos;S FESTIVAL</span>
+                  <span className="truncate">{t('todaysObservance')}</span>
                   {panchang.todayFestival.isMajor && (
                     <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-950/60 border border-amber-500/40 text-amber-300 uppercase shrink-0 font-outfit">
-                      Festive
+                      {t('majorFestival')}
                     </span>
                   )}
                 </div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all shrink-0">
                   <Sparkles size={11} className="text-orange-400 shrink-0" />
-                  <span>Vrat Rules</span>
+                  <span>{t('vratRules')}</span>
                   <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </span>
               </div>
@@ -1146,10 +1138,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className={`text-sm font-bold transition-colors font-sans break-words whitespace-normal leading-snug min-w-0 ${
                     panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
                   }`}>
-                    {panchang.todayFestival.title}
+                    {isHindi ? (panchang.todayFestival.hindiName || panchang.todayFestival.title) : panchang.todayFestival.title}
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5 break-words whitespace-normal font-sans line-clamp-2 min-w-0">
-                    {panchang.todayFestival.description}
+                    {isHindi ? (panchang.todayFestival.briefRule?.hindi || panchang.todayFestival.description) : panchang.todayFestival.description}
                   </div>
                 </div>
               </div>
@@ -1160,11 +1152,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">Explore Monthly Vrat & Festival Calendar</span>
+                  <span className="truncate">{t('exploreMonthlyCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-grotesk">
-                    Dharmashastra Rules
+                    {t('dharmashastraRules')}
                   </span>
                   <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
@@ -1235,16 +1227,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       : 'text-white group-hover:text-teal-300'
                   }`}>
                     {panchakStatus.isActive && panchakStatus.panchak
-                      ? `${panchakStatus.panchak.type}`
-                      : 'No active panchak'
+                      ? (isHindi ? panchakStatus.panchak.typeHindi : panchakStatus.panchak.type)
+                      : (isHindi ? 'कोई पञ्चक सक्रिय नहीं (शुभ काल)' : 'No active panchak')
                     }
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5 break-words whitespace-normal font-sans line-clamp-2 min-w-0">
                     {panchakStatus.isActive && panchakStatus.panchak
-                      ? `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`
+                      ? (isHindi ? panchakStatus.panchak.briefEffects.hindi : `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`)
                       : panchakStatus.nextPanchak 
-                        ? `Next: ${panchakStatus.nextPanchak.type} (${panchakStatus.nextPanchak.startDate}, ${panchakStatus.nextPanchak.startTime})`
-                        : 'No panchak in progress • Auspicious'
+                        ? (isHindi ? `अगला: ${panchakStatus.nextPanchak.typeHindi} (${panchakStatus.nextPanchak.startDate})` : `Next: ${panchakStatus.nextPanchak.type} (${panchakStatus.nextPanchak.startDate}, ${panchakStatus.nextPanchak.startTime})`)
+                        : (isHindi ? 'कोई पञ्चक दोष नहीं • सभी शुभ कार्य प्रशस्त' : 'No panchak in progress • Auspicious')
                     }
                   </div>
                 </div>
@@ -1256,11 +1248,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/15 hover:from-teal-500/25 hover:to-emerald-500/25 border border-teal-500/35 group-hover:border-teal-400/70 text-teal-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-teal-400 shrink-0" />
-                  <span className="truncate">Tap for Multi-Year Panchak Calendar & Dos/Don&apos;ts</span>
+                  <span className="truncate">{isHindi ? 'बहु-वर्षीय पञ्चक कैलेंडर एवं शास्त्र नियम' : 'Tap for Multi-Year Panchak Calendar & Dos/Don\'ts'}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 font-grotesk">
-                    2025–2030 Guidance
+                    {isHindi ? '२०२५-२०३० मार्गदर्शन' : '2025–2030 Guidance'}
                   </span>
                   <ChevronRight size={13} className="text-teal-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
@@ -1376,10 +1368,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 style={{ touchAction: 'pan-x pan-y' }}
               >
                 {[
-                  { id: 'panchang', label: '5-Limbs of Panchang' },
-                  { id: 'choghadiya', label: '24h Choghadiya Matrix' },
-                  { id: 'muhurat', label: 'Shubh & Ashubh Muhurats' },
-                  { id: 'astrometry', label: 'Surya & Chandra Astrometry' },
+                  { id: 'panchang', label: isHindi ? 'पञ्चाङ्ग के ५ अंग' : '5-Limbs of Panchang' },
+                  { id: 'choghadiya', label: isHindi ? '२४-घंटे चौघड़िया' : '24h Choghadiya Matrix' },
+                  { id: 'muhurat', label: isHindi ? 'शुभ व अशुभ मुहूर्त' : 'Shubh & Ashubh Muhurats' },
+                  { id: 'astrometry', label: isHindi ? 'सूर्य व चन्द्र ग्रह स्थिति' : 'Surya & Chandra Astrometry' },
                 ].map(tab => (
                   <button
                     key={tab.id}

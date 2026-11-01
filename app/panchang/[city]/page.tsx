@@ -8,6 +8,7 @@ import { calculatePanchang } from '@/src/lib/vedic-astronomy';
 import { HinduPanchangWidget } from '@/app/components/HinduPanchangWidget';
 import { WidgetErrorBoundary } from '@/app/components/WidgetErrorBoundary';
 import { PWAInstallButton } from '@/app/components/PWAInstallButton';
+import { LanguageToggleButton } from '@/app/components/LanguageToggleButton';
 import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
 import { FaqAccordion } from '@/app/components/FaqAccordion';
 import { Footer } from '@/src/components/Footer';
@@ -133,7 +134,8 @@ export default async function CityPanchangPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <LanguageToggleButton variant="navbar" />
             <PWAInstallButton />
             <Link
               href="/"
