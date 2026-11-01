@@ -959,10 +959,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     {shortenedTithi}
                   </h3>
                   {panchang.tithi.index === 15 && (
-                    <span className="text-lg drop-shadow-[0_0_12px_rgba(251,191,36,0.7)] select-none animate-pulse shrink-0" title="Purnima (Full Moon)">🌕</span>
+                    <span className="text-lg drop-shadow-[0_0_12px_rgba(251,191,36,0.7)] select-none animate-pulse shrink-0" title={translateTerm('Purnima', language)}>🌕</span>
                   )}
                   {panchang.tithi.index === 30 && (
-                    <span className="text-lg drop-shadow-[0_0_12px_rgba(168,85,247,0.5)] select-none shrink-0" title="Amavasya (New Moon)">🌑</span>
+                    <span className="text-lg drop-shadow-[0_0_12px_rgba(168,85,247,0.5)] select-none shrink-0" title={translateTerm('Amavasya', language)}>🌑</span>
                   )}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
                     <span className="px-2 py-0.5 rounded-full text-[9px] bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-extrabold font-outfit shrink-0">
@@ -1542,7 +1542,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                         <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.nakshatra.name, language)} {panchang.nakshatra.devanagari && language === 'en' ? `(${panchang.nakshatra.devanagari})` : ''}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.nakshatra.name, language)}</div>
                     <div className="text-[11px] text-slate-400 font-sans truncate">{language === 'en' ? 'Pada' : (language === 'hi' ? 'चरण' : (language === 'sa' ? 'पादः' : (language === 'mr' ? 'चरण' : 'ચરણ')))} {panchang.nakshatra.pada} • {t('ruler')} {translateTerm(panchang.nakshatra.lord, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
@@ -1674,7 +1674,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                               : slot.nature === 'NEUTRAL' 
                               ? 'bg-amber-950/60 border-amber-500/30 text-amber-300' 
                               : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
-                          }`}>{translateTerm(slot.quality, language)} ({slot.nature === 'AUSPICIOUS' ? t('auspicious') : slot.nature === 'NEUTRAL' ? t('neutral') : t('inauspicious')})</span>
+                          }`}>{translateTerm(slot.quality, language)}</span>
                         </div>
                         <div className="text-[11px] text-slate-400 font-grotesk font-mono tabular-nums mt-1">{slot.startTime} - {slot.endTime}</div>
                       </div>
@@ -1694,7 +1694,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                               : slot.nature === 'NEUTRAL' 
                               ? 'bg-amber-950/60 border-amber-500/30 text-amber-300' 
                               : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
-                          }`}>{translateTerm(slot.quality, language)} ({slot.nature === 'AUSPICIOUS' ? t('auspicious') : slot.nature === 'NEUTRAL' ? t('neutral') : t('inauspicious')})</span>
+                          }`}>{translateTerm(slot.quality, language)}</span>
                         </div>
                         <div className="text-[11px] text-slate-400 font-grotesk font-mono tabular-nums mt-1">{slot.startTime} - {slot.endTime}</div>
                       </div>
@@ -1840,7 +1840,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             {activeTab === 'astrometry' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="p-4 rounded-xl bg-slate-950/60 border border-white/10">
-                  <div className="font-bold text-amber-400 mb-2 font-outfit">☀️ {language === 'en' ? 'Surya Astrometry (Solar)' : (language === 'hi' ? 'सूर्य खगोलीय स्थिति (सौर)' : (language === 'sa' ? 'सूर्यखगोलीयस्थितिः (सौरम्)' : (language === 'mr' ? 'सूर्य खगोलीय स्थिती (सौर)' : 'સૂર્ય ખગોળીય સ્થિતિ (સૌર)')))}</div>
+                  <div className="font-bold text-amber-400 mb-2 font-outfit">☀️ {language === 'en' ? 'Surya Astrometry' : (language === 'hi' ? 'सूर्य खगोलीय स्थिति' : (language === 'sa' ? 'सूर्यखगोलीयस्थितिः' : (language === 'mr' ? 'सूर्य खगोलीय स्थिती' : 'સૂર્ય ખગોળીય સ્થિતિ')))}</div>
                   <div className="space-y-1 text-slate-300">
                     <div>{t('sunSign')}: <span className="font-semibold text-white">{translateTerm(panchang.suryaRashi.name, language)} ({panchang.suryaRashi.degree})</span></div>
                     <div>{t('dayDuration')}: <span className="font-semibold text-white font-grotesk tabular-nums">{panchang.dayLength}</span></div>
@@ -1848,7 +1848,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                 </div>
                 <div className="p-4 rounded-xl bg-slate-950/60 border border-white/10">
-                  <div className="font-bold text-indigo-400 mb-2 font-outfit">🌙 {language === 'en' ? 'Chandra Astrometry (Lunar)' : (language === 'hi' ? 'चन्द्र खगोलीय स्थिति (चान्द्र)' : (language === 'sa' ? 'चन्द्रखगोलीयस्थितिः (चान्द्रम्)' : (language === 'mr' ? 'चंद्र खगोलीय स्थिती (चांद्र)' : 'ચંદ્ર ખગોળીય સ્થિતિ (ચાંદ્ર)')))}</div>
+                  <div className="font-bold text-indigo-400 mb-2 font-outfit">🌙 {language === 'en' ? 'Chandra Astrometry' : (language === 'hi' ? 'चन्द्र खगोलीय स्थिति' : (language === 'sa' ? 'चन्द्रखगोलीयस्थितिः' : (language === 'mr' ? 'चंद्र खगोलीय स्थिती' : 'ચંદ્ર ખગોળીય સ્થિતિ')))}</div>
                   <div className="space-y-1 text-slate-300">
                     <div>{t('moonSign')}: <span className="font-semibold text-white">{translateTerm(panchang.chandraRashi.name, language)} ({panchang.chandraRashi.degree})</span></div>
                     <div>{language === 'en' ? 'Moon Phase' : (language === 'hi' ? 'चन्द्र कला' : (language === 'sa' ? 'चन्द्रकला' : (language === 'mr' ? 'चंद्र कला' : 'ચંદ્ર કળા')))}: <span className="font-semibold text-white">{translateTerm(panchang.moonPhaseName, language)} ({panchang.moonIlluminationPercent}%)</span></div>
@@ -1936,7 +1936,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           isInauspicious: panchakStatus.isActive && panchakStatus.panchak?.auspiciousness !== 'Auspicious',
           type: panchakStatus.panchak?.type,
           statusText: panchakStatus.isActive
-            ? `${panchakStatus.panchak?.type || 'Panchak'} (Inauspicious)`
+            ? `${panchakStatus.panchak?.type || 'Panchak'}`
             : undefined
         }}
         festivalOrVratName={panchang.festivals && panchang.festivals.length > 0 ? panchang.festivals[0] : null}

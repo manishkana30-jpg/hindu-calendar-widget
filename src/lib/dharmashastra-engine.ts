@@ -96,11 +96,11 @@ export const EKADASHI_DATABASE: Record<number, { shukla: EkadashiInfo; krishna: 
     krishna: { name: 'Yogini Ekadashi', hindiName: 'योगिनी एकादशी', description: 'Curer of ailments & liberator from curses' }
   },
   4: { // Shravana
-    shukla: { name: 'Putrada Ekadashi (Shravana)', hindiName: 'श्रावण पुत्रदा एकादशी', description: 'Bestower of noble progeny & generational peace' },
+    shukla: { name: 'Shravana Putrada Ekadashi', hindiName: 'श्रावण पुत्रदा एकादशी', description: 'Bestower of noble progeny & generational peace' },
     krishna: { name: 'Kamika Ekadashi', hindiName: 'कामिका एकादशी', description: 'Equal to performing Ashwamedha Yajna' }
   },
   5: { // Bhadrapada
-    shukla: { name: 'Parsva / Parivartini Ekadashi', hindiName: 'परिवर्तिनी एकादशी', description: 'Lord Vishnu turns on His side in cosmic sleep' },
+    shukla: { name: 'Parivartini Ekadashi', hindiName: 'परिवर्तिनी एकादशी', description: 'Lord Vishnu turns on His side in cosmic sleep' },
     krishna: { name: 'Aja Ekadashi', hindiName: 'अजा एकादशी', description: 'Raja Harishchandra penance & redemption' }
   },
   6: { // Ashwina
@@ -108,11 +108,11 @@ export const EKADASHI_DATABASE: Record<number, { shukla: EkadashiInfo; krishna: 
     krishna: { name: 'Indira Ekadashi', hindiName: 'इन्दिरा एकादशी', description: 'Elevates ancestors (Pitris) directly to Vaikuntha' }
   },
   7: { // Kartika
-    shukla: { name: 'Prabodhini / Devutthana Ekadashi', hindiName: 'देवउठनी एकादशी', description: 'Lord Vishnu awakens & Chaturmas conclusion' },
+    shukla: { name: 'Devutthana Ekadashi', hindiName: 'देवउठनी एकादशी', description: 'Lord Vishnu awakens & Chaturmas conclusion' },
     krishna: { name: 'Rama Ekadashi', hindiName: 'रमा एकादशी', description: 'Maha Lakshmi grace & eradication of dire distress' }
   },
   8: { // Margashirsha
-    shukla: { name: 'Mokshada Ekadashi (Gita Jayanti)', hindiName: 'मोक्षदा एकादशी', description: 'Conferrer of supreme Moksha & Gita advent' },
+    shukla: { name: 'Mokshada Ekadashi', hindiName: 'मोक्षदा एकादशी', description: 'Conferrer of supreme Moksha & Gita advent' },
     krishna: { name: 'Utpanna Ekadashi', hindiName: 'उत्पन्ना एकादशी', description: 'Advent of Ekadashi Devi from Lord Vishnu' }
   },
   9: { // Pausha
@@ -1372,7 +1372,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   4: {
     tithiIndex: 4,
     pureName: 'Chaturthi',
-    hindiName: 'शुक्ल चतुर्थी (विनायक)',
+    hindiName: 'विनायक चतुर्थी',
     presidingDeity: 'Lord Ganesha (विघ्नहर्ता श्रीगणेश)',
     observance: 'Vinayaka Chaturthi Vrat & obstacle removal',
     briefRule: {
@@ -1420,7 +1420,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   8: {
     tithiIndex: 8,
     pureName: 'Ashtami',
-    hindiName: 'शुक्ल अष्टमी (मासिक दुर्गाष्टमी)',
+    hindiName: 'मासिक दुर्गाष्टमी',
     presidingDeity: 'Maa Durga (भगवती दुर्गा)',
     observance: 'Durgashtami fast, Saptashati & Kanya Puja',
     briefRule: {
@@ -1480,7 +1480,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   13: {
     tithiIndex: 13,
     pureName: 'Trayodashi',
-    hindiName: 'शुक्ल त्रयोदशी (प्रदोष)',
+    hindiName: 'प्रदोष व्रत',
     presidingDeity: 'Kamadeva & Lord Shiva (कामदेव व भगवान शिव)',
     observance: 'Twilight Pradosha worship & Shiva Abhisheka',
     briefRule: {
@@ -1554,7 +1554,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   19: {
     tithiIndex: 19,
     pureName: 'Chaturthi',
-    hindiName: 'कृष्ण चतुर्थी (संकष्टी)',
+    hindiName: 'संकष्टी चतुर्थी',
     presidingDeity: 'Lord Ganesha (संकटमोचन गणेश)',
     observance: 'Sankashti Ganesha Vrat & Moonrise Arghya',
     briefRule: {
@@ -1602,7 +1602,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   23: {
     tithiIndex: 23,
     pureName: 'Ashtami',
-    hindiName: 'कृष्ण अष्टमी (कालाष्टमी)',
+    hindiName: 'मासिक कालाष्टमी',
     presidingDeity: 'Lord Kalabhairav (भगवान कालभैरव)',
     observance: 'Kalashtami fast, lamp offering & fear dispelling',
     briefRule: {
@@ -1662,7 +1662,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   28: {
     tithiIndex: 28,
     pureName: 'Trayodashi',
-    hindiName: 'कृष्ण त्रयोदशी (प्रदोष)',
+    hindiName: 'प्रदोष व्रत',
     presidingDeity: 'Lord Shiva (भगवान शिव)',
     observance: 'Twilight Pradosha Shiva worship & poverty dispelling',
     briefRule: {
@@ -1674,7 +1674,7 @@ export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
   29: {
     tithiIndex: 29,
     pureName: 'Chaturdashi',
-    hindiName: 'कृष्ण चतुर्दशी (मासिक शिवरात्रि)',
+    hindiName: 'मासिक शिवरात्रि',
     presidingDeity: 'Lord Shiva (भगवान शिव)',
     observance: 'Masik Shivaratri vigil, Japa & inner liberation',
     briefRule: {

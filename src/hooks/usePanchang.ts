@@ -594,7 +594,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
       deity,
       activity,
       windowString,
-      isDaytime: current30?.period === 'Diurnal (Day)'
+      isDaytime: current30?.period === 'Diurnal'
     };
   }, [panchang.sunrise, panchang.sunset, panchang.currentChoghadiya, targetInstant, wallClock.totalMinutes]);
 

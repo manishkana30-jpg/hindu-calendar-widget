@@ -1608,12 +1608,12 @@ export function calculatePanchang(
   const phaseAngle = (diff * Math.PI) / 180;
   const illumination = Math.round(((1 - Math.cos(phaseAngle)) / 2) * 100);
   let moonPhaseName = 'Waxing Crescent';
-  if (udayaTithiIndex === 15) moonPhaseName = 'Full Moon (Purnima)';
-  else if (udayaTithiIndex === 30) moonPhaseName = 'New Moon (Amavasya)';
-  else if (udayaTithiIndex < 8) moonPhaseName = 'Waxing Crescent (Shukla Paksha)';
+  if (udayaTithiIndex === 15) moonPhaseName = 'Full Moon';
+  else if (udayaTithiIndex === 30) moonPhaseName = 'New Moon';
+  else if (udayaTithiIndex < 8) moonPhaseName = 'Waxing Crescent';
   else if (udayaTithiIndex === 8) moonPhaseName = 'First Quarter';
   else if (udayaTithiIndex < 15) moonPhaseName = 'Waxing Gibbous';
-  else if (udayaTithiIndex < 23) moonPhaseName = 'Waning Gibbous (Krishna Paksha)';
+  else if (udayaTithiIndex < 23) moonPhaseName = 'Waning Gibbous';
   else if (udayaTithiIndex === 23) moonPhaseName = 'Third Quarter';
   else moonPhaseName = 'Waning Crescent';
 

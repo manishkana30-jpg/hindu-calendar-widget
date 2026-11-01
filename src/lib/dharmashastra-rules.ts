@@ -51,7 +51,7 @@ export interface MuhuratEntry {
   index: number;
   name: string;
   deity: string;
-  period: 'Diurnal (Day)' | 'Nocturnal (Night)';
+  period: 'Diurnal' | 'Nocturnal';
   nature: 'Highly Auspicious' | 'Auspicious' | 'Moderate' | 'Inauspicious';
   activity: string;
 }
@@ -61,38 +61,38 @@ export interface MuhuratEntry {
 // ─────────────────────────────────────────────────────────────────────────────
 export const COMPLETE_MUHURATS_LIST: MuhuratEntry[] = [
   // 15 Day Muhurats
-  { index: 1, name: 'Rudra (रुद्र)', deity: 'Lord Shiva / Rudra', period: 'Diurnal (Day)', nature: 'Inauspicious', activity: 'Avoid auspicious beginnings; good for intense spiritual discipline' },
-  { index: 2, name: 'Ahi / Sarpa (अहि)', deity: 'Serpent Deity / Rahu', period: 'Diurnal (Day)', nature: 'Inauspicious', activity: 'Avoid travel & finance; suitable for poison / snake remedies' },
-  { index: 3, name: 'Mitra (मित्र)', deity: 'Sun / Mitra', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Friendship, alliances, commercial agreements, social harmony' },
-  { index: 4, name: 'Pitri (पितृ)', deity: 'Ancestral Fathers', period: 'Diurnal (Day)', nature: 'Moderate', activity: 'Shraddha karma, tarpana, honoring ancestors, solemn deeds' },
-  { index: 5, name: 'Vasu (वसु)', deity: 'Ashta Vasus', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Acquisition of wealth, buying gold, cattle, assets' },
-  { index: 6, name: 'Varaha / Aapa (वाराह)', deity: 'Varaha / Water Deity', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Agriculture, digging wells, waterworks, foundational seeds' },
-  { index: 7, name: 'Vishvedeva (विश्वेदेवाः)', deity: 'Universal Cosmic Deities', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Community assemblies, general auspicious ceremonies' },
-  { index: 8, name: 'Abhijit (अभिजित्)', deity: 'Lord Maha Vishnu', period: 'Diurnal (Day)', nature: 'Highly Auspicious', activity: 'Supreme victory! Destroys all planetary & timing flaws (Sarva Dosha Hara)' },
-  { index: 9, name: 'Satamukhi / Rohina (रोहिण)', deity: 'Lord Brahma', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Art, crafts, engineering, constructing durable buildings' },
-  { index: 10, name: 'Vijaya (विजय)', deity: 'Lord Shiva / Victory', period: 'Diurnal (Day)', nature: 'Highly Auspicious', activity: 'Legal battles, political campaigns, conquest, medical victory' },
-  { index: 11, name: 'Vahni / Naisrita (वह्नि)', deity: 'Agni (Fire)', period: 'Diurnal (Day)', nature: 'Moderate', activity: 'Homa, yajna, metallurgy, fire rituals; avoid peace summits' },
-  { index: 12, name: 'Varuna / Jammaya (वरुण)', deity: 'Lord Varuna', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Trade across waters, artistic performances, fluid commerce' },
-  { index: 13, name: 'Aryaman / Naktanchara (अर्यमा)', deity: 'Aryaman Aditya', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Matrimonial negotiations, contracts, leadership oaths' },
-  { index: 14, name: 'Godhuli / Bhaga (गोधूलि)', deity: 'Bhaga Savitr', period: 'Diurnal (Day)', nature: 'Auspicious', activity: 'Sunset twilight; exceptionally potent for Vivaha (marriage) & travel' },
-  { index: 15, name: 'Girisha / Saumya (गिरीश)', deity: 'Lord Shiva / Mountains', period: 'Diurnal (Day)', nature: 'Moderate', activity: 'Quietude, contemplation, sunset Sandhyavandanam' },
+  { index: 1, name: 'Rudra', deity: 'Lord Shiva / Rudra', period: 'Diurnal', nature: 'Inauspicious', activity: 'Avoid auspicious beginnings; good for intense spiritual discipline' },
+  { index: 2, name: 'Ahi / Sarpa', deity: 'Serpent Deity / Rahu', period: 'Diurnal', nature: 'Inauspicious', activity: 'Avoid travel & finance; suitable for poison / snake remedies' },
+  { index: 3, name: 'Mitra', deity: 'Sun / Mitra', period: 'Diurnal', nature: 'Auspicious', activity: 'Friendship, alliances, commercial agreements, social harmony' },
+  { index: 4, name: 'Pitri', deity: 'Ancestral Fathers', period: 'Diurnal', nature: 'Moderate', activity: 'Shraddha karma, tarpana, honoring ancestors, solemn deeds' },
+  { index: 5, name: 'Vasu', deity: 'Ashta Vasus', period: 'Diurnal', nature: 'Auspicious', activity: 'Acquisition of wealth, buying gold, cattle, assets' },
+  { index: 6, name: 'Varaha / Aapa', deity: 'Varaha / Water Deity', period: 'Diurnal', nature: 'Auspicious', activity: 'Agriculture, digging wells, waterworks, foundational seeds' },
+  { index: 7, name: 'Vishvedeva', deity: 'Universal Cosmic Deities', period: 'Diurnal', nature: 'Auspicious', activity: 'Community assemblies, general auspicious ceremonies' },
+  { index: 8, name: 'Abhijit', deity: 'Lord Maha Vishnu', period: 'Diurnal', nature: 'Highly Auspicious', activity: 'Supreme victory! Destroys all planetary & timing flaws (Sarva Dosha Hara)' },
+  { index: 9, name: 'Satamukhi / Rohina', deity: 'Lord Brahma', period: 'Diurnal', nature: 'Auspicious', activity: 'Art, crafts, engineering, constructing durable buildings' },
+  { index: 10, name: 'Vijaya', deity: 'Lord Shiva / Victory', period: 'Diurnal', nature: 'Highly Auspicious', activity: 'Legal battles, political campaigns, conquest, medical victory' },
+  { index: 11, name: 'Vahni / Naisrita', deity: 'Agni (Fire)', period: 'Diurnal', nature: 'Moderate', activity: 'Homa, yajna, metallurgy, fire rituals; avoid peace summits' },
+  { index: 12, name: 'Varuna / Jammaya', deity: 'Lord Varuna', period: 'Diurnal', nature: 'Auspicious', activity: 'Trade across waters, artistic performances, fluid commerce' },
+  { index: 13, name: 'Aryaman / Naktanchara', deity: 'Aryaman Aditya', period: 'Diurnal', nature: 'Auspicious', activity: 'Matrimonial negotiations, contracts, leadership oaths' },
+  { index: 14, name: 'Godhuli / Bhaga', deity: 'Bhaga Savitr', period: 'Diurnal', nature: 'Auspicious', activity: 'Sunset twilight; exceptionally potent for Vivaha (marriage) & travel' },
+  { index: 15, name: 'Girisha / Saumya', deity: 'Lord Shiva / Mountains', period: 'Diurnal', nature: 'Moderate', activity: 'Quietude, contemplation, sunset Sandhyavandanam' },
 
   // 15 Night Muhurats
-  { index: 16, name: 'Ajapada (अजपाद)', deity: 'Aja Ekapada', period: 'Nocturnal (Night)', nature: 'Moderate', activity: 'Tantric sadhana, night vigil, occult insight' },
-  { index: 17, name: 'Ahirbudhnya (अहिर्बुध्न्य)', deity: 'Kundalini Serpent / Depths', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Deep introspection, occult studies, yogic meditation' },
-  { index: 18, name: 'Pushya (पुष्य)', deity: 'Brihaspati / Guru', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Sacred nocturnal study, writing, philosophical discourse' },
-  { index: 19, name: 'Ashwini (अश्विनी)', deity: 'Ashwini Kumaras', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Medical preparations, administering herbs, healing rites' },
-  { index: 20, name: 'Yama (यम)', deity: 'Lord Yama (Dharmaraja)', period: 'Nocturnal (Night)', nature: 'Inauspicious', activity: 'Avoid auspicious initiation; suitable for justice & legal vows' },
-  { index: 21, name: 'Agni (अग्नि)', deity: 'Hutashana Agni', period: 'Nocturnal (Night)', nature: 'Moderate', activity: 'Agni pariksha, refining metals, nocturnal havans' },
-  { index: 22, name: 'Vidhatr (विधातृ)', deity: 'Dhata / Sustainer', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Organizing resources, architecture planning' },
-  { index: 23, name: 'Kanda (कण्ड)', deity: 'Chandra / Somadeva', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Music, poetry, lunar meditation' },
-  { index: 24, name: 'Aditi (अदिति)', deity: 'Mother Aditi', period: 'Nocturnal (Night)', nature: 'Highly Auspicious', activity: 'Maternal prayers, seeking blessings, nourishment' },
-  { index: 25, name: 'Jiva (जीव)', deity: 'Brihaspati / Wisdom', period: 'Nocturnal (Night)', nature: 'Highly Auspicious', activity: 'Vedic study, mantra siddhi, profound contemplation' },
-  { index: 26, name: 'Vishnu (विष्णु)', deity: 'Lord Narayana', period: 'Nocturnal (Night)', nature: 'Highly Auspicious', activity: 'Vishnu Sahasranama, Hari Smaranam, universal peace' },
-  { index: 27, name: 'Yumigadya (द्युति)', deity: 'Surya / Luster', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Spiritual illumination, clearing confusion' },
-  { index: 28, name: 'Brahma Muhurat (ब्रह्म मुहूर्त)', deity: 'Parabrahman', period: 'Nocturnal (Night)', nature: 'Highly Auspicious', activity: 'Supreme window for awakening, Dhyana, Yoga & high spiritual absorption (2 Ghatis before dawn)' },
-  { index: 29, name: 'Samudra (समुद्र)', deity: 'Oceanic Cosmic Depths', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Bathing before dawn, Pratah Snana, preparing for sunrise' },
-  { index: 30, name: 'Savitra (सावित्र)', deity: 'Savitr / Dawn Radiance', period: 'Nocturnal (Night)', nature: 'Auspicious', activity: 'Gayatri Japa, Suryodaya Arghya preparation' }
+  { index: 16, name: 'Ajapada', deity: 'Aja Ekapada', period: 'Nocturnal', nature: 'Moderate', activity: 'Tantric sadhana, night vigil, occult insight' },
+  { index: 17, name: 'Ahirbudhnya', deity: 'Kundalini Serpent / Depths', period: 'Nocturnal', nature: 'Auspicious', activity: 'Deep introspection, occult studies, yogic meditation' },
+  { index: 18, name: 'Pushya', deity: 'Brihaspati / Guru', period: 'Nocturnal', nature: 'Auspicious', activity: 'Sacred nocturnal study, writing, philosophical discourse' },
+  { index: 19, name: 'Ashwini', deity: 'Ashwini Kumaras', period: 'Nocturnal', nature: 'Auspicious', activity: 'Medical preparations, administering herbs, healing rites' },
+  { index: 20, name: 'Yama', deity: 'Lord Yama (Dharmaraja)', period: 'Nocturnal', nature: 'Inauspicious', activity: 'Avoid auspicious initiation; suitable for justice & legal vows' },
+  { index: 21, name: 'Agni', deity: 'Hutashana Agni', period: 'Nocturnal', nature: 'Moderate', activity: 'Agni pariksha, refining metals, nocturnal havans' },
+  { index: 22, name: 'Vidhatr', deity: 'Dhata / Sustainer', period: 'Nocturnal', nature: 'Auspicious', activity: 'Organizing resources, architecture planning' },
+  { index: 23, name: 'Kanda', deity: 'Chandra / Somadeva', period: 'Nocturnal', nature: 'Auspicious', activity: 'Music, poetry, lunar meditation' },
+  { index: 24, name: 'Aditi', deity: 'Mother Aditi', period: 'Nocturnal', nature: 'Highly Auspicious', activity: 'Maternal prayers, seeking blessings, nourishment' },
+  { index: 25, name: 'Jiva', deity: 'Brihaspati / Wisdom', period: 'Nocturnal', nature: 'Highly Auspicious', activity: 'Vedic study, mantra siddhi, profound contemplation' },
+  { index: 26, name: 'Vishnu', deity: 'Lord Narayana', period: 'Nocturnal', nature: 'Highly Auspicious', activity: 'Vishnu Sahasranama, Hari Smaranam, universal peace' },
+  { index: 27, name: 'Yumigadya', deity: 'Surya / Luster', period: 'Nocturnal', nature: 'Auspicious', activity: 'Spiritual illumination, clearing confusion' },
+  { index: 28, name: 'Brahma Muhurat', deity: 'Parabrahman', period: 'Nocturnal', nature: 'Highly Auspicious', activity: 'Supreme window for awakening, Dhyana, Yoga & high spiritual absorption (2 Ghatis before dawn)' },
+  { index: 29, name: 'Samudra', deity: 'Oceanic Cosmic Depths', period: 'Nocturnal', nature: 'Auspicious', activity: 'Bathing before dawn, Pratah Snana, preparing for sunrise' },
+  { index: 30, name: 'Savitra', deity: 'Savitr / Dawn Radiance', period: 'Nocturnal', nature: 'Auspicious', activity: 'Gayatri Japa, Suryodaya Arghya preparation' }
 ];
 
 export interface Active30MuhuratResult extends MuhuratEntry {
@@ -200,8 +200,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-08',
     type: 'Raja Panchak',
-    typeHindi: 'राज पञ्चक (Raja Panchak)',
-    weekday: 'Monday (सोमवार)',
+    typeHindi: 'राज पञ्चक',
+    weekday: 'Monday',
     startDate: '10 Aug 2026',
     startTime: '07:42 AM',
     endDate: '14 Aug 2026',
@@ -221,8 +221,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-09',
     type: 'Agni Panchak',
-    typeHindi: 'अग्नि पञ्चक (Agni Panchak)',
-    weekday: 'Tuesday (मंगलवार)',
+    typeHindi: 'अग्नि पञ्चक',
+    weekday: 'Tuesday',
     startDate: '06 Sep 2026',
     startTime: '03:15 PM',
     endDate: '11 Sep 2026',
@@ -242,8 +242,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-10',
     type: 'Nirdosha Panchak',
-    typeHindi: 'निर्दोष / शुभ पञ्चक (Nirdosha Panchak)',
-    weekday: 'Wednesday (बुधवार)',
+    typeHindi: 'निर्दोष / शुभ पञ्चक',
+    weekday: 'Wednesday',
     startDate: '03 Oct 2026',
     startTime: '11:20 PM',
     endDate: '08 Oct 2026',
@@ -263,8 +263,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-10-31',
     type: 'Chora Panchak',
-    typeHindi: 'चोर पञ्चक (Chora Panchak)',
-    weekday: 'Friday (शुक्रवार)',
+    typeHindi: 'चोर पञ्चक',
+    weekday: 'Friday',
     startDate: '31 Oct 2026',
     startTime: '08:50 AM',
     endDate: '05 Nov 2026',
@@ -284,8 +284,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-11',
     type: 'Mrityu Panchak',
-    typeHindi: 'मृत्यु पञ्चक (Mrityu Panchak)',
-    weekday: 'Saturday (शनिवार)',
+    typeHindi: 'मृत्यु पञ्चक',
+    weekday: 'Saturday',
     startDate: '27 Nov 2026',
     startTime: '04:10 PM',
     endDate: '02 Dec 2026',
@@ -305,8 +305,8 @@ export const PANCHAK_DATABASE: PanchakEntry[] = [
   {
     id: 'panchak-2026-12',
     type: 'Roga Panchak',
-    typeHindi: 'रोग पञ्चक (Roga Panchak)',
-    weekday: 'Sunday (रविवार)',
+    typeHindi: 'रोग पञ्चक',
+    weekday: 'Sunday',
     startDate: '24 Dec 2026',
     startTime: '10:15 PM',
     endDate: '29 Dec 2026',
@@ -382,11 +382,11 @@ export function generatePanchaksForYear(year: number, ianaTimezone?: string): Pa
 
       if (endDate.getFullYear() >= year && startDate.getFullYear() <= year) {
         const weekdayNum = startDate.getDay();
-        const weekdayNames = ['Sunday (रविवार)', 'Monday (सोमवार)', 'Tuesday (मंगलवार)', 'Wednesday (बुधवार)', 'Thursday (गुरुवार)', 'Friday (शुक्रवार)', 'Saturday (शनिवार)'];
+        const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const weekdayStr = weekdayNames[weekdayNum];
 
         let type: PanchakEntry['type'] = 'Nirdosha Panchak';
-        let typeHindi = 'निर्दोष / शुभ पञ्चक (Nirdosha Panchak)';
+        let typeHindi = 'निर्दोष / शुभ पञ्चक';
         let auspiciousness: PanchakEntry['auspiciousness'] = 'Neutral';
         let briefEffects = {
           hindi: 'मध्यम फलदायी। सामान्य व्यापार व अध्ययन कार्य संभव।',
@@ -399,31 +399,31 @@ export function generatePanchaksForYear(year: number, ianaTimezone?: string): Pa
 
         if (weekdayNum === 0) {
           type = 'Roga Panchak';
-          typeHindi = 'रोग पञ्चक (Roga Panchak)';
+          typeHindi = 'रोग पञ्चक';
           auspiciousness = 'Inauspicious';
           briefEffects = { hindi: 'शारीरिक व्याधि, ज्वर एवं मानसिक तनाव का कारण।', english: 'Causes bodily afflictions, fever, and physical discomfort.' };
           briefRule = { hindi: 'बृहत्संहिता: रविवार का पञ्चक रोग-पञ्चक है; ऐच्छिक शल्य चिकित्सा व नए उपचार टालें।', english: 'Brihat Samhita: Sunday Panchak is Roga Panchak; avoid non-urgent surgeries and start Ayurvedic remedies.' };
         } else if (weekdayNum === 1) {
           type = 'Raja Panchak';
-          typeHindi = 'राज पञ्चक (Raja Panchak)';
+          typeHindi = 'राज पञ्चक';
           auspiciousness = 'Auspicious';
           briefEffects = { hindi: 'शासन, सरकारी कार्य एवं सम्पत्ति क्रय हेतु अत्यन्त शुभ।', english: 'Highly auspicious for government work, property registration, and honors.' };
           briefRule = { hindi: 'मुहूर्तचिन्तामणि: सोमवार को शुरू होने वाला पञ्चक राज-पञ्चक कहलाता है जो राजकार्य व सम्पत्ति हेतु शुभ है, किन्तु ५ शास्त्रोक्त निषिद्ध कार्य वर्जित रहते हैं।', english: 'Muhurta Chintamani: Monday-commenced Panchak is Raja Panchak; favorable for statecraft and assets, though canonical prohibitions apply.' };
         } else if (weekdayNum === 2) {
           type = 'Agni Panchak';
-          typeHindi = 'अग्नि पञ्चक (Agni Panchak)';
+          typeHindi = 'अग्नि पञ्चक';
           auspiciousness = 'Inauspicious';
           briefEffects = { hindi: 'अग्निभय, औजार-मशीनरी विवाद एवं वाद-विवाद की सम्भावना।', english: 'Risk of fire accidents, machinery disputes, and sudden volatility.' };
           briefRule = { hindi: 'निर्णयसिन्धु: मंगलवार का पञ्चक अग्नि-पञ्चक है। निर्माण, विद्युत कार्य एवं काष्ठ संचय में सावधानी बरतें।', english: 'Nirnayasindhu: Tuesday-commenced Panchak is Agni Panchak. Extreme caution advised with fire and machinery.' };
         } else if (weekdayNum === 5) {
           type = 'Chora Panchak';
-          typeHindi = 'चोर पञ्चक (Chora Panchak)';
+          typeHindi = 'चोर पञ्चक';
           auspiciousness = 'Inauspicious';
           briefEffects = { hindi: 'धनहानि, व्यापारिक घाटा एवं यात्रा में चोरी का भय।', english: 'Susceptibility to monetary loss, speculative deficit, and travel theft.' };
           briefRule = { hindi: 'मुहूर्त गणपति: शुक्रवार का पञ्चक चोर-पञ्चक है; बड़े लेन-देन एवं जोखिम भरे निवेश से बचें।', english: 'Muhurta Ganapati: Friday-started Panchak is Chora Panchak; avoid unsecured loans and speculative trading.' };
         } else if (weekdayNum === 6) {
           type = 'Mrityu Panchak';
-          typeHindi = 'मृत्यु पञ्चक (Mrityu Panchak)';
+          typeHindi = 'मृत्यु पञ्चक';
           auspiciousness = 'Severe Caution';
           briefEffects = { hindi: 'अत्यन्त कष्टकारी, चोट-दुर्घटना एवं संकट की आशंका।', english: 'High risk of fatal crises, accidents, and surgical obstacles.' };
           briefRule = { hindi: 'धर्मसिन्धु: शनिवार का पञ्चक मृत्यु-पञ्चक है। समस्त मांगलिक कार्य वर्जित हैं एवं दाह संस्कार में पञ्च-पुत्तलिका शान्ति अनिवार्य है।', english: 'Dharmasindhu: Saturday Panchak is Mrityu Panchak. Auspicious rites forbidden; Putrika Shanti mandatory.' };
@@ -504,10 +504,10 @@ export function getActivePanchakStatus(currentDate: Date = new Date(), ianaTimez
 // ─────────────────────────────────────────────────────────────────────────────
 export const FESTIVALS_DATABASE: FestivalDetail[] = [
   {
-    name: 'Putrada Ekadashi (Shravana)',
+    name: 'Putrada Ekadashi',
     hindiName: 'श्रावण पुत्रदा एकादशी',
     date: 'Tuesday, 25 Aug 2026',
-    dayOfWeek: 'Tuesday (मंगलवार)',
+    dayOfWeek: 'Tuesday',
     tithi: 'Shukla Ekadashi',
     paksha: 'Shukla',
     category: 'Ekadashi',
@@ -525,7 +525,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Shravana Shukla Pradosh Vrat',
     hindiName: 'श्रावण शुक्ल प्रदोष व्रत',
     date: 'Wednesday, 26 Aug 2026',
-    dayOfWeek: 'Wednesday (बुधवार)',
+    dayOfWeek: 'Wednesday',
     tithi: 'Shukla Trayodashi',
     paksha: 'Shukla',
     category: 'Pradosh',
@@ -542,7 +542,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Raksha Bandhan / Shravana Purnima',
     hindiName: 'रक्षाबन्धन / श्रावण पूर्णिमा',
     date: 'Friday, 28 Aug 2026',
-    dayOfWeek: 'Friday (शुक्रवार)',
+    dayOfWeek: 'Friday',
     tithi: 'Shukla Purnima',
     paksha: 'Shukla',
     category: 'Major Festival',
@@ -559,7 +559,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Krishna Janmashtami',
     hindiName: 'श्रीकृष्ण जन्माष्टमी',
     date: 'Thursday, 03 Sep 2026',
-    dayOfWeek: 'Thursday (गुरुवार)',
+    dayOfWeek: 'Thursday',
     tithi: 'Krishna Ashtami',
     paksha: 'Krishna',
     category: 'Major Festival',
@@ -577,7 +577,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Radha Ashtami',
     hindiName: 'श्री राधाष्टमी',
     date: 'Sunday, 20 Sep 2026',
-    dayOfWeek: 'Sunday (रविवार)',
+    dayOfWeek: 'Sunday',
     tithi: 'Shukla Ashtami',
     paksha: 'Shukla',
     category: 'Major Festival',
@@ -594,7 +594,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Ahoi Ashtami',
     hindiName: 'अहोई अष्टमी',
     date: 'Tuesday, 03 Nov 2026',
-    dayOfWeek: 'Tuesday (मंगलवार)',
+    dayOfWeek: 'Tuesday',
     tithi: 'Krishna Ashtami',
     paksha: 'Krishna',
     category: 'Major Festival',
@@ -611,7 +611,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Gopashtami',
     hindiName: 'गोपाष्टमी',
     date: 'Wednesday, 18 Nov 2026',
-    dayOfWeek: 'Wednesday (बुधवार)',
+    dayOfWeek: 'Wednesday',
     tithi: 'Shukla Ashtami',
     paksha: 'Shukla',
     category: 'Major Festival',
@@ -626,9 +626,9 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
   },
   {
     name: 'Ganesh Chaturthi',
-    hindiName: 'गणेश चतुर्थी (वरद चतुर्थी)',
+    hindiName: 'गणेश चतुर्थी',
     date: 'Monday, 14 Sep 2026',
-    dayOfWeek: 'Monday (सोमवार)',
+    dayOfWeek: 'Monday',
     tithi: 'Shukla Chaturthi',
     paksha: 'Shukla',
     category: 'Ganesh Chaturthi',
@@ -645,7 +645,7 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     name: 'Sharad Navratri Ghatasthapana',
     hindiName: 'शारदीय नवरात्रि घटस्थापना',
     date: 'Sunday, 11 Oct 2026',
-    dayOfWeek: 'Sunday (रविवार)',
+    dayOfWeek: 'Sunday',
     tithi: 'Shukla Pratipada',
     paksha: 'Shukla',
     category: 'Major Festival',
@@ -659,10 +659,10 @@ export const FESTIVALS_DATABASE: FestivalDetail[] = [
     shastraReferences: ['Nirnayasindhu', 'Devi Bhagavatam']
   },
   {
-    name: 'Diwali (Lakshmi Puja)',
-    hindiName: 'दीपावली (श्री महालक्ष्मी पूजन)',
+    name: 'Diwali',
+    hindiName: 'दीपावली',
     date: 'Sunday, 08 Nov 2026',
-    dayOfWeek: 'Sunday (रविवार)',
+    dayOfWeek: 'Sunday',
     tithi: 'Krishna Amavasya',
     paksha: 'Krishna',
     category: 'Major Festival',

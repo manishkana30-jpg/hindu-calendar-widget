@@ -2,7 +2,8 @@ import assert from 'assert';
 import { 
   UI_TRANSLATIONS, 
   SUPPORTED_LANGUAGES, 
-  translateTerm, 
+  translateTerm,
+  cleanTerm,
   SupportedLanguage 
 } from '../src/lib/i18n/translations';
 
@@ -59,7 +60,7 @@ check('Zero empty string translations exist in any dictionary', () => {
 // 3. Dynamic Astrological Term Translation
 console.log('\n▸ 3. Verifying Dynamic Astrological Term Translations:');
 
-check('Tithi translation across all 5 languages', () => {
+check('Tithi translation across all 5 languages without brackets', () => {
   assert.strictEqual(translateTerm('Shukla Ekadashi', 'en'), 'Shukla Ekadashi');
   assert.strictEqual(translateTerm('Shukla Ekadashi', 'hi'), 'शुक्ल एकादशी');
   assert.strictEqual(translateTerm('Shukla Ekadashi', 'sa'), 'शुक्लैकादशी');
@@ -69,7 +70,7 @@ check('Tithi translation across all 5 languages', () => {
   assert.strictEqual(translateTerm('Purnima', 'hi'), 'पूर्णिमा');
   assert.strictEqual(translateTerm('Purnima', 'sa'), 'पूर्णिमा');
   assert.strictEqual(translateTerm('Purnima', 'mr'), 'पौर्णिमा');
-  assert.strictEqual(translateTerm('Purnima', 'gu'), 'પૂનમ (પૂર્ણિમા)');
+  assert.strictEqual(translateTerm('Purnima', 'gu'), 'પૂનમ');
 });
 
 check('Nakshatra translation across all 5 languages', () => {
@@ -88,13 +89,13 @@ check('Lunar Month (Masa) translation across all 5 languages', () => {
   assert.strictEqual(translateTerm('Chaitra', 'hi'), 'चैत्र');
   assert.strictEqual(translateTerm('Chaitra', 'sa'), 'चैत्रः');
   assert.strictEqual(translateTerm('Kartika', 'hi'), 'कार्तिक');
-  assert.strictEqual(translateTerm('Kartika', 'gu'), 'કારતક (કાર્તિક)');
+  assert.strictEqual(translateTerm('Kartika', 'gu'), 'કારતક');
 });
 
 check('Yoga & Karana translation across all 5 languages', () => {
   assert.strictEqual(translateTerm('Siddhi', 'hi'), 'सिद्धि');
   assert.strictEqual(translateTerm('Siddhi', 'sa'), 'सिद्धिः');
-  assert.strictEqual(translateTerm('Vishti', 'hi'), 'विष्टि (भद्रा)');
+  assert.strictEqual(translateTerm('Vishti', 'hi'), 'विष्टि');
   assert.strictEqual(translateTerm('Bava', 'gu'), 'બવ');
 });
 
@@ -108,11 +109,22 @@ check('Muhurat & Choghadiya translation across all 5 languages', () => {
   assert.strictEqual(translateTerm('Shubh', 'hi'), 'शुभ');
 });
 
-check('Zodiac Signs (Rashis) translation across all 5 languages', () => {
+check('Zodiac Signs (Rashis) translation & Hinglish normalization', () => {
   assert.strictEqual(translateTerm('Mesha', 'hi'), 'मेष');
   assert.strictEqual(translateTerm('Mesha', 'sa'), 'मेषः');
   assert.strictEqual(translateTerm('Kumbha', 'mr'), 'कुंभ');
   assert.strictEqual(translateTerm('Kumbha', 'gu'), 'કુંભ');
+  assert.strictEqual(translateTerm('Aries', 'en'), 'Mesha');
+  assert.strictEqual(translateTerm('Aries', 'hi'), 'मेष');
+});
+
+check('Zero brackets rule and timestamp preservation', () => {
+  assert.strictEqual(cleanTerm('Shukla Paksha (Bright Half)'), 'Shukla Paksha');
+  assert.strictEqual(cleanTerm('Diwali (दीपावली)'), 'Diwali');
+  assert.strictEqual(translateTerm('Diwali (दीपावली)', 'en'), 'Diwali');
+  assert.strictEqual(translateTerm('Diwali (दीपावली)', 'hi'), 'दीपावली');
+  // Timestamp preserved:
+  assert.strictEqual(cleanTerm('Abhijit Muhurat (11:45 AM - 12:35 PM)'), 'Abhijit Muhurat (11:45 AM - 12:35 PM)');
 });
 
 console.log('\n═══════════════════════════════════════════════════════════════════════════════════');

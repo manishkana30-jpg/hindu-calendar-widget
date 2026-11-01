@@ -134,7 +134,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   const nextDateStr = formatGregorianDate(nextVedicDate);
 
   // Build Day Muhurats with exact dates, start time, end time (Strict Ascending Order: baseDateStr)
-  const dayMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal (Day)').map((m, idx) => {
+  const dayMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal').map((m, idx) => {
     const sMin = sunriseMin + idx * daySlotDuration;
     const eMin = sMin + daySlotDuration;
     const startTimeStr = formatMinutesToTime(sMin);
@@ -153,7 +153,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
   });
 
   // Build Night Muhurats with exact dates, start time, end time (Strict Ascending Order: baseDateStr before midnight, nextDateStr after midnight)
-  const nightMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal (Night)').map((m, idx) => {
+  const nightMuhuratsWithTimes = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal').map((m, idx) => {
     const sMin = sunsetMin + idx * nightSlotDuration;
     const eMin = sMin + nightSlotDuration;
     const startTimeStr = formatMinutesToTime(sMin);

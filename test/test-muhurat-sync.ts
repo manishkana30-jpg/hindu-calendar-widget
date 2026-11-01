@@ -53,14 +53,14 @@ for (let minute = 0; minute < 1440; minute += 10) {
   const nightLengthMin = (1440 - sunsetMin) + nextSunriseMin;
   const nightSlotDuration = nightLengthMin / 15;
 
-  const dayMuhurats = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal (Day)').map((m, idx) => {
+  const dayMuhurats = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Diurnal').map((m, idx) => {
     const sMin = sunriseMin + idx * daySlotDuration;
     const eMin = sMin + daySlotDuration;
     const isCurrent = currentMinutes >= sMin && currentMinutes < eMin;
     return { ...m, isCurrent };
   });
 
-  const nightMuhurats = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal (Night)').map((m, idx) => {
+  const nightMuhurats = COMPLETE_MUHURATS_LIST.filter(m => m.period === 'Nocturnal').map((m, idx) => {
     const sMin = sunsetMin + idx * nightSlotDuration;
     const eMin = sMin + nightSlotDuration;
     const normS = sMin % 1440;
