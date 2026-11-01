@@ -140,6 +140,28 @@ export interface TranslationDictionary {
   observanceHoliday: string;
   todayHolidayBadge: string;
 
+  // Monthly Shubh Karya Muhurat Planner
+  tabTodayMuhuratChoghadiya: string;
+  tabMonthlyShubhKarya: string;
+  filterAllActivities: string;
+  filterPropertyPurchase: string;
+  filterConstructionBhoomi: string;
+  filterGrihaPravesh: string;
+  filterVehiclePurchase: string;
+  filterBusinessOpening: string;
+  filterGoldPurchase: string;
+  filterMarriageSanskar: string;
+  showAllDaysOfMonth: string;
+  showOnlyAuspiciousDays: string;
+  colDateVara: string;
+  colPurposeKarya: string;
+  colAuspiciousWindow: string;
+  colTithiNakshatra: string;
+  colRahuKaalAvoid: string;
+  noAuspiciousDaysFound: string;
+  noAuspiciousWindow: string;
+  shareMuhuratWhatsApp: string;
+
   // Five Limbs
   fiveLimbsTitle: string;
   nakshatra: string;
@@ -314,6 +336,28 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     observanceHoliday: 'Observance',
     todayHolidayBadge: "Today's Holiday",
 
+    // Monthly Shubh Karya Muhurat Planner
+    tabTodayMuhuratChoghadiya: "Today's Muhurat & Choghadiya",
+    tabMonthlyShubhKarya: 'Monthly Shubh Karya Muhurat',
+    filterAllActivities: 'All Activities',
+    filterPropertyPurchase: 'House / Property Purchase',
+    filterConstructionBhoomi: 'Bhoomi Pujan & Construction',
+    filterGrihaPravesh: 'Griha Pravesh',
+    filterVehiclePurchase: 'Vehicle Purchase',
+    filterBusinessOpening: 'Business & Shop Opening',
+    filterGoldPurchase: 'Gold & Valuables',
+    filterMarriageSanskar: 'Vivah & Sanskar',
+    showAllDaysOfMonth: 'Show All Days of Month',
+    showOnlyAuspiciousDays: 'Show Only Auspicious Days',
+    colDateVara: 'Date & Vara',
+    colPurposeKarya: 'Shubh Karya / Purpose',
+    colAuspiciousWindow: 'Auspicious Time Window',
+    colTithiNakshatra: 'Tithi & Nakshatra',
+    colRahuKaalAvoid: 'Rahu Kaal (Avoid)',
+    noAuspiciousDaysFound: 'No auspicious days found for this category in this month.',
+    noAuspiciousWindow: 'Inauspicious / No Window',
+    shareMuhuratWhatsApp: 'Share Muhurat on WhatsApp',
+
     fiveLimbsTitle: 'Five Limbs of Vedic Panchang',
     nakshatra: 'Nakshatra',
     yoga: 'Yoga',
@@ -480,6 +524,28 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     publicHoliday: 'सार्वजनिक अवकाश',
     observanceHoliday: 'ऐच्छिक / पर्व',
     todayHolidayBadge: 'आज का अवकाश',
+
+    // Monthly Shubh Karya Muhurat Planner
+    tabTodayMuhuratChoghadiya: 'आज का मुहूर्त व चौघड़िया',
+    tabMonthlyShubhKarya: 'मासिक शुभ कार्य मुहूर्त',
+    filterAllActivities: 'सभी शुभ कार्य',
+    filterPropertyPurchase: 'मकान / संपत्ति खरीद',
+    filterConstructionBhoomi: 'भूमि पूजन / गृह निर्माण',
+    filterGrihaPravesh: 'गृह प्रवेश',
+    filterVehiclePurchase: 'वाहन खरीद',
+    filterBusinessOpening: 'व्यापार प्रारम्भ',
+    filterGoldPurchase: 'स्वर्ण / आभूषण खरीद',
+    filterMarriageSanskar: 'विवाह व संस्कार',
+    showAllDaysOfMonth: 'माह के सभी दिन',
+    showOnlyAuspiciousDays: 'केवल शुभ दिन',
+    colDateVara: 'दिनांक / वार',
+    colPurposeKarya: 'शुभ कार्य / प्रयोजन',
+    colAuspiciousWindow: 'शुभ समय अवधि',
+    colTithiNakshatra: 'तिथि एवं नक्षत्र',
+    colRahuKaalAvoid: 'राहु काल (वर्जित)',
+    noAuspiciousDaysFound: 'इस माह में इस कार्य हेतु कोई शुभ मुहूर्त नहीं है।',
+    noAuspiciousWindow: 'अशुभ / कोई मुहूर्त नहीं',
+    shareMuhuratWhatsApp: 'व्हाट्सएप पर मुहूर्त साझा करें',
 
     fiveLimbsTitle: 'पञ्चाङ्ग के पाँच मूल अंग',
     nakshatra: 'नक्षत्र',
@@ -648,6 +714,28 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     observanceHoliday: 'उत्सवः',
     todayHolidayBadge: 'अद्य अवकाशः',
 
+    // Monthly Shubh Karya Muhurat Planner
+    tabTodayMuhuratChoghadiya: 'अद्यतनमुहूर्तः चौघडिया च',
+    tabMonthlyShubhKarya: 'मासिकशुभकार्यमुहूर्ताः',
+    filterAllActivities: 'सर्वाणि शुभकार्याणि',
+    filterPropertyPurchase: 'गृह / सम्पत्ति क्रयः',
+    filterConstructionBhoomi: 'भूमिपूजनम् गृहनिर्माणं च',
+    filterGrihaPravesh: 'गृहप्रवेशः',
+    filterVehiclePurchase: 'वाहनक्रयः',
+    filterBusinessOpening: 'व्यापारप्रारम्भः',
+    filterGoldPurchase: 'स्वर्णक्रयः',
+    filterMarriageSanskar: 'विवाहः संस्काराश्च',
+    showAllDaysOfMonth: 'मासस्य सर्वदिनानि',
+    showOnlyAuspiciousDays: 'केवलं शुभदिनानि',
+    colDateVara: 'दिनाङ्कः / वासरः',
+    colPurposeKarya: 'शुभकार्यम् / प्रयोजनम्',
+    colAuspiciousWindow: 'शुभकालः',
+    colTithiNakshatra: 'तिथिः नक्षत्रं च',
+    colRahuKaalAvoid: 'राहुकालः (वर्ज्यः)',
+    noAuspiciousDaysFound: 'अस्मिन् मासे अस्य कार्यस्य शुभमुहूर्तः नास्ति।',
+    noAuspiciousWindow: 'अशुभः कालः',
+    shareMuhuratWhatsApp: 'व्हाट्सएप द्वारा मुहूर्तं प्रेषयन्तु',
+
     fiveLimbsTitle: 'पञ्चाङ्गस्य पञ्च अङ्गानि',
     nakshatra: 'नक्षत्रम्',
     yoga: 'योगः',
@@ -815,6 +903,28 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     observanceHoliday: 'सण / उत्सव',
     todayHolidayBadge: 'आजची सुट्टी',
 
+    // Monthly Shubh Karya Muhurat Planner
+    tabTodayMuhuratChoghadiya: 'आजचा मुहूर्त व चौघडिया',
+    tabMonthlyShubhKarya: 'मासिक शुभ कार्य मुहूर्त',
+    filterAllActivities: 'सर्व शुभ कार्ये',
+    filterPropertyPurchase: 'घर / मालमत्ता खरेदी',
+    filterConstructionBhoomi: 'भूमीपूजन व गृहनिर्माण',
+    filterGrihaPravesh: 'गृहप्रवेश',
+    filterVehiclePurchase: 'वाहन खरेदी',
+    filterBusinessOpening: 'व्यवसाय सुरू करणे',
+    filterGoldPurchase: 'सोने खरेदी',
+    filterMarriageSanskar: 'विवाह व संस्कार',
+    showAllDaysOfMonth: 'महिन्याचे सर्व दिवस',
+    showOnlyAuspiciousDays: 'फक्त शुभ दिवस',
+    colDateVara: 'दिनांक / वार',
+    colPurposeKarya: 'शुभ कार्य / प्रयोजन',
+    colAuspiciousWindow: 'शुभ वेळ',
+    colTithiNakshatra: 'तिथी व नक्षत्र',
+    colRahuKaalAvoid: 'राहु काळ (वर्ज्य)',
+    noAuspiciousDaysFound: 'या महिन्यात या कार्यासाठी कोणताही शुभ मुहूर्त नाही.',
+    noAuspiciousWindow: 'अशुभ / वेळ नाही',
+    shareMuhuratWhatsApp: 'व्हॉट्सॲपवर मुहूर्त शेअर करा',
+
     fiveLimbsTitle: 'पंचांगाची पाच मुख्य अंगे',
     nakshatra: 'नक्षत्र',
     yoga: 'योग',
@@ -981,6 +1091,28 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     publicHoliday: 'જાહેર રજા',
     observanceHoliday: 'તહેવાર / ઉજવણી',
     todayHolidayBadge: 'આજની રજા',
+
+    // Monthly Shubh Karya Muhurat Planner
+    tabTodayMuhuratChoghadiya: 'આજનો મુહૂર્ત અને ચોઘડિયા',
+    tabMonthlyShubhKarya: 'માસિક શુભ કાર્ય મુહૂર્ત',
+    filterAllActivities: 'બધા શુભ કાર્યો',
+    filterPropertyPurchase: 'મકાન / મિલકત ખરીદી',
+    filterConstructionBhoomi: 'ભૂમિ પૂજન અને ગૃહ નિર્માણ',
+    filterGrihaPravesh: 'ગૃહ પ્રવેશ',
+    filterVehiclePurchase: 'વાહન ખરીદી',
+    filterBusinessOpening: 'વેપાર શરૂઆત',
+    filterGoldPurchase: 'સોનું / આભૂષણ ખરીદી',
+    filterMarriageSanskar: 'લગ્ન અને સંસ્કાર',
+    showAllDaysOfMonth: 'મહિનાના તમામ દિવસો',
+    showOnlyAuspiciousDays: 'માત્ર શુભ દિવસો',
+    colDateVara: 'તારીખ / વાર',
+    colPurposeKarya: 'શુભ કાર્ય / પ્રયોજન',
+    colAuspiciousWindow: 'શુભ સમય',
+    colTithiNakshatra: 'તિથિ અને નક્ષત્ર',
+    colRahuKaalAvoid: 'રાહુ કાળ (વર્જ્ય)',
+    noAuspiciousDaysFound: 'આ મહિનામાં આ કાર્ય માટે કોઈ શુભ મુહૂર્ત નથી.',
+    noAuspiciousWindow: 'અશુભ / મુહૂર્ત નથી',
+    shareMuhuratWhatsApp: 'વોટ્સએપ પર મુહૂર્ત શેર કરો',
 
     fiveLimbsTitle: 'પંચાંગના પાંચ મુખ્ય અંગ',
     nakshatra: 'નક્ષત્ર',
