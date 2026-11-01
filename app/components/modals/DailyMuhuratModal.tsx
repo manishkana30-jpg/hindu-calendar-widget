@@ -253,7 +253,7 @@ export function DailyMuhuratModal({ isOpen, onClose, panchang }: Props) {
                     : 'bg-[#11192e] text-neutral-300 hover:bg-[#18233d] hover:text-white border border-[#233152]'
                 }`}
               >
-                <span className="leading-tight truncate w-full">{tab.label}</span>
+                <span className="leading-snug break-words w-full">{tab.label}</span>
                 <span className={`text-[10px] font-medium mt-0.5 hidden sm:inline ${activeTab === tab.id ? 'text-amber-100' : 'text-neutral-400'}`}>
                   {tab.sub}
                 </span>

@@ -82,6 +82,8 @@ export interface TranslationDictionary {
   vedicObservance: string;
   vratRules: string;
   viewFullVratCalendar: string;
+  allDays: string;
+  vratsAndFestivals: string;
   observed: string;
   filterAll: string;
   filterEkadashi: string;
@@ -215,6 +217,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vedicObservance: 'VEDIC VRAT & TYOHAR',
     vratRules: 'Vrat Rules',
     viewFullVratCalendar: 'View Full Vrat & Tyohar Calendar',
+    allDays: 'All Days',
+    vratsAndFestivals: 'Vrat & Tyohar',
     observed: 'Observed',
     filterAll: 'All Vrats & Tyohar',
     filterEkadashi: 'Ekadashi',
@@ -341,6 +345,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vedicObservance: 'वैदिक पर्व',
     vratRules: 'शास्त्र नियम',
     viewFullVratCalendar: 'संपूर्ण व्रत एवं त्योहार कैलेंडर देखें',
+    allDays: 'सभी दिन',
+    vratsAndFestivals: 'व्रत एवं पर्व',
     observed: 'मान्य',
     filterAll: 'सभी व्रत व पर्व',
     filterEkadashi: 'एकादशी',
@@ -467,6 +473,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vedicObservance: 'वैदिकपर्व',
     vratRules: 'शास्त्रनियमाः',
     viewFullVratCalendar: 'सम्पूर्णव्रतपर्वदिनदर्शिकां पश्यन्तु',
+    allDays: 'सर्वे दिवसाः',
+    vratsAndFestivals: 'व्रताः पर्वाणि च',
     observed: 'मान्यम्',
     filterAll: 'सर्वे व्रताः पर्वाणि च',
     filterEkadashi: 'एकादशी',
@@ -593,6 +601,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vedicObservance: 'वैदिक सण',
     vratRules: 'शास्त्र नियम',
     viewFullVratCalendar: 'संपूर्ण व्रत व सण दिनदर्शिका पहा',
+    allDays: 'सर्व दिवस',
+    vratsAndFestivals: 'व्रत व सण',
     observed: 'मान्य',
     filterAll: 'सर्व व्रत व सण',
     filterEkadashi: 'एकादशी',
@@ -719,6 +729,8 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vedicObservance: 'વૈદિક પર્વ',
     vratRules: 'શાસ્ત્ર નિયમો',
     viewFullVratCalendar: 'સંપૂર્ણ વ્રત અને તહેવાર કેલેન્ડર જુઓ',
+    allDays: 'બધા દિવસો',
+    vratsAndFestivals: 'વ્રત અને તહેવારો',
     observed: 'માન્ય',
     filterAll: 'બધા વ્રત અને તહેવારો',
     filterEkadashi: 'એકાદશી',

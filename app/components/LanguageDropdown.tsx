@@ -96,11 +96,11 @@ export function LanguageDropdown({ className = '' }: Props) {
                       : 'text-neutral-300 hover:bg-[#16223e] hover:text-white'
                   }`}
                 >
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-medium text-[13px] leading-tight truncate">
+                  <div className="flex flex-col min-w-0 py-0.5">
+                    <span className="font-medium text-[13px] leading-snug break-words">
                       {opt.nativeName}
                     </span>
-                    <span className="text-[10px] text-neutral-400 leading-tight">
+                    <span className="text-[10px] text-neutral-400 leading-normal">
                       {opt.label}
                     </span>
                   </div>

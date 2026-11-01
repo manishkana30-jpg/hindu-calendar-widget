@@ -24,12 +24,10 @@ import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { usePanchang } from '../../src/hooks/usePanchang';
 import { CITIES } from '../../src/lib/cities';
 import { getActivePanchakStatus, calculateActive30Muhurat } from '../../src/lib/dharmashastra-rules';
-import { TithiMonthModal } from './modals/TithiMonthModal';
+import { TithiMonthModal, CalendarFilterTab } from './modals/TithiMonthModal';
 import { DailyMuhuratModal } from './modals/DailyMuhuratModal';
 import { FiveLimbsModal, LimbTabType } from './modals/FiveLimbsModal';
-import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
-import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
 import { getUpcomingFestivalsList } from '../../src/lib/festivals';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { WhatsAppIcon } from './WhatsAppShareButton';
@@ -408,14 +406,19 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isDismissed, setIsDismissed] = useState<boolean>(false);
 
+  // Unified Calendar Modal State
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState<boolean>(false);
+  const [calendarInitialTab, setCalendarInitialTab] = useState<CalendarFilterTab>('all');
+  const openCalendar = useCallback((tab: CalendarFilterTab = 'all') => {
+    setCalendarInitialTab(tab);
+    setIsCalendarModalOpen(true);
+  }, []);
+
   // Modal states for click interactions
-  const [isTithiModalOpen, setIsTithiModalOpen] = useState<boolean>(false);
   const [isMuhuratModalOpen, setIsMuhuratModalOpen] = useState<boolean>(false);
   const [isFiveLimbsModalOpen, setIsFiveLimbsModalOpen] = useState<boolean>(false);
   const [activeLimbForModal, setActiveLimbForModal] = useState<LimbTabType>('tithi');
-  const [isTodayFestivalModalOpen, setIsTodayFestivalModalOpen] = useState<boolean>(false);
   const [isPanchakModalOpen, setIsPanchakModalOpen] = useState<boolean>(false);
-  const [isUpcomingFestivalsModalOpen, setIsUpcomingFestivalsModalOpen] = useState<boolean>(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState<boolean>(false);
   const [isEmbedModalOpen, setIsEmbedModalOpen] = useState<boolean>(false);
 
@@ -728,17 +731,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           
           {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
           <div 
-            onClick={() => setIsTithiModalOpen(true)}
+            onClick={() => openCalendar('all')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsTithiModalOpen(true);
+                openCalendar('all');
               }
             }}
             role="button"
             tabIndex={0}
             aria-haspopup="dialog"
-            aria-expanded={isTithiModalOpen}
+            aria-expanded={isCalendarModalOpen}
             title="Click to open Full Monthly Calendar & Almanac"
             aria-label="Open Full Monthly Calendar & Almanac"
             className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0"
@@ -747,7 +750,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="flex items-center justify-between gap-1.5 min-w-0">
                 <div className="flex items-center gap-1.5 text-amber-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-amber-300 transition-colors min-w-0">
                   <Clock size={12} className="text-amber-400 shrink-0" />
-                  <span className="truncate">{isLiveMode ? t('liveClock') : t('selectedDate')}</span>
+                  <span className="whitespace-nowrap shrink-0">{isLiveMode ? t('liveClock') : t('selectedDate')}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
@@ -769,7 +772,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               <div className="text-slate-300 text-xs font-medium mb-1.5 flex items-center justify-between font-sans gap-1 min-w-0">
-                <span className="truncate min-w-0">{displayDate}</span>
+                <span className="break-words whitespace-normal leading-snug min-w-0">{displayDate}</span>
                 <span className="text-[10px] text-amber-300/90 font-medium font-sans shrink-0">
                   {selectedLocation.regionName}
                 </span>
@@ -812,7 +815,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     <div className="flex items-center gap-1 min-w-0 flex-1 text-slate-300">
                       <span className="text-amber-400 select-none shrink-0">{holidayDetails.upcomingHoliday.icon}</span>
                       <span className="text-slate-400 text-[9px] shrink-0 font-sans">{t('nextHoliday')}</span>
-                      <strong className="text-white truncate font-semibold font-sans min-w-0">{translateTerm(holidayDetails.upcomingHoliday.title, language)}</strong>
+                      <strong className="text-white break-words whitespace-normal leading-snug font-semibold font-sans min-w-0">{translateTerm(holidayDetails.upcomingHoliday.title, language)}</strong>
                     </div>
                     <span className="text-[9px] text-amber-300 font-grotesk font-mono font-bold whitespace-nowrap bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 shrink-0 tabular-nums">
                       {holidayDetails.upcomingHoliday.daysText}
@@ -876,7 +879,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">{t('tapFullCalendar')}</span>
+                  <span className="break-words whitespace-normal leading-snug">{t('tapFullCalendar')}</span>
                 </div>
                 <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
               </div>
@@ -885,17 +888,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
           {/* COLUMN 2: VEDIC PANCHANG CARD */}
           <div 
-            onClick={() => setIsTithiModalOpen(true)}
+            onClick={() => openCalendar('all')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsTithiModalOpen(true);
+                openCalendar('all');
               }
             }}
             role="button"
             tabIndex={0}
             aria-haspopup="dialog"
-            aria-expanded={isTithiModalOpen}
+            aria-expanded={isCalendarModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
             className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-amber-500/35 hover:border-orange-500/60 shadow-[0_0_25px_rgba(245,158,11,0.1)] hover:shadow-[0_0_35px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans overflow-hidden min-w-0"
@@ -910,7 +913,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className="p-1 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-400 shrink-0">
                     <Sun size={13} />
                   </div>
-                  <span className="font-serif font-devanagari text-amber-300 text-sm font-semibold tracking-tight truncate">
+                  <span className="font-serif font-devanagari text-amber-300 text-sm font-semibold tracking-tight leading-snug break-words">
                     {translateTerm(panchang.dayOfWeekName, language)}
                   </span>
                 </div>
@@ -931,7 +934,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 <span className="text-[9px] font-extrabold font-outfit text-amber-400/90 tracking-wider uppercase px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
                   {t('masa')}
                 </span>
-                <span className="font-serif font-devanagari font-medium text-amber-100 text-xs truncate break-words whitespace-normal min-w-0">
+                <span className="font-serif font-devanagari font-medium text-amber-100 text-xs break-words whitespace-normal leading-snug min-w-0">
                   {localizedMasa}
                 </span>
               </div>
@@ -941,7 +944,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <div className="flex items-center gap-1 min-w-0">
                     <Sparkles size={11} className="text-amber-400/80 shrink-0" />
-                    <span className="text-[9px] font-extrabold font-outfit tracking-wider uppercase text-amber-400/90 truncate">
+                    <span className="text-[9px] font-extrabold font-outfit tracking-wider uppercase text-amber-400/90 leading-snug">
                       {isHindi ? 'आज की औदयिक तिथि' : t('tithi')}
                     </span>
                   </div>
@@ -980,7 +983,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0b101e]/80 border border-amber-500/20 text-[11px] font-grotesk tabular-nums shadow-sm min-w-0">
                   <Clock size={11} className="text-amber-400 shrink-0" />
                   <span className="font-sans text-slate-400 font-medium text-[10px] shrink-0">{t('tithiEnds')}:</span>
-                  <span className="font-bold text-white tracking-tight truncate text-[11px]">
+                  <span className="font-bold text-white tracking-tight whitespace-nowrap text-[11px] leading-snug">
                     {currentTithiEndTime}
                   </span>
                 </div>
@@ -990,19 +993,19 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="p-2 rounded-xl bg-slate-950/70 border border-white/10 space-y-1 text-[11px] min-w-0">
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('nextTithi')}:</span>
-                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-[11px] truncate min-w-0">
+                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-[11px] break-words whitespace-normal leading-snug min-w-0">
                     {shortNextTithi}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('starts')}:</span>
-                  <span className="font-mono tabular-nums text-slate-200 text-right text-[10px] truncate min-w-0">
+                  <span className="font-mono tabular-nums text-slate-200 text-right text-[10px] whitespace-nowrap shrink-0">
                     {newTithiStartTime}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('observed')}:</span>
-                  <span className="font-semibold text-emerald-300 text-right text-[10px] truncate min-w-0">
+                  <span className="font-semibold text-emerald-300 text-right text-[10px] break-words whitespace-normal leading-snug min-w-0">
                     {newTithiObservedWhen}
                   </span>
                 </div>
@@ -1014,7 +1017,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <Compass size={11} className="text-amber-400 shrink-0" />
                   <span>Pahar:</span>
                 </span>
-                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[10px] bg-slate-950/80 border border-white/10 px-2 py-0.5 rounded shadow-sm truncate min-w-0">
+                <span className="font-medium text-slate-200 font-grotesk tabular-nums text-[10px] bg-slate-950/80 border border-white/10 px-2 py-0.5 rounded shadow-sm break-words whitespace-normal leading-snug min-w-0">
                   {panchang.paharCapsuleText}
                 </span>
               </div>
@@ -1025,7 +1028,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">{t('tapFullCalendar')}</span>
+                  <span className="break-words whitespace-normal leading-snug">{t('tapFullCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-grotesk">
@@ -1059,7 +1062,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* Header: Label + Nature Badge (Clicking opens DailyMuhuratModal) */}
               <div className="flex items-center justify-between gap-1.5 min-w-0">
                 <div className="text-slate-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-slate-300 transition-colors flex items-center gap-1 min-w-0">
-                  <span className="truncate">{t('tabMuhurat')}</span>
+                  <span className="leading-snug">{t('tabMuhurat')}</span>
                   <span className="text-[8px] px-1 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
                     धर्मशास्त्र सम्मत
                   </span>
@@ -1097,7 +1100,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
               {/* Main Active Vedic Muhurat Title & Deity */}
               <div className="my-1.5 leading-snug">
-                <div className={`text-base sm:text-lg font-bold font-outfit truncate ${
+                <div className={`text-base sm:text-lg font-bold font-outfit break-words whitespace-normal leading-snug ${
                   (activeVedicMuhurat?.nature === 'Highly Auspicious' || activeVedicMuhurat?.nature === 'Auspicious')
                     ? 'text-white group-hover:text-emerald-300'
                     : activeVedicMuhurat?.nature === 'Moderate'
@@ -1109,7 +1112,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     : translateTerm(panchang.currentChoghadiya?.displayName || 'Abhijit Muhurat', language)}
                 </div>
                 {activeVedicMuhurat?.deity && (
-                  <div className="text-xs text-neutral-300 mt-0.5 truncate">
+                  <div className="text-xs text-neutral-300 mt-0.5 break-words whitespace-normal leading-snug">
                     • {t('ruler')}: <strong className="text-white font-serif font-devanagari">{translateTerm(activeVedicMuhurat.deity, language)}</strong>
                   </div>
                 )}
@@ -1163,7 +1166,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Clock size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">{t('tap24hMuhurat')}</span>
+                  <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-grotesk">
@@ -1182,17 +1185,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT */}
           <div 
-            onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+            onClick={() => openCalendar('vrats')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsUpcomingFestivalsModalOpen(true);
+                openCalendar('vrats');
               }
             }}
             role="button"
             tabIndex={0}
             aria-haspopup="dialog"
-            aria-expanded={isUpcomingFestivalsModalOpen}
+            aria-expanded={isCalendarModalOpen}
             title={t('viewFullVratCalendar')}
             aria-label={t('viewFullVratCalendar')}
             className={`p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border ${
@@ -1205,7 +1208,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* Header row: Label + Festive Badge + Action Pill */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
                 <div className="text-orange-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 min-w-0">
-                  <span className="truncate">{t('todaysObservance')}</span>
+                  <span className="leading-snug">{t('todaysObservance')}</span>
                   {panchang.todayFestival.isMajor && (
                     <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-950/60 border border-amber-500/40 text-amber-300 uppercase shrink-0 font-outfit">
                       {t('majorFestival')}
@@ -1248,7 +1251,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">{t('viewFullVratCalendar')}</span>
+                  <span className="break-words whitespace-normal leading-snug">{t('viewFullVratCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
@@ -1282,7 +1285,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               {/* Header row: Label + Badge + Action Pill */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-amber-400 text-[10px] font-bold font-outfit tracking-wider uppercase truncate">
+                  <span className="text-amber-400 text-[10px] font-bold font-outfit tracking-wider uppercase leading-snug">
                     {t('panchakStatus')}
                   </span>
                   <span className={`px-1.5 py-0.5 rounded text-[8px] font-extrabold font-outfit uppercase shrink-0 ${
@@ -1341,7 +1344,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/15 hover:from-teal-500/25 hover:to-emerald-500/25 border border-teal-500/35 group-hover:border-teal-400/70 text-teal-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-teal-400 shrink-0" />
-                  <span className="truncate">{language === 'en' ? "Tap for Multi-Year Panchak Calendar & Dos/Don'ts" : (language === 'hi' ? 'बहु-वर्षीय पञ्चक कैलेंडर एवं शास्त्र नियम' : (language === 'sa' ? 'बहुवर्षीयपञ्चकदिनदर्शिका शास्त्रनियमाः च' : (language === 'mr' ? 'बहु-वर्षीय पंचक दिनदर्शिका व शास्त्र नियम' : 'બહુ-વર્ષીય પંચક કેલેન્ડર અને શાસ્ત્ર નિયમો')))}</span>
+                  <span className="break-words whitespace-normal leading-snug">{language === 'en' ? "Tap for Multi-Year Panchak Calendar & Dos/Don'ts" : (language === 'hi' ? 'बहु-वर्षीय पञ्चक कैलेंडर एवं शास्त्र नियम' : (language === 'sa' ? 'बहुवर्षीयपञ्चकदिनदर्शिका शास्त्रनियमाः च' : (language === 'mr' ? 'बहु-वर्षीय पंचक दिनदर्शिका व शास्त्र नियम' : 'બહુ-વર્ષીય પંચક કેલેન્ડર અને શાસ્ત્ર નિયમો')))}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 font-grotesk">
@@ -1358,12 +1361,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             <div className="space-y-2 min-w-0">
               {/* Header row: Label + Action badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
-                <span className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase truncate">
+                <span className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase leading-snug">
                   {t('upcomingFestivals').toUpperCase()}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                  onClick={() => openCalendar('vrats')}
                   className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold font-outfit shadow-sm hover:bg-emerald-500/25 transition-all shrink-0 cursor-pointer"
                 >
                   <Calendar size={11} className="text-emerald-400 shrink-0" />
@@ -1385,7 +1388,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   return (
                     <div
                       key={idx}
-                      onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                      onClick={() => openCalendar('vrats')}
                       className="flex items-center justify-between gap-2.5 px-3 py-2 hover:bg-[#11192e] transition-colors cursor-pointer group"
                     >
                       {/* Left: Date pill (DD MMM + Weekday) */}
@@ -1396,10 +1399,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
                       {/* Middle: Title & Category / Description */}
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
+                        <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors break-words whitespace-normal leading-snug">
                           {festTitle}
                         </div>
-                        <div className="text-[10px] text-neutral-400 truncate">
+                        <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5">
                           {fest.category ? `${fest.category} • ` : ''}{fest.description}
                         </div>
                       </div>
@@ -1418,12 +1421,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] relative z-10 min-w-0">
               <button
                 type="button"
-                onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                onClick={() => openCalendar('vrats')}
                 className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/35 hover:border-emerald-400/70 text-emerald-200 hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm cursor-pointer"
               >
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Sparkles size={12} className="text-emerald-400 shrink-0" />
-                  <span className="truncate">{t('viewFullVratCalendar')}</span>
+                  <span className="break-words whitespace-normal leading-snug">{t('viewFullVratCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
                   <ChevronRight size={13} className="text-emerald-400 shrink-0" />
@@ -1508,18 +1511,18 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-amber-400 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="truncate">1. {t('tithi').toUpperCase()}</span>
+                      <span className="leading-snug">1. {t('tithi').toUpperCase()}</span>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
                         <span>{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}</span>
                         <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.tithi.name, language)}</div>
-                    <div className="text-[11px] text-slate-400 font-sans truncate">{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}: {translateTerm(panchang.tithi.deity, language)}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.tithi.name, language)}</div>
+                    <div className="text-[11px] text-slate-400 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}: {translateTerm(panchang.tithi.deity, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{language === 'en' ? 'Tap for Tithi Attributes & Deity' : (language === 'hi' ? 'तिथी के गुण एवं देवता विस्तार देखें' : (language === 'sa' ? 'तिथिलक्षणानि देवतां च पश्यन्तु' : (language === 'mr' ? 'तिथीचे गुणधर्म व देवता पहा' : 'તિથિના ગુણો અને દેવતા જુઓ')))}</span>
+                      <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Tithi Attributes & Deity' : (language === 'hi' ? 'तिथी के गुण एवं देवता विस्तार देखें' : (language === 'sa' ? 'तिथिलक्षणानि देवतां च पश्यन्तु' : (language === 'mr' ? 'तिथीचे गुणधर्म व देवता पहा' : 'તિથિના ગુણો અને દેવતા જુઓ')))}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1537,18 +1540,18 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-amber-400 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="truncate">2. {t('nakshatra').toUpperCase()}</span>
+                      <span className="leading-snug">2. {t('nakshatra').toUpperCase()}</span>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
                         <span>{language === 'en' ? 'Pada & Lord' : (language === 'hi' ? 'चरण एवं स्वामी' : (language === 'sa' ? 'पादः स्वामी च' : (language === 'mr' ? 'चरण व स्वामी' : 'ચરણ અને સ્વામી')))}</span>
                         <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.nakshatra.name, language)}</div>
-                    <div className="text-[11px] text-slate-400 font-sans truncate">{language === 'en' ? 'Pada' : (language === 'hi' ? 'चरण' : (language === 'sa' ? 'पादः' : (language === 'mr' ? 'चरण' : 'ચરણ')))} {panchang.nakshatra.pada} • {t('ruler')} {translateTerm(panchang.nakshatra.lord, language)}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.nakshatra.name, language)}</div>
+                    <div className="text-[11px] text-slate-400 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Pada' : (language === 'hi' ? 'चरण' : (language === 'sa' ? 'पादः' : (language === 'mr' ? 'चरण' : 'ચરણ')))} {panchang.nakshatra.pada} • {t('ruler')} {translateTerm(panchang.nakshatra.lord, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{language === 'en' ? 'Tap for Planetary & Nakshatra Details' : (language === 'hi' ? 'ग्रह एवं नक्षत्र विस्तार देखें' : (language === 'sa' ? 'ग्रहाणां नक्षत्राणां च विवरणं पश्यन्तु' : (language === 'mr' ? 'ग्रह व नक्षत्र तपशील पहा' : 'ગ્રહ અને નક્ષત્ર વિગતો જુઓ')))}</span>
+                      <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Planetary & Nakshatra Details' : (language === 'hi' ? 'ग्रह एवं नक्षत्र विस्तार देखें' : (language === 'sa' ? 'ग्रहाणां नक्षत्राणां च विवरणं पश्यन्तु' : (language === 'mr' ? 'ग्रह व नक्षत्र तपशील पहा' : 'ગ્રહ અને નક્ષત્ર વિગતો જુઓ')))}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1568,7 +1571,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-amber-400 font-bold font-outfit uppercase truncate">3. {t('yoga').toUpperCase()}</span>
+                      <span className="text-[10px] text-amber-400 font-bold font-outfit uppercase leading-snug">3. {t('yoga').toUpperCase()}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-[8px] font-extrabold px-1.5 py-0.5 rounded border font-outfit uppercase shrink-0 ${
                           panchang.yoga.nature === 'Shubh' ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
@@ -1580,12 +1583,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                         </span>
                       </div>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.yoga.name, language)}</div>
-                    <div className="text-[11px] text-slate-400 font-sans truncate">{panchang.yoga.meaning}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.yoga.name, language)}</div>
+                    <div className="text-[11px] text-slate-400 font-sans break-words whitespace-normal leading-snug">{panchang.yoga.meaning}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{language === 'en' ? 'Tap for Yoga Astrological Meaning' : (language === 'hi' ? 'योग फल एवं फलित विस्तार देखें' : (language === 'sa' ? 'योगफलितं विवरणं च पश्यन्तु' : (language === 'mr' ? 'योगाचे फलित व महत्त्व पहा' : 'યોગનું ફળ અને મહત્વ જુઓ')))}</span>
+                      <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Yoga Astrological Meaning' : (language === 'hi' ? 'योग फल एवं फलित विस्तार देखें' : (language === 'sa' ? 'योगफलितं विवरणं च पश्यन्तु' : (language === 'mr' ? 'योगाचे फलित व महत्त्व पहा' : 'યોગનું ફળ અને મહત્વ જુઓ')))}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1605,7 +1608,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-amber-400 font-bold font-outfit uppercase truncate">4. {t('karana').toUpperCase()}</span>
+                      <span className="text-[10px] text-amber-400 font-bold font-outfit uppercase leading-snug">4. {t('karana').toUpperCase()}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-[8px] font-extrabold px-1.5 py-0.5 rounded border font-outfit uppercase shrink-0 ${
                           panchang.karana.auspicious ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/60 border-rose-500/30 text-rose-300'
@@ -1617,12 +1620,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                         </span>
                       </div>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.karana.name, language)}</div>
-                    <div className="text-[11px] text-slate-400 font-sans truncate">{panchang.karana.type}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.karana.name, language)}</div>
+                    <div className="text-[11px] text-slate-400 font-sans break-words whitespace-normal leading-snug">{panchang.karana.type}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{language === 'en' ? 'Tap for Karana Category & Ruling Lord' : (language === 'hi' ? 'करण प्रकार एवं स्वामी विस्तार देखें' : (language === 'sa' ? 'करणप्रकारं स्वामिनं च पश्यन्तु' : (language === 'mr' ? 'करण प्रकार व स्वामी पहा' : 'કરણ પ્રકાર અને સ્વામી જુઓ')))}</span>
+                      <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Karana Category & Ruling Lord' : (language === 'hi' ? 'करण प्रकार एवं स्वामी विस्तार देखें' : (language === 'sa' ? 'करणप्रकारं स्वामिनं च पश्यन्तु' : (language === 'mr' ? 'करण प्रकार व स्वामी पहा' : 'કરણ પ્રકાર અને સ્વામી જુઓ')))}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1640,18 +1643,18 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-amber-400 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="truncate">5. {t('vaar').toUpperCase()}</span>
+                      <span className="leading-snug">5. {t('vaar').toUpperCase()}</span>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
                         <span>{t('ruler')}</span>
                         <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors truncate">{translateTerm(panchang.vaar.name, language)}</div>
-                    <div className="text-[11px] text-amber-400 font-sans truncate">{translateTerm(panchang.vaar.lord, language)}</div>
+                    <div className="text-sm font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.name, language)}</div>
+                    <div className="text-[11px] text-amber-400 font-sans break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.lord, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{language === 'en' ? 'Tap for Vaar Ruler & Civil Span' : (language === 'hi' ? 'वार स्वामी एवं अहोरात्र विस्तार देखें' : (language === 'sa' ? 'वारस्वामिनम् अहोरात्रविस्तारं च पश्यन्तु' : (language === 'mr' ? 'वार स्वामी व अहोरात्र तपशील पहा' : 'વાર સ્વામી અને અહોરાત્ર વિગત જુઓ')))}</span>
+                      <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Vaar Ruler & Civil Span' : (language === 'hi' ? 'वार स्वामी एवं अहोरात्र विस्तार देखें' : (language === 'sa' ? 'वारस्वामिनम् अहोरात्रविस्तारं च पश्यन्तु' : (language === 'mr' ? 'वार स्वामी व अहोरात्र तपशील पहा' : 'વાર સ્વામી અને અહોરાત્ર વિગત જુઓ')))}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1723,7 +1726,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit truncate">{translateTerm('Brahma Muhurat', language)}</span>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Brahma Muhurat', language)}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-outfit uppercase">{t('auspicious').toUpperCase()}</span>
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
@@ -1736,7 +1739,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{t('tap24hMuhurat')}</span>
+                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1754,7 +1757,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit truncate">{translateTerm('Abhijit Muhurat', language)}</span>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Abhijit Muhurat', language)}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-outfit uppercase">{t('auspicious').toUpperCase()}</span>
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
@@ -1767,7 +1770,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{t('tap24hMuhurat')}</span>
+                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1785,7 +1788,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-amber-400 font-bold uppercase font-outfit truncate">{translateTerm('Gulika Kaal', language)}</span>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Gulika Kaal', language)}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-950/60 border border-amber-500/30 text-amber-300 font-outfit uppercase">{t('neutral').toUpperCase()}</span>
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
@@ -1798,7 +1801,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{t('tap24hMuhurat')}</span>
+                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1816,7 +1819,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-rose-400 font-bold uppercase font-outfit truncate">{translateTerm('Rahu Kaal', language)}</span>
+                      <span className="text-[10px] text-rose-400 font-bold uppercase font-outfit leading-snug break-words">{translateTerm('Rahu Kaal', language)}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-rose-950/60 border border-rose-500/30 text-rose-300 font-outfit uppercase">{t('inauspicious').toUpperCase()}</span>
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 transition-all shrink-0">
@@ -1829,7 +1832,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] min-w-0">
                     <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/30 group-hover:border-orange-400/60 text-orange-200 group-hover:text-white text-[10px] font-semibold font-outfit flex items-center justify-between shadow-sm transition-all">
-                      <span className="truncate">{t('tap24hMuhurat')}</span>
+                      <span className="break-words whitespace-normal leading-snug">{t('tap24hMuhurat')}</span>
                       <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
@@ -1864,7 +1867,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
         {/* ── Widget Bottom Utility Footer ── */}
         <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2 text-[11px] text-slate-400 relative z-10">
-          <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono truncate">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 font-mono break-words whitespace-normal leading-snug min-w-0">
             Surya Siddhanta &amp; Swiss Ephemeris Engine (DE431)
           </span>
           <span className="text-[10px] text-slate-500 font-mono shrink-0">
@@ -1881,13 +1884,16 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         onClose={() => setIsEmbedModalOpen(false)}
         defaultCity={selectedLocation.name}
       />
+
+      {/* ── Unified Master List Calendar & Almanac Modal ── */}
       <TithiMonthModal
-        isOpen={isTithiModalOpen}
-        onClose={() => setIsTithiModalOpen(false)}
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
         location={selectedLocation}
+        initialTab={calendarInitialTab}
         onSelectDate={(d) => {
           setSelectedDate(d);
-          setIsTithiModalOpen(false);
+          setIsCalendarModalOpen(false);
         }}
       />
 
@@ -1904,22 +1910,9 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         initialLimb={activeLimbForModal}
       />
 
-      <TodayFestivalModal
-        isOpen={isTodayFestivalModalOpen}
-        onClose={() => setIsTodayFestivalModalOpen(false)}
-        panchang={panchang}
-      />
-
       <PanchakModal
         isOpen={isPanchakModalOpen}
         onClose={() => setIsPanchakModalOpen(false)}
-      />
-
-      <UpcomingFestivalsModal
-        isOpen={isUpcomingFestivalsModalOpen}
-        onClose={() => setIsUpcomingFestivalsModalOpen(false)}
-        location={selectedLocation}
-        currentDate={selectedDate}
       />
 
       {/* ── Background Notification System: Settings Modal ── */}

@@ -88,6 +88,7 @@ export function NotificationSettingsModal({
 
   useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = 'hidden';
       checkNotificationCapabilities().then(setCapabilities);
       getNotificationSettings().then(setSettings);
       const loc = getSavedLocationState();
@@ -101,8 +102,23 @@ export function NotificationSettingsModal({
       const dailyData = extractDailyPanchangData(new Date(), activeLoc);
       const floating = buildDailyFloatingPayload(dailyData);
       setFloatingPreview({ title: floating.title, body: floating.options.body });
+    } else {
+      document.body.style.overflow = '';
     }
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen, currentLocation]);
+
+  // ESC key listener for accessibility
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

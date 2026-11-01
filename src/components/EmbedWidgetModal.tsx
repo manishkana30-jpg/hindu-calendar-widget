@@ -35,6 +35,18 @@ export function EmbedWidgetModal({
     }
   }, [isOpen, defaultCity]);
 
+  // Lock background body scroll strictly while modal is open with guaranteed cleanup
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Handle ESC key press
   useEffect(() => {
     if (!isOpen) return;

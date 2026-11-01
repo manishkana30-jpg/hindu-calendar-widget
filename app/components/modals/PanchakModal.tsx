@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShieldAlert, BookOpen, Calendar, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { generatePanchaksForYear, getActivePanchakStatus } from '../../../src/lib/dharmashastra-rules';
-import { useUserLanguage } from '../../../src/lib/user-language';
+import { useLanguage } from '../../../src/context/LanguageContext';
 
 interface Props {
   isOpen: boolean;
@@ -12,7 +12,30 @@ interface Props {
 
 export function PanchakModal({ isOpen, onClose }: Props) {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const { language, isHindi, toggleLanguage } = useUserLanguage();
+  const { language } = useLanguage();
+  const isHindi = language === 'hi';
+
+  // Lock background body scroll strictly while modal is open with guaranteed cleanup
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // ESC key listener for accessibility
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
