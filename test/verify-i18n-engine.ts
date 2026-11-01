@@ -88,8 +88,21 @@ check('Nakshatra translation across all 5 languages', () => {
 check('Lunar Month (Masa) translation across all 5 languages', () => {
   assert.strictEqual(translateTerm('Chaitra', 'hi'), 'चैत्र');
   assert.strictEqual(translateTerm('Chaitra', 'sa'), 'चैत्रः');
+  assert.strictEqual(translateTerm('Vaishakha', 'hi'), 'वैशाख');
+  assert.strictEqual(translateTerm('Vaisakha', 'hi'), 'वैशाख');
+  assert.strictEqual(translateTerm('Jyeshtha Masa', 'hi'), 'ज्येष्ठ');
+  assert.strictEqual(translateTerm('Ashadha', 'hi'), 'आषाढ़');
+  assert.strictEqual(translateTerm('Shravana Masa', 'hi'), 'श्रावण');
+  assert.strictEqual(translateTerm('Bhadrapada', 'hi'), 'भाद्रपद');
+  assert.strictEqual(translateTerm('Ashwin', 'hi'), 'आश्विन');
+  assert.strictEqual(translateTerm('Ashwina', 'hi'), 'आश्विन');
   assert.strictEqual(translateTerm('Kartika', 'hi'), 'कार्तिक');
   assert.strictEqual(translateTerm('Kartika', 'gu'), 'કારતક');
+  assert.strictEqual(translateTerm('Margashirsha', 'hi'), 'मार्गशीर्ष');
+  assert.strictEqual(translateTerm('Pausha', 'hi'), 'पौष');
+  assert.strictEqual(translateTerm('Magha Masa', 'hi'), 'माघ');
+  assert.strictEqual(translateTerm('Phalguna', 'hi'), 'फाल्गुन');
+  assert.strictEqual(translateTerm('Kartika Masa', 'en'), 'Kartika');
 });
 
 check('Yoga & Karana translation across all 5 languages', () => {

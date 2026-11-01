@@ -106,9 +106,11 @@ export interface TranslationDictionary {
   colDateAndVara: string;
   colTithiAndPaksha: string;
   colNakshatraAndMasa: string;
+  colMasa: string;
   colVratAndTyohar: string;
   colMobileDate: string;
   colMobileTithiPanchang: string;
+  colMobileTithiPakshaMasa: string;
   colMobileVrat: string;
   tapToInspect: string;
 
@@ -252,10 +254,12 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vratAndTyoharAlmanac: 'Vrat & Tyohar Almanac',
     colDateAndVara: 'Date & Vara',
     colTithiAndPaksha: 'Tithi & Paksha',
-    colNakshatraAndMasa: 'Nakshatra & Masa',
+    colNakshatraAndMasa: 'Masa',
+    colMasa: 'Masa',
     colVratAndTyohar: 'Vrat & Tyohar',
     colMobileDate: 'Date',
-    colMobileTithiPanchang: 'Tithi & Panchang',
+    colMobileTithiPanchang: 'Tithi, Paksha & Masa',
+    colMobileTithiPakshaMasa: 'Tithi, Paksha & Masa',
     colMobileVrat: 'Vrat / Tyohar',
     tapToInspect: 'Details',
 
@@ -392,10 +396,12 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vratAndTyoharAlmanac: 'व्रत एवं त्योहार सारणी',
     colDateAndVara: 'दिनांक / वार',
     colTithiAndPaksha: 'तिथि / पक्ष',
-    colNakshatraAndMasa: 'नक्षत्र / मास',
+    colNakshatraAndMasa: 'मास',
+    colMasa: 'मास',
     colVratAndTyohar: 'व्रत एवं त्योहार',
     colMobileDate: 'दिनांक',
-    colMobileTithiPanchang: 'तिथि व पंचांग',
+    colMobileTithiPanchang: 'तिथि, पक्ष व मास',
+    colMobileTithiPakshaMasa: 'तिथि, पक्ष व मास',
     colMobileVrat: 'व्रत / पर्व',
     tapToInspect: 'विवरण',
 
@@ -532,10 +538,12 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vratAndTyoharAlmanac: 'व्रतोत्सवसारणी',
     colDateAndVara: 'दिनाङ्कः / वारः',
     colTithiAndPaksha: 'तिथिः / पक्षः',
-    colNakshatraAndMasa: 'नक्षत्रम् / मासः',
+    colNakshatraAndMasa: 'मासः',
+    colMasa: 'मासः',
     colVratAndTyohar: 'व्रतोत्सवाः',
     colMobileDate: 'दिनाङ्कः',
-    colMobileTithiPanchang: 'तिथिपञ्चाङ्गम्',
+    colMobileTithiPanchang: 'तिथिपक्षमासाः',
+    colMobileTithiPakshaMasa: 'तिथिपक्षमासाः',
     colMobileVrat: 'व्रतम् / पर्व',
     tapToInspect: 'विवरणम्',
 
@@ -672,10 +680,12 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vratAndTyoharAlmanac: 'व्रत व सण सारणी',
     colDateAndVara: 'दिनांक / वार',
     colTithiAndPaksha: 'तिथी / पक्ष',
-    colNakshatraAndMasa: 'नक्षत्र / मास',
+    colNakshatraAndMasa: 'मास',
+    colMasa: 'मास',
     colVratAndTyohar: 'व्रत व सण',
     colMobileDate: 'दिनांक',
-    colMobileTithiPanchang: 'तिथी व पंचांग',
+    colMobileTithiPanchang: 'तिथी, पक्ष व मास',
+    colMobileTithiPakshaMasa: 'तिथी, पक्ष व मास',
     colMobileVrat: 'व्रत / सण',
     tapToInspect: 'तपशील',
 
@@ -812,10 +822,12 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     vratAndTyoharAlmanac: 'વ્રત અને તહેવાર પંચાંગ',
     colDateAndVara: 'તારીખ / વાર',
     colTithiAndPaksha: 'તિથિ / પક્ષ',
-    colNakshatraAndMasa: 'નક્ષત્ર / માસ',
+    colNakshatraAndMasa: 'માસ',
+    colMasa: 'માસ',
     colVratAndTyohar: 'વ્રત અને તહેવાર',
     colMobileDate: 'તારીખ',
-    colMobileTithiPanchang: 'તિથિ અને પંચાંગ',
+    colMobileTithiPanchang: 'તિથિ, પક્ષ અને માસ',
+    colMobileTithiPakshaMasa: 'તિથિ, પક્ષ અને માસ',
     colMobileVrat: 'વ્રત / પર્વ',
     tapToInspect: 'વિગત',
 
@@ -974,16 +986,19 @@ export const ASTROLOGICAL_TERMS: Record<string, Record<SupportedLanguage, string
   // All 12 Lunar Months (Masa)
   'chaitra': { en: 'Chaitra', hi: 'चैत्र', sa: 'चैत्रः', mr: 'चैत्र', gu: 'ચૈત્ર' },
   'vaishakha': { en: 'Vaishakha', hi: 'वैशाख', sa: 'वैशाखः', mr: 'वैशाख', gu: 'વૈશાખ' },
+  'vaisakha': { en: 'Vaishakha', hi: 'वैशाख', sa: 'वैशाखः', mr: 'वैशाख', gu: 'વૈશાખ' },
   'jyeshtha masa': { en: 'Jyeshtha', hi: 'ज्येष्ठ', sa: 'ज्येष्ठः', mr: 'ज्येष्ठ', gu: 'જેઠ' },
   'ashadha': { en: 'Ashadha', hi: 'आषाढ़', sa: 'आषाढः', mr: 'आषाढ', gu: 'આષાઢ' },
   'shravana masa': { en: 'Shravana', hi: 'श्रावण', sa: 'श्रावणः', mr: 'श्रावण', gu: 'શ્રાવણ' },
   'bhadrapada': { en: 'Bhadrapada', hi: 'भाद्रपद', sa: 'भाद्रपदः', mr: 'भाद्रपद', gu: 'ભાદરવો' },
+  'ashwin': { en: 'Ashwin', hi: 'आश्विन', sa: 'आश्विनः', mr: 'अश्विन', gu: 'આસો' },
   'ashwina': { en: 'Ashwina', hi: 'आश्विन', sa: 'आश्विनः', mr: 'अश्विन', gu: 'આસો' },
   'kartika': { en: 'Kartika', hi: 'कार्तिक', sa: 'कार्तिकः', mr: 'कार्तिक', gu: 'કારતક' },
   'margashirsha': { en: 'Margashirsha', hi: 'मार्गशीर्ष', sa: 'मार्गशीर्षः', mr: 'मार्गशीर्ष', gu: 'માગશર' },
   'pausha': { en: 'Pausha', hi: 'पौष', sa: 'पौषः', mr: 'पौष', gu: 'પોષ' },
   'magha masa': { en: 'Magha', hi: 'माघ', sa: 'माघः', mr: 'माघ', gu: 'મહા' },
   'phalguna': { en: 'Phalguna', hi: 'फाल्गुन', sa: 'फाल्गुनः', mr: 'फाल्गुन', gu: 'ફાગણ' },
+  'adhika': { en: 'Adhika', hi: 'अधिक', sa: 'अधिकः', mr: 'अधिक', gu: 'અધિક' },
   'adhik masa': { en: 'Adhik Masa', hi: 'अधिक मास', sa: 'अधिकमासः', mr: 'अधिक महिना', gu: 'અધિક માસ' },
 
   // All 27 Yogas
@@ -1205,6 +1220,19 @@ export function translateTerm(term: string | undefined | null, lang?: SupportedL
   // 1. Direct dictionary match
   if (ASTROLOGICAL_TERMS[normalized]?.[targetLang]) {
     return cleanTerm(ASTROLOGICAL_TERMS[normalized][targetLang]);
+  }
+
+  // 1b. Check if term has 'masa' suffix in dictionary (e.g. Jyeshtha Masa, Shravana Masa, Magha Masa)
+  if (ASTROLOGICAL_TERMS[`${normalized} masa`]?.[targetLang]) {
+    return cleanTerm(ASTROLOGICAL_TERMS[`${normalized} masa`][targetLang]);
+  }
+
+  // 1c. If term ends with ' masa', check base term (e.g. Kartika Masa -> Kartika)
+  if (normalized.endsWith(' masa')) {
+    const baseMonth = normalized.replace(/ masa$/, '');
+    if (ASTROLOGICAL_TERMS[baseMonth]?.[targetLang]) {
+      return cleanTerm(ASTROLOGICAL_TERMS[baseMonth][targetLang]);
+    }
   }
 
   // 2. Try raw normalized before cleaning

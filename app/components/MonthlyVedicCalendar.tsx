@@ -248,7 +248,7 @@ export function MonthlyVedicCalendar({
               </span>
               <span className="text-neutral-500">•</span>
               <span className="text-amber-300/90 font-medium">
-                {translateTerm(monthMasa.purnimantaMonth, language)} {t('masa')}
+                {translateTerm(`${monthMasa.purnimantaMonth.replace(/\s*\([^)]*\)/g, '').trim()} Masa`, language) || translateTerm(monthMasa.purnimantaMonth, language)} {t('masa')}
               </span>
               <span className="text-neutral-500 hidden sm:inline">•</span>
               <span className="text-neutral-400 hidden sm:inline">
@@ -397,12 +397,12 @@ export function MonthlyVedicCalendar({
             {/* Col 2: Tithi & Paksha */}
             <div className="sm:col-span-4 sm:border-r sm:border-[#1e2d4f] p-2 sm:p-2.5 flex items-center min-w-0 pl-3">
               <span className="hidden sm:inline">{t('colTithiAndPaksha')}</span>
-              <span className="sm:hidden">{t('colMobileTithiPanchang')}</span>
+              <span className="sm:hidden">{t('colMobileTithiPakshaMasa')}</span>
             </div>
 
-            {/* Col 3: Nakshatra & Masa (Desktop/Tablet) */}
+            {/* Col 3: Masa (Desktop/Tablet) */}
             <div className="hidden sm:flex sm:col-span-3 sm:border-r border-[#1e2d4f] p-2.5 items-center min-w-0 pl-3.5">
-              <span>{t('colNakshatraAndMasa')}</span>
+              <span>{t('colMasa')}</span>
             </div>
 
             {/* Col 4: Vrat & Tyohar */}
@@ -438,8 +438,8 @@ export function MonthlyVedicCalendar({
                 const monthShort = day.date.toLocaleDateString(localeCode, { month: 'short' });
 
                 const translatedTithiName = translateTerm(day.udayaTithi.name, language);
-                const translatedNakshatra = translateTerm(day.nakshatra.name, language);
-                const translatedMasa = translateTerm(day.purnimantaMonth, language);
+                const cleanPurnimanta = day.purnimantaMonth.replace(/\s*\([^)]*\)/g, '').trim();
+                const translatedMasa = translateTerm(`${cleanPurnimanta} Masa`, language) || translateTerm(cleanPurnimanta, language);
                 const translatedFestival = day.festival ? translateTerm(day.festival, language) : null;
 
                 // Relative countdown calculation
@@ -529,34 +529,26 @@ export function MonthlyVedicCalendar({
                         <strong className="text-amber-300 font-medium whitespace-nowrap">{day.tithiEndTime}</strong>
                       </div>
 
-                      {/* Mobile-only Nakshatra sub-line */}
-                      <div className="sm:hidden text-[11px] text-neutral-400 mt-1 break-words leading-snug flex items-center gap-1 flex-wrap">
-                        <span className="text-neutral-500">⭐ {t('nakshatra')}:</span>
-                        <strong className="text-neutral-300 font-medium">{translatedNakshatra}</strong>
+                      {/* Mobile-only Lunar Masa sub-line */}
+                      <div className="sm:hidden text-[11px] font-medium text-amber-300/90 mt-1 break-words leading-snug flex items-center gap-1 flex-wrap">
+                        <span className="text-amber-400/80 shrink-0">🌙</span>
+                        <span>{translatedMasa} {t('masa')}</span>
                       </div>
                     </div>
 
-                    {/* ── Col 3: Nakshatra & Lunar Masa (sm:col-span-3 - Desktop/Tablet) ── */}
+                    {/* ── Col 3: Lunar Masa (sm:col-span-3 - Desktop/Tablet) ── */}
                     <div className="hidden sm:flex sm:col-span-3 sm:border-r sm:border-[#162038] p-3.5 flex-col justify-center min-w-0">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-amber-400/90 text-xs shrink-0 select-none">⭐</span>
-                        <span className="text-xs sm:text-sm font-bold text-neutral-200 break-words leading-snug min-w-0">
-                          {translatedNakshatra}
+                        <span className="text-amber-400/90 text-xs shrink-0 select-none">🌙</span>
+                        <span className="text-xs sm:text-sm font-semibold text-neutral-200 break-words leading-snug min-w-0">
+                          {translatedMasa} {t('masa')}
                         </span>
                       </div>
-
-                      <div className="text-[11px] text-neutral-400 mt-1 break-words leading-snug flex items-center gap-1 min-w-0">
-                        <span className="text-neutral-500 shrink-0">🌙 {t('masa')}:</span>
-                        <strong className="text-neutral-300 font-medium break-words leading-snug min-w-0">
-                          {translatedMasa}
-                        </strong>
-                      </div>
-
-                      <div className="text-[10px] text-neutral-500 font-mono mt-0.5 flex items-center gap-2 flex-wrap">
-                        <span>Lord: <strong className="text-neutral-400">{day.nakshatra.lord}</strong></span>
-                        <span>•</span>
-                        <span>🌅 {day.sunrise}</span>
-                      </div>
+                      {day.amantaMonth && day.amantaMonth !== day.purnimantaMonth && (
+                        <div className="text-[10px] text-neutral-400 mt-0.5 break-words leading-snug">
+                          {t('amanta')}: <strong className="text-neutral-300 font-normal">{translateTerm(day.amantaMonth, language)}</strong>
+                        </div>
+                      )}
                     </div>
 
                     {/* ── Col 4: Vrat & Tyohar / Action (sm:col-span-3) ── */}
