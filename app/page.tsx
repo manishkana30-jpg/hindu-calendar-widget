@@ -2,9 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { WidgetErrorBoundary } from './components/WidgetErrorBoundary';
-import { PWAInstallButton } from './components/PWAInstallButton';
-import { LanguageToggleButton } from './components/LanguageToggleButton';
-import { NavbarBrand, LiveAstrometryPill } from './components/NavbarElements';
+import { NavbarBrand } from './components/NavbarElements';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
 import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
@@ -39,13 +37,6 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <span className="text-xl sm:text-2xl drop-shadow-md shrink-0 select-none">🕉️</span>
             <NavbarBrand />
-          </div>
-          
-          {/* Top Right: Language Toggle, Install Button & Compact Live Astrometry Indicator */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <LanguageToggleButton variant="navbar" />
-            <PWAInstallButton />
-            <LiveAstrometryPill />
           </div>
 
         </div>

@@ -647,17 +647,6 @@ export function MonthlyVedicCalendar({
                             <BookOpen size={11} className="text-amber-400" />
                             {isHindi ? 'धर्मशास्त्र निर्णय नियम:' : 'Shastra Canonical Rule:'}
                           </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleLanguage();
-                            }}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
-                            title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
-                          >
-                            {isHindi ? 'English' : 'हिन्दी'}
-                          </button>
                         </div>
                         <p className="text-neutral-200 leading-relaxed text-xs">
                           {getLocalizedShastraRule(selectedDayDetail.festivalDetails.briefRule, language)}

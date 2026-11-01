@@ -164,17 +164,6 @@ export function UpcomingFestivalsModal({ isOpen, onClose, location, currentDate 
                           <BookOpen size={12} />
                           <span>{isHindi ? '📜 धर्मशास्त्र निर्णय नियम:' : '📜 Shastra Canonical Rule:'}</span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleLanguage();
-                          }}
-                          className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
-                          title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
-                        >
-                          {isHindi ? 'English' : 'हिन्दी'}
-                        </button>
                       </div>
                       <p className="text-neutral-200 leading-relaxed text-[11px]">
                         {getLocalizedShastraRule(fest.briefRule, language)}

@@ -281,6 +281,7 @@ export interface UsePanchangOptions {
   initialLocation?: LocationCoordinates;
   initialDate?: Date;
   isLiveMode?: boolean;
+  localeCode?: string;
 }
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -409,10 +410,12 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     };
   }, [panchang, tithiResolution.nextSunrise]);
 
+  const activeLocale = options.localeCode || 'en-IN';
+
   // ── Step 2: Card 1 (Gregorian & Solar Anchor) Formatting ──
   const displayTime = useMemo(() => {
     try {
-      return new Intl.DateTimeFormat('en-US', {
+      return new Intl.DateTimeFormat(activeLocale, {
         hour: '2-digit',
         minute: '2-digit',
         second: isLiveMode ? '2-digit' : undefined,
@@ -422,11 +425,11 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     } catch {
       return panchang.timeFormatted;
     }
-  }, [targetInstant, isLiveMode, ianaTz, panchang.timeFormatted]);
+  }, [targetInstant, isLiveMode, ianaTz, panchang.timeFormatted, activeLocale]);
 
   const displayDate = useMemo(() => {
     try {
-      return new Intl.DateTimeFormat('en-GB', {
+      return new Intl.DateTimeFormat(activeLocale, {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -436,7 +439,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     } catch {
       return panchang.dateString;
     }
-  }, [targetInstant, targetDayKey, ianaTz, panchang.dateString]);
+  }, [targetInstant, targetDayKey, ianaTz, panchang.dateString, activeLocale]);
 
   // ── Step 3: Card 2 (Vedic Day & Udaya Tithi) Synchronization ──
   const tithiDetails: TithiDetailsState = useMemo(() => {

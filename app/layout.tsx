@@ -8,6 +8,7 @@ import { NotificationNavigationHandler } from './components/NotificationNavigati
 import { ClientNotificationScheduler } from './components/ClientNotificationScheduler';
 import { FloatingAlertBanner } from './components/FloatingAlertBanner';
 import { ContentProtection } from './components/ContentProtection';
+import { LanguageProvider } from '@/src/context/LanguageContext';
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
@@ -245,14 +246,16 @@ export default function RootLayout({
         />
       </head>
       <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-dvh overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-200`}>
-        <Suspense fallback={null}>
-          <NotificationNavigationHandler />
-        </Suspense>
-        <ClientNotificationScheduler />
-        <ContentProtection />
-        {children}
-        <FloatingAlertBanner />
-        <PwaUpdatePrompt />
+        <LanguageProvider>
+          <Suspense fallback={null}>
+            <NotificationNavigationHandler />
+          </Suspense>
+          <ClientNotificationScheduler />
+          <ContentProtection />
+          {children}
+          <FloatingAlertBanner />
+          <PwaUpdatePrompt />
+        </LanguageProvider>
       </body>
     </html>
 

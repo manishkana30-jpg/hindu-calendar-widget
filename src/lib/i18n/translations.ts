@@ -1,0 +1,1041 @@
+export type SupportedLanguage = 'en' | 'hi' | 'sa' | 'mr' | 'gu';
+
+export interface LanguageOption {
+  code: SupportedLanguage;
+  label: string;
+  nativeName: string;
+  localeCode: string;
+}
+
+export const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: 'en', label: 'English', nativeName: 'English', localeCode: 'en-IN' },
+  { code: 'hi', label: 'Hindi', nativeName: 'हिन्दी', localeCode: 'hi-IN' },
+  { code: 'sa', label: 'Sanskrit', nativeName: 'संस्कृतम्', localeCode: 'sa-IN' },
+  { code: 'mr', label: 'Marathi', nativeName: 'मराठी', localeCode: 'mr-IN' },
+  { code: 'gu', label: 'Gujarati', nativeName: 'ગુજરાતી', localeCode: 'gu-IN' },
+];
+
+export interface TranslationDictionary {
+  // Brand & Top Navigation
+  brandTitle: string;
+  brandSubtitle: string;
+  live: string;
+  liveAstrometry: string;
+  installApp: string;
+  globalPanchang: string;
+  home: string;
+  selectLanguage: string;
+
+  // City & GPS
+  useGps: string;
+  gpsActive: string;
+  detectingGps: string;
+  selectCity: string;
+
+  // Sharing
+  shareOnWhatsApp: string;
+  share: string;
+  copiedToClipboard: string;
+
+  // Date Navigation & Live Mode
+  prevDay: string;
+  nextDay: string;
+  liveMode: string;
+  resetToLive: string;
+  selectDate: string;
+
+  // Card 1: Clock & Sun
+  liveClock: string;
+  selectedDate: string;
+  almanac30Day: string;
+  localSunrise: string;
+  sunset: string;
+  dayDuration: string;
+  nightDuration: string;
+  tap24hMuhurat: string;
+  noEclipseToday: string;
+  eclipseToday: string;
+  sutakActive: string;
+  nextHoliday: string;
+
+  // Card 2: Vedic Panchang & Tithi
+  today: string;
+  masa: string;
+  tithi: string;
+  tithiEnds: string;
+  nextTithi: string;
+  starts: string;
+  fullAlmanac: string;
+  tapFullCalendar: string;
+  amanta: string;
+  purnimanta: string;
+  paksha: string;
+  ayana: string;
+  ritu: string;
+  vikramSamvat: string;
+  shakaSamvat: string;
+  kaliYuga: string;
+
+  // Card 3: Observances & Festivals
+  todaysObservance: string;
+  majorFestival: string;
+  vedicObservance: string;
+  vratRules: string;
+  exploreMonthlyCalendar: string;
+  dharmashastraRules: string;
+  nityaPanchang: string;
+  dailyVedicObservance: string;
+  upcomingFestivals: string;
+  viewAllFestivals: string;
+  inDays: string;
+
+  // Five Limbs
+  fiveLimbsTitle: string;
+  nakshatra: string;
+  yoga: string;
+  karana: string;
+  vaar: string;
+  auspiciousAbhijit: string;
+  inauspiciousRahuKaal: string;
+  panchakStatus: string;
+  panchakActive: string;
+  panchakFree: string;
+  dishaShool: string;
+  moonSign: string;
+  sunSign: string;
+
+  // Tabs
+  tabPanchang: string;
+  tabChoghadiya: string;
+  tabMuhurat: string;
+  tabAstrometry: string;
+
+  // Choghadiya
+  daytimeChoghadiya: string;
+  nighttimeChoghadiya: string;
+  auspicious: string;
+  inauspicious: string;
+  neutral: string;
+  ruler: string;
+
+  // Shastra & Modal Rules
+  shastraRuleHeader: string;
+  shastraAuthority: string;
+  close: string;
+  references: string;
+  switchLang: string;
+  viewEnglish: string;
+  viewHindi: string;
+
+  // Floating Alert Banner
+  alertBannerTitle: string;
+  alertBannerDesc: string;
+  getDailyAlert: string;
+  activatingAlerts: string;
+  iosSetupRequired: string;
+  iosSetupGuide: string;
+
+  // Footer & General
+  aboutUs: string;
+  contactUs: string;
+  privacyPolicy: string;
+  termsOfService: string;
+  offlinePwaReady: string;
+  astrometricScience: string;
+  complianceTrust: string;
+  intellectualProperty: string;
+}
+
+export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
+  en: {
+    brandTitle: 'Daily Tithi',
+    brandSubtitle: 'Live Hindu Calendar & Panchang',
+    live: 'Live',
+    liveAstrometry: 'Live Astrometry',
+    installApp: 'Install App',
+    globalPanchang: 'Global Panchang',
+    home: 'Home',
+    selectLanguage: 'Select Language',
+
+    useGps: 'Use GPS',
+    gpsActive: 'GPS Active',
+    detectingGps: 'Detecting...',
+    selectCity: 'Select City Location',
+
+    shareOnWhatsApp: 'Share Panchang on WhatsApp',
+    share: 'Share',
+    copiedToClipboard: 'Panchang copied to clipboard!',
+
+    prevDay: 'Previous Day',
+    nextDay: 'Next Day',
+    liveMode: 'Live',
+    resetToLive: 'Live Mode',
+    selectDate: 'Select Date',
+
+    liveClock: 'LIVE CLOCK',
+    selectedDate: 'SELECTED DATE',
+    almanac30Day: '30-Day Almanac',
+    localSunrise: 'Local Sunrise',
+    sunset: 'Sunset',
+    dayDuration: 'Day Duration',
+    nightDuration: 'Night Duration',
+    tap24hMuhurat: 'Tap for Full 24-Hour Muhurat Matrix',
+    noEclipseToday: 'No Eclipse Today',
+    eclipseToday: 'Eclipse Today',
+    sutakActive: 'Sutak Active',
+    nextHoliday: 'Next:',
+
+    today: 'TODAY',
+    masa: 'MASA',
+    tithi: 'TITHI',
+    tithiEnds: 'Tithi Ends',
+    nextTithi: 'Next Tithi',
+    starts: 'Starts',
+    fullAlmanac: 'Full Almanac',
+    tapFullCalendar: 'Tap for Full Calendar & Tithi Timings',
+    amanta: 'Amanta',
+    purnimanta: 'Purnimanta',
+    paksha: 'Paksha',
+    ayana: 'Ayana',
+    ritu: 'Ritu',
+    vikramSamvat: 'Vikram Samvat',
+    shakaSamvat: 'Shaka Samvat',
+    kaliYuga: 'Kali Yuga',
+
+    todaysObservance: "TODAY'S FESTIVAL & VRAT",
+    majorFestival: 'MAJOR FESTIVAL',
+    vedicObservance: 'VEDIC OBSERVANCE',
+    vratRules: 'Vrat Rules',
+    exploreMonthlyCalendar: 'Explore Monthly Vrat & Festival Calendar',
+    dharmashastraRules: 'Dharmashastra Rules',
+    nityaPanchang: 'Nitya Panchang',
+    dailyVedicObservance: 'Daily Sacred Vedic Observance',
+    upcomingFestivals: 'Upcoming Festivals',
+    viewAllFestivals: 'View All Festivals',
+    inDays: 'In {n} days',
+
+    fiveLimbsTitle: 'Five Limbs of Vedic Panchang',
+    nakshatra: 'Nakshatra',
+    yoga: 'Yoga',
+    karana: 'Karana',
+    vaar: 'Vaar',
+    auspiciousAbhijit: 'Auspicious Abhijit Muhurat',
+    inauspiciousRahuKaal: 'Inauspicious Rahu Kaal',
+    panchakStatus: 'Panchak Status',
+    panchakActive: 'Active (Panchak)',
+    panchakFree: 'Free (No Active Panchak)',
+    dishaShool: 'Disha Shool',
+    moonSign: 'Moon Sign',
+    sunSign: 'Sun Sign',
+
+    tabPanchang: 'Panchang',
+    tabChoghadiya: 'Choghadiya',
+    tabMuhurat: '24h Muhurat',
+    tabAstrometry: 'Astrometry',
+
+    daytimeChoghadiya: 'Daytime Choghadiya (दिन का चौघड़िया)',
+    nighttimeChoghadiya: 'Nighttime Choghadiya (रात्रि का चौघड़िया)',
+    auspicious: 'Auspicious',
+    inauspicious: 'Inauspicious',
+    neutral: 'Neutral',
+    ruler: 'Ruler',
+
+    shastraRuleHeader: 'Shastra Canonical Rule',
+    shastraAuthority: 'Surya Siddhanta & Nirnayasindhu',
+    close: 'Close',
+    references: 'References',
+    switchLang: 'हिन्दी में देखें',
+    viewEnglish: 'English',
+    viewHindi: 'हिन्दी',
+
+    alertBannerTitle: 'Daily Tithi Notification Setup',
+    alertBannerDesc: 'Get sacred Udaya Tithi and Muhurat alerts directly at local sunrise.',
+    getDailyAlert: 'Get Daily Tithi Alert',
+    activatingAlerts: 'Activating Alerts...',
+    iosSetupRequired: 'iOS Setup Required',
+    iosSetupGuide: "Tap Share ⎋ and select 'Add to Home Screen' to enable alerts.",
+
+    aboutUs: 'About Us & Methodology',
+    contactUs: 'Contact & Inquiries',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    offlinePwaReady: '100% Offline PWA Ready',
+    astrometricScience: 'Astrometric Science',
+    complianceTrust: 'Compliance & Trust',
+    intellectualProperty: 'Intellectual Property',
+  },
+
+  hi: {
+    brandTitle: 'डेली तिथि',
+    brandSubtitle: 'लाइव हिन्दू पञ्चाङ्ग एवं वैदिक पंचांग',
+    live: 'लाइव',
+    liveAstrometry: 'लाइव ज्योतिष गणना',
+    installApp: 'ऐप इंस्टॉल करें',
+    globalPanchang: 'सम्पूर्ण पञ्चाङ्ग',
+    home: 'होम',
+    selectLanguage: 'भाषा चुनें',
+
+    useGps: 'GPS का उपयोग करें',
+    gpsActive: 'GPS सक्रिय',
+    detectingGps: 'स्थान खोज रहे हैं...',
+    selectCity: 'शहर का चयन करें',
+
+    shareOnWhatsApp: 'व्हाट्सएप पर शेयर करें',
+    share: 'शेयर',
+    copiedToClipboard: 'पञ्चाङ्ग क्लिपबोर्ड पर कॉपी हुआ!',
+
+    prevDay: 'पिछला दिन',
+    nextDay: 'अगला दिन',
+    liveMode: 'लाइव',
+    resetToLive: 'लाइव समय',
+    selectDate: 'तिथि चुनें',
+
+    liveClock: 'लाइव समय',
+    selectedDate: 'चयनित दिनांक',
+    almanac30Day: '३०-दिवसीय पञ्चाङ्ग',
+    localSunrise: 'स्थानीय सूर्योदय',
+    sunset: 'सूर्यास्त',
+    dayDuration: 'दिनमान',
+    nightDuration: 'रात्रिमान',
+    tap24hMuhurat: '२४-घंटे सम्पूर्ण मुहूर्त तालिका देखें',
+    noEclipseToday: 'आज कोई ग्रहण नहीं',
+    eclipseToday: 'आज ग्रहण है',
+    sutakActive: 'सूतक सक्रिय',
+    nextHoliday: 'अगला:',
+
+    today: 'आज',
+    masa: 'मास',
+    tithi: 'तिथि',
+    tithiEnds: 'तिथि समाप्त',
+    nextTithi: 'आगामी तिथि',
+    starts: 'प्रारम्भ',
+    fullAlmanac: 'सम्पूर्ण पंचांग',
+    tapFullCalendar: 'मासिक पंचांग एवं तिथि समय देखें',
+    amanta: 'अमान्त',
+    purnimanta: 'पूर्णिमान्त',
+    paksha: 'पक्ष',
+    ayana: 'अयन',
+    ritu: 'ऋतु',
+    vikramSamvat: 'विक्रम संवत्',
+    shakaSamvat: 'शक संवत्',
+    kaliYuga: 'कलियुग',
+
+    todaysObservance: 'आज का व्रत एवं त्यौहार',
+    majorFestival: 'महापर्व',
+    vedicObservance: 'वैदिक पर्व',
+    vratRules: 'शास्त्र नियम',
+    exploreMonthlyCalendar: 'मासिक व्रत एवं त्यौहार कैलेंडर देखें',
+    dharmashastraRules: 'धर्मशास्त्र निर्णय',
+    nityaPanchang: 'नित्य पञ्चाङ्ग',
+    dailyVedicObservance: 'दैनिक वैदिक पूजन एवं नित्य कर्म',
+    upcomingFestivals: 'आगामी त्यौहार',
+    viewAllFestivals: 'सभी त्यौहार देखें',
+    inDays: '{n} दिन में',
+
+    fiveLimbsTitle: 'पञ्चाङ्ग के पाँच मूल अंग',
+    nakshatra: 'नक्षत्र',
+    yoga: 'योग',
+    karana: 'करण',
+    vaar: 'वार',
+    auspiciousAbhijit: 'शुभ अभिजित मुहूर्त',
+    inauspiciousRahuKaal: 'अशुभ राहु काल',
+    panchakStatus: 'पञ्चक स्थिति',
+    panchakActive: 'सक्रिय (पञ्चक)',
+    panchakFree: 'पञ्चक मुक्त (निर्दोष)',
+    dishaShool: 'दिशा शूल',
+    moonSign: 'चन्द्र राशि',
+    sunSign: 'सूर्य राशि',
+
+    tabPanchang: 'पञ्चाङ्ग',
+    tabChoghadiya: 'चौघड़िया',
+    tabMuhurat: '२४-घंटे मुहूर्त',
+    tabAstrometry: 'ग्रह स्थिति',
+
+    daytimeChoghadiya: 'दिन का चौघड़िया',
+    nighttimeChoghadiya: 'रात्रि का चौघड़िया',
+    auspicious: 'शुभ',
+    inauspicious: 'अशुभ',
+    neutral: 'मध्यम',
+    ruler: 'स्वामी',
+
+    shastraRuleHeader: 'धर्मशास्त्र निर्णय नियम',
+    shastraAuthority: 'सूर्यसिद्धान्त एवं निर्णयसिन्धु',
+    close: 'बंद करें',
+    references: 'शास्त्र सन्दर्भ',
+    switchLang: 'View in English',
+    viewEnglish: 'English',
+    viewHindi: 'हिन्दी',
+
+    alertBannerTitle: 'दैनिक तिथि सूचना सेवा',
+    alertBannerDesc: 'सूर्योदय के समय पवित्र उदय तिथि एवं मुहूर्त सूचनाएं प्राप्त करें।',
+    getDailyAlert: 'दैनिक तिथि अलर्ट चालू करें',
+    activatingAlerts: 'अलर्ट सक्रिय हो रहा है...',
+    iosSetupRequired: 'iOS सेटअप आवश्यक',
+    iosSetupGuide: "शेयर ⎋ आइकन पर टैप करें और 'होम स्क्रीन पर जोड़ें' चुनें।",
+
+    aboutUs: 'हमारे बारे में एवं पद्धति',
+    contactUs: 'सम्पर्क एवं पूछताछ',
+    privacyPolicy: 'गोपनीयता नीति',
+    termsOfService: 'सेवा की शर्तें',
+    offlinePwaReady: '१००% ऑफ़लाइन PWA समर्थित',
+    astrometricScience: 'ज्योतिष विज्ञान एवं सिद्धांत',
+    complianceTrust: 'विश्वसनीयता एवं मानक',
+    intellectualProperty: 'बौद्धिक सम्पदा',
+  },
+
+  sa: {
+    brandTitle: 'दैनिकतिथिः',
+    brandSubtitle: 'प्रत्यक्षवैदिकपञ्चाङ्गम्',
+    live: 'प्रत्यक्षम्',
+    liveAstrometry: 'प्रत्यक्षज्योतिर्गणितम्',
+    installApp: 'अनुप्रयोगं स्थापयतु',
+    globalPanchang: 'सम्पूर्णपञ्चाङ्गम्',
+    home: 'मुख्यपृष्ठम्',
+    selectLanguage: 'भाषां वृणुवन्तु',
+
+    useGps: 'GPS प्रयोज्यताम्',
+    gpsActive: 'GPS सक्रियम्',
+    detectingGps: 'स्थानं संवीक्ष्यते...',
+    selectCity: 'नगरं चिनोतु',
+
+    shareOnWhatsApp: 'व्हाट्सएप-माध्यमेन प्रेष्यताम्',
+    share: 'प्रेषयतु',
+    copiedToClipboard: 'पञ्चाङ्गं संलिखितम्!',
+
+    prevDay: 'पूर्वदिनम्',
+    nextDay: 'अग्रिमदिनम्',
+    liveMode: 'प्रत्यक्षम्',
+    resetToLive: 'प्रत्यक्षकालः',
+    selectDate: 'दिनाङ्कः चिनोतु',
+
+    liveClock: 'प्रत्यक्षसमयः',
+    selectedDate: 'चयनितदिनाङ्कः',
+    almanac30Day: 'त्रिंशद्दिनात्मकपञ्चाङ्गम्',
+    localSunrise: 'स्थानिकसूर्योदयः',
+    sunset: 'सूर्यास्तः',
+    dayDuration: 'दिनमानम्',
+    nightDuration: 'रात्रिमानम्',
+    tap24hMuhurat: 'चतुर्विंशतिहोरात्मकमुहूर्तसारणीं पश्यन्तु',
+    noEclipseToday: 'अद्य न ग्रहणम्',
+    eclipseToday: 'अद्य ग्रहणमस्ति',
+    sutakActive: 'सूतकं सक्रियम्',
+    nextHoliday: 'अग्रिमम्:',
+
+    today: 'अद्य',
+    masa: 'मासः',
+    tithi: 'तिथिः',
+    tithiEnds: 'तिथ्यन्तः',
+    nextTithi: 'अग्रिमतिथिः',
+    starts: 'प्रारम्भः',
+    fullAlmanac: 'सम्पूर्णपञ्चाङ्गम्',
+    tapFullCalendar: 'मासिकपञ्चाङ्गं तिथिवेलां च पश्यन्तु',
+    amanta: 'अमान्तः',
+    purnimanta: 'पूर्णिमान्तः',
+    paksha: 'पक्षः',
+    ayana: 'अयनम्',
+    ritu: 'ऋतुः',
+    vikramSamvat: 'विक्रमसंवत्',
+    shakaSamvat: 'शकसंवत्',
+    kaliYuga: 'कलियुगम्',
+
+    todaysObservance: 'अद्यतनं व्रतं पर्व च',
+    majorFestival: 'महापर्व',
+    vedicObservance: 'वैदिकपर्व',
+    vratRules: 'शास्त्रनियमाः',
+    exploreMonthlyCalendar: 'मासिकव्रतपर्वसारणीं पश्यन्तु',
+    dharmashastraRules: 'धर्मशास्त्रनिर्णयः',
+    nityaPanchang: 'नित्यपञ्चाङ्गम्',
+    dailyVedicObservance: 'दैनिकं वैदिकपूजनम्',
+    upcomingFestivals: 'आगामिपर्वाणि',
+    viewAllFestivals: 'सर्वाणि पर्वाणि पश्यन्तु',
+    inDays: '{n} दिनेषु',
+
+    fiveLimbsTitle: 'पञ्चाङ्गस्य पञ्च अङ्गानि',
+    nakshatra: 'नक्षत्रम्',
+    yoga: 'योगः',
+    karana: 'करणम्',
+    vaar: 'वासरः',
+    auspiciousAbhijit: 'शुभः अभिजित्मुहूर्तः',
+    inauspiciousRahuKaal: 'अशुभः राहुकालः',
+    panchakStatus: 'पञ्चकस्थितिः',
+    panchakActive: 'सक्रियं (पञ्चकम्)',
+    panchakFree: 'पञ्चकमुक्तम् (निर्दोषम्)',
+    dishaShool: 'दिशाशूलम्',
+    moonSign: 'चन्द्रराशिः',
+    sunSign: 'सूर्यराशिः',
+
+    tabPanchang: 'पञ्चाङ्गम्',
+    tabChoghadiya: 'चौघटिका',
+    tabMuhurat: 'मुहूर्ताः',
+    tabAstrometry: 'ग्रहस्थितिः',
+
+    daytimeChoghadiya: 'दिवा चौघटिका',
+    nighttimeChoghadiya: 'रात्रि चौघटिका',
+    auspicious: 'शुभम्',
+    inauspicious: 'अशुभम्',
+    neutral: 'मध्यमम्',
+    ruler: 'अधिपतिः',
+
+    shastraRuleHeader: 'धर्मशास्त्रनिर्णयनियमः',
+    shastraAuthority: 'सूर्यसिद्धान्तः निर्णयसिन्धुश्च',
+    close: 'पिदधातु',
+    references: 'शास्त्रसन्दर्भाः',
+    switchLang: 'View in English',
+    viewEnglish: 'English',
+    viewHindi: 'हिन्दी',
+
+    alertBannerTitle: 'दैनिकतिथिसूचनासेवा',
+    alertBannerDesc: 'सूर्योदयकाले पवित्रोदयतिथेः सूचनां प्राप्नुवन्तु।',
+    getDailyAlert: 'दैनिकतिथिसूचनां स्वीकरोतु',
+    activatingAlerts: 'सक्रियत क्रियते...',
+    iosSetupRequired: 'iOS व्यवस्थापनम् आवश्यकम्',
+    iosSetupGuide: "संविभजनं ⎋ स्पृशित्वा 'गृहपटलयोगः' चिनोतु।",
+
+    aboutUs: 'अस्मद्विषये पद्धतिश्च',
+    contactUs: 'सम्पर्कः पृच्छा च',
+    privacyPolicy: 'गोपनीयतानीतिः',
+    termsOfService: 'सेवाशर्ताः',
+    offlinePwaReady: '१००% अन्तर्जालरहितं PWA',
+    astrometricScience: 'ज्योतिर्विज्ञानम्',
+    complianceTrust: 'विश्वसनीयता',
+    intellectualProperty: 'बौद्धिकसम्पत्',
+  },
+
+  mr: {
+    brandTitle: 'डेली तिथी',
+    brandSubtitle: 'थेट हिंदू दिनदर्शिका व वैदिक पंचांग',
+    live: 'थेट',
+    liveAstrometry: 'थेट ज्योतिषीय गणना',
+    installApp: 'अ‍ॅप इन्स्टॉल करा',
+    globalPanchang: 'संपूर्ण पंचांग',
+    home: 'मुख्यपृष्ठ',
+    selectLanguage: 'भाषा निवडा',
+
+    useGps: 'GPS वापरा',
+    gpsActive: 'GPS सक्रिय',
+    detectingGps: 'स्थान शोधत आहे...',
+    selectCity: 'शहर निवडा',
+
+    shareOnWhatsApp: 'व्हॉट्सअ‍ॅपवर शेअर करा',
+    share: 'शेअर',
+    copiedToClipboard: 'पंचांग क्लिपबोर्डवर कॉपी केले!',
+
+    prevDay: 'मागील दिवस',
+    nextDay: 'पुढील दिवस',
+    liveMode: 'थेट',
+    resetToLive: 'थेट वेळ',
+    selectDate: 'तारीख निवडा',
+
+    liveClock: 'थेट घड्याळ',
+    selectedDate: 'निवडलेली तारीख',
+    almanac30Day: '३०-दिवसीय पंचांग',
+    localSunrise: 'स्थानिक सूर्योदय',
+    sunset: 'सूर्यास्त',
+    dayDuration: 'दिनमान',
+    nightDuration: 'रात्रीचा काळ',
+    tap24hMuhurat: '२४-तास संपूर्ण मुहूर्त तक्ता पहा',
+    noEclipseToday: 'आज कोणतेही ग्रहण नाही',
+    eclipseToday: 'आज ग्रहण आहे',
+    sutakActive: 'वेध / सूतक सुरू',
+    nextHoliday: 'पुढील:',
+
+    today: 'आज',
+    masa: 'महिना',
+    tithi: 'तिथी',
+    tithiEnds: 'तिथी समाप्ती',
+    nextTithi: 'पुढील तिथी',
+    starts: 'सुरू',
+    fullAlmanac: 'संपूर्ण पंचांग',
+    tapFullCalendar: 'मासिक पंचांग व तिथीची वेळ पहा',
+    amanta: 'अमांत',
+    purnimanta: 'पौर्णिमांत',
+    paksha: 'पक्ष',
+    ayana: 'अयन',
+    ritu: 'ऋतू',
+    vikramSamvat: 'विक्रम संवत',
+    shakaSamvat: 'शक संवत',
+    kaliYuga: 'कलियुग',
+
+    todaysObservance: 'आजचे व्रत व सण',
+    majorFestival: 'महापर्व',
+    vedicObservance: 'वैदिक सण',
+    vratRules: 'शास्त्र नियम',
+    exploreMonthlyCalendar: 'मासिक व्रत व सण कॅलेंडर पहा',
+    dharmashastraRules: 'धर्मशास्त्र निर्णय',
+    nityaPanchang: 'नित्य पंचांग',
+    dailyVedicObservance: 'दैनिक वैदिक पूजन व नित्य कर्म',
+    upcomingFestivals: 'आगामी सण',
+    viewAllFestivals: 'सर्व सण पहा',
+    inDays: '{n} दिवसांत',
+
+    fiveLimbsTitle: 'पंचांगाची पाच मुख्य अंगे',
+    nakshatra: 'नक्षत्र',
+    yoga: 'योग',
+    karana: 'करण',
+    vaar: 'वार',
+    auspiciousAbhijit: 'शुभ अभिजित मुहूर्त',
+    inauspiciousRahuKaal: 'अशुभ राहु काळ',
+    panchakStatus: 'पंचक स्थिती',
+    panchakActive: 'सक्रिय (पंचक)',
+    panchakFree: 'पंचक मुक्त (निर्दोष)',
+    dishaShool: 'दिशा शूल',
+    moonSign: 'चंद्र रास',
+    sunSign: 'सूर्य रास',
+
+    tabPanchang: 'पंचांग',
+    tabChoghadiya: 'चौघडिया',
+    tabMuhurat: '२४-तास मुहूर्त',
+    tabAstrometry: 'ग्रह स्थिती',
+
+    daytimeChoghadiya: 'दिवसाचे चौघडिया',
+    nighttimeChoghadiya: 'रात्रीचे चौघडिया',
+    auspicious: 'शुभ',
+    inauspicious: 'अशुभ',
+    neutral: 'मध्यम',
+    ruler: 'स्वामी',
+
+    shastraRuleHeader: 'धर्मशास्त्र निर्णय नियम',
+    shastraAuthority: 'सूर्यसिद्धांत व निर्णयसिंधू',
+    close: 'बंद करा',
+    references: 'शास्त्र संदर्भ',
+    switchLang: 'View in English',
+    viewEnglish: 'English',
+    viewHindi: 'हिन्दी',
+
+    alertBannerTitle: 'दैनिक तिथी सूचना सेवा',
+    alertBannerDesc: 'सूर्योदयाच्या वेळी पवित्र उदय तिथी व मुहूर्त सूचना मिळवा.',
+    getDailyAlert: 'दैनिक तिथी सूचना सुरू करा',
+    activatingAlerts: 'सुरू होत आहे...',
+    iosSetupRequired: 'iOS सेटअप आवश्यक',
+    iosSetupGuide: "शेअर ⎋ चिन्हावर टॅप करा आणि 'होम स्क्रीनवर जोडा' निवडा.",
+
+    aboutUs: 'आमच्याबद्दल व पद्धती',
+    contactUs: 'संपर्क व चौकशी',
+    privacyPolicy: 'गोपनीयता धोरण',
+    termsOfService: 'सेवा अटी',
+    offlinePwaReady: '१००% ऑफलाइन PWA तयार',
+    astrometricScience: 'खगोल व ज्योतिष शास्त्र',
+    complianceTrust: 'विश्वासार्हता व मानके',
+    intellectualProperty: 'बौद्धिक संपदा',
+  },
+
+  gu: {
+    brandTitle: 'ડેઇલી તિથિ',
+    brandSubtitle: 'લાઈવ હિન્દુ પંચાંગ અને કેલેન્ડર',
+    live: 'લાઈવ',
+    liveAstrometry: 'લાઈવ જ્યોતિષ ગણતરી',
+    installApp: 'એપ ઇન્સ્ટોલ કરો',
+    globalPanchang: 'સંપૂર્ણ પંચાંગ',
+    home: 'હોમ',
+    selectLanguage: 'ભાષા પસંદ કરો',
+
+    useGps: 'GPS વાપરો',
+    gpsActive: 'GPS સક્રિય',
+    detectingGps: 'સ્થાન શોધી રહ્યું છે...',
+    selectCity: 'શહેર પસંદ કરો',
+
+    shareOnWhatsApp: 'વોટ્સએપ પર શેર કરો',
+    share: 'શેર',
+    copiedToClipboard: 'પંચાંગ ક્લિપબોર્ડ પર કોપી થયું!',
+
+    prevDay: 'પાછલો દિવસ',
+    nextDay: 'આગલો દિવસ',
+    liveMode: 'લાઈવ',
+    resetToLive: 'લાઈવ સમય',
+    selectDate: 'તારીખ પસંદ કરો',
+
+    liveClock: 'લાઈવ સમય',
+    selectedDate: 'પસંદ કરેલ તારીખ',
+    almanac30Day: '૩૦-દિવસીય પંચાંગ',
+    localSunrise: 'સ્થાનિક સૂર્યોદય',
+    sunset: 'સૂર્યાસ્ત',
+    dayDuration: 'દિવસનો સમય',
+    nightDuration: 'રાત્રિનો સમય',
+    tap24hMuhurat: '૨૪-કલાક સંપૂર્ણ મુહૂર્ત સારણી જુઓ',
+    noEclipseToday: 'આજે કોઈ ગ્રહણ નથી',
+    eclipseToday: 'આજે ગ્રહણ છે',
+    sutakActive: 'સૂતક સક્રિય',
+    nextHoliday: 'આગામી:',
+
+    today: 'આજે',
+    masa: 'માસ',
+    tithi: 'તિથિ',
+    tithiEnds: 'તિથિ સમાપ્તિ',
+    nextTithi: 'આગામી તિથિ',
+    starts: 'શરૂ',
+    fullAlmanac: 'સંપૂર્ણ પંચાંગ',
+    tapFullCalendar: 'માસિક પંચાંગ અને તિથિ સમય જુઓ',
+    amanta: 'અમાન્ત',
+    purnimanta: 'પૂર્ણિમાન્ત',
+    paksha: 'પક્ષ',
+    ayana: 'અયન',
+    ritu: 'ઋતુ',
+    vikramSamvat: 'વિક્રમ સંવત',
+    shakaSamvat: 'શક સંવત',
+    kaliYuga: 'કલિયુગ',
+
+    todaysObservance: 'આજનો વ્રત અને તહેવાર',
+    majorFestival: 'મહાપર્વ',
+    vedicObservance: 'વૈદિક પર્વ',
+    vratRules: 'શાસ્ત્ર નિયમો',
+    exploreMonthlyCalendar: 'માસિક વ્રત અને તહેવાર કેલેન્ડર જુઓ',
+    dharmashastraRules: 'ધર્મશાસ્ત્ર નિર્ણય',
+    nityaPanchang: 'નિત્ય પંચાંગ',
+    dailyVedicObservance: 'દૈનિક વૈદિક પૂજન અને નિત્ય કર્મ',
+    upcomingFestivals: 'આગામી તહેવારો',
+    viewAllFestivals: 'બધા તહેવારો જુઓ',
+    inDays: '{n} દિવસમાં',
+
+    fiveLimbsTitle: 'પંચાંગના પાંચ મુખ્ય અંગ',
+    nakshatra: 'નક્ષત્ર',
+    yoga: 'યોગ',
+    karana: 'કરણ',
+    vaar: 'વાર',
+    auspiciousAbhijit: 'શુભ અભિજિત મુહૂર્ત',
+    inauspiciousRahuKaal: 'અશુભ રાહુ કાળ',
+    panchakStatus: 'પંચક સ્થિતિ',
+    panchakActive: 'સક્રિય (પંચક)',
+    panchakFree: 'પંચક મુક્ત (નિર્દોષ)',
+    dishaShool: 'દિશા શૂળ',
+    moonSign: 'ચંદ્ર રાશિ',
+    sunSign: 'સૂર્ય રાશિ',
+
+    tabPanchang: 'પંચાંગ',
+    tabChoghadiya: 'ચોઘડિયા',
+    tabMuhurat: '૨૪-કલાક મુહૂર્ત',
+    tabAstrometry: 'ગ્રહ સ્થિતિ',
+
+    daytimeChoghadiya: 'દિવસના ચોઘડિયા',
+    nighttimeChoghadiya: 'રાત્રિના ચોઘડિયા',
+    auspicious: 'શુભ',
+    inauspicious: 'અશુભ',
+    neutral: 'મધ્યમ',
+    ruler: 'સ્વામી',
+
+    shastraRuleHeader: 'ધર્મશાસ્ત્ર નિર્ણય નિયમ',
+    shastraAuthority: 'સૂર્યસિદ્ધાંત અને નિર્ણયસિંધુ',
+    close: 'બંધ કરો',
+    references: 'શાસ્ત્ર સંદર્ભો',
+    switchLang: 'View in English',
+    viewEnglish: 'English',
+    viewHindi: 'હિन्दी',
+
+    alertBannerTitle: 'દૈનિક તિથિ સૂચના સેવા',
+    alertBannerDesc: 'સૂર્યોદય સમયે પવિત્ર ઉદય તિથિ અને મુહૂર્ત સૂચનાઓ મેળવો.',
+    getDailyAlert: 'દૈનિક તિથિ એલર્ટ શરૂ કરો',
+    activatingAlerts: 'શરૂ થઈ રહ્યું છે...',
+    iosSetupRequired: 'iOS સેટઅપ જરૂરી',
+    iosSetupGuide: "શેર ⎋ પર ટેપ કરો અને 'હોમ સ્ક્રીન પર ઉમેરો' પસંદ કરો.",
+
+    aboutUs: 'અમારા વિશે અને પદ્ધતિ',
+    contactUs: 'સંપર્ક અને પૂછપરછ',
+    privacyPolicy: 'ગોપનીયતા નીતિ',
+    termsOfService: 'સેવાની શરતો',
+    offlinePwaReady: '૧૦૦% ઑફલાઇન PWA તૈયાર',
+    astrometricScience: 'જ્યોતિષ વિજ્ઞાન અને ગણતરી',
+    complianceTrust: 'વિશ્વાસ અને ધોરણો',
+    intellectualProperty: 'બૌદ્ધિક સંપત્તિ',
+  },
+};
+
+/**
+ * Astrological Term Lookup Dictionary for dynamic translation of:
+ * - Tithis
+ * - Pakshas
+ * - Nakshatras
+ * - Lunar Months (Masa)
+ * - Yogas
+ * - Karanas
+ * - Weekdays (Vara)
+ * - Choghadiya Slots & Muhurats
+ * - Ritu, Ayana & Major Festivals
+ */
+export const ASTROLOGICAL_TERMS: Record<string, Record<SupportedLanguage, string>> = {
+  // Pakshas
+  'shukla': { en: 'Shukla', hi: 'शुक्ल', sa: 'शुक्ल', mr: 'शुक्ल', gu: 'શુક્લ' },
+  'krishna': { en: 'Krishna', hi: 'कृष्ण', sa: 'कृष्ण', mr: 'कृष्ण', gu: 'કૃષ્ણ' },
+  'shukla paksha': { en: 'Shukla Paksha', hi: 'शुक्ल पक्ष', sa: 'शुक्लपक्षः', mr: 'शुक्ल पक्ष', gu: 'શુક્લ પક્ષ' },
+  'krishna paksha': { en: 'Krishna Paksha', hi: 'कृष्ण पक्ष', sa: 'कृष्णपक्षः', mr: 'कृष्ण पक्ष', gu: 'કૃષ્ણ પક્ષ' },
+
+  // Base Tithis
+  'pratipada': { en: 'Pratipada', hi: 'प्रतिपदा', sa: 'प्रतिपत्', mr: 'प्रतिपदा', gu: 'પ્રતિપદા' },
+  'dwitiya': { en: 'Dwitiya', hi: 'द्वितीया', sa: 'द्वितीया', mr: 'द्वितीया', gu: 'બીજ (દ્વિતીયા)' },
+  'tritiya': { en: 'Tritiya', hi: 'तृतीया', sa: 'तृतीया', mr: 'तृतीया', gu: 'ત્રીજ (તૃતીયા)' },
+  'chaturthi': { en: 'Chaturthi', hi: 'चतुर्थी', sa: 'चतुर्थी', mr: 'चतुर्थी', gu: 'ચોથ (ચતુર્થી)' },
+  'panchami': { en: 'Panchami', hi: 'पंचमी', sa: 'पञ्चमी', mr: 'पंचमी', gu: 'પાંચમ (પંચમી)' },
+  'shashthi': { en: 'Shashthi', hi: 'षष्ठी', sa: 'षष्ठी', mr: 'षष्ठी', gu: 'છઠ્ઠ (ષષ્ઠી)' },
+  'saptami': { en: 'Saptami', hi: 'सप्तमी', sa: 'सप्तमी', mr: 'સપ્તમી', gu: 'સાતમ (સપ્તમી)' },
+  'ashtami': { en: 'Ashtami', hi: 'अष्टमी', sa: 'अष्टमी', mr: 'अष्टमी', gu: 'આઠમ (અષ્ટમી)' },
+  'navami': { en: 'Navami', hi: 'नवमी', sa: 'नवमी', mr: 'नवमी', gu: 'નોમ (નવમી)' },
+  'dashami': { en: 'Dashami', hi: 'दशमी', sa: 'दशमी', mr: 'दशमी', gu: 'દસમ (દશમી)' },
+  'ekadashi': { en: 'Ekadashi', hi: 'एकादशी', sa: 'एकादशी', mr: 'एकादशी', gu: 'અગિયારસ (એકાદશી)' },
+  'dwadashi': { en: 'Dwadashi', hi: 'द्वादशी', sa: 'द्वादशी', mr: 'द्वादशी', gu: 'બારસ (દ્વાદશી)' },
+  'trayodashi': { en: 'Trayodashi', hi: 'त्रयोदशी', sa: 'त्रयोदशी', mr: 'त्रयोदशी', gu: 'તેરસ (ત્રયોદશી)' },
+  'chaturdashi': { en: 'Chaturdashi', hi: 'चतुर्दशी', sa: 'चतुर्दशी', mr: 'चतुर्दशी', gu: 'ચૌદસ (ચતુર્દશી)' },
+  'purnima': { en: 'Purnima', hi: 'पूर्णिमा', sa: 'पूर्णिमा', mr: 'पौर्णिमा', gu: 'પૂનમ (પૂર્ણિમા)' },
+  'amavasya': { en: 'Amavasya', hi: 'अमावस्या', sa: 'अमावास्या', mr: 'अमावास्या', gu: 'અમાસ (અમાવાસ્યા)' },
+
+  // Compound Tithis (Shukla)
+  'shukla pratipada': { en: 'Shukla Pratipada', hi: 'शुक्ल प्रतिपदा', sa: 'शुक्लप्रतिपत्', mr: 'शुक्ल प्रतिपदा', gu: 'શુક્લ પ્રતિપદા' },
+  'shukla dwitiya': { en: 'Shukla Dwitiya', hi: 'शुक्ल द्वितीया', sa: 'शुक्लद्वितीया', mr: 'शुक्ल द्वितीया', gu: 'શુક્લ બીજ' },
+  'shukla tritiya': { en: 'Shukla Tritiya', hi: 'शुक्ल तृतीया', sa: 'शुक्लतृतीया', mr: 'शुक्ल तृतीया', gu: 'શુક્લ ત્રીજ' },
+  'shukla chaturthi': { en: 'Shukla Chaturthi', hi: 'शुक्ल चतुर्थी', sa: 'शुक्लचतुर्थी', mr: 'शुक्ल चतुर्थी', gu: 'શુક્લ ચોથ' },
+  'shukla panchami': { en: 'Shukla Panchami', hi: 'शुक्ल पंचमी', sa: 'शुक्लपञ्चमी', mr: 'शुक्ल पंचमी', gu: 'શુક્લ પાંચમ' },
+  'shukla shashthi': { en: 'Shukla Shashthi', hi: 'शुक्ल षष्ठी', sa: 'शुक्लषष्ठी', mr: 'शुक्ल षष्ठी', gu: 'શુક્લ છઠ્ઠ' },
+  'shukla saptami': { en: 'Shukla Saptami', hi: 'शुक्ल सप्तमी', sa: 'शुक्लसप्तमी', mr: 'शुक्ल सप्तमी', gu: 'શુક્લ સાતમ' },
+  'shukla ashtami': { en: 'Shukla Ashtami', hi: 'शुक्ल अष्टमी', sa: 'शुक्लाष्टमी', mr: 'शुक्ल अष्टमी', gu: 'શુક્લ આઠમ' },
+  'shukla navami': { en: 'Shukla Navami', hi: 'शुक्ल नवमी', sa: 'शुकलनवमी', mr: 'शुक्ल नवमी', gu: 'શુક્લ નોમ' },
+  'shukla dashami': { en: 'Shukla Dashami', hi: 'शुक्ल दशमी', sa: 'शुक्लदशमी', mr: 'शुक्ल दशमी', gu: 'શુક્લ દસમ' },
+  'shukla ekadashi': { en: 'Shukla Ekadashi', hi: 'शुक्ल एकादशी', sa: 'शुक्लैकादशी', mr: 'शुक्ल एकादशी', gu: 'શુક્લ અગિયારસ' },
+  'shukla dwadashi': { en: 'Shukla Dwadashi', hi: 'शुक्ल द्वादशी', sa: 'शुक्लद्वादशी', mr: 'शुक्ल द्वादशी', gu: 'શુક્લ બારસ' },
+  'shukla trayodashi': { en: 'Shukla Trayodashi', hi: 'शुक्ल त्रयोदशी', sa: 'शुक्लत्रयोदशी', mr: 'शुक्ल त्रयोदशी', gu: 'શુક્લ તેરસ' },
+  'shukla chaturdashi': { en: 'Shukla Chaturdashi', hi: 'शुक्ल चतुर्दशी', sa: 'शुक्लचतुर्दशी', mr: 'शुक्ल चतुर्दशी', gu: 'શુક્લ ચૌદસ' },
+  'shukla purnima': { en: 'Shukla Purnima', hi: 'पूर्णिमा', sa: 'पूर्णिमा', mr: 'पौर्णिमा', gu: 'પૂનમ' },
+
+  // Compound Tithis (Krishna)
+  'krishna pratipada': { en: 'Krishna Pratipada', hi: 'कृष्ण प्रतिपदा', sa: 'कृष्णप्रतिपत्', mr: 'कृष्ण प्रतिपदा', gu: 'કૃષ્ણ પ્રતિપદા' },
+  'krishna dwitiya': { en: 'Krishna Dwitiya', hi: 'कृष्ण द्वितीया', sa: 'कृष्णद्वितीया', mr: 'कृष्ण द्वितीया', gu: 'કૃષ્ણ બીજ' },
+  'krishna tritiya': { en: 'Krishna Tritiya', hi: 'कृष्ण तृतीया', sa: 'कृष्णतृतीया', mr: 'कृष्ण तृतीया', gu: 'કૃષ્ણ ત્રીજ' },
+  'krishna chaturthi': { en: 'Krishna Chaturthi', hi: 'कृष्ण चतुर्थी', sa: 'कृष्णचतुर्थी', mr: 'कृष्ण चतुर्थी', gu: 'કૃષ્ણ ચોથ' },
+  'krishna panchami': { en: 'Krishna Panchami', hi: 'कृष्ण पंचमी', sa: 'कृष्णपञ्चमी', mr: 'कृष्ण पंचमी', gu: 'કૃષ્ણ પાંચમ' },
+  'krishna shashthi': { en: 'Krishna Shashthi', hi: 'कृष्ण षष्ठी', sa: 'कृष्णषष्ठी', mr: 'कृष्ण षष्ठी', gu: 'કૃષ્ણ છઠ્ઠ' },
+  'krishna saptami': { en: 'Krishna Saptami', hi: 'कृष्ण सप्तमी', sa: 'कृष्णसप्तमी', mr: 'कृष्ण सप्तमी', gu: 'કૃષ્ણ સાતમ' },
+  'krishna ashtami': { en: 'Krishna Ashtami', hi: 'कृष्ण अष्टमी', sa: 'कृष्णाष्टमी', mr: 'कृष्ण अष्टमी', gu: 'કૃષ્ણ આઠમ' },
+  'krishna navami': { en: 'Krishna Navami', hi: 'कृष्ण नवमी', sa: 'कृष्णनवमी', mr: 'कृष्ण नवमी', gu: 'કૃષ્ણ નોમ' },
+  'krishna dashami': { en: 'Krishna Dashami', hi: 'कृष्ण दशमी', sa: 'कृष्णदशमी', mr: 'कृष्ण दशमी', gu: 'કૃષ્ણ દસમ' },
+  'krishna ekadashi': { en: 'Krishna Ekadashi', hi: 'कृष्ण एकादशी', sa: 'कृष्णैकादशी', mr: 'कृष्ण एकादशी', gu: 'કૃષ્ણ અગિયારસ' },
+  'krishna dwadashi': { en: 'Krishna Dwadashi', hi: 'कृष्ण द्वादशी', sa: 'कृष्णद्वादशी', mr: 'कृष्ण द्वादशी', gu: 'કૃષ્ણ બારસ' },
+  'krishna trayodashi': { en: 'Krishna Trayodashi', hi: 'कृष्ण त्रयोदशी', sa: 'कृष्णत्रयोदशी', mr: 'कृष्ण त्रयोदशी', gu: 'કૃષ્ણ તેરસ' },
+  'krishna chaturdashi': { en: 'Krishna Chaturdashi', hi: 'कृष्ण चतुर्दशी', sa: 'कृष्णचतुर्दशी', mr: 'कृष्ण चतुर्दशी', gu: 'કૃષ્ણ ચૌદસ' },
+  'krishna amavasya': { en: 'Krishna Amavasya', hi: 'अमावस्या', sa: 'अमावास्या', mr: 'अमावास्या', gu: 'અમાસ' },
+
+  // All 27 Nakshatras
+  'ashwini': { en: 'Ashwini', hi: 'अश्विनी', sa: 'अश्विनी', mr: 'अश्विनी', gu: 'અશ્વિની' },
+  'bharani': { en: 'Bharani', hi: 'भरणी', sa: 'भरणी', mr: 'भरणी', gu: 'ભરણી' },
+  'krittika': { en: 'Krittika', hi: 'कृत्तिका', sa: 'कृत्तिका', mr: 'कृत्तिका', gu: 'કૃત્તિકા' },
+  'rohini': { en: 'Rohini', hi: 'रोहिणी', sa: 'रोहिणी', mr: 'रोहिणी', gu: 'રોહિણી' },
+  'mrigashirsha': { en: 'Mrigashirsha', hi: 'मृगशिरा', sa: 'मृगशीर्षम्', mr: 'मृगशीर्ष', gu: 'મૃગશીર્ષ' },
+  'ardra': { en: 'Ardra', hi: 'आर्द्रा', sa: 'आर्द्रा', mr: 'आर्द्रा', gu: 'આર્દ્રા' },
+  'punarvasu': { en: 'Punarvasu', hi: 'पुनर्वसु', sa: 'पुनर्वसुः', mr: 'पुनर्वसू', gu: 'પુનર્વસુ' },
+  'pushya': { en: 'Pushya', hi: 'पुष्य', sa: 'पुष्यः', mr: 'पुष्य', gu: 'પુષ્ય' },
+  'ashlesha': { en: 'Ashlesha', hi: 'आश्लेषा', sa: 'आश्लेषा', mr: 'आश्लेषा', gu: 'આશ્લેષા' },
+  'magha': { en: 'Magha', hi: 'मघा', sa: 'मघा', mr: 'मघा', gu: 'મઘા' },
+  'purva phalguni': { en: 'Purva Phalguni', hi: 'पूर्वाफाल्गुनी', sa: 'पूर्वफाल्गुनी', mr: 'पूर्वाफाल्गुनी', gu: 'પૂર્વા ફાલ્ગુની' },
+  'uttara phalguni': { en: 'Uttara Phalguni', hi: 'उत्तराफाल्गुनी', sa: 'उत्तरफाल्गुनी', mr: 'उत्तराफाल्गुनी', gu: 'ઉત્તરા ફાલ્ગુની' },
+  'hasta': { en: 'Hasta', hi: 'हस्त', sa: 'हस्तः', mr: 'हस्त', gu: 'હસ્ત' },
+  'chitra': { en: 'Chitra', hi: 'चित्रा', sa: 'चित्रा', mr: 'चित्रा', gu: 'ચિત્રા' },
+  'swati': { en: 'Swati', hi: 'स्वाति', sa: 'स्वातिः', mr: 'स्वाती', gu: 'સ્વાતિ' },
+  'vishakha': { en: 'Vishakha', hi: 'विशाखा', sa: 'विशाखा', mr: 'विशाखा', gu: 'વિશાખા' },
+  'anuradha': { en: 'Anuradha', hi: 'अनुराधा', sa: 'अनुराधा', mr: 'अनुराधा', gu: 'અનુરાધા' },
+  'jyeshtha': { en: 'Jyeshtha', hi: 'ज्येष्ठा', sa: 'ज्येष्ठा', mr: 'ज्येष्ठा', gu: 'જ્યેષ્ઠા' },
+  'mula': { en: 'Mula', hi: 'मूल', sa: 'मूलम्', mr: 'मूळ', gu: 'મૂળ' },
+  'purva ashadha': { en: 'Purva Ashadha', hi: 'पूर्वाषाढ़ा', sa: 'पूर्वाषाढा', mr: 'पूर्वाषाढा', gu: 'પૂર્વાષાઢા' },
+  'uttara ashadha': { en: 'Uttara Ashadha', hi: 'उत्तराषाढ़ा', sa: 'उत्तराषाढा', mr: 'उत्तराषाढा', gu: 'ઉત્તરાષાઢા' },
+  'shravana': { en: 'Shravana', hi: 'श्रवण', sa: 'श्रवणम्', mr: 'श्रवण', gu: 'શ્રવણ' },
+  'dhanishta': { en: 'Dhanishta', hi: 'धनिष्ठा', sa: 'धनिष्ठा', mr: 'धनिष्ठा', gu: 'ધનિષ્ઠા' },
+  'shatabhisha': { en: 'Shatabhisha', hi: 'शतभिषा', sa: 'शतभिषक्', mr: 'शतभिषा', gu: 'શતભિષા' },
+  'purva bhadrapada': { en: 'Purva Bhadrapada', hi: 'पूर्वाभाद्रपद', sa: 'पूर्वभाद्रपदा', mr: 'पूर्वाभाद्रपदा', gu: 'પૂર્વા ભાદ્રપદ' },
+  'uttara bhadrapada': { en: 'Uttara Bhadrapada', hi: 'उत्तराभाद्रपद', sa: 'उत्तरभाद्रपदा', mr: 'उत्तराभाद्रपदा', gu: 'ઉત્તરા ભાદ્રપદ' },
+  'revati': { en: 'Revati', hi: 'रेवती', sa: 'रेवती', mr: 'रेवती', gu: 'રેવતી' },
+
+  // All 12 Lunar Months (Masa)
+  'chaitra': { en: 'Chaitra', hi: 'चैत्र', sa: 'चैत्रः', mr: 'चैत्र', gu: 'ચૈત્ર' },
+  'vaishakha': { en: 'Vaishakha', hi: 'वैशाख', sa: 'वैशाखः', mr: 'वैशाख', gu: 'વૈશાખ' },
+  'jyeshtha masa': { en: 'Jyeshtha', hi: 'ज्येष्ठ', sa: 'ज्येष्ठः', mr: 'ज्येष्ठ', gu: 'જેઠ (જ્યેષ્ઠ)' },
+  'ashadha': { en: 'Ashadha', hi: 'आषाढ़', sa: 'आषाढः', mr: 'आषाढ', gu: 'આષાઢ' },
+  'shravana masa': { en: 'Shravana', hi: 'श्रावण', sa: 'श्रावणः', mr: 'श्रावण', gu: 'શ્રાવણ' },
+  'bhadrapada': { en: 'Bhadrapada', hi: 'भाद्रपद', sa: 'भाद्रपदः', mr: 'भाद्रपद', gu: 'ભાદરવો (ભાદ્રપદ)' },
+  'ashwina': { en: 'Ashwina', hi: 'आश्विन', sa: 'आश्विनः', mr: 'अश्विन', gu: 'આસો (આશ્વિન)' },
+  'kartika': { en: 'Kartika', hi: 'कार्तिक', sa: 'कार्तिकः', mr: 'कार्तिक', gu: 'કારતક (કાર્તિક)' },
+  'margashirsha': { en: 'Margashirsha', hi: 'मार्गशीर्ष', sa: 'मार्गशीर्षः', mr: 'मार्गशीर्ष', gu: 'માગશર (માર્ગશીર્ષ)' },
+  'pausha': { en: 'Pausha', hi: 'पौष', sa: 'पौषः', mr: 'पौष', gu: 'પોષ (પૌષ)' },
+  'magha masa': { en: 'Magha', hi: 'माघ', sa: 'माघः', mr: 'माघ', gu: 'મહા (માઘ)' },
+  'phalguna': { en: 'Phalguna', hi: 'फाल्गुन', sa: 'फाल्गुनः', mr: 'फाल्गुन', gu: 'ફાગણ (ફાલ્ગુન)' },
+  'adhik masa': { en: 'Adhik Masa', hi: 'अधिक मास', sa: 'अधिकमासः', mr: 'अधिक महिना', gu: 'અધિક માસ' },
+
+  // All 27 Yogas
+  'vishkambha': { en: 'Vishkambha', hi: 'विष्कम्भ', sa: 'विष्कम्भः', mr: 'विष्कंभ', gu: 'વિષ્કંભ' },
+  'priti': { en: 'Priti', hi: 'प्रीति', sa: 'प्रीतिः', mr: 'प्रीती', gu: 'પ્રીતિ' },
+  'ayushman': { en: 'Ayushman', hi: 'आयुष्मान्', sa: 'आयुष्मान्', mr: 'आयुष्मान', gu: 'આયુષ્માન' },
+  'saubhagya': { en: 'Saubhagya', hi: 'सौभाग्य', sa: 'सौभाग्यम्', mr: 'सौभाग्य', gu: 'સૌભાગ્ય' },
+  'shobhana': { en: 'Shobhana', hi: 'शोभन', sa: 'शोभनः', mr: 'शोभन', gu: 'શોભન' },
+  'atiganda': { en: 'Atiganda', hi: 'अतिगण्ड', sa: 'अतिगण्डः', mr: 'अतिगंड', gu: 'અતિગંડ' },
+  'sukarma': { en: 'Sukarma', hi: 'सुकर्मा', sa: 'सुकर्मा', mr: 'सुकर्मा', gu: 'સુકર્મા' },
+  'dhriti': { en: 'Dhriti', hi: 'धृति', sa: 'धृतिः', mr: 'धृती', gu: 'ધૃતિ' },
+  'shoola': { en: 'Shoola', hi: 'शूल', sa: 'शूलः', mr: 'शूल', gu: 'શૂળ' },
+  'ganda': { en: 'Ganda', hi: 'गण्ड', sa: 'गण्डः', mr: 'गंड', gu: 'ગંડ' },
+  'vriddhi': { en: 'Vriddhi', hi: 'वृद्धि', sa: 'वृद्धिः', mr: 'वृद्धी', gu: 'વૃદ્ધિ' },
+  'dhruva': { en: 'Dhruva', hi: 'ध्रुव', sa: 'ध्रुवः', mr: 'ध्रुव', gu: 'ધ્રુવ' },
+  'vyaghata': { en: 'Vyaghata', hi: 'व्याघात', sa: 'व्याघातः', mr: 'व्याघात', gu: 'વ્યાઘાત' },
+  'harshana': { en: 'Harshana', hi: 'हर्षण', sa: 'हर्षणः', mr: 'हर्षण', gu: 'હર્ષણ' },
+  'vajra': { en: 'Vajra', hi: 'वज्र', sa: 'वज्रः', mr: 'वज्र', gu: 'વજ્ર' },
+  'siddhi': { en: 'Siddhi', hi: 'सिद्धि', sa: 'सिद्धिः', mr: 'सिद्धी', gu: 'સિદ્ધિ' },
+  'vyatipata': { en: 'Vyatipata', hi: 'व्यतीपात', sa: 'व्यतीपातः', mr: 'व्यतीपात', gu: 'વ્યતીપાત' },
+  'variyan': { en: 'Variyan', hi: 'वरीयान्', sa: 'वरीयान्', mr: 'वरीयान', gu: 'વરીયાન' },
+  'parigha': { en: 'Parigha', hi: 'परिघ', sa: 'परिघः', mr: 'परिघ', gu: 'પરિઘ' },
+  'shiva': { en: 'Shiva', hi: 'शिव', sa: 'शिवः', mr: 'शिव', gu: 'શિવ' },
+  'siddha': { en: 'Siddha', hi: 'सिद्ध', sa: 'सिद्धः', mr: 'सिद्ध', gu: 'સિદ્ધ' },
+  'sadhya': { en: 'Sadhya', hi: 'साध्य', sa: 'साध्यः', mr: 'साध्य', gu: 'સાધ્ય' },
+  'shubha': { en: 'Shubha', hi: 'शुभ', sa: 'शुभः', mr: 'शुभ', gu: 'શુભ' },
+  'brahma': { en: 'Brahma', hi: 'ब्रह्म', sa: 'ब्रह्म', mr: 'ब्रह्म', gu: 'બ્રહ્મ' },
+  'indra': { en: 'Indra', hi: 'इन्द्र', sa: 'इन्द्रः', mr: 'इंद्र', gu: 'ઇન્દ્ર' },
+  'vaidhriti': { en: 'Vaidhriti', hi: 'वैधृति', sa: 'वैधृतिः', mr: 'वैधृती', gu: 'વૈધૃતિ' },
+
+  // All 11 Karanas
+  'bava': { en: 'Bava', hi: 'बव', sa: 'बवः', mr: 'बव', gu: 'બવ' },
+  'balava': { en: 'Balava', hi: 'बालव', sa: 'बालवः', mr: 'बालव', gu: 'બાલવ' },
+  'kaulava': { en: 'Kaulava', hi: 'कौलव', sa: 'कौलवः', mr: 'कौलव', gu: 'કૌલવ' },
+  'taitila': { en: 'Taitila', hi: 'तैतिल', sa: 'तैतिलः', mr: 'तैतिल', gu: 'તૈતિલ' },
+  'garija': { en: 'Garija', hi: 'गरिज', sa: 'गरिजः', mr: 'गरिज', gu: 'ગરિજ' },
+  'vanija': { en: 'Vanija', hi: 'वणिज', sa: 'वणिजः', mr: 'वणिज', gu: 'વણિજ' },
+  'vishti': { en: 'Vishti (Bhadra)', hi: 'विष्टि (भद्रा)', sa: 'विष्टिः (भद्रा)', mr: 'विष्टी (भद्रा)', gu: 'વિષ્ટિ (ભદ્રા)' },
+  'bhadra': { en: 'Bhadra', hi: 'भद्रा', sa: 'भद्रा', mr: 'भद्रा', gu: 'ભદ્રા' },
+  'shakuni': { en: 'Shakuni', hi: 'शकुनि', sa: 'शकुनिः', mr: 'शकुनी', gu: 'શકુનિ' },
+  'chatushpada': { en: 'Chatushpada', hi: 'चतुष्पाद', sa: 'चतुष्पात्', mr: 'चतुष्पाद', gu: 'ચતુષ્પાદ' },
+  'naga': { en: 'Naga', hi: 'नाग', sa: 'नागः', mr: 'नाग', gu: 'નાગ' },
+  'kintughna': { en: 'Kintughna', hi: 'किंस्तुघ्न', sa: 'किंस्तुघ्नः', mr: 'किंस्तुघ्न', gu: 'કિસ્તુઘ્ન' },
+
+  // Weekdays (Vara)
+  'sunday': { en: 'Sunday', hi: 'रविवार', sa: 'रविवासरः', mr: 'रविवार', gu: 'રવિવાર' },
+  'monday': { en: 'Monday', hi: 'सोमवार', sa: 'सोमवासरः', mr: 'सोमवार', gu: 'સોમવાર' },
+  'tuesday': { en: 'Tuesday', hi: 'मंगलवार', sa: 'मङ्गलवासरः', mr: 'मंगळवार', gu: 'મંગળવાર' },
+  'wednesday': { en: 'Wednesday', hi: 'बुधवार', sa: 'बुधवासरः', mr: 'बुधवार', gu: 'બુધવાર' },
+  'thursday': { en: 'Thursday', hi: 'गुरुवार', sa: 'गुरुवासरः', mr: 'गुरुवार', gu: 'ગુરુવાર' },
+  'friday': { en: 'Friday', hi: 'शुक्रवार', sa: 'शुक्रवासरः', mr: 'शुक्रवार', gu: 'શુક્રવાર' },
+  'saturday': { en: 'Saturday', hi: 'शनिवार', sa: 'शनिवासरः', mr: 'शनिवार', gu: 'શનિવાર' },
+
+  // Muhurats & Choghadiya Slots
+  'abhijit': { en: 'Abhijit', hi: 'अभिजित', sa: 'अभिजित्', mr: 'अभिजित', gu: 'અભિજિત' },
+  'abhijit muhurat': { en: 'Abhijit Muhurat', hi: 'अभिजित मुहूर्त', sa: 'अभिजित्मुहूर्तः', mr: 'अभिजित मुहूर्त', gu: 'અભિજિત મુહૂર્ત' },
+  'brahma muhurat': { en: 'Brahma Muhurat', hi: 'ब्रह्म मुहूर्त', sa: 'ब्रह्ममुहूर्तः', mr: 'ब्रह्म मुहूर्त', gu: 'બ્રહ્મ મુહૂર્ત' },
+  'rahu kaal': { en: 'Rahu Kaal', hi: 'राहु काल', sa: 'राहुकालः', mr: 'राहु काळ', gu: 'રાહુ કાળ' },
+  'rahu kalam': { en: 'Rahu Kalam', hi: 'राहु काल', sa: 'राहुकालः', mr: 'राहु काळ', gu: 'રાહુ કાળ' },
+  'yamaganda': { en: 'Yamaganda', hi: 'यमगण्ड', sa: 'यमगण्डः', mr: 'यमगंड', gu: 'યમગંડ' },
+  'yamaghanta': { en: 'Yamaghanta', hi: 'यमघण्ट', sa: 'यमघण्टः', mr: 'यमघंट', gu: 'યમઘંટ' },
+  'gulika': { en: 'Gulika Kaal', hi: 'गुलिक काल', sa: 'गुलिककालः', mr: 'गुलिक काळ', gu: 'ગુલિક કાળ' },
+  'gulikai': { en: 'Gulika Kaal', hi: 'गुलिक काल', sa: 'गुलिककालः', mr: 'ગુલિક કાળ', gu: 'ગુલિક કાળ' },
+  'amrit': { en: 'Amrit', hi: 'अमृत', sa: 'अमृतम्', mr: 'अमृत', gu: 'અમૃત' },
+  'shubh': { en: 'Shubh', hi: 'शुभ', sa: 'शुभम्', mr: 'शुभ', gu: 'શુભ' },
+  'labh': { en: 'Labh', hi: 'लाभ', sa: 'लाभः', mr: 'लाभ', gu: 'લાભ' },
+  'char': { en: 'Char', hi: 'चर (चल)', sa: 'चलम्', mr: 'चर', gu: 'ચર' },
+  'rog': { en: 'Rog', hi: 'रोग', sa: 'रोगः', mr: 'रोग', gu: 'રોગ' },
+  'kaal': { en: 'Kaal', hi: 'काल', sa: 'कालः', mr: 'काळ', gu: 'કાળ' },
+  'udveg': { en: 'Udveg', hi: 'उद्वेग', sa: 'उद्वेगः', mr: 'उद्वेग', gu: 'ઉદ્વેગ' },
+  'vijaya muhurat': { en: 'Vijaya Muhurat', hi: 'विजय मुहूर्त', sa: 'विजयमुहूर्तः', mr: 'विजय मुहूर्त', gu: 'વિજય મુહૂર્ત' },
+  'godhuli muhurat': { en: 'Godhuli Muhurat', hi: 'गोधूलि मुहूर्त', sa: 'गोधूलिमुहूर्तः', mr: 'गोधूलि मुहूर्त', gu: 'ગોધૂલિ મુહૂર્ત' },
+  'sayahna sandhya': { en: 'Sayahna Sandhya', hi: 'सायाह्न सन्ध्या', sa: 'सायाह्नसान्ध्या', mr: 'सायान्ह संध्या', gu: 'સાયાહ્ન સંધ્યા' },
+  'pratah sandhya': { en: 'Pratah Sandhya', hi: 'प्रातः सन्ध्या', sa: 'प्रातःसान्ध्या', mr: 'प्रातः संध्या', gu: 'પ્રાતઃ સંધ્યા' },
+  'nishita kaal': { en: 'Nishita Kaal', hi: 'निशीथ काल', sa: 'निशीथकालः', mr: 'निशीथ काळ', gu: 'નિશીથ કાળ' },
+
+  // Ayana & Ritu
+  'uttarayana': { en: 'Uttarayana', hi: 'उत्तरायण', sa: 'उत्तरायणम्', mr: 'उत्तरायण', gu: 'ઉત્તરાયણ' },
+  'dakshinayana': { en: 'Dakshinayana', hi: 'दक्षिणायन', sa: 'दक्षिणायनम्', mr: 'दक्षिणायन', gu: 'દક્ષિણાયન' },
+  'vasant': { en: 'Vasant', hi: 'वसन्त', sa: 'वसन्तः', mr: 'वसंत', gu: 'વસંત' },
+  'grishma': { en: 'Grishma', hi: 'ग्रीष्म', sa: 'ग्रीष्मः', mr: 'ग्रीष्म', gu: 'ગ્રીષ્મ' },
+  'varsha': { en: 'Varsha', hi: 'वर्षा', sa: 'वर्षा', mr: 'पावसाळा (वर्षा)', gu: 'વર્ષા' },
+  'sharad': { en: 'Sharad', hi: 'शरद', sa: 'शरत्', mr: 'शरद', gu: 'શરદ' },
+  'hemant': { en: 'Hemant', hi: 'हेमन्त', sa: 'हेमन्तः', mr: 'हेमंत', gu: 'હેમંત' },
+  'shishir': { en: 'Shishir', hi: 'शिशिर', sa: 'शिशिरः', mr: 'शिशिर', gu: 'શિશિર' },
+
+  // 12 Zodiac Signs (Rashis)
+  'mesha': { en: 'Mesha (Aries)', hi: 'मेष', sa: 'मेषः', mr: 'मेष', gu: 'મેષ' },
+  'vrishabha': { en: 'Vrishabha (Taurus)', hi: 'वृषभ', sa: 'वृषभः', mr: 'वृषभ', gu: 'વૃષભ' },
+  'mithuna': { en: 'Mithuna (Gemini)', hi: 'मिथुन', sa: 'मिथुनम्', mr: 'मिथुन', gu: 'મિથુન' },
+  'karka': { en: 'Karka (Cancer)', hi: 'कर्क', sa: 'कर्कः', mr: 'कर्क', gu: 'કર્ક' },
+  'simha': { en: 'Simha (Leo)', hi: 'सिंह', sa: 'सिंहः', mr: 'सिंह', gu: 'સિંહ' },
+  'kanya': { en: 'Kanya (Virgo)', hi: 'कन्या', sa: 'कन्या', mr: 'कन्या', gu: 'કન્યા' },
+  'tula': { en: 'Tula (Libra)', hi: 'तुला', sa: 'तुला', mr: 'तूळ (तुला)', gu: 'તુલા' },
+  'vrishchika': { en: 'Vrishchika (Scorpio)', hi: 'वृश्चिक', sa: 'वृश्चिकः', mr: 'वृश्चिक', gu: 'વૃશ્ચિક' },
+  'dhanu': { en: 'Dhanu (Sagittarius)', hi: 'धनु', sa: 'धनुः', mr: 'धनु', gu: 'ધન' },
+  'makara': { en: 'Makara (Capricorn)', hi: 'मकर', sa: 'मकरः', mr: 'मकर', gu: 'મકર' },
+  'kumbha': { en: 'Kumbha (Aquarius)', hi: 'कुम्भ', sa: 'कुम्भः', mr: 'कुंभ', gu: 'કુંભ' },
+  'meena': { en: 'Meena (Pisces)', hi: 'मीन', sa: 'मीनः', mr: 'मीन', gu: 'મીન' },
+
+  // Panchak Types
+  'mrityu panchak': { en: 'Mrityu Panchak', hi: 'मृत्यु पंचक', sa: 'मृत्युपञ्चकम्', mr: 'मृत्यू पंचक', gu: 'મૃત્યુ પંચક' },
+  'agni panchak': { en: 'Agni Panchak', hi: 'अग्नि पंचक', sa: 'अग्निपञ्चकम्', mr: 'अग्नी पंचક', gu: 'અગ્નિ પંચક' },
+  'raja panchak': { en: 'Raja Panchak', hi: 'राज पंचक', sa: 'राजपञ्चकम्', mr: 'राज पंचक', gu: 'રાજ પંચક' },
+  'chora panchak': { en: 'Chora Panchak', hi: 'चोर पंचक', sa: 'चोरपञ्चकम्', mr: 'चोर पंचક', gu: 'ચોર પંચક' },
+  'roga panchak': { en: 'Roga Panchak', hi: 'रोग पंचक', sa: 'रोगपञ्चकम्', mr: 'रोग पंचक', gu: 'રોગ પંચક' },
+
+  // Festivals & Observances
+  'diwali': { en: 'Diwali', hi: 'दीपावली (दिवाली)', sa: 'दीपावली', mr: 'दिवाळी', gu: 'દિવાળી' },
+  'dhanteras': { en: 'Dhanteras', hi: 'धनतेरस', sa: 'धनत्रयोदशी', mr: 'धनत्रयोदशी', gu: 'ધનતેરસ' },
+  'chhoti diwali': { en: 'Chhoti Diwali (Naraka Chaturdashi)', hi: 'नरक चतुर्दशी (छोटी दिवाली)', sa: 'नरकचतुर्दशी', mr: 'नरक चतुर्दशी', gu: 'કાળી ચૌદસ (નરક ચતુર્દશી)' },
+  'govardhan puja': { en: 'Govardhan Puja', hi: 'गोवर्धन पूजा (अन्नकूट)', sa: 'गोवर्धनपूजा', mr: 'गोवर्धन पूजा', gu: 'ગોવર્ધન પૂજા' },
+  'bhai dooj': { en: 'Bhai Dooj', hi: 'भाई दूज (यम द्वितीया)', sa: 'यमद्वितीया', mr: 'भाऊबीज', gu: 'ભાઈબીજ' },
+  'chhath puja': { en: 'Chhath Puja', hi: 'छठ पूजा (सूर्य षष्ठी)', sa: 'सूर्यषष्ठी', mr: 'छठ पूजा', gu: 'છઠ પૂજા' },
+  'karwa chauth': { en: 'Karwa Chauth', hi: 'करवा चौथ (करक चतुर्थी)', sa: 'करकचतुर्थी', mr: 'करवा चौथ', gu: 'કરવા ચોથ' },
+  'maha shivaratri': { en: 'Maha Shivaratri', hi: 'महाशिवरात्रि', sa: 'महाशिवरात्रिः', mr: 'महाशिवरात्री', gu: 'મહાશિવરાત્રિ' },
+  'krishna janmashtami': { en: 'Krishna Janmashtami', hi: 'श्रीकृष्ण जन्माष्टमी', sa: 'कृष्णजन्माष्टमी', mr: 'श्रीकृष्ण जन्माष्टमी', gu: 'કૃષ્ણ જન્માષ્ટમી' },
+  'radha ashtami': { en: 'Radha Ashtami', hi: 'राधा अष्टमी', sa: 'राधाष्टमी', mr: 'राधा अष्टमी', gu: 'રાધા અષ્ટમી' },
+  'ahoi ashtami': { en: 'Ahoi Ashtami', hi: 'अहोई अष्टमी', sa: 'अहोईअष्टमी', mr: 'अहोई अष्टमी', gu: 'અહોઈ અષ્ટમી' },
+  'gopashtami': { en: 'Gopashtami', hi: 'गोपाष्टमी', sa: 'गोपाष्टमी', mr: 'गोपाष्टमी', gu: 'ગોપાષ્ટમી' },
+  'kalabhairav jayanti': { en: 'Kalabhairav Jayanti', hi: 'कालभैरव जयन्ती', sa: 'कालभैरवजयन्ती', mr: 'कालभैरव जयंती', gu: 'કાલભૈરવ જયંતી' },
+  'sheetala ashtami': { en: 'Sheetala Ashtami', hi: 'शीतला अष्टमी (बसोड़ा)', sa: 'शीतलाष्टमी', mr: 'शीतला अष्टमी', gu: 'શીતળા સાતમ/આઠમ' },
+  'bhishma ashtami': { en: 'Bhishma Ashtami', hi: 'भीष्म अष्टमी', sa: 'भीष्माष्टमी', mr: 'भीष्म अष्टमी', gu: 'ભીષ્મ અષ્ટમી' },
+  'masik durgashtami': { en: 'Masik Durgashtami', hi: 'मासिक दुर्गाष्टमी', sa: 'मासिकदुर्गाष्टमी', mr: 'मासिक दुर्गाष्टमी', gu: 'માસિક દુર્ગાષ્ટમી' },
+  'masik kalashtami': { en: 'Masik Kalashtami', hi: 'मासिक कालाष्टमी', sa: 'मासिककालाष्टमी', mr: 'मासिक कालाष्टमी', gu: 'માસિક કાલાષ્ટમી' },
+  'masik shivaratri': { en: 'Masik Shivaratri', hi: 'मासिक शिवरात्रि', sa: 'मासिकशिवरात्रिः', mr: 'मासिक शिवरात्री', gu: 'માસિક શિવરાત્રિ' },
+  'ganesh chaturthi': { en: 'Ganesh Chaturthi', hi: 'गणेश चतुर्थी', sa: 'गणेशचतुर्थी', mr: 'गणेश चतुर्थी', gu: 'ગણેશ ચતુર્થી' },
+  'holika dahan': { en: 'Holika Dahan', hi: 'होलिका दहन', sa: 'होलिकादहनम्', mr: 'होलिका दहन', gu: 'હોલિકા દહન' },
+  'rangwali holi': { en: 'Rangwali Holi', hi: 'रंगवाली होली (धुलेंडी)', sa: 'धूलिवन्दनम्', mr: 'धूलિવંદન', gu: 'ધૂળેટી' },
+  'ram navami': { en: 'Ram Navami', hi: 'श्रीराम नवमी', sa: 'रामनवमी', mr: 'रामनवमी', gu: 'રામ નવમી' },
+  'hanuman jayanti': { en: 'Hanuman Jayanti', hi: 'श्री हनुमान जयन्ती', sa: 'हनुमज्जयन्ती', mr: 'हनुमान जयंती', gu: 'હનુમાન જયંતી' },
+  'raksha bandhan': { en: 'Raksha Bandhan', hi: 'रक्षा बन्धन', sa: 'रक्षाबन्धनम्', mr: 'रक्षाबंधन', gu: 'રક્ષાબંધન' },
+  'guru purnima': { en: 'Guru Purnima', hi: 'गुरु पूर्णिमा (व्यास पूजा)', sa: 'गुरुपूर्णिमा', mr: 'गुरु पौर्णिमा', gu: 'ગુરુ પૂર્ણિમા' },
+  'makar sankranti': { en: 'Makar Sankranti', hi: 'मकर संक्रान्ति', sa: 'मकरसङ्क्रान्तिः', mr: 'मकर संक्राંતि', gu: 'મકર સંક્રાંતિ (ઉત્તરાયણ)' },
+  'vasant panchami': { en: 'Vasant Panchami', hi: 'वसन्त पंचमी (सरस्वती पूजा)', sa: 'वसन्तपञ्चमी', mr: 'वसंत पंचमी', gu: 'વસંત પંચમી' },
+  'nag panchami': { en: 'Nag Panchami', hi: 'नाग पंचमी', sa: 'नागपञ्चमी', mr: 'नाગ પંચમી', gu: 'નાગ પાંચમ' },
+  'nitya panchang': { en: 'Nitya Panchang', hi: 'नित्य पञ्चाङ्ग', sa: 'नित्यपञ्चाङ्गम्', mr: 'नित्य पंचांग', gu: 'નિત્ય પંચાંગ' },
+};
+
+/**
+ * Normalizes input strings for flexible case-insensitive lookup.
+ */
+function normalizeKey(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[—–-]/g, ' ')
+    .replace(/[()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Dynamic Astrological Term Translator.
+ * Translates raw English terms (Tithis, Nakshatras, Yogas, Karanas, Months, Muhurats, Festivals)
+ * into the selected user language with graceful fallbacks.
+ */
+export function translateTerm(term: string | undefined | null, lang: SupportedLanguage): string {
+  if (!term) return '';
+  if (lang === 'en') return term;
+
+  const raw = term.trim();
+  const normalized = normalizeKey(raw);
+
+  // 1. Direct dictionary match
+  if (ASTROLOGICAL_TERMS[normalized]?.[lang]) {
+    return ASTROLOGICAL_TERMS[normalized][lang];
+  }
+
+  // 2. Try matching without parentheses e.g. "Radha Ashtami (राधा अष्टमी)" -> "Radha Ashtami"
+  const strippedParens = raw.replace(/\s*\([^)]*\)/g, '').trim();
+  const normalizedStripped = normalizeKey(strippedParens);
+  if (ASTROLOGICAL_TERMS[normalizedStripped]?.[lang]) {
+    return ASTROLOGICAL_TERMS[normalizedStripped][lang];
+  }
+
+  // 3. Compound phrase splitting: Paksha + Tithi (e.g., "Shukla Tritiya" or "Krishna Dashami")
+  const parts = normalized.split(' ');
+  if (parts.length === 2) {
+    const p1 = ASTROLOGICAL_TERMS[parts[0]]?.[lang];
+    const p2 = ASTROLOGICAL_TERMS[parts[1]]?.[lang];
+    if (p1 && p2) {
+      return `${p1} ${p2}`;
+    }
+  }
+
+  // 4. Return original term if no direct translation found
+  return term;
+}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Bell, Loader2, Share, X, Sparkles } from 'lucide-react';
 import { useSmartOnboarding } from '@/src/hooks/useSmartOnboarding';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 export interface FloatingAlertBannerProps {
   className?: string;
@@ -20,6 +21,7 @@ export interface FloatingAlertBannerProps {
  * - Zero auto-dismiss timeouts; remains stable until user interaction.
  */
 export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps) {
+  const { t } = useLanguage();
   const {
     isReady,
     isSubscribed,
@@ -60,13 +62,13 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
               </div>
               <div className="leading-snug">
                 <div className="font-bold text-amber-200 flex items-center gap-1.5">
-                  <span>iOS Setup Required</span>
+                  <span>{t('iosSetupRequired')}</span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-mono">
                     Safari PWA
                   </span>
                 </div>
                 <p className="text-neutral-300 text-[11px] mt-1 font-medium">
-                  Tap the Share icon <span className="text-amber-300 font-bold">⎋</span> below and select <span className="text-white font-bold">&apos;Add to Home Screen&apos;</span> to enable alerts.
+                  {t('iosSetupGuide')}
                 </p>
               </div>
             </div>
@@ -114,7 +116,7 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
 
           {/* Primary Action Copy */}
           <span className="tracking-wide">
-            {isLoading ? 'Activating Alerts...' : 'Get Daily Tithi Alert'}
+            {isLoading ? t('activatingAlerts') : t('getDailyAlert')}
           </span>
 
           {/* Decorative Sparkle */}

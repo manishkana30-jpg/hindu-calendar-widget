@@ -97,14 +97,6 @@ export function PanchakModal({ isOpen, onClose }: Props) {
                 <BookOpen size={15} />
                 <span>{isHindi ? '📜 पञ्चक शास्त्र निर्णय व निषेध' : '📜 Panchak Determination & Prohibitions'}</span>
               </div>
-              <button
-                type="button"
-                onClick={toggleLanguage}
-                className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
-                title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
-              >
-                {isHindi ? 'English' : 'हिन्दी'}
-              </button>
             </div>
             <p className="text-neutral-200 leading-relaxed text-xs">
               {isHindi
