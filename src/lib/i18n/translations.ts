@@ -81,6 +81,14 @@ export interface TranslationDictionary {
   majorFestival: string;
   vedicObservance: string;
   vratRules: string;
+  viewFullVratCalendar: string;
+  observed: string;
+  filterAll: string;
+  filterEkadashi: string;
+  filterPradosh: string;
+  filterPurnimaAmavasya: string;
+  filterMajor: string;
+  paranaTime: string;
   exploreMonthlyCalendar: string;
   dharmashastraRules: string;
   nityaPanchang: string;
@@ -206,6 +214,14 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     majorFestival: 'MAJOR FESTIVAL',
     vedicObservance: 'VEDIC VRAT & TYOHAR',
     vratRules: 'Vrat Rules',
+    viewFullVratCalendar: 'View Full Vrat & Tyohar Calendar',
+    observed: 'Observed',
+    filterAll: 'All Vrats & Tyohar',
+    filterEkadashi: 'Ekadashi',
+    filterPradosh: 'Pradosh',
+    filterPurnimaAmavasya: 'Purnima / Amavasya',
+    filterMajor: 'Major Festivals',
+    paranaTime: 'Parana Time',
     exploreMonthlyCalendar: 'Explore Monthly Vrat & Tyohar Calendar',
     dharmashastraRules: 'Dharmashastra Rules',
     nityaPanchang: 'Nitya Panchang',
@@ -320,11 +336,19 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     shakaSamvat: 'शक संवत्',
     kaliYuga: 'कलियुग',
 
-    todaysObservance: 'आज का व्रत एवं त्यौहार',
+    todaysObservance: 'आज का व्रत एवं त्योहार',
     majorFestival: 'महापर्व',
     vedicObservance: 'वैदिक पर्व',
     vratRules: 'शास्त्र नियम',
-    exploreMonthlyCalendar: 'मासिक व्रत एवं त्यौहार कैलेंडर देखें',
+    viewFullVratCalendar: 'संपूर्ण व्रत एवं त्योहार कैलेंडर देखें',
+    observed: 'मान्य',
+    filterAll: 'सभी व्रत व पर्व',
+    filterEkadashi: 'एकादशी',
+    filterPradosh: 'प्रदोष',
+    filterPurnimaAmavasya: 'पूर्णिमा / अमावस्या',
+    filterMajor: 'प्रमुख पर्व',
+    paranaTime: 'पारणा समय',
+    exploreMonthlyCalendar: 'मासिक व्रत एवं त्योहार कैलेंडर देखें',
     dharmashastraRules: 'धर्मशास्त्र निर्णय',
     nityaPanchang: 'नित्य पञ्चाङ्ग',
     dailyVedicObservance: 'दैनिक वैदिक पूजन एवं नित्य कर्म',
@@ -442,6 +466,14 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     majorFestival: 'महापर्व',
     vedicObservance: 'वैदिकपर्व',
     vratRules: 'शास्त्रनियमाः',
+    viewFullVratCalendar: 'सम्पूर्णव्रतपर्वदिनदर्शिकां पश्यन्तु',
+    observed: 'मान्यम्',
+    filterAll: 'सर्वे व्रताः पर्वाणि च',
+    filterEkadashi: 'एकादशी',
+    filterPradosh: 'प्रदोषः',
+    filterPurnimaAmavasya: 'पूर्णिमा / अमावास्या',
+    filterMajor: 'प्रमुखाणि पर्वाणि',
+    paranaTime: 'पारणसमयः',
     exploreMonthlyCalendar: 'मासिकव्रतपर्वसारणीं पश्यन्तु',
     dharmashastraRules: 'धर्मशास्त्रनिर्णयः',
     nityaPanchang: 'नित्यपञ्चाङ्गम्',
@@ -560,6 +592,14 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     majorFestival: 'महापर्व',
     vedicObservance: 'वैदिक सण',
     vratRules: 'शास्त्र नियम',
+    viewFullVratCalendar: 'संपूर्ण व्रत व सण दिनदर्शिका पहा',
+    observed: 'मान्य',
+    filterAll: 'सर्व व्रत व सण',
+    filterEkadashi: 'एकादशी',
+    filterPradosh: 'प्रदोष',
+    filterPurnimaAmavasya: 'पौर्णिमा / अमावास्या',
+    filterMajor: 'प्रमुख सण',
+    paranaTime: 'पारणा वेळ',
     exploreMonthlyCalendar: 'मासिक व्रत व सण कॅलेंडर पहा',
     dharmashastraRules: 'धर्मशास्त्र निर्णय',
     nityaPanchang: 'नित्य पंचांग',
@@ -678,6 +718,14 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     majorFestival: 'મહાપર્વ',
     vedicObservance: 'વૈદિક પર્વ',
     vratRules: 'શાસ્ત્ર નિયમો',
+    viewFullVratCalendar: 'સંપૂર્ણ વ્રત અને તહેવાર કેલેન્ડર જુઓ',
+    observed: 'માન્ય',
+    filterAll: 'બધા વ્રત અને તહેવારો',
+    filterEkadashi: 'એકાદશી',
+    filterPradosh: 'પ્રદોષ',
+    filterPurnimaAmavasya: 'પૂનમ / અમાસ',
+    filterMajor: 'મુખ્ય તહેવારો',
+    paranaTime: 'પારણા સમય',
     exploreMonthlyCalendar: 'માસિક વ્રત અને તહેવાર કેલેન્ડર જુઓ',
     dharmashastraRules: 'ધર્મશાસ્ત્ર નિર્ણય',
     nityaPanchang: 'નિત્ય પંચાંગ',

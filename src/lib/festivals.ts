@@ -54,6 +54,8 @@ export interface VedicFestivalDefinition {
     english: string;
   };
   shastraReferences?: string[];
+  paranaTime?: string;
+  observance?: string;
 }
 
 export interface ActiveFestivalResult {
@@ -70,6 +72,8 @@ export interface ActiveFestivalResult {
     english: string;
   };
   shastraReferences?: string[];
+  paranaTime?: string;
+  observance?: string;
 }
 
 export interface UpcomingFestivalResult {
@@ -91,6 +95,8 @@ export interface UpcomingFestivalResult {
     english: string;
   };
   shastraReferences?: string[];
+  paranaTime?: string;
+  observance?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1082,7 +1088,16 @@ export function getUpcomingFestivalsList(
     const scanDate = new Date(baseMidnight.getTime() + offset * 86400000);
     const fest = getFestivalForDate(scanDate, location, options);
 
-    if (fest.isMajor || fest.category === 'Ekadashi' || fest.category === 'Pradosh') {
+    if (
+      !fest.name.startsWith('Nitya Panchang') &&
+      (fest.isMajor ||
+        fest.category === 'Ekadashi' ||
+        fest.category === 'Pradosh' ||
+        fest.category === 'Purnima' ||
+        fest.category === 'Amavasya' ||
+        fest.category === 'Ashtami' ||
+        fest.category === 'Vrat')
+    ) {
       const daysRemaining = offset;
       const daysText = daysRemaining === 0 ? 'Today' : (daysRemaining === 1 ? 'Tomorrow' : `In ${daysRemaining} days`);
 
@@ -1094,6 +1109,13 @@ export function getUpcomingFestivalsList(
       });
 
       const dayOfWeek = scanDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+      // Determine canonical Parana timing if Ekadashi or Vrat
+      let paranaText: string | undefined = undefined;
+      if (fest.category === 'Ekadashi') {
+        const nextDate = new Date(scanDate.getTime() + 86400000);
+        paranaText = `${nextDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, Sunrise - Hari Vasara end`;
+      }
 
       results.push({
         name: fest.name,
@@ -1110,7 +1132,8 @@ export function getUpcomingFestivalsList(
         daysText,
         badge: daysText,
         briefRule: fest.briefRule,
-        shastraReferences: fest.shastraReferences
+        shastraReferences: fest.shastraReferences,
+        paranaTime: paranaText
       });
     }
   }

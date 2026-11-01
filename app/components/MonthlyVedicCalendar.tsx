@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
-  Sparkles, Sun, Moon, LayoutGrid, List, Info, Clock, 
-  MapPin, X, BookOpen, Compass
+  Sparkles, Sun, Moon, MapPin, X, BookOpen, Compass
 } from 'lucide-react';
 import { 
   LocationCoordinates, 
@@ -12,7 +11,7 @@ import {
   getMonthVedicCalendar, 
   MonthCalendarDay 
 } from '../../src/lib/vedic-astronomy';
-import { useUserLanguage, getLocalizedShastraRule } from '../../src/lib/user-language';
+import { useLanguage } from '../../src/context/LanguageContext';
 
 interface MonthlyVedicCalendarProps {
   initialLocation?: LocationCoordinates;
@@ -28,19 +27,20 @@ export function MonthlyVedicCalendar({
   const [currentYear, setCurrentYear] = useState<number>(() => new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(() => new Date().getMonth());
   const [location, setLocation] = useState<LocationCoordinates>(initialLocation || PRESET_LOCATIONS[0]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedDayDetail, setSelectedDayDetail] = useState<MonthCalendarDay | null>(null);
-  const { language, isHindi, toggleLanguage } = useUserLanguage();
+  const { language, t, translateTerm, localeCode } = useLanguage();
+
+  const todayRowRef = useRef<HTMLDivElement>(null);
 
   // Synchronize with initialLocation if changed from outside
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialLocation) {
       setLocation(initialLocation);
     }
   }, [initialLocation]);
 
   // ESC key listener for day detail modal
-  React.useEffect(() => {
+  useEffect(() => {
     if (!selectedDayDetail) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -51,30 +51,22 @@ export function MonthlyVedicCalendar({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedDayDetail]);
 
-  const monthNames = [
-    'January (पौष / माघ)', 'February (माघ / फाल्गुन)', 'March (फाल्गुन / चैत्र)',
-    'April (चैत्र / वैशाख)', 'May (वैशाख / ज्येष्ठ)', 'June (ज्येष्ठ / आषाढ़)',
-    'July (आषाढ़ / श्रावण)', 'August (श्रावण / भाद्रपद)', 'September (भाद्रपद / आश्विन)',
-    'October (आश्विन / कार्तिक)', 'November (कार्तिक / मार्गशीर्ष)', 'December (मार्गशीर्ष / पौष)'
-  ];
+  // Auto-scroll to today's row when current month/year matches today
+  useEffect(() => {
+    if (todayRowRef.current) {
+      todayRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [currentMonth, currentYear]);
 
-  const monthNamesEnglish = [
+  const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-
-  const daysOfWeekShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const daysOfWeekHindi = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
 
   // High-precision calendar days calculation for the month (memoized)
   const calendarDays = useMemo(() => {
     return getMonthVedicCalendar(currentYear, currentMonth, location);
   }, [currentYear, currentMonth, location]);
-
-  // Calculate day-of-week offset for the 1st of the month (0 = Sunday, 1 = Monday, etc.)
-  const firstDayOfMonth = useMemo(() => {
-    return new Date(currentYear, currentMonth, 1).getDay();
-  }, [currentYear, currentMonth]);
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
@@ -108,35 +100,33 @@ export function MonthlyVedicCalendar({
   };
 
   return (
-    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-4 sm:p-6'}`}>
+    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
       
       {/* ── Top Header Bar ── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#162038]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#162038]">
         
         {/* Title & Badge */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 flex-shrink-0">
-            <CalendarIcon size={22} />
+          <div className="p-2 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
+            <CalendarIcon size={20} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-                Monthly Vedic Calendar
+              <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+                {language === 'hi' ? 'मासिक वैदिक पञ्चाङ्ग' : (language === 'sa' ? 'मासिकवैदिकपञ्चाङ्गम्' : (language === 'mr' ? 'मासिक वैदिक पंचांग' : (language === 'gu' ? 'માસિક વૈદિક પંચાંગ' : 'Monthly Vedic Calendar')))}
               </h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                Udaya Tithi Engine
+                Udaya Tithi
               </span>
             </div>
             <p className="text-xs text-neutral-400 mt-0.5">
-              {monthNamesEnglish[currentMonth]} {currentYear} • Nirayana Lahiri Ayanamsha • {location.name}
+              {monthNames[currentMonth]} {currentYear} • Nirayana Lahiri • {location.name}
             </p>
           </div>
         </div>
 
-        {/* View Mode Switcher & Location */}
-        <div className="flex flex-wrap items-center gap-2">
-          
-          {/* Location Selector */}
+        {/* Location Selector */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="relative inline-flex items-center text-xs">
             <MapPin size={12} className="absolute left-2.5 text-orange-400 pointer-events-none" />
             <select
@@ -145,7 +135,7 @@ export function MonthlyVedicCalendar({
                 const loc = PRESET_LOCATIONS.find(l => l.name === e.target.value);
                 if (loc) setLocation(loc);
               }}
-              aria-label="Select Location for Monthly Calendar"
+              aria-label={t('selectCity')}
               className="pl-7 pr-6 py-1.5 bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] rounded-xl text-xs font-semibold text-neutral-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
             >
               {PRESET_LOCATIONS.map((loc) => (
@@ -155,49 +145,20 @@ export function MonthlyVedicCalendar({
               ))}
             </select>
           </div>
-
-          {/* View Toggle (Grid vs List) */}
-          <div className="flex items-center bg-[#0e1629] p-0.5 rounded-xl border border-[#233152]">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'grid'
-                  ? 'bg-orange-500 text-white shadow-sm'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-              title="Grid View (मासिक ग्रिड)"
-            >
-              <LayoutGrid size={13} />
-              <span>Grid</span>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                viewMode === 'list'
-                  ? 'bg-orange-500 text-white shadow-sm'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-              title="List View (तालिका सूची)"
-            >
-              <List size={13} />
-              <span>List</span>
-            </button>
-          </div>
         </div>
 
       </div>
 
       {/* ── Navigation & Selectors Bar ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 py-3.5 border-b border-[#162038]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 py-3 border-b border-[#162038]">
         
         {/* Prev / Month / Year / Next */}
         <div className="flex flex-wrap items-center gap-2">
-          
           <button
             onClick={handlePrevMonth}
-            className="p-2 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
-            title="Previous Month"
-            aria-label="Previous Month"
+            className="p-1.5 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
+            title={t('prevDay')}
+            aria-label={t('prevDay')}
           >
             <ChevronLeft size={16} />
           </button>
@@ -225,353 +186,187 @@ export function MonthlyVedicCalendar({
           >
             {Array.from({ length: 41 }, (_, i) => 2010 + i).map(yr => (
               <option key={yr} value={yr} className="bg-[#090e1a] text-white">
-                Year {yr}
+                {yr}
               </option>
             ))}
           </select>
 
           <button
             onClick={handleNextMonth}
-            className="p-2 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
-            title="Next Month"
-            aria-label="Next Month"
+            className="p-1.5 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
+            title={t('nextDay')}
+            aria-label={t('nextDay')}
           >
             <ChevronRight size={16} />
           </button>
 
-          {/* Quick Jump to Today's Month */}
+          {/* Quick Jump to Today */}
           <button
             onClick={handleResetToCurrentMonth}
-            className="px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer ml-1 active:scale-95"
+            className="px-2.5 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer active:scale-95"
           >
-            Today / Current Month
+            {t('live')}
           </button>
         </div>
 
-        {/* Legend Pills */}
-        <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-neutral-400">
+        {/* Legend Badges */}
+        <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-neutral-400">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300">
-            🌕 Purnima (Full Moon)
+            🌕 Purnima
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/40 text-indigo-300">
-            🌑 Amavasya (New Moon)
+            🌑 Amavasya
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
-            ✨ Ekadashi Vrat
+            ✨ Ekadashi
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-500/20 border border-orange-500/40 text-orange-300">
-            🔱 Ashtami Vrat
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/40 text-purple-300">
-            🔄 Vriddhi (Extended)
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/20 border border-rose-500/40 text-rose-300">
-            ⚠️ Kshaya (Lost Tithi)
+            🔱 Ashtami
           </span>
         </div>
 
       </div>
 
-      {/* ── Canonical Dharmashastra Rule Banner ── */}
-      <div className="my-4 p-3.5 rounded-2xl bg-gradient-to-r from-[#121a30] via-[#0d1424] to-[#121a30] border border-[#233152] flex items-start gap-3 text-xs">
-        <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-400 flex-shrink-0 mt-0.5">
-          <BookOpen size={16} />
-        </div>
-        <div className="space-y-0.5">
-          <div className="text-white font-bold flex items-center gap-2">
-            <span>Canonical Udaya Tithi Determination Rule (औदयिक तिथि शास्त्र नियम)</span>
-          </div>
-          <p className="text-neutral-300 leading-relaxed text-[11px]">
-            <strong className="text-orange-400">Surya Siddhanta & Nirnayasindhu:</strong> The Tithi prevailing at local Sunrise (<span className="text-amber-300 font-semibold">Udaya Tithi</span>) governs the entire religious and civil day. The exact Tithi End Time indicates when the Moon-Sun angle traverses the 12° threshold.
-          </p>
-        </div>
-      </div>
+      {/* ── Chronological List View (Sole Canonical View - List-Only Everywhere) ── */}
+      <div className="mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] divide-y divide-[#162038] overflow-hidden max-h-[82dvh] overflow-y-auto touch-pan-y overscroll-contain pb-20">
+        {calendarDays.map((day) => {
+          const isToday = day.isToday;
+          const isPurnima = day.udayaTithi.isPurnima;
+          const isAmavasya = day.udayaTithi.isAmavasya;
+          const isEkadashi = day.udayaTithi.isEkadashi;
+          const isAshtami = day.udayaTithi.isAshtami;
 
-      {/* ── View 1: Standard Monthly Grid View ── */}
-      {viewMode === 'grid' && (
-        <div className="space-y-2">
-          
-          {/* Weekday Header Row */}
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-xs font-bold text-neutral-400 py-1.5">
-            {daysOfWeekShort.map((day, idx) => (
-              <div key={day} className="py-1 px-0.5">
-                <span className={idx === 0 ? 'text-red-400' : 'text-neutral-300'}>{day}</span>
-                <span className="block text-[10px] text-neutral-400 font-normal">{daysOfWeekHindi[idx]}</span>
+          const weekdayShort = day.date.toLocaleDateString(localeCode, { weekday: 'short' });
+          const monthShort = day.date.toLocaleDateString(localeCode, { month: 'short' });
+
+          const translatedTithiName = translateTerm(day.udayaTithi.name, language);
+          const translatedNakshatra = translateTerm(day.nakshatra.name, language);
+          const translatedFestival = day.festival ? translateTerm(day.festival, language) : null;
+
+          return (
+            <div
+              key={day.dayNumber}
+              ref={isToday ? todayRowRef : null}
+              onClick={() => handleDayClick(day)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleDayClick(day);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className={`p-3 sm:p-3.5 flex items-center justify-between gap-3 sm:gap-4 transition-all cursor-pointer hover:bg-[#11192e] group select-none ${
+                isToday 
+                  ? 'border-l-4 border-l-orange-500 border-orange-500/50 bg-orange-500/10' 
+                  : isPurnima
+                  ? 'bg-amber-500/5 hover:bg-amber-500/10'
+                  : isAmavasya
+                  ? 'bg-indigo-500/5 hover:bg-indigo-500/10'
+                  : isEkadashi
+                  ? 'bg-emerald-500/5 hover:bg-emerald-500/10'
+                  : ''
+              }`}
+            >
+              {/* Left: Compact Date Badge */}
+              <div className={`flex flex-col items-center justify-center w-12 sm:w-14 h-12 sm:h-14 rounded-xl border shrink-0 text-center transition-colors ${
+                isToday
+                  ? 'bg-orange-500/20 border-orange-500 text-orange-300'
+                  : isPurnima
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                  : isAmavasya
+                  ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                  : isEkadashi
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-[#0e1629] border-[#233152] text-white group-hover:border-orange-500/40'
+              }`}>
+                <span className="text-sm sm:text-base font-extrabold leading-none">
+                  {day.dayNumber}
+                </span>
+                <span className="text-[10px] font-semibold text-neutral-400 mt-0.5 leading-none">
+                  {weekdayShort}
+                </span>
+                <span className="text-[9px] text-neutral-500 font-mono mt-0.5 leading-none">
+                  {monthShort}
+                </span>
               </div>
-            ))}
-          </div>
 
-          {/* 7-Column Grid Matrix */}
-          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
-            
-            {/* Blank leading slots for month offset */}
-            {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-              <div 
-                key={`empty-${i}`} 
-                className="min-h-[100px] sm:min-h-[125px] rounded-2xl bg-[#090e1a]/40 border border-[#141d33]/40 opacity-30"
-              />
-            ))}
+              {/* Center: Primary Tithi name, Nakshatra, and end timings */}
+              <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className={`text-xs sm:text-sm font-bold truncate ${
+                    isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isEkadashi ? 'text-emerald-300' : 'text-white'
+                  }`}>
+                    {translatedTithiName}
+                  </span>
 
-            {/* Actual Days of the Month */}
-            {calendarDays.map((day) => {
-              const isPurnima = day.udayaTithi.isPurnima;
-              const isAmavasya = day.udayaTithi.isAmavasya;
-              const isEkadashi = day.udayaTithi.isEkadashi;
-              const isAshtami = day.udayaTithi.isAshtami;
-              const isToday = day.isToday;
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${
+                    day.udayaTithi.paksha === 'Shukla'
+                      ? 'bg-orange-500/15 text-orange-300 border border-orange-500/25'
+                      : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25'
+                  }`}>
+                    {day.udayaTithi.paksha}
+                  </span>
 
-              return (
-                <div
-                  key={day.dayNumber}
-                  onClick={() => handleDayClick(day)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleDayClick(day);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className={`min-h-[105px] sm:min-h-[130px] p-2 sm:p-2.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden text-left ${
-                    isToday
-                      ? 'bg-gradient-to-b from-[#162744] to-[#0c1527] border-orange-500/80 ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/10'
-                      : isPurnima
-                      ? 'bg-gradient-to-b from-[#2a1d0d] via-[#16120b] to-[#0d0f1a] border-amber-500/60 hover:border-amber-400 shadow-md shadow-amber-500/10'
-                      : isAmavasya
-                      ? 'bg-gradient-to-b from-[#1b122e] via-[#100d1e] to-[#0a0c16] border-indigo-500/60 hover:border-indigo-400 shadow-md shadow-indigo-500/10'
-                      : isEkadashi
-                      ? 'bg-gradient-to-b from-[#0e241e] via-[#091714] to-[#080d1a] border-emerald-500/50 hover:border-emerald-400 shadow-sm'
-                      : isAshtami
-                      ? 'bg-gradient-to-b from-[#20150d] via-[#130f1a] to-[#0a0c16] border-orange-500/50 hover:border-orange-400 shadow-sm'
-                      : 'bg-[#0a0f1d] hover:bg-[#10172c] border-[#1b253f] hover:border-orange-500/40'
-                  }`}
-                >
-                  {/* Subtle Background Glow for special days */}
-                  {isPurnima && (
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+                  {day.udayaTithi.isVriddhiTithi && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      Vriddhi
+                    </span>
                   )}
-                  {isAmavasya && (
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                  {day.udayaTithi.isKshayaTithi && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                      Kshaya
+                    </span>
                   )}
-
-                  {/* Top: Gregorian Date & Badges */}
-                  <div>
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex items-center gap-1">
-                        <span className={`text-sm sm:text-base font-extrabold ${
-                          isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isAshtami ? 'text-orange-300' : 'text-white'
-                        }`}>
-                          {day.dayNumber}
-                        </span>
-                        {isToday && (
-                          <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-orange-500 text-white leading-none">
-                            Today
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Icon for Purnima / Amavasya / Ekadashi / Ashtami */}
-                      <div>
-                        {isPurnima && (
-                          <span title="Purnima (Full Moon)" className="text-base sm:text-lg animate-pulse leading-none">
-                            🌕
-                          </span>
-                        )}
-                        {isAmavasya && (
-                          <span title="Amavasya (New Moon)" className="text-base sm:text-lg leading-none">
-                            🌑
-                          </span>
-                        )}
-                        {isEkadashi && !isPurnima && !isAmavasya && (
-                          <span title="Ekadashi Fast" className="text-xs text-emerald-400 leading-none">
-                            ✨
-                          </span>
-                        )}
-                        {isAshtami && !isPurnima && !isAmavasya && !isEkadashi && (
-                          <span title="Sacred Ashtami Vrat" className="text-xs text-orange-400 leading-none">
-                            🔱
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Prevailing Udaya Tithi Name */}
-                    <div className="mt-1.5">
-                      <div className={`text-[11px] sm:text-xs font-bold leading-tight line-clamp-2 ${
-                        isPurnima
-                          ? 'text-amber-300'
-                          : isAmavasya
-                          ? 'text-indigo-300'
-                          : isEkadashi
-                          ? 'text-emerald-300'
-                          : isAshtami
-                          ? 'text-orange-300'
-                          : day.udayaTithi.paksha === 'Shukla'
-                          ? 'text-orange-200'
-                          : 'text-neutral-200'
-                      }`}>
-                        {day.udayaTithi.pureName}
-                      </div>
-                      <span className={`inline-block text-[9px] px-1 py-0.5 rounded font-semibold mt-0.5 ${
-                        day.udayaTithi.paksha === 'Shukla'
-                          ? 'bg-orange-500/15 text-orange-300 border border-orange-500/20'
-                          : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/20'
-                      }`}>
-                        {day.udayaTithi.paksha}
-                      </span>
-                      {day.udayaTithi.isVriddhiTithi && (
-                        <span className="inline-block text-[9px] px-1 py-0.5 rounded font-bold ml-1 bg-purple-500/20 text-purple-300 border border-purple-500/30" title="Vriddhi Tithi (Touches two sunrises)">
-                          Vriddhi
-                        </span>
-                      )}
-                      {day.udayaTithi.isKshayaTithi && (
-                        <span className="inline-block text-[9px] px-1 py-0.5 rounded font-bold ml-1 bg-rose-500/20 text-rose-300 border border-rose-500/30" title={`Kshaya Tithi Skipped: ${day.udayaTithi.kshayaTithiDetails?.name || 'Tithi skipped'}`}>
-                          ⚠️ Kshaya
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bottom: Tithi End Time & Sunrise */}
-                  <div className="mt-2 pt-1.5 border-t border-[#1a2542]/60 text-[10px] space-y-0.5 font-mono">
-                    <div className="text-neutral-300 truncate font-semibold" title={`Tithi ends at: ${day.tithiEndTime}`}>
-                      <span className="text-neutral-400">End: </span>
-                      <span className="text-amber-300/90">{day.tithiEndTime}</span>
-                    </div>
-                    <div className="text-neutral-400 text-[9px] truncate">
-                      🌅 {day.sunrise}
-                    </div>
-                    {day.udayaTithi.kshayaTithiDetails && (
-                      <div className="text-[9px] font-bold text-rose-300 truncate bg-rose-950/40 px-1 py-0.5 rounded border border-rose-500/30 mt-0.5" title={`Skipped: ${day.udayaTithi.kshayaTithiDetails.name}`}>
-                        Lost: {day.udayaTithi.kshayaTithiDetails.name.replace(/\s*\(\d+\)/, '')}
-                      </div>
-                    )}
-                    {day.festival && (
-                      <div className="text-[9px] font-bold text-amber-400 truncate bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20 mt-1">
-                        {day.festival}
-                      </div>
-                    )}
-                  </div>
-
+                  {isToday && (
+                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-orange-500 text-white">
+                      {t('live')}
+                    </span>
+                  )}
                 </div>
-              );
-            })}
 
-          </div>
+                <div className="flex items-center gap-2 text-[11px] text-neutral-400 flex-wrap">
+                  <span>{t('nakshatra')}: <strong className="text-neutral-300">{translatedNakshatra}</strong></span>
+                  <span>•</span>
+                  <span>{t('tithiEnds')}: <strong className="text-amber-300 font-mono">{day.tithiEndTime}</strong></span>
+                  <span className="hidden sm:inline">•</span>
+                  <span className="hidden sm:inline font-mono">🌅 {day.sunrise}</span>
+                </div>
+              </div>
 
-        </div>
-      )}
+              {/* Right: Any Vrat/Tyohar badge and a subtle chevron (›) */}
+              <div className="flex items-center gap-2 shrink-0">
+                {translatedFestival ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 max-w-[120px] sm:max-w-[180px] truncate">
+                    <Sparkles size={11} className="text-amber-400 shrink-0" />
+                    <span className="truncate">{translatedFestival}</span>
+                  </span>
+                ) : isPurnima ? (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    🌕 Purnima
+                  </span>
+                ) : isAmavasya ? (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                    🌑 Amavasya
+                  </span>
+                ) : isEkadashi ? (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    ✨ Ekadashi
+                  </span>
+                ) : isAshtami ? (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">
+                    🔱 Ashtami
+                  </span>
+                ) : null}
 
-      {viewMode === 'list' && (
-        <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-          <div className="overflow-x-auto overscroll-x-contain horizontal-tabs-scroll" style={{ touchAction: 'pan-x pan-y' }}>
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
-                <tr>
-                  <th className="p-3 font-bold">Date & Day</th>
-                  <th className="p-3 font-bold">Prevailing Udaya Tithi</th>
-                  <th className="p-3 font-bold">Tithi End Time</th>
-                  <th className="p-3 font-bold">Nakshatra</th>
-                  <th className="p-3 font-bold">Sunrise / Sunset</th>
-                  <th className="p-3 font-bold">Observance / Fast</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#18233c] text-neutral-300">
-                {calendarDays.map((day) => {
-                  const isPurnima = day.udayaTithi.isPurnima;
-                  const isAmavasya = day.udayaTithi.isAmavasya;
-                  const isEkadashi = day.udayaTithi.isEkadashi;
-
-                  return (
-                    <tr 
-                      key={day.dayNumber}
-                      onClick={() => handleDayClick(day)}
-                      className={`hover:bg-[#141d33] transition-colors cursor-pointer ${
-                        day.isToday ? 'bg-orange-500/10' : ''
-                      }`}
-                    >
-                      {/* Date */}
-                      <td className="p-3 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`font-bold ${day.isToday ? 'text-orange-400' : 'text-white'}`}>
-                            {day.dateFormatted}
-                          </span>
-                          {day.isToday && (
-                            <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-orange-500 text-white font-bold">
-                              Today
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-neutral-400">{day.dayOfWeek}</div>
-                      </td>
-
-                      {/* Udaya Tithi */}
-                      <td className="p-3 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`inline-block font-semibold px-2 py-0.5 rounded text-[11px] ${
-                            isPurnima
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold'
-                              : isAmavasya
-                              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold'
-                              : isEkadashi
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                              : day.udayaTithi.paksha === 'Shukla'
-                              ? 'bg-orange-500/15 text-orange-300 border border-orange-500/20'
-                              : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/20'
-                          }`}>
-                            {day.udayaTithi.name}
-                          </span>
-                          {day.udayaTithi.isVriddhiTithi && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                              Vriddhi
-                            </span>
-                          )}
-                          {day.udayaTithi.isKshayaTithi && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title={`Skipped: ${day.udayaTithi.kshayaTithiDetails?.name}`}>
-                              ⚠️ Kshaya: {day.udayaTithi.kshayaTithiDetails?.name.replace(/\s*\(\d+\)/, '') || 'Skipped'}
-                            </span>
-                          )}
-                          {isPurnima && <span>🌕</span>}
-                          {isAmavasya && <span>🌑</span>}
-                          {isEkadashi && <span>✨</span>}
-                        </div>
-                      </td>
-
-                      {/* Tithi End Time */}
-                      <td className="p-3 whitespace-nowrap font-mono font-semibold text-amber-300">
-                        {day.tithiEndTime}
-                      </td>
-
-                      {/* Nakshatra */}
-                      <td className="p-3 whitespace-nowrap font-medium text-neutral-200">
-                        <div>{day.nakshatra.name} ({day.nakshatra.devanagari})</div>
-                        <div className="text-[10px] text-neutral-400">Yoga: {day.yoga.name}</div>
-                      </td>
-
-                      {/* Sunrise / Sunset */}
-                      <td className="p-3 whitespace-nowrap font-mono text-[11px] text-neutral-300">
-                        🌅 {day.sunrise} • 🌇 {day.sunset}
-                      </td>
-
-                      {/* Observance */}
-                      <td className="p-3 whitespace-nowrap">
-                        {day.festival ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-lg">
-                            <Sparkles size={11} />
-                            {day.festival}
-                          </span>
-                        ) : (
-                          <span className="text-neutral-400 text-[11px]">नित्य पञ्चाङ्ग</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                <span className="text-neutral-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-sm font-bold">
+                  ›
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* ── Day Detail Interactive Modal Popup ── */}
       {selectedDayDetail && (
@@ -589,7 +384,7 @@ export function MonthlyVedicCalendar({
             <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
               <div>
                 <span className="text-[10px] uppercase font-bold text-orange-400 tracking-wider">
-                  Vedic Astrometry &amp; Vrat Details
+                  Vedic Astrometry &amp; Observance Details
                 </span>
                 <h3 className="text-base sm:text-lg font-extrabold text-white">
                   {selectedDayDetail.dateFormatted} ({selectedDayDetail.dayOfWeek})
@@ -598,8 +393,8 @@ export function MonthlyVedicCalendar({
               <button
                 onClick={() => setSelectedDayDetail(null)}
                 className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1e2b4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                title="Close"
-                aria-label="Close"
+                title={t('close')}
+                aria-label={t('close')}
               >
                 <X size={15} />
               </button>
@@ -614,7 +409,7 @@ export function MonthlyVedicCalendar({
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
                       <Sparkles size={12} className="text-amber-400" />
-                      <span>SACRED VRAT / PARVA OBSERVANCE (व्रत एवं पर्व)</span>
+                      <span>{t('vedicObservance')}</span>
                     </span>
                     {selectedDayDetail.festivalDetails?.badge && (
                       <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
@@ -629,7 +424,7 @@ export function MonthlyVedicCalendar({
                     </span>
                     <div>
                       <h4 className="text-sm font-extrabold text-white">
-                        {selectedDayDetail.festival}
+                        {translateTerm(selectedDayDetail.festival, language)}
                       </h4>
                       {selectedDayDetail.festivalDetails?.description && (
                         <p className="text-[11px] text-neutral-300 mt-0.5">
@@ -645,11 +440,13 @@ export function MonthlyVedicCalendar({
                         <div className="flex items-center justify-between gap-1 mb-1">
                           <span className="font-bold text-amber-300 flex items-center gap-1">
                             <BookOpen size={11} className="text-amber-400" />
-                            {isHindi ? 'धर्मशास्त्र निर्णय नियम:' : 'Shastra Canonical Rule:'}
+                            {t('shastraRuleHeader')}:
                           </span>
                         </div>
                         <p className="text-neutral-200 leading-relaxed text-xs">
-                          {getLocalizedShastraRule(selectedDayDetail.festivalDetails.briefRule, language)}
+                          {language === 'hi'
+                            ? (selectedDayDetail.festivalDetails.briefRule.hindi || selectedDayDetail.festivalDetails.description)
+                            : (selectedDayDetail.festivalDetails.briefRule.english || selectedDayDetail.festivalDetails.description)}
                         </p>
                       </div>
                     </div>
@@ -657,7 +454,7 @@ export function MonthlyVedicCalendar({
 
                   {selectedDayDetail.festivalDetails?.shastraReferences && selectedDayDetail.festivalDetails.shastraReferences.length > 0 && (
                     <div className="text-[10px] text-amber-300/80 font-mono flex items-center gap-1 pt-1">
-                      <span>📜 References:</span>
+                      <span>📜 {t('references')}:</span>
                       <span>{selectedDayDetail.festivalDetails.shastraReferences.join(' • ')}</span>
                     </div>
                   )}
@@ -666,38 +463,33 @@ export function MonthlyVedicCalendar({
 
               {/* Udaya Tithi Card */}
               <div className="p-3.5 rounded-2xl bg-[#0e1629] border border-[#1e2942] space-y-1.5">
-                <div className="text-neutral-400 font-bold uppercase text-[10px]">1. PREVAILING UDAYA TITHI (सूर्योदय कालीन तिथि)</div>
+                <div className="text-neutral-400 font-bold uppercase text-[10px]">{t('tithi')} (Udaya Tithi)</div>
                 <div className="text-base font-bold text-white flex items-center gap-2">
-                  <span>{selectedDayDetail.udayaTithi.name}</span>
+                  <span>{translateTerm(selectedDayDetail.udayaTithi.name, language)}</span>
                   {selectedDayDetail.udayaTithi.isPurnima && <span>🌕</span>}
                   {selectedDayDetail.udayaTithi.isAmavasya && <span>🌑</span>}
                   {selectedDayDetail.udayaTithi.isEkadashi && <span>✨</span>}
                   {selectedDayDetail.udayaTithi.isAshtami && <span>🔱</span>}
                 </div>
                 <div className="text-amber-300 font-mono font-semibold pt-1">
-                  ⏱️ Tithi Concludes: {selectedDayDetail.tithiEndTime}
+                  ⏱️ {t('tithiEnds')}: {selectedDayDetail.tithiEndTime}
                 </div>
                 <div className="text-[11px] text-neutral-400">
-                  Presiding Deity: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.deity}</strong> • Paksha: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.paksha}</strong>
+                  Deity: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.deity}</strong> • Paksha: <strong className="text-neutral-200">{selectedDayDetail.udayaTithi.paksha}</strong>
                 </div>
 
                 {/* Anomaly Banners */}
                 {selectedDayDetail.udayaTithi.isVriddhiTithi && (
                   <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-[11px] text-purple-200 mt-2">
-                    <strong className="text-purple-300">🔄 Tithi Vriddhi (Extended Tithi):</strong> This Tithi touches two consecutive sunrises. Both days share this Udaya Tithi.
+                    <strong className="text-purple-300">🔄 Vriddhi Tithi:</strong> Touches two consecutive sunrises. Both days share this Udaya Tithi.
                   </div>
                 )}
                 {selectedDayDetail.udayaTithi.isKshayaTithi && (
                   <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-200 space-y-1 mt-2">
-                    <div className="text-rose-300 font-bold">⚠️ Tithi Kshaya (Lost Tithi Detected):</div>
+                    <div className="text-rose-300 font-bold">⚠️ Kshaya Tithi:</div>
                     <p className="text-[11px] text-neutral-300">
-                      <strong>{selectedDayDetail.udayaTithi.kshayaTithiDetails?.name || 'A Tithi'}</strong> began after yesterday&apos;s sunrise and ended before today&apos;s sunrise. It never touched a sunrise and has no independent civil day.
+                      <strong>{selectedDayDetail.udayaTithi.kshayaTithiDetails?.name || 'Tithi'}</strong> began after yesterday&apos;s sunrise and ended before today&apos;s sunrise.
                     </p>
-                    {selectedDayDetail.udayaTithi.kshayaTithiDetails && (
-                      <div className="text-[10px] font-mono text-rose-300/90 pt-0.5">
-                        Span: {new Date(selectedDayDetail.udayaTithi.kshayaTithiDetails.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &rarr; {new Date(selectedDayDetail.udayaTithi.kshayaTithiDetails.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -705,18 +497,18 @@ export function MonthlyVedicCalendar({
               {/* 5-Limbs Grid */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-[#1e2942]">
-                  <div className="text-[10px] text-neutral-400 font-bold uppercase">2. NAKSHATRA</div>
-                  <div className="font-bold text-white text-sm mt-0.5">{selectedDayDetail.nakshatra.name}</div>
+                  <div className="text-[10px] text-neutral-400 font-bold uppercase">2. {t('nakshatra')}</div>
+                  <div className="font-bold text-white text-sm mt-0.5">{translateTerm(selectedDayDetail.nakshatra.name, language)}</div>
                   <div className="text-[10px] text-neutral-400">Lord: {selectedDayDetail.nakshatra.lord}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-[#1e2942]">
-                  <div className="text-[10px] text-neutral-400 font-bold uppercase">3. YOGA</div>
-                  <div className="font-bold text-white text-sm mt-0.5">{selectedDayDetail.yoga.name}</div>
+                  <div className="text-[10px] text-neutral-400 font-bold uppercase">3. {t('yoga')}</div>
+                  <div className="font-bold text-white text-sm mt-0.5">{translateTerm(selectedDayDetail.yoga.name, language)}</div>
                   <div className="text-[10px] text-emerald-400">{selectedDayDetail.yoga.nature}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-[#1e2942]">
-                  <div className="text-[10px] text-neutral-400 font-bold uppercase">4. KARANA</div>
-                  <div className="font-bold text-white text-sm mt-0.5">{selectedDayDetail.karana.name}</div>
+                  <div className="text-[10px] text-neutral-400 font-bold uppercase">4. {t('karana')}</div>
+                  <div className="font-bold text-white text-sm mt-0.5">{translateTerm(selectedDayDetail.karana.name, language)}</div>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0e1629] border border-[#1e2942]">
                   <div className="text-[10px] text-neutral-400 font-bold uppercase">5. SOLAR TIMINGS</div>
@@ -729,11 +521,11 @@ export function MonthlyVedicCalendar({
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[11px] text-orange-200">
                 <div className="font-bold mb-0.5 flex items-center gap-1">
                   <BookOpen size={12} />
-                  <span>{isHindi ? 'सूर्यसिद्धान्त व निर्णयसिन्धु शास्त्र नियम:' : 'Surya Siddhanta & Nirnayasindhu Shastra Rule:'}</span>
+                  <span>{t('shastraRuleHeader')}:</span>
                 </div>
-                {isHindi
-                  ? `स्थानीय सूर्योदय (${selectedDayDetail.sunrise}) के समय विद्यमान औदयिक तिथि ही दैनिक संकल्प, पूजा एवं धार्मिक कृत्यों हेतु एकमात्र शास्त्रसम्मत आधार है।`
-                  : `The Udaya Tithi at local sunrise (${selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious duties.`
+                {language === 'hi'
+                  ? `स्थानीय सूर्योदय (${selectedDayDetail.sunrise}) के समय उपस्थित औदयिक तिथि ही दैनिक संकल्प, पूजा एवं धार्मिक कृत्यों हेतु शास्त्रसम्मत आधार है।`
+                  : `The Udaya Tithi at local sunrise (${selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious observances.`
                 }
               </div>
 
@@ -742,13 +534,13 @@ export function MonthlyVedicCalendar({
             {/* Modal Footer */}
             <div className="p-3 sm:p-4 border-t border-[#1e2942] bg-[#0c1222] flex items-center justify-between shrink-0">
               <span className="text-[11px] text-neutral-400 font-mono">
-                {isHindi ? 'सूर्यसिद्धान्त एवं निर्णयसिन्धु' : 'Surya Siddhanta & Nirnayasindhu'}
+                {t('shastraAuthority')}
               </span>
               <button
                 onClick={() => setSelectedDayDetail(null)}
                 className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors cursor-pointer active:scale-95 shadow-md"
               >
-                Close
+                {t('close')}
               </button>
             </div>
 

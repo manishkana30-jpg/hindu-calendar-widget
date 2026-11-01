@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { X, ArrowLeft, Calendar } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { LocationCoordinates } from '../../../src/lib/vedic-astronomy';
+import { useLanguage } from '../../../src/context/LanguageContext';
 
 const MonthlyVedicCalendar = dynamic(
   () => import('../MonthlyVedicCalendar').then((mod) => mod.MonthlyVedicCalendar),
@@ -26,6 +27,8 @@ interface Props {
 }
 
 export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Props) {
+  const { language, t } = useLanguage();
+
   // ESC key listener for accessibility
   useEffect(() => {
     if (!isOpen) return;
@@ -61,16 +64,16 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
             <button
               onClick={onClose}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#11192e] hover:bg-[#1a2544] border border-[#233152] text-neutral-200 hover:text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm"
-              title="Return to Live Widget"
-              aria-label="Return to Live Widget"
+              title={t('home')}
+              aria-label={t('home')}
             >
               <ArrowLeft size={14} className="text-orange-400" />
-              <span>← Back to Live Widget</span>
+              <span>← {t('home')}</span>
             </button>
 
             <span className="hidden md:inline-flex items-center gap-2 text-xs font-bold text-orange-400 uppercase tracking-wider">
               <Calendar size={13} />
-              <span>Monthly Vedic Calendar & Udaya Tithi Almanac</span>
+              <span>{t('almanac30Day')}</span>
             </span>
           </div>
 
@@ -103,12 +106,12 @@ export function TithiMonthModal({ isOpen, onClose, location, onSelectDate }: Pro
 
         {/* Modal Footer */}
         <div className="p-3 px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400 shrink-0">
-          <div>Authority: <strong>Surya Siddhanta & Nirnayasindhu</strong> (Lahiri Sidereal Ayanamsha)</div>
+          <div>{t('shastraAuthority')} (Lahiri Sidereal Ayanamsha)</div>
           <button
             onClick={onClose}
             className="w-full sm:w-auto px-6 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white text-xs transition-colors cursor-pointer shadow-md shadow-orange-500/20 active:scale-95"
           >
-            Done / Close View
+            {t('close')}
           </button>
         </div>
 

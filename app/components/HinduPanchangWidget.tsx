@@ -30,6 +30,7 @@ import { FiveLimbsModal, LimbTabType } from './modals/FiveLimbsModal';
 import { TodayFestivalModal } from './modals/TodayFestivalModal';
 import { PanchakModal } from './modals/PanchakModal';
 import { UpcomingFestivalsModal } from './modals/UpcomingFestivalsModal';
+import { getUpcomingFestivalsList } from '../../src/lib/festivals';
 import { NotificationSettingsModal } from './modals/NotificationSettingsModal';
 import { WhatsAppIcon } from './WhatsAppShareButton';
 import { EmbedWidgetModal } from '../../src/components/EmbedWidgetModal';
@@ -459,6 +460,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const nextTithiIndex = (((panchang.udayaTithi?.index || panchang.tithi.index || 1) % 30) + 1);
   const shortNextTithi = formatShortenedTithi(nextTithiIndex, language, nextTithiName);
 
+  // Chronological upcoming festivals list for compact list view
+  const upcomingFestivalsList = useMemo(() => {
+    return getUpcomingFestivalsList(targetInstant, selectedLocation, 4, 90);
+  }, [targetInstant, selectedLocation]);
+
   // Formatted date string for native date input (YYYY-MM-DD)
   const selectedDateYyyyMmDd = useMemo(() => {
     const d = selectedDate;
@@ -569,8 +575,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         
         {/* ── Consolidated Top Control Bar ── */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white/10 text-xs relative z-30 mb-2.5">
-          {/* Left Group: Location / GPS Selector */}
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-wrap">
+          {/* Left Group: Location / GPS Selector & Share Button */}
+          <div className="flex items-center gap-1.5 min-w-0">
             {/* 1. City Dropdown */}
             <div className="relative inline-flex items-center min-w-0 shrink-0">
               <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none z-10" />
@@ -588,7 +594,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[180px] truncate"
+                className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-white/10 hover:border-amber-500/30 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate"
               >
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
@@ -626,11 +632,36 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
               <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
             </button>
+
+            {/* 3. Compact Share Button (Directly adjacent to GPS pill) */}
+            <div className="relative inline-flex items-center shrink-0">
+              <button
+                type="button"
+                onClick={handleShare}
+                title={t('shareOnWhatsApp')}
+                aria-label={t('shareOnWhatsApp')}
+                className="inline-flex items-center justify-center gap-1 h-8 w-8 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 cursor-pointer shrink-0"
+              >
+                <Share2 size={13} className="text-emerald-400 shrink-0" />
+                <span className="hidden sm:inline">{t('share')}</span>
+              </button>
+
+              {shareToast && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="absolute -top-8 left-0 z-50 whitespace-nowrap px-2.5 py-1 rounded-lg bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 text-[10px] font-medium shadow-xl flex items-center gap-1 animate-in fade-in slide-in-from-bottom-1 duration-150 pointer-events-none"
+                >
+                  <Check size={11} className="text-emerald-400 shrink-0" />
+                  <span>{shareToast}</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right Group: Date Picker / Live, Global Language Dropdown, Share, Install */}
+          {/* Right Group: Date Picker / Live, Global Language Dropdown, Install App */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end ml-auto shrink-0">
-            {/* 3. Date Picker & Live Indicator */}
+            {/* 4. Date Picker & Live Indicator */}
             <div className="inline-flex items-center gap-1 bg-slate-950/60 p-0.5 rounded-xl border border-white/10 shrink-0">
               <button
                 type="button"
@@ -684,33 +715,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               )}
             </div>
 
-            {/* 4. Global Language Dropdown */}
+            {/* 5. Global Language Dropdown */}
             <LanguageDropdown />
-
-            {/* 5. Share Icon Button */}
-            <div className="relative inline-flex items-center">
-              <button
-                type="button"
-                onClick={handleShare}
-                title={t('shareOnWhatsApp')}
-                aria-label={t('shareOnWhatsApp')}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 cursor-pointer shrink-0 min-h-[32px]"
-              >
-                <Share2 size={13} className="text-emerald-400 shrink-0" />
-                <span className="hidden sm:inline">{t('share')}</span>
-              </button>
-
-              {shareToast && (
-                <div
-                  role="status"
-                  aria-live="polite"
-                  className="absolute -top-8 right-0 z-50 whitespace-nowrap px-2.5 py-1 rounded-lg bg-emerald-950/95 border border-emerald-500/50 text-emerald-200 text-[10px] font-medium shadow-xl flex items-center gap-1 animate-in fade-in slide-in-from-bottom-1 duration-150 pointer-events-none"
-                >
-                  <Check size={11} className="text-emerald-400 shrink-0" />
-                  <span>{shareToast}</span>
-                </div>
-              )}
-            </div>
 
             {/* 6. Install App Button (only when not installed) */}
             <PWAInstallButton />
@@ -995,7 +1001,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('vratRules')}:</span>
+                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('observed')}:</span>
                   <span className="font-semibold text-emerald-300 text-right text-[10px] truncate min-w-0">
                     {newTithiObservedWhen}
                   </span>
@@ -1176,19 +1182,19 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT */}
           <div 
-            onClick={() => setIsTodayFestivalModalOpen(true)}
+            onClick={() => setIsUpcomingFestivalsModalOpen(true)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setIsTodayFestivalModalOpen(true);
+                setIsUpcomingFestivalsModalOpen(true);
               }
             }}
             role="button"
             tabIndex={0}
             aria-haspopup="dialog"
-            aria-expanded={isTodayFestivalModalOpen}
-            title="Click to view Udaya Time, Starts, Ends & Dharmashastra Determination Rule"
-            aria-label="View Today's Festival and Observance Details"
+            aria-expanded={isUpcomingFestivalsModalOpen}
+            title={t('viewFullVratCalendar')}
+            aria-label={t('viewFullVratCalendar')}
             className={`p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border ${
               panchang.todayFestival.isMajor 
                 ? 'border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_20px_rgba(245,158,11,0.08)]'
@@ -1207,8 +1213,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                 </div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all shrink-0">
-                  <Sparkles size={11} className="text-orange-400 shrink-0" />
-                  <span>{t('vratRules')}</span>
+                  <Calendar size={11} className="text-orange-400 shrink-0" />
+                  <span>{t('viewAllFestivals')}</span>
                   <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </span>
               </div>
@@ -1242,12 +1248,9 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="truncate">{t('exploreMonthlyCalendar')}</span>
+                  <span className="truncate">{t('viewFullVratCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-grotesk">
-                    {t('dharmashastraRules')}
-                  </span>
                   <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
               </div>
@@ -1350,84 +1353,82 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* BOTTOM RIGHT: UPCOMING FESTIVAL / OBSERVANCE */}
-          <div 
-            onClick={() => setIsUpcomingFestivalsModalOpen(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setIsUpcomingFestivalsModalOpen(true);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-haspopup="dialog"
-            aria-expanded={isUpcomingFestivalsModalOpen}
-            title="Click to open Monthly Calendar of Upcoming Festivals & Dharmashastra Rules"
-            aria-label="View Upcoming Vedic Festivals and Observances"
-            className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-emerald-500/40 shadow-xl flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans min-w-0"
-          >
-            <div className="space-y-2 relative z-10 min-w-0">
-              {/* Header row: Label + Days pill + Action badge */}
+          {/* BOTTOM RIGHT: UPCOMING FESTIVALS COMPACT LIST */}
+          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-emerald-500/40 shadow-xl flex flex-col justify-between font-sans min-w-0">
+            <div className="space-y-2 min-w-0">
+              {/* Header row: Label + Action badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase truncate">
-                    {t('upcomingFestivals').toUpperCase()}
-                  </span>
-                  <span className="bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 px-1.5 py-0.5 rounded text-[8px] font-extrabold font-outfit uppercase shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
-                    {panchang.upcomingFestival.daysText || panchang.upcomingFestival.badge}
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-emerald-500/25 group-hover:border-emerald-400/50 transition-all shrink-0">
+                <span className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase truncate">
+                  {t('upcomingFestivals').toUpperCase()}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold font-outfit shadow-sm hover:bg-emerald-500/25 transition-all shrink-0 cursor-pointer"
+                >
                   <Calendar size={11} className="text-emerald-400 shrink-0" />
                   <span>{t('viewAllFestivals')}</span>
-                  <ChevronRight size={12} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                </span>
+                  <ChevronRight size={12} className="text-emerald-400 shrink-0" />
+                </button>
               </div>
 
-              {/* Main content */}
-              <div className="flex items-start gap-2.5 min-w-0 pt-0.5">
-                <div className="rounded-xl bg-slate-950/60 border border-white/10 p-2 text-emerald-400 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10">
-                  {panchang.upcomingFestival.icon ? (
-                    <span className="text-xl leading-none select-none">{panchang.upcomingFestival.icon}</span>
-                  ) : (
-                    <Moon size={18} />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white leading-snug break-words whitespace-normal group-hover:text-emerald-300 transition-colors font-sans min-w-0">
-                    {translateTerm(panchang.upcomingFestival.title, language)}
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5 break-words whitespace-normal font-sans line-clamp-2 min-w-0">
-                    {panchang.upcomingFestival.dateFormatted ? (
-                      <span>
-                        <strong className="text-emerald-400 font-medium font-grotesk">{panchang.upcomingFestival.dateFormatted}</strong>
-                        {panchang.upcomingFestival.description && (
-                          <span> • {panchang.upcomingFestival.description.replace(/^[^•]+•\s*/, '')}</span>
-                        )}
-                      </span>
-                    ) : (
-                      panchang.upcomingFestival.description
-                    )}
-                  </div>
-                </div>
+              {/* Compact Chronological List Container */}
+              <div className="rounded-xl bg-[#090e1a] border border-[#1a2542] divide-y divide-[#162038] overflow-hidden">
+                {upcomingFestivalsList.map((fest, idx) => {
+                  const festTitle = translateTerm(language === 'hi' ? fest.hindiName || fest.name : fest.name, language);
+                  const dateBadgeDay = fest.targetDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
+                  const dateBadgeWeekday = fest.targetDate.toLocaleDateString(localeCode, { weekday: 'short' });
+                  const countdown = fest.daysRemaining === 0 
+                    ? t('live') 
+                    : (fest.daysRemaining === 1 ? (language === 'hi' ? 'कल' : 'Tomorrow') : t('inDays').replace('{n}', String(fest.daysRemaining)));
+
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                      className="flex items-center justify-between gap-2.5 px-3 py-2 hover:bg-[#11192e] transition-colors cursor-pointer group"
+                    >
+                      {/* Left: Date pill (DD MMM + Weekday) */}
+                      <div className="flex flex-col items-center justify-center min-w-[48px] px-1.5 py-0.5 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
+                        <span className="text-[11px] font-bold text-white font-grotesk">{dateBadgeDay}</span>
+                        <span className="text-[9px] text-neutral-400">{dateBadgeWeekday}</span>
+                      </div>
+
+                      {/* Middle: Title & Category / Description */}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
+                          {festTitle}
+                        </div>
+                        <div className="text-[10px] text-neutral-400 truncate">
+                          {fest.category ? `${fest.category} • ` : ''}{fest.description}
+                        </div>
+                      </div>
+
+                      {/* Right: Countdown badge */}
+                      <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 shrink-0">
+                        {countdown}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Value-Driven Tap Micro-CTA Footer */}
             <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] relative z-10 min-w-0">
-              <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/35 group-hover:border-emerald-400/70 text-emerald-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
+              <button
+                type="button"
+                onClick={() => setIsUpcomingFestivalsModalOpen(true)}
+                className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/35 hover:border-emerald-400/70 text-emerald-200 hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm cursor-pointer"
+              >
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Sparkles size={12} className="text-emerald-400 shrink-0" />
-                  <span className="truncate">{t('exploreMonthlyCalendar')}</span>
+                  <span className="truncate">{t('viewFullVratCalendar')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-grotesk">
-                    {language === 'en' ? 'Next 12 Months' : (language === 'hi' ? 'आगामी १२ माह' : (language === 'sa' ? 'आगामिद्वादशमासाः' : (language === 'mr' ? 'पुढील १२ महिने' : 'આગામી ૧૨ મહિના')))}
-                  </span>
-                  <ChevronRight size={13} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ChevronRight size={13} className="text-emerald-400 shrink-0" />
                 </div>
-              </div>
+              </button>
             </div>
           </div>
 
