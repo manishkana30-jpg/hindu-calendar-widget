@@ -9,7 +9,9 @@ import {
   LocationCoordinates, 
   PRESET_LOCATIONS, 
   getMonthVedicCalendar, 
-  MonthCalendarDay 
+  MonthCalendarDay,
+  getSamvatDetails,
+  getLunarMonthDetails
 } from '../../src/lib/vedic-astronomy';
 import { useLanguage } from '../../src/context/LanguageContext';
 
@@ -36,6 +38,11 @@ export function MonthlyVedicCalendar({
   const { language, t, translateTerm, localeCode } = useLanguage();
 
   const todayRowRef = useRef<HTMLDivElement>(null);
+
+  const now = new Date();
+  const todayYear = now.getFullYear();
+  const todayMonth = now.getMonth();
+  const todayDateNum = now.getDate();
 
   // Synchronize initialTab if changed externally
   useEffect(() => {
@@ -87,21 +94,51 @@ export function MonthlyVedicCalendar({
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  // Reference date around the middle of the selected month
+  const activeMonthMidDate = useMemo(() => {
+    return new Date(currentYear, currentMonth, 15);
+  }, [currentYear, currentMonth]);
+
+  // Vikram Samvat details for the selected month
+  const monthSamvat = useMemo(() => {
+    return getSamvatDetails(activeMonthMidDate);
+  }, [activeMonthMidDate]);
+
+  // Lunar Month (Masa) details for the selected month
+  const monthMasa = useMemo(() => {
+    return getLunarMonthDetails(activeMonthMidDate);
+  }, [activeMonthMidDate]);
+
+  // Localized long month name
+  const activeMonthFormattedName = useMemo(() => {
+    return activeMonthMidDate.toLocaleDateString(localeCode, { month: 'long' });
+  }, [activeMonthMidDate, localeCode]);
+
   // High-precision calendar days calculation for the month (memoized)
   const calendarDays = useMemo(() => {
     return getMonthVedicCalendar(currentYear, currentMonth, location);
   }, [currentYear, currentMonth, location]);
 
+  // Helper to determine if a day qualifies as a Vrat or Festival observance
+  const isVratObservance = (d: MonthCalendarDay) => {
+    return (
+      Boolean(d.festival) ||
+      d.udayaTithi.isEkadashi ||
+      d.udayaTithi.isPurnima ||
+      d.udayaTithi.isAmavasya ||
+      d.udayaTithi.isAshtami ||
+      d.udayaTithi.index === 13 || 
+      d.udayaTithi.index === 28 ||
+      (d.festival && d.festival.toLowerCase().includes('pradosh')) ||
+      (d.festival && d.festival.toLowerCase().includes('sankashti')) ||
+      (d.udayaTithi.paksha === 'Krishna' && (d.udayaTithi.index === 19 || d.udayaTithi.pureName === 'Chaturthi'))
+    );
+  };
+
   // Dynamic counts for each filter category
   const filterOptions: { id: CalendarFilterTab; label: string; count: number }[] = useMemo(() => {
     const allCount = calendarDays.length;
-    const vratsCount = calendarDays.filter(d => 
-      Boolean(d.festival) || 
-      d.udayaTithi.isEkadashi || 
-      d.udayaTithi.isPurnima || 
-      d.udayaTithi.isAmavasya || 
-      d.udayaTithi.isAshtami
-    ).length;
+    const vratsCount = calendarDays.filter(isVratObservance).length;
     const ekadashiCount = calendarDays.filter(d => 
       d.udayaTithi.isEkadashi || (d.festival && d.festival.toLowerCase().includes('ekadashi'))
     ).length;
@@ -114,8 +151,8 @@ export function MonthlyVedicCalendar({
     const majorCount = calendarDays.filter(d => Boolean(d.festivalDetails?.isMajor)).length;
 
     return [
-      { id: 'all', label: t('allDays'), count: allCount },
-      { id: 'vrats', label: t('vratsAndFestivals'), count: vratsCount },
+      { id: 'all', label: t('allCalendarDays'), count: allCount },
+      { id: 'vrats', label: t('vratAndTyoharAlmanac'), count: vratsCount },
       { id: 'ekadashi', label: t('filterEkadashi'), count: ekadashiCount },
       { id: 'pradosh', label: t('filterPradosh'), count: pradoshCount },
       { id: 'purnima_amavasya', label: t('filterPurnimaAmavasya'), count: purnimaAmavasyaCount },
@@ -127,13 +164,7 @@ export function MonthlyVedicCalendar({
   const displayedDays = useMemo(() => {
     if (activeFilterTab === 'all') return calendarDays;
     if (activeFilterTab === 'vrats') {
-      return calendarDays.filter(d => 
-        Boolean(d.festival) || 
-        d.udayaTithi.isEkadashi || 
-        d.udayaTithi.isPurnima || 
-        d.udayaTithi.isAmavasya || 
-        d.udayaTithi.isAshtami
-      );
+      return calendarDays.filter(isVratObservance);
     }
     if (activeFilterTab === 'ekadashi') {
       return calendarDays.filter(d => 
@@ -173,9 +204,9 @@ export function MonthlyVedicCalendar({
   };
 
   const handleResetToCurrentMonth = () => {
-    const now = new Date();
-    setCurrentYear(now.getFullYear());
-    setCurrentMonth(now.getMonth());
+    const today = new Date();
+    setCurrentYear(today.getFullYear());
+    setCurrentMonth(today.getMonth());
   };
 
   const handleDayClick = (day: MonthCalendarDay) => {
@@ -188,10 +219,10 @@ export function MonthlyVedicCalendar({
   return (
     <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
       
-      {/* ── Top Header Bar ── */}
+      {/* ── Top Header Bar: Title, Contextual Masa/Samvat & Location ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#162038]">
         
-        {/* Title & Badge */}
+        {/* Title & Masa/Samvat Badges */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="p-2 sm:p-2.5 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
             <CalendarIcon size={20} />
@@ -205,9 +236,25 @@ export function MonthlyVedicCalendar({
                 Udaya Tithi
               </span>
             </div>
-            <p className="text-xs text-neutral-400 mt-0.5 break-words min-w-0 leading-snug">
-              {monthNames[currentMonth]} {currentYear} • Nirayana Lahiri • {location.name}
-            </p>
+            
+            {/* Contextual Month, Vikram Samvat & Masa Display */}
+            <div className="flex items-center gap-2 flex-wrap mt-1 text-xs text-neutral-400">
+              <span className="font-semibold text-neutral-200">
+                {activeMonthFormattedName} {currentYear}
+              </span>
+              <span className="text-neutral-500">•</span>
+              <span className="text-orange-300/90 font-semibold font-mono">
+                {t('vikramSamvat')}: {monthSamvat.vikramSamvat}
+              </span>
+              <span className="text-neutral-500">•</span>
+              <span className="text-amber-300/90 font-medium">
+                {translateTerm(monthMasa.purnimantaMonth, language)} {t('masa')}
+              </span>
+              <span className="text-neutral-500 hidden sm:inline">•</span>
+              <span className="text-neutral-400 hidden sm:inline">
+                {location.name}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -235,10 +282,10 @@ export function MonthlyVedicCalendar({
 
       </div>
 
-      {/* ── Navigation & Month/Year Selectors Bar ── */}
+      {/* ── Month / Year Switcher Bar ── */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 py-3 border-b border-[#162038]">
         
-        {/* Prev / Month / Year / Next / Today */}
+        {/* Prev / Month Dropdown / Year Dropdown / Next / Today */}
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -288,7 +335,7 @@ export function MonthlyVedicCalendar({
             <ChevronRight size={16} />
           </button>
 
-          {/* Jump to Today */}
+          {/* Jump to Today Button */}
           <button
             type="button"
             onClick={handleResetToCurrentMonth}
@@ -306,7 +353,7 @@ export function MonthlyVedicCalendar({
 
       </div>
 
-      {/* ── Unified Filter Tabs (All Days vs Vrat Categories) ── */}
+      {/* ── Almanac Mode Filter Pills ── */}
       <div className="py-2.5 border-b border-[#162038] flex items-center gap-1.5 overflow-x-auto horizontal-tabs-scroll overscroll-x-contain">
         {filterOptions.map((opt) => {
           const isActive = activeFilterTab === opt.id;
@@ -332,168 +379,243 @@ export function MonthlyVedicCalendar({
         })}
       </div>
 
-      {/* ── Chronological List View (Master Unified List Calendar) ── */}
-      <div className="mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] divide-y divide-[#162038] overflow-hidden max-h-[75dvh] sm:max-h-[82dvh] overflow-y-auto touch-pan-y overscroll-contain pb-20">
-        {displayedDays.length === 0 ? (
-          <div className="p-8 text-center text-neutral-400 text-xs sm:text-sm space-y-3">
-            <p>{language === 'hi' ? 'इस श्रेणी में इस माह कोई दिवस नहीं मिला।' : 'No entries found in this category for this month.'}</p>
-            <button
-              type="button"
-              onClick={() => setActiveFilterTab('all')}
-              className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all cursor-pointer"
-            >
-              {language === 'hi' ? 'संपूर्ण माह के सभी दिन देखें' : 'View All Days of this Month'}
-            </button>
+      {/* ── Structured Tabular List View (Vedic Almanac Table) ── */}
+      <div className="mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl overflow-hidden">
+        
+        {/* Scrollable Container with Sticky Table Column Header Row */}
+        <div className="max-h-[72dvh] sm:max-h-[78dvh] overflow-y-auto touch-pan-y overscroll-contain pb-16">
+          
+          {/* ── Sticky Table Column Header Row (sticky top-0 z-20) ── */}
+          <div className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90 select-none shadow-sm grid grid-cols-[68px_1fr_auto] sm:grid-cols-12 items-stretch">
+            
+            {/* Col 1: Date & Vara */}
+            <div className="sm:col-span-2 border-r border-[#1e2d4f] p-2 sm:p-2.5 text-center flex items-center justify-center min-w-0">
+              <span className="hidden sm:inline">{t('colDateAndVara')}</span>
+              <span className="sm:hidden">{t('colMobileDate')}</span>
+            </div>
+
+            {/* Col 2: Tithi & Paksha */}
+            <div className="sm:col-span-4 sm:border-r sm:border-[#1e2d4f] p-2 sm:p-2.5 flex items-center min-w-0 pl-3">
+              <span className="hidden sm:inline">{t('colTithiAndPaksha')}</span>
+              <span className="sm:hidden">{t('colMobileTithiPanchang')}</span>
+            </div>
+
+            {/* Col 3: Nakshatra & Masa (Desktop/Tablet) */}
+            <div className="hidden sm:flex sm:col-span-3 sm:border-r border-[#1e2d4f] p-2.5 items-center min-w-0 pl-3.5">
+              <span>{t('colNakshatraAndMasa')}</span>
+            </div>
+
+            {/* Col 4: Vrat & Tyohar */}
+            <div className="p-2 sm:p-2.5 text-right sm:text-left sm:col-span-3 min-w-[96px] max-w-[135px] sm:max-w-none flex items-center justify-end sm:justify-start min-w-0 pr-3 sm:pr-2.5 sm:pl-3.5">
+              <span className="hidden sm:inline">{t('colVratAndTyohar')}</span>
+              <span className="sm:hidden">{t('colMobileVrat')}</span>
+            </div>
+
           </div>
-        ) : (
-          displayedDays.map((day) => {
-            const isToday = day.isToday;
-            const isPurnima = day.udayaTithi.isPurnima;
-            const isAmavasya = day.udayaTithi.isAmavasya;
-            const isEkadashi = day.udayaTithi.isEkadashi;
-            const isAshtami = day.udayaTithi.isAshtami;
 
-            const weekdayShort = day.date.toLocaleDateString(localeCode, { weekday: 'short' });
-            const monthShort = day.date.toLocaleDateString(localeCode, { month: 'short' });
+          {/* ── Table Body Rows ── */}
+          <div className="divide-y divide-[#162038] bg-[#090e1a]">
+            {displayedDays.length === 0 ? (
+              <div className="p-8 text-center text-neutral-400 text-xs sm:text-sm space-y-3">
+                <p>{language === 'hi' ? 'इस श्रेणी में इस माह कोई दिवस नहीं मिला।' : 'No entries found in this category for this month.'}</p>
+                <button
+                  type="button"
+                  onClick={() => setActiveFilterTab('all')}
+                  className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-all cursor-pointer"
+                >
+                  {t('allCalendarDays')}
+                </button>
+              </div>
+            ) : (
+              displayedDays.map((day) => {
+                const isToday = day.isToday;
+                const isPurnima = day.udayaTithi.isPurnima;
+                const isAmavasya = day.udayaTithi.isAmavasya;
+                const isEkadashi = day.udayaTithi.isEkadashi;
+                const isAshtami = day.udayaTithi.isAshtami;
 
-            const translatedTithiName = translateTerm(day.udayaTithi.name, language);
-            const translatedNakshatra = translateTerm(day.nakshatra.name, language);
-            const translatedFestival = day.festival ? translateTerm(day.festival, language) : null;
+                const weekdayShort = day.date.toLocaleDateString(localeCode, { weekday: 'short' });
+                const monthShort = day.date.toLocaleDateString(localeCode, { month: 'short' });
 
-            return (
-              <div
-                key={day.dayNumber}
-                ref={isToday ? todayRowRef : null}
-                onClick={() => handleDayClick(day)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleDayClick(day);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={`p-3.5 sm:p-4 flex items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all cursor-pointer hover:bg-[#11192e] group select-none min-w-0 ${
-                  isToday 
-                    ? 'border-l-4 border-l-orange-500 border-orange-500/50 bg-orange-500/10' 
-                    : isPurnima
-                    ? 'bg-amber-500/5 hover:bg-amber-500/10'
-                    : isAmavasya
-                    ? 'bg-indigo-500/5 hover:bg-indigo-500/10'
-                    : isEkadashi
-                    ? 'bg-emerald-500/5 hover:bg-emerald-500/10'
-                    : ''
-                }`}
-              >
-                {/* Left: Compact Date Badge with Zero Vertical Clipping */}
-                <div className={`flex flex-col items-center justify-center w-12 sm:w-14 min-w-[48px] py-1 px-1.5 rounded-xl border shrink-0 text-center transition-colors ${
-                  isToday
-                    ? 'bg-orange-500/20 border-orange-500 text-orange-300'
-                    : isPurnima
-                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                    : isAmavasya
-                    ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
-                    : isEkadashi
-                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                    : 'bg-[#0e1629] border-[#233152] text-white group-hover:border-orange-500/40'
-                }`}>
-                  <span className="text-base sm:text-lg font-extrabold leading-snug font-grotesk">
-                    {day.dayNumber}
-                  </span>
-                  <span className="text-[10px] font-semibold text-neutral-400 mt-0.5 leading-snug">
-                    {weekdayShort}
-                  </span>
-                  <span className="text-[9px] text-neutral-500 font-mono mt-0.5 leading-snug">
-                    {monthShort}
-                  </span>
-                </div>
+                const translatedTithiName = translateTerm(day.udayaTithi.name, language);
+                const translatedNakshatra = translateTerm(day.nakshatra.name, language);
+                const translatedMasa = translateTerm(day.purnimantaMonth, language);
+                const translatedFestival = day.festival ? translateTerm(day.festival, language) : null;
 
-                {/* Center: Primary Tithi name, Nakshatra, and end timings with Wrapping & Zero Truncate */}
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className={`text-xs sm:text-sm font-bold break-words whitespace-normal leading-snug min-w-0 ${
-                      isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isEkadashi ? 'text-emerald-300' : 'text-white'
-                    }`}>
-                      {translatedTithiName}
-                    </span>
+                // Relative countdown calculation
+                const todayMidnight = new Date(todayYear, todayMonth, todayDateNum).getTime();
+                const dayMidnight = new Date(day.date.getFullYear(), day.date.getMonth(), day.date.getDate()).getTime();
+                const diffMs = dayMidnight - todayMidnight;
+                const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold shrink-0 whitespace-nowrap ${
-                      day.udayaTithi.paksha === 'Shukla'
-                        ? 'bg-orange-500/15 text-orange-300 border border-orange-500/25'
-                        : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25'
-                    }`}>
-                      {day.udayaTithi.paksha}
-                    </span>
+                let countdownBadge: string | null = null;
+                if (diffDays === 0) {
+                  countdownBadge = t('live');
+                } else if (diffDays === 1) {
+                  countdownBadge = t('tomorrow');
+                } else if (diffDays > 1 && diffDays <= 30) {
+                  countdownBadge = t('inDays').replace('{n}', String(diffDays));
+                }
 
-                    {day.udayaTithi.isVriddhiTithi && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0 whitespace-nowrap">
-                        Vriddhi
-                      </span>
-                    )}
-                    {day.udayaTithi.isKshayaTithi && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0 whitespace-nowrap">
-                        Kshaya
-                      </span>
-                    )}
+                return (
+                  <div
+                    key={day.dayNumber}
+                    ref={isToday ? todayRowRef : null}
+                    onClick={() => handleDayClick(day)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleDayClick(day);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${day.dateFormatted}: ${translatedTithiName}`}
+                    className={`grid grid-cols-[68px_1fr_auto] sm:grid-cols-12 items-stretch transition-colors hover:bg-[#10192e] active:bg-[#15203b] cursor-pointer group select-none min-w-0 relative ${
+                      isToday ? 'bg-orange-500/10' : ''
+                    }`}
+                  >
+                    {/* Left Orange Accent Bar if Today */}
                     {isToday && (
-                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-orange-500 text-white shrink-0 whitespace-nowrap">
-                        {t('live')}
-                      </span>
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 z-10" />
                     )}
-                  </div>
 
-                  <div className="flex items-center gap-2 text-[11px] text-neutral-400 flex-wrap leading-relaxed">
-                    <span>{t('nakshatra')}: <strong className="text-neutral-300 font-medium">{translatedNakshatra}</strong></span>
-                    <span>•</span>
-                    <span>{t('tithiEnds')}: <strong className="text-amber-300 font-mono font-medium">{day.tithiEndTime}</strong></span>
-                    <span className="hidden sm:inline">•</span>
-                    <span className="hidden sm:inline font-mono">🌅 {day.sunrise}</span>
-                  </div>
-
-                  {/* Observance description if festival exists */}
-                  {translatedFestival && (
-                    <div className="text-[11px] text-amber-300/90 font-medium break-words whitespace-normal leading-snug pt-0.5">
-                      <span className="text-amber-400 font-bold">✨ {translatedFestival}</span>
-                      {day.festivalDetails?.description && (
-                        <span className="text-neutral-400 ml-1.5">• {day.festivalDetails.description}</span>
+                    {/* ── Col 1: Date & Weekday (sm:col-span-2) ── */}
+                    <div className="sm:col-span-2 border-r border-[#162038] p-2 sm:p-3 flex flex-col justify-center items-center text-center relative min-w-0">
+                      <span className={`text-base sm:text-xl font-extrabold font-grotesk leading-snug ${
+                        isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isEkadashi ? 'text-emerald-300' : 'text-neutral-100'
+                      }`}>
+                        {day.dayNumber}
+                      </span>
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 mt-0.5 leading-snug break-words">
+                        {weekdayShort}, {monthShort}
+                      </span>
+                      {isToday && (
+                        <span className="mt-1 px-1.5 py-0.2 rounded bg-orange-500 text-white text-[9px] font-extrabold uppercase shrink-0 whitespace-nowrap shadow-sm">
+                          {t('live')}
+                        </span>
                       )}
                     </div>
-                  )}
-                </div>
 
-                {/* Right: Sacred Badges & Directional Chevron */}
-                <div className="flex items-center gap-2 shrink-0 self-center">
-                  {translatedFestival ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 whitespace-nowrap">
-                      <Sparkles size={11} className="text-amber-400 shrink-0" />
-                      <span>{translatedFestival}</span>
-                    </span>
-                  ) : isPurnima ? (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 whitespace-nowrap">
-                      🌕 Purnima
-                    </span>
-                  ) : isAmavasya ? (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shrink-0 whitespace-nowrap">
-                      🌑 Amavasya
-                    </span>
-                  ) : isEkadashi ? (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0 whitespace-nowrap">
-                      ✨ Ekadashi
-                    </span>
-                  ) : isAshtami ? (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 shrink-0 whitespace-nowrap">
-                      🔱 Ashtami
-                    </span>
-                  ) : null}
+                    {/* ── Col 2: Tithi, Paksha & Timing (sm:col-span-4) ── */}
+                    <div className="sm:col-span-4 p-2.5 sm:p-3.5 flex flex-col justify-center min-w-0 sm:border-r sm:border-[#162038]">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 whitespace-nowrap ${
+                          day.udayaTithi.paksha === 'Shukla'
+                            ? 'bg-orange-500/15 text-orange-300 border border-orange-500/25'
+                            : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/25'
+                        }`}>
+                          {translateTerm(day.udayaTithi.paksha, language)}
+                        </span>
+                        <span className={`font-bold text-xs sm:text-sm break-words leading-snug min-w-0 ${
+                          isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isEkadashi ? 'text-emerald-300' : 'text-neutral-100'
+                        }`}>
+                          {translatedTithiName}
+                        </span>
+                        {day.udayaTithi.isVriddhiTithi && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0 whitespace-nowrap">
+                            Vriddhi
+                          </span>
+                        )}
+                        {day.udayaTithi.isKshayaTithi && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 shrink-0 whitespace-nowrap">
+                            Kshaya
+                          </span>
+                        )}
+                      </div>
 
-                  <span className="text-neutral-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-sm font-bold shrink-0 ml-1">
-                    ›
-                  </span>
-                </div>
-              </div>
-            );
-          })
-        )}
+                      <div className="text-[11px] text-neutral-400 font-mono mt-1 leading-snug flex items-center gap-1 flex-wrap">
+                        <span className="text-neutral-500">⏱️ {t('tithiEnds')}:</span>
+                        <strong className="text-amber-300 font-medium whitespace-nowrap">{day.tithiEndTime}</strong>
+                      </div>
+
+                      {/* Mobile-only Nakshatra sub-line */}
+                      <div className="sm:hidden text-[11px] text-neutral-400 mt-1 break-words leading-snug flex items-center gap-1 flex-wrap">
+                        <span className="text-neutral-500">⭐ {t('nakshatra')}:</span>
+                        <strong className="text-neutral-300 font-medium">{translatedNakshatra}</strong>
+                      </div>
+                    </div>
+
+                    {/* ── Col 3: Nakshatra & Lunar Masa (sm:col-span-3 - Desktop/Tablet) ── */}
+                    <div className="hidden sm:flex sm:col-span-3 sm:border-r sm:border-[#162038] p-3.5 flex-col justify-center min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-amber-400/90 text-xs shrink-0 select-none">⭐</span>
+                        <span className="text-xs sm:text-sm font-bold text-neutral-200 break-words leading-snug min-w-0">
+                          {translatedNakshatra}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-neutral-400 mt-1 break-words leading-snug flex items-center gap-1 min-w-0">
+                        <span className="text-neutral-500 shrink-0">🌙 {t('masa')}:</span>
+                        <strong className="text-neutral-300 font-medium break-words leading-snug min-w-0">
+                          {translatedMasa}
+                        </strong>
+                      </div>
+
+                      <div className="text-[10px] text-neutral-500 font-mono mt-0.5 flex items-center gap-2 flex-wrap">
+                        <span>Lord: <strong className="text-neutral-400">{day.nakshatra.lord}</strong></span>
+                        <span>•</span>
+                        <span>🌅 {day.sunrise}</span>
+                      </div>
+                    </div>
+
+                    {/* ── Col 4: Vrat & Tyohar / Action (sm:col-span-3) ── */}
+                    <div className="p-2.5 sm:p-3.5 flex flex-col justify-center items-end sm:items-start text-right sm:text-left sm:col-span-3 min-w-[96px] max-w-[135px] sm:max-w-none">
+                      {translatedFestival ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-orange-500/15 text-orange-300 border border-orange-500/30 break-words leading-snug text-right sm:text-left">
+                          <span className="shrink-0 select-none">{day.festivalDetails?.icon || '✨'}</span>
+                          <span>{translatedFestival}</span>
+                        </div>
+                      ) : isPurnima ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 break-words leading-snug text-right sm:text-left">
+                          <span className="shrink-0 select-none">🌕</span>
+                          <span>Purnima</span>
+                        </div>
+                      ) : isAmavasya ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 break-words leading-snug text-right sm:text-left">
+                          <span className="shrink-0 select-none">🌑</span>
+                          <span>Amavasya</span>
+                        </div>
+                      ) : isEkadashi ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 break-words leading-snug text-right sm:text-left">
+                          <span className="shrink-0 select-none">✨</span>
+                          <span>Ekadashi</span>
+                        </div>
+                      ) : isAshtami ? (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-orange-500/20 text-orange-300 border border-orange-500/40 break-words leading-snug text-right sm:text-left">
+                          <span className="shrink-0 select-none">🔱</span>
+                          <span>Ashtami</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                          <span className="hidden sm:inline text-xs text-neutral-500">—</span>
+                          <span className="sm:hidden text-neutral-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-all text-xs font-bold">›</span>
+                        </div>
+                      )}
+
+                      {countdownBadge && (
+                        <div className="text-[10px] font-semibold text-neutral-400 mt-1 whitespace-nowrap shrink-0 flex items-center gap-1">
+                          <span>{countdownBadge}</span>
+                          <span className="hidden sm:inline text-neutral-500 group-hover:text-orange-400 group-hover:translate-x-0.5 transition-transform text-xs font-bold ml-1">›</span>
+                        </div>
+                      )}
+
+                      {!countdownBadge && (
+                        <div className="hidden sm:flex items-center gap-1 text-[10px] text-neutral-500 group-hover:text-orange-400 transition-colors mt-0.5">
+                          <span>{t('tapToInspect')}</span>
+                          <span className="group-hover:translate-x-0.5 transition-transform font-bold">›</span>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+        </div>
+
       </div>
 
       {/* ── Day Detail Interactive Modal Popup ── */}
@@ -683,3 +805,6 @@ export function MonthlyVedicCalendar({
     </div>
   );
 }
+
+// Alias export for VedicAlmanacTable
+export { MonthlyVedicCalendar as VedicAlmanacTable };

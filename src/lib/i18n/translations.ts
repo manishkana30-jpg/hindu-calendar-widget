@@ -98,6 +98,19 @@ export interface TranslationDictionary {
   upcomingFestivals: string;
   viewAllFestivals: string;
   inDays: string;
+  tomorrow: string;
+
+  // Unified Almanac Table Headers & Modes
+  allCalendarDays: string;
+  vratAndTyoharAlmanac: string;
+  colDateAndVara: string;
+  colTithiAndPaksha: string;
+  colNakshatraAndMasa: string;
+  colVratAndTyohar: string;
+  colMobileDate: string;
+  colMobileTithiPanchang: string;
+  colMobileVrat: string;
+  tapToInspect: string;
 
   // Five Limbs
   fiveLimbsTitle: string;
@@ -233,6 +246,18 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     upcomingFestivals: 'Upcoming Vrat & Tyohar',
     viewAllFestivals: 'View All Vrat & Tyohar',
     inDays: 'In {n} days',
+    tomorrow: 'Tomorrow',
+
+    allCalendarDays: 'All Calendar Days',
+    vratAndTyoharAlmanac: 'Vrat & Tyohar Almanac',
+    colDateAndVara: 'Date & Vara',
+    colTithiAndPaksha: 'Tithi & Paksha',
+    colNakshatraAndMasa: 'Nakshatra & Masa',
+    colVratAndTyohar: 'Vrat & Tyohar',
+    colMobileDate: 'Date',
+    colMobileTithiPanchang: 'Tithi & Panchang',
+    colMobileVrat: 'Vrat / Tyohar',
+    tapToInspect: 'Details',
 
     fiveLimbsTitle: 'Five Limbs of Vedic Panchang',
     nakshatra: 'Nakshatra',
@@ -361,6 +386,18 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     upcomingFestivals: 'आगामी त्यौहार',
     viewAllFestivals: 'सभी त्यौहार देखें',
     inDays: '{n} दिन में',
+    tomorrow: 'कल',
+
+    allCalendarDays: 'सम्पूर्ण दिवस',
+    vratAndTyoharAlmanac: 'व्रत एवं त्योहार सारणी',
+    colDateAndVara: 'दिनांक / वार',
+    colTithiAndPaksha: 'तिथि / पक्ष',
+    colNakshatraAndMasa: 'नक्षत्र / मास',
+    colVratAndTyohar: 'व्रत एवं त्योहार',
+    colMobileDate: 'दिनांक',
+    colMobileTithiPanchang: 'तिथि व पंचांग',
+    colMobileVrat: 'व्रत / पर्व',
+    tapToInspect: 'विवरण',
 
     fiveLimbsTitle: 'पञ्चाङ्ग के पाँच मूल अंग',
     nakshatra: 'नक्षत्र',
@@ -489,6 +526,18 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     upcomingFestivals: 'आगामिपर्वाणि',
     viewAllFestivals: 'सर्वाणि पर्वाणि पश्यन्तु',
     inDays: '{n} दिनेषु',
+    tomorrow: 'श्वः',
+
+    allCalendarDays: 'सर्वे दिवसाः',
+    vratAndTyoharAlmanac: 'व्रतोत्सवसारणी',
+    colDateAndVara: 'दिनाङ्कः / वारः',
+    colTithiAndPaksha: 'तिथिः / पक्षः',
+    colNakshatraAndMasa: 'नक्षत्रम् / मासः',
+    colVratAndTyohar: 'व्रतोत्सवाः',
+    colMobileDate: 'दिनाङ्कः',
+    colMobileTithiPanchang: 'तिथिपञ्चाङ्गम्',
+    colMobileVrat: 'व्रतम् / पर्व',
+    tapToInspect: 'विवरणम्',
 
     fiveLimbsTitle: 'पञ्चाङ्गस्य पञ्च अङ्गानि',
     nakshatra: 'नक्षत्रम्',
@@ -617,6 +666,18 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     upcomingFestivals: 'आगामी सण',
     viewAllFestivals: 'सर्व सण पहा',
     inDays: '{n} दिवसांत',
+    tomorrow: 'उद्या',
+
+    allCalendarDays: 'सर्व दिवस',
+    vratAndTyoharAlmanac: 'व्रत व सण सारणी',
+    colDateAndVara: 'दिनांक / वार',
+    colTithiAndPaksha: 'तिथी / पक्ष',
+    colNakshatraAndMasa: 'नक्षत्र / मास',
+    colVratAndTyohar: 'व्रत व सण',
+    colMobileDate: 'दिनांक',
+    colMobileTithiPanchang: 'तिथी व पंचांग',
+    colMobileVrat: 'व्रत / सण',
+    tapToInspect: 'तपशील',
 
     fiveLimbsTitle: 'पंचांगाची पाच मुख्य अंगे',
     nakshatra: 'नक्षत्र',
@@ -745,6 +806,18 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     upcomingFestivals: 'આગામી તહેવારો',
     viewAllFestivals: 'બધા તહેવારો જુઓ',
     inDays: '{n} દિવસમાં',
+    tomorrow: 'આવતીકાલે',
+
+    allCalendarDays: 'બધા દિવસો',
+    vratAndTyoharAlmanac: 'વ્રત અને તહેવાર પંચાંગ',
+    colDateAndVara: 'તારીખ / વાર',
+    colTithiAndPaksha: 'તિથિ / પક્ષ',
+    colNakshatraAndMasa: 'નક્ષત્ર / માસ',
+    colVratAndTyohar: 'વ્રત અને તહેવાર',
+    colMobileDate: 'તારીખ',
+    colMobileTithiPanchang: 'તિથિ અને પંચાંગ',
+    colMobileVrat: 'વ્રત / પર્વ',
+    tapToInspect: 'વિગત',
 
     fiveLimbsTitle: 'પંચાંગના પાંચ મુખ્ય અંગ',
     nakshatra: 'નક્ષત્ર',

@@ -522,6 +522,11 @@ export interface MonthCalendarDay {
   sunrise: string;
   sunset: string;
   
+  // Lunar Month (Masa)
+  masaDisplay: string;
+  amantaMonth: string;
+  purnimantaMonth: string;
+
   // Observance / Festival
   festival?: string;
   festivalDetails?: ActiveFestivalResult;
@@ -1892,6 +1897,9 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
     const festival = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest.name : undefined;
     const festivalDetails = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest : undefined;
 
+    // Lunar Month (Masa) details at sunrise
+    const lunarMonthInfo = getLunarMonthDetails(targetDate);
+
     days.push({
       dayNumber: d,
       date: targetDate,
@@ -1927,6 +1935,9 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
       },
       sunrise: formatMinutesToTimeShort(sunTimes.sunriseMinutes),
       sunset: formatMinutesToTimeShort(sunTimes.sunsetMinutes),
+      masaDisplay: lunarMonthInfo.masaDisplay,
+      amantaMonth: lunarMonthInfo.amantaMonth,
+      purnimantaMonth: lunarMonthInfo.purnimantaMonth,
       festival,
       festivalDetails,
     });
