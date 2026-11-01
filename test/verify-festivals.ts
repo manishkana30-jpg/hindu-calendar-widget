@@ -167,6 +167,32 @@ const masikShivaPanchang = calculatePanchang(new Date(2026, 6, 13, 6, 0, 0), del
 assert(masikShivaPanchang.todayFestival.title.includes('Masik Shivaratri'), 'Ashadha Krishna Chaturdashi is Masik Shivaratri');
 assert(masikShivaPanchang.todayFestival.icon === '🔱', 'Masik Shivaratri icon is 🔱');
 
+// 20. CANONICAL TITHI RULES PRECISION FOR ALL 30 TITHIS
+console.log('\n▸ 20. Verifying Precise Canonical Tithi Rules (All 30 Tithis):');
+const { CANONICAL_TITHI_RULES } = require('../src/lib/dharmashastra-engine');
+assert(Object.keys(CANONICAL_TITHI_RULES).length === 30, 'All 30 Tithis have canonical Shastra rules');
+for (let t = 1; t <= 30; t++) {
+  const rule = CANONICAL_TITHI_RULES[t];
+  assert(Boolean(rule.presidingDeity), `Tithi ${t} (${rule.pureName}) has presiding deity`);
+  assert(Boolean(rule.briefRule?.hindi), `Tithi ${t} has Hindi Shastra rule`);
+  assert(Boolean(rule.briefRule?.english), `Tithi ${t} has English Shastra rule`);
+  assert(rule.shastraReferences.length > 0, `Tithi ${t} has Shastra references`);
+}
+
+// 21. USER PREFERRED SINGLE LANGUAGE LOCALIZATION
+console.log('\n▸ 21. Verifying Single Preferred Language Localization:');
+const { getLocalizedShastraRule } = require('../src/lib/user-language');
+const sampleRule = {
+  hindi: 'मुहूर्तचिन्तामणि: प्रतिपदा के स्वामी अग्निदेव हैं...',
+  english: 'Muhurta Chintamani: Pratipada is governed by Lord Agni...'
+};
+const localizedHindi = getLocalizedShastraRule(sampleRule, 'hi');
+const localizedEnglish = getLocalizedShastraRule(sampleRule, 'en');
+assert(localizedHindi === sampleRule.hindi, 'Hindi preference yields Hindi rule only without translation clutter');
+assert(localizedEnglish === sampleRule.english, 'English preference yields English rule only without translation clutter');
+assert(!localizedHindi.includes('English:'), 'Hindi rule has no duplicate English label');
+assert(!localizedEnglish.includes('हिंदी:'), 'English rule has no duplicate Hindi label');
+
 console.log('\n═══════════════════════════════════════════════════════════════════════════════════');
 console.log(`  RESULTS: ${passed}/${total} Assertions Passed`);
 if (passed === total) {

@@ -12,6 +12,7 @@ import {
   getMonthVedicCalendar, 
   MonthCalendarDay 
 } from '../../src/lib/vedic-astronomy';
+import { useUserLanguage, getLocalizedShastraRule } from '../../src/lib/user-language';
 
 interface MonthlyVedicCalendarProps {
   initialLocation?: LocationCoordinates;
@@ -29,6 +30,7 @@ export function MonthlyVedicCalendar({
   const [location, setLocation] = useState<LocationCoordinates>(initialLocation || PRESET_LOCATIONS[0]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedDayDetail, setSelectedDayDetail] = useState<MonthCalendarDay | null>(null);
+  const { language, isHindi, toggleLanguage } = useUserLanguage();
 
   // Synchronize with initialLocation if changed from outside
   React.useEffect(() => {
@@ -638,14 +640,28 @@ export function MonthlyVedicCalendar({
                   </div>
 
                   {selectedDayDetail.festivalDetails?.briefRule && (
-                    <div className="pt-2 border-t border-amber-500/20 space-y-1.5 text-[11px]">
-                      <div className="text-amber-200/95 leading-relaxed bg-[#0a0f1d]/70 p-2.5 rounded-xl border border-amber-500/20">
-                        <span className="font-bold text-amber-300 block mb-0.5">धर्मशास्त्र निर्णय नियम:</span>
-                        {selectedDayDetail.festivalDetails.briefRule.hindi}
-                      </div>
-                      <div className="text-neutral-300 leading-relaxed pl-1 text-[10px]">
-                        <strong className="text-neutral-200">Shastra Canonical Rule: </strong>
-                        {selectedDayDetail.festivalDetails.briefRule.english}
+                    <div className="pt-2 border-t border-amber-500/20 text-[11px]">
+                      <div className="text-amber-200/95 leading-relaxed bg-[#0a0f1d]/80 p-2.5 rounded-xl border border-amber-500/25">
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="font-bold text-amber-300 flex items-center gap-1">
+                            <BookOpen size={11} className="text-amber-400" />
+                            {isHindi ? 'धर्मशास्त्र निर्णय नियम:' : 'Shastra Canonical Rule:'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleLanguage();
+                            }}
+                            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
+                            title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
+                          >
+                            {isHindi ? 'English' : 'हिन्दी'}
+                          </button>
+                        </div>
+                        <p className="text-neutral-200 leading-relaxed text-xs">
+                          {getLocalizedShastraRule(selectedDayDetail.festivalDetails.briefRule, language)}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -724,9 +740,12 @@ export function MonthlyVedicCalendar({
               <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-[11px] text-orange-200">
                 <div className="font-bold mb-0.5 flex items-center gap-1">
                   <BookOpen size={12} />
-                  <span>Surya Siddhanta &amp; Nirnayasindhu Shastra Rule:</span>
+                  <span>{isHindi ? 'सूर्यसिद्धान्त व निर्णयसिन्धु शास्त्र नियम:' : 'Surya Siddhanta & Nirnayasindhu Shastra Rule:'}</span>
                 </div>
-                The Udaya Tithi at local sunrise ({selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious duties.
+                {isHindi
+                  ? `स्थानीय सूर्योदय (${selectedDayDetail.sunrise}) के समय विद्यमान औदयिक तिथि ही दैनिक संकल्प, पूजा एवं धार्मिक कृत्यों हेतु एकमात्र शास्त्रसम्मत आधार है।`
+                  : `The Udaya Tithi at local sunrise (${selectedDayDetail.sunrise}) is the sole canonical authority for daily Sankalpa, Pujas, and religious duties.`
+                }
               </div>
 
             </div>
@@ -734,7 +753,7 @@ export function MonthlyVedicCalendar({
             {/* Modal Footer */}
             <div className="p-3 sm:p-4 border-t border-[#1e2942] bg-[#0c1222] flex items-center justify-between shrink-0">
               <span className="text-[11px] text-neutral-400 font-mono">
-                Surya Siddhanta &amp; Nirnayasindhu
+                {isHindi ? 'सूर्यसिद्धान्त एवं निर्णयसिन्धु' : 'Surya Siddhanta & Nirnayasindhu'}
               </span>
               <button
                 onClick={() => setSelectedDayDetail(null)}

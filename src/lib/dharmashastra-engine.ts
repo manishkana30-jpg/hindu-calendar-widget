@@ -1288,20 +1288,411 @@ export function determineFestivalForDate(
     };
   }
 
-  // 7. Default: Nitya Panchang
+  // 7. Canonical Daily Tithi Observance (Muhurta Chintamani, Nirnayasindhu, Dharmasindhu)
+  const tithiRule = CANONICAL_TITHI_RULES[udayaTithiIndex] || DEFAULT_TITHI_RULE;
+
   return {
     name: 'Nitya Panchang (नित्य पञ्चाङ्ग)',
     shortName: 'Nitya Panchang',
-    hindiName: 'नित्य पञ्चाङ्ग',
-    description: 'Daily Sacred Vedic Observance',
+    hindiName: `नित्य पञ्चाङ्ग (${tithiRule.hindiName})`,
+    description: `${tithiRule.observance} • Presided by ${tithiRule.presidingDeity}`,
     icon: '🕉️',
     category: 'Vrat',
     isMajor: false,
-    badge: 'Daily Vedic',
-    briefRule: {
-      hindi: 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित औदयिक तिथि ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।',
-      english: 'Surya Siddhanta: The Udaya Tithi prevailing at local Sunrise governs all religious observances and civil duties.'
-    },
-    shastraReferences: ['Surya Siddhanta', 'Nirnayasindhu']
+    badge: `${tithiRule.pureName} Observance`,
+    briefRule: tithiRule.briefRule,
+    shastraReferences: tithiRule.shastraReferences
   };
 }
+
+export interface CanonicalTithiRule {
+  tithiIndex: number;
+  pureName: string;
+  hindiName: string;
+  presidingDeity: string;
+  observance: string;
+  briefRule: {
+    hindi: string;
+    english: string;
+  };
+  shastraReferences: string[];
+}
+
+export const DEFAULT_TITHI_RULE: CanonicalTithiRule = {
+  tithiIndex: 0,
+  pureName: 'Udaya Tithi',
+  hindiName: 'औदयिक तिथि',
+  presidingDeity: 'Surya Narayana',
+  observance: 'Daily Sandhya, Sankalpa & religious duty',
+  briefRule: {
+    hindi: 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित औदयिक तिथि ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।',
+    english: 'Surya Siddhanta: The Udaya Tithi prevailing at local Sunrise governs all religious observances and civil duties.'
+  },
+  shastraReferences: ['Surya Siddhanta', 'Nirnayasindhu']
+};
+
+export const CANONICAL_TITHI_RULES: Record<number, CanonicalTithiRule> = {
+  // Shukla Paksha (1 - 15)
+  1: {
+    tithiIndex: 1,
+    pureName: 'Pratipada',
+    hindiName: 'शुक्ल प्रतिपदा',
+    presidingDeity: 'Agni (अग्निदेव)',
+    observance: 'Homa, sacred beginnings & vital energy vows',
+    briefRule: {
+      hindi: 'मुहूर्तचिन्तामणि: प्रतिपदा के स्वामी अग्निदेव हैं; इस दिन हवन, नूतन आरम्भ व अग्नि पूजन से तेज और उत्साह की वृद्धि होती है।',
+      english: 'Muhurta Chintamani: Pratipada is governed by Lord Agni; auspicious for Homa, beginning noble ventures, and vitality-enhancing vows.'
+    },
+    shastraReferences: ['Muhurta Chintamani', 'Nirnayasindhu']
+  },
+  2: {
+    tithiIndex: 2,
+    pureName: 'Dwitiya',
+    hindiName: 'शुक्ल द्वितीया',
+    presidingDeity: 'Lord Brahma & Ashwini Kumaras (ब्रह्मा व अश्विनीकुमार)',
+    observance: 'Learning, foundations & harmonious relations',
+    briefRule: {
+      hindi: 'निर्णयसिन्धु: द्वितीया के अधिपति ब्रह्मा जी हैं; इस दिन विद्यारम्भ, शिलान्यास व सौहार्द सम्बन्धी शुभ कर्म विहित हैं।',
+      english: 'Nirnayasindhu: Dwitiya is ruled by Lord Brahma; auspicious for commencing learning, foundations, and cultivating harmonious ties.'
+    },
+    shastraReferences: ['Nirnayasindhu', 'Dharmasindhu']
+  },
+  3: {
+    tithiIndex: 3,
+    pureName: 'Tritiya',
+    hindiName: 'शुक्ल तृतीया',
+    presidingDeity: 'Mata Gauri (माँ गौरी)',
+    observance: 'Gauri Puja, soubhagya & marital harmony',
+    briefRule: {
+      hindi: 'धर्मसिन्धु: तृतीया की अधिष्ठात्री माता गौरी हैं; इस दिन गौरी पूजन, सौभाग्य संवर्धन एवं दाम्पत्य कल्याण हेतु व्रत उत्तम है।',
+      english: 'Dharmasindhu: Tritiya is ruled by Mata Gauri; worshipping Gauri today brings marital bliss, beauty, and domestic harmony.'
+    },
+    shastraReferences: ['Dharmasindhu', 'Skanda Purana']
+  },
+  4: {
+    tithiIndex: 4,
+    pureName: 'Chaturthi',
+    hindiName: 'शुक्ल चतुर्थी (विनायक)',
+    presidingDeity: 'Lord Ganesha (विघ्नहर्ता श्रीगणेश)',
+    observance: 'Vinayaka Chaturthi Vrat & obstacle removal',
+    briefRule: {
+      hindi: 'गणेश पुराण: शुक्ल चतुर्थी के स्वामी भगवान विनायक हैं; मध्याह्न में मोदक व दूर्वा से श्रीगणेश पूजन समस्त विघ्नों को हरता है।',
+      english: 'Ganesha Purana: Governed by Lord Vinayaka; midday worship with Durva grass and Modaks dissolves obstacles in all ventures.'
+    },
+    shastraReferences: ['Ganesha Purana', 'Dharmasindhu']
+  },
+  5: {
+    tithiIndex: 5,
+    pureName: 'Panchami',
+    hindiName: 'शुक्ल पञ्चमी',
+    presidingDeity: 'Naga Devatas & Saraswati (नाग देव व सरस्वती)',
+    observance: 'Wisdom acquisition, Saraswati Puja & protection',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: पञ्चमी के अधिष्ठाता नाग देवता व देवी सरस्वती हैं; इस दिन विद्या अध्ययन, नाग पूजन व ज्ञान संवर्धन श्रेयस्कर है।',
+      english: 'Skanda Purana: Ruled by the Nagas and Saraswati; auspicious for learning, intellect cultivation, and protection from afflictions.'
+    },
+    shastraReferences: ['Skanda Purana', 'Bhavishya Purana']
+  },
+  6: {
+    tithiIndex: 6,
+    pureName: 'Shashthi',
+    hindiName: 'शुक्ल षष्ठी',
+    presidingDeity: 'Lord Kartikeya (भगवान कार्तिकेय)',
+    observance: 'Skanda worship, progeny health & valor',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: षष्ठी के स्वामी भगवान कार्तिकेय हैं; संतान सुख, शौर्य, निरोगी काया एवं विजय प्राप्ति हेतु स्कन्द पूजन उत्तम है।',
+      english: 'Skanda Purana: Ruled by Lord Skanda; worshipping Kartikeya brings valor, protection of progeny, and triumph over obstacles.'
+    },
+    shastraReferences: ['Skanda Purana', 'Dharmasindhu']
+  },
+  7: {
+    tithiIndex: 7,
+    pureName: 'Saptami',
+    hindiName: 'शुक्ल सप्तमी',
+    presidingDeity: 'Lord Surya (भगवान सूर्यनारायण)',
+    observance: 'Surya Arghya, Aditya Hridayam & cure of ailments',
+    briefRule: {
+      hindi: 'भविष्य पुराण: सप्तमी के अधिष्ठाता भगवान सूर्य हैं; प्रातः तांबे के पात्र से सूर्य अर्घ्य व आदित्य हृदय स्तोत्र पाठ आरोग्यप्रद है।',
+      english: 'Bhavishya Purana: Presided by Lord Surya; offering early morning Arghya and Aditya Hridaya recitation cures ailments and grants vigor.'
+    },
+    shastraReferences: ['Bhavishya Purana', 'Dharmasindhu']
+  },
+  8: {
+    tithiIndex: 8,
+    pureName: 'Ashtami',
+    hindiName: 'शुक्ल अष्टमी (मासिक दुर्गाष्टमी)',
+    presidingDeity: 'Maa Durga (भगवती दुर्गा)',
+    observance: 'Durgashtami fast, Saptashati & Kanya Puja',
+    briefRule: {
+      hindi: 'देवी पुराण: शुक्ल अष्टमी भगवती दुर्गा को समर्पित है; इस दिन दुर्गा सप्तशती पाठ, मन्त्र जप एवं कन्या पूजन से संकटों का नाश होता है।',
+      english: 'Devi Purana: Governed by Maa Durga; fast, recitation of Durga Saptashati, and Kanya Puja dispel deep-rooted adversities.'
+    },
+    shastraReferences: ['Devi Purana', 'Nirnayasindhu']
+  },
+  9: {
+    tithiIndex: 9,
+    pureName: 'Navami',
+    hindiName: 'शुक्ल नवमी',
+    presidingDeity: 'Maa Durga & Sri Rama (माँ दुर्गा व श्रीराम)',
+    observance: 'Aparajita Puja, charity & sacred vows',
+    briefRule: {
+      hindi: 'निर्णयसिन्धु: नवमी की अधिष्ठात्री माता दुर्गा हैं; इस दिन अपराजिता पूजन, सत्संग व दान करने से मनोवांछित फल की सिद्धि होती है।',
+      english: 'Nirnayasindhu: Presided by Maa Durga; Aparajita worship, noble charity, and holy recitations grant fulfillment of righteous desires.'
+    },
+    shastraReferences: ['Nirnayasindhu', 'Dharmasindhu']
+  },
+  10: {
+    tithiIndex: 10,
+    pureName: 'Dashami',
+    hindiName: 'शुक्ल दशमी',
+    presidingDeity: 'Dharmaraja Yama & Digpalas (धर्मराज यम व दिक्पाल)',
+    observance: 'Dharmic rites, truthfulness & peace rituals',
+    briefRule: {
+      hindi: 'धर्मसिन्धु: दशमी के स्वामी धर्मराज यम व दिक्पाल हैं; इस दिन धर्म कार्यों का अनुष्ठान, विजय यात्रा व शांति अनुष्ठान शुभ होते हैं।',
+      english: 'Dharmasindhu: Governed by Dharmaraja Yama and the 8 Guardian Deities; ideal for righteous deeds, peace rituals, and success.'
+    },
+    shastraReferences: ['Dharmasindhu', 'Muhurta Chintamani']
+  },
+  11: {
+    tithiIndex: 11,
+    pureName: 'Ekadashi',
+    hindiName: 'शुक्ल एकादशी',
+    presidingDeity: 'Lord Vishnu (भगवान श्रीहरि विष्णु)',
+    observance: 'Ekadashi fast, Harinaam Japa & spiritual liberation',
+    briefRule: {
+      hindi: 'पद्म पुराण: एकादशी श्रीहरि विष्णु की प्रिय तिथि है; निर्जल/फलाहार उपवास व हरिनाम संकीर्तन से पापों की मुक्ति व मोक्ष सिद्धि होती है।',
+      english: 'Padma Purana: The supreme fast of Lord Vishnu; observing Ekadashi with prayer and devotional remembrance grants liberation.'
+    },
+    shastraReferences: ['Padma Purana', 'Nirnayasindhu']
+  },
+  12: {
+    tithiIndex: 12,
+    pureName: 'Dwadashi',
+    hindiName: 'शुक्ल द्वादशी',
+    presidingDeity: 'Lord Vishnu & Tulsi (भगवान विष्णु व तुलसी)',
+    observance: 'Parana after Hari Vasara, Tulsi Aradhana & cow service',
+    briefRule: {
+      hindi: 'हरिभक्तिविलास: द्वादशी को हरिवासर उपरान्त पारण, तुलसी पूजन व गौ-सेवा करने से एकादशी व्रत का सम्पूर्ण फल प्राप्त होता है।',
+      english: 'Hari Bhakti Vilasa: Observing Parana after Hari Vasara, Tulsi Aradhana, and cow-service sanctifies and completes the holy vow.'
+    },
+    shastraReferences: ['Hari Bhakti Vilasa', 'Dharmasindhu']
+  },
+  13: {
+    tithiIndex: 13,
+    pureName: 'Trayodashi',
+    hindiName: 'शुक्ल त्रयोदशी (प्रदोष)',
+    presidingDeity: 'Kamadeva & Lord Shiva (कामदेव व भगवान शिव)',
+    observance: 'Twilight Pradosha worship & Shiva Abhisheka',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: त्रयोदशी के प्रदोष काल में भगवान शिव-पार्वती का पंचामृत अभिषेक व प्रदोष व्रत सर्वकल्याणकारी एवं विघ्ननाशक है।',
+      english: 'Skanda Purana: Twilight Pradosha worship and Panchamrita Abhisheka of Shiva-Parvati on Trayodashi removes afflictions.'
+    },
+    shastraReferences: ['Skanda Purana', 'Dharmasindhu']
+  },
+  14: {
+    tithiIndex: 14,
+    pureName: 'Chaturdashi',
+    hindiName: 'शुक्ल चतुर्दशी',
+    presidingDeity: 'Lord Shiva (भगवान शिव)',
+    observance: 'Rudrabhisheka, Shiva worship & evening deepdaan',
+    briefRule: {
+      hindi: 'शिव पुराण: शुक्ल चतुर्दशी देवाधिदेव महादेव को अर्पित है; इस दिन रुद्राभिषेक, शिव चालीसा पाठ व दीपदान से अभय और शांति मिलती है।',
+      english: 'Shiva Purana: Dedicated to Lord Shiva; Rudrabhisheka and evening deepdaan bestow peace, protection, and spiritual upliftment.'
+    },
+    shastraReferences: ['Shiva Purana', 'Nirnayasindhu']
+  },
+  15: {
+    tithiIndex: 15,
+    pureName: 'Purnima',
+    hindiName: 'पूर्णिमा',
+    presidingDeity: 'Chandra & Satyanarayan (चन्द्रमा व श्रीसत्यनारायण)',
+    observance: 'Sacred river bath, Satyanarayan Katha & Chandra Arghya',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: पूर्णिमा को तीर्थ स्नान, श्रीसत्यनारायण व्रत कथा व चन्द्रमा को अर्घ्य देने से घर में सुख, शांति व समृद्धि बढ़ती है।',
+      english: 'Skanda Purana: Holy river bath, Satyanarayan Katha, and Chandra Arghya on Purnima usher in peace and enduring affluence.'
+    },
+    shastraReferences: ['Skanda Purana', 'Nirnayasindhu']
+  },
+
+  // Krishna Paksha (16 - 30)
+  16: {
+    tithiIndex: 16,
+    pureName: 'Pratipada',
+    hindiName: 'कृष्ण प्रतिपदा',
+    presidingDeity: 'Agni (अग्निदेव)',
+    observance: 'Evening lamp offering & vitality preservation',
+    briefRule: {
+      hindi: 'मुहूर्तचिन्तामणि: कृष्ण प्रतिपदा के स्वामी अग्निदेव हैं; इस दिन सायं दीपदान व शान्ति पाठ से आन्तरिक ऊर्जा और तेज की रक्षा होती है।',
+      english: 'Muhurta Chintamani: Ruled by Lord Agni; evening lamp offering and peaceful reflections preserve inner vigor and vitality.'
+    },
+    shastraReferences: ['Muhurta Chintamani', 'Dharmasindhu']
+  },
+  17: {
+    tithiIndex: 17,
+    pureName: 'Dwitiya',
+    hindiName: 'कृष्ण द्वितीया',
+    presidingDeity: 'Lord Brahma (ब्रह्मा जी)',
+    observance: 'Scriptural contemplation & intellect purification',
+    briefRule: {
+      hindi: 'निर्णयसिन्धु: कृष्ण द्वितीया को ब्रह्मदेव की आराधना एवं धार्मिक ग्रन्थों का अध्ययन बुद्धि व विवेक को निर्मल करता है।',
+      english: 'Nirnayasindhu: Governed by Lord Brahma; contemplation and sacred scriptural study on Dwitiya purifies the intellect.'
+    },
+    shastraReferences: ['Nirnayasindhu', 'Dharmasindhu']
+  },
+  18: {
+    tithiIndex: 18,
+    pureName: 'Tritiya',
+    hindiName: 'कृष्ण तृतीया',
+    presidingDeity: 'Mata Gauri (माता गौरी)',
+    observance: 'Family happiness, health & Gauri prayer',
+    briefRule: {
+      hindi: 'धर्मसिन्धु: कृष्ण तृतीया माता गौरी को प्रिय है; इस दिन गौरी पूजन से पारिवारिक सुख, शांति व आरोग्य लाभ होता है।',
+      english: 'Dharmasindhu: Sacred to Mata Gauri; prayer and devotional offering today foster family happiness and good health.'
+    },
+    shastraReferences: ['Dharmasindhu', 'Skanda Purana']
+  },
+  19: {
+    tithiIndex: 19,
+    pureName: 'Chaturthi',
+    hindiName: 'कृष्ण चतुर्थी (संकष्टी)',
+    presidingDeity: 'Lord Ganesha (संकटमोचन गणेश)',
+    observance: 'Sankashti Ganesha Vrat & Moonrise Arghya',
+    briefRule: {
+      hindi: 'भविष्य पुराण: कृष्ण चतुर्थी को संकटनाशन गणेश व्रत व चन्द्रोदय के समय अर्घ्य देने से बड़े से बड़े संकटों का निवारण होता है।',
+      english: 'Bhavishya Purana: Fasting for Lord Ganesha on Krishna Chaturthi and offering Chandra Arghya alleviates deep hardships.'
+    },
+    shastraReferences: ['Bhavishya Purana', 'Vratraj']
+  },
+  20: {
+    tithiIndex: 20,
+    pureName: 'Panchami',
+    hindiName: 'कृष्ण पञ्चमी',
+    presidingDeity: 'Naga Devatas (नाग देवता)',
+    observance: 'Appeasing ancestral debts & fear dispelling',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: कृष्ण पञ्चमी नाग देवों की कृपा प्राप्ति हेतु उत्तम है; इस दिन कच्चा दूध व पुष्प अर्पण से भय बाधा दूर होती है।',
+      english: 'Skanda Purana: Dedicated to Naga deities; milk and floral offerings appease subtle debts and dispel hidden fears.'
+    },
+    shastraReferences: ['Skanda Purana', 'Garuda Purana']
+  },
+  21: {
+    tithiIndex: 21,
+    pureName: 'Shashthi',
+    hindiName: 'कृष्ण षष्ठी',
+    presidingDeity: 'Lord Kartikeya (भगवान कार्तिकेय)',
+    observance: 'Anxiety dispelling & building inner fortitude',
+    briefRule: {
+      hindi: 'स्कन्द पुराण: कृष्ण षष्ठी को कार्तिकेय पूजन व मन्त्र जप से शत्रुभय समाप्त होता है तथा आत्मबल व पराक्रम बढ़ता है।',
+      english: 'Skanda Purana: Worshipping Kartikeya on Krishna Shashthi destroys anxiety and bolsters inner fortitude and courage.'
+    },
+    shastraReferences: ['Skanda Purana', 'Dharmasindhu']
+  },
+  22: {
+    tithiIndex: 22,
+    pureName: 'Saptami',
+    hindiName: 'कृष्ण सप्तमी',
+    presidingDeity: 'Lord Surya (भगवान सूर्य)',
+    observance: 'Surya water offering & nourishing eye health',
+    briefRule: {
+      hindi: 'भविष्य पुराण: कृष्ण सप्तमी को भगवान सूर्य को तांबे के पात्र से जल अर्पण करने से नेत्र ज्योति व आरोग्यता की वृद्धि होती है।',
+      english: 'Bhavishya Purana: Offering water to Lord Surya on Krishna Saptami nourishes vitality and sustains healthy eyesight.'
+    },
+    shastraReferences: ['Bhavishya Purana', 'Nirnayasindhu']
+  },
+  23: {
+    tithiIndex: 23,
+    pureName: 'Ashtami',
+    hindiName: 'कृष्ण अष्टमी (कालाष्टमी)',
+    presidingDeity: 'Lord Kalabhairav (भगवान कालभैरव)',
+    observance: 'Kalashtami fast, lamp offering & fear dispelling',
+    briefRule: {
+      hindi: 'रुद्रयामल: कृष्ण अष्टमी (कालाष्टमी) को भगवान कालभैरव के निमित्त सरसों के तेल का दीपदान व उपासना अकाल भय का नाश करती है।',
+      english: 'Rudra Yamala: Krishna Ashtami (Kalashtami) dedicated to Kalabhairav; lighting mustard oil lamps dispels untimely fears.'
+    },
+    shastraReferences: ['Rudra Yamala', 'Dharmasindhu']
+  },
+  24: {
+    tithiIndex: 24,
+    pureName: 'Navami',
+    hindiName: 'कृष्ण नवमी',
+    presidingDeity: 'Maa Durga (माँ दुर्गा)',
+    observance: 'Peace meditation & inner spiritual resilience',
+    briefRule: {
+      hindi: 'निर्णयसिन्धु: कृष्ण नवमी को देवी दुर्गा का ध्यान व अर्चन करने से मन का संताप दूर होता है तथा सकारात्मक ऊर्जा मिलती है।',
+      english: 'Nirnayasindhu: Meditating upon Maa Durga on Krishna Navami clears mental distress and instills calm positivity.'
+    },
+    shastraReferences: ['Nirnayasindhu', 'Devi Purana']
+  },
+  25: {
+    tithiIndex: 25,
+    pureName: 'Dashami',
+    hindiName: 'कृष्ण दशमी',
+    presidingDeity: 'Dharmaraja Yama (धर्मराज यम)',
+    observance: 'Righteous conduct & ancestral remembrance',
+    briefRule: {
+      hindi: 'धर्मसिन्धु: कृष्ण दशमी को धर्मराज यम व पितरों का स्मरण करते हुए सत्यनिष्ठ आचरण से जीवन में धर्म व मर्यादा सुदृढ़ होती है।',
+      english: 'Dharmasindhu: Dedicated to Dharmaraja Yama; adhering to truthfulness and righteous conduct brings enduring grace.'
+    },
+    shastraReferences: ['Dharmasindhu', 'Muhurta Chintamani']
+  },
+  26: {
+    tithiIndex: 26,
+    pureName: 'Ekadashi',
+    hindiName: 'कृष्ण एकादशी',
+    presidingDeity: 'Lord Vishnu (भगवान श्रीहरि)',
+    observance: 'Sacred Krishna Ekadashi fast & mental tranquility',
+    briefRule: {
+      hindi: 'पद्म पुराण: कृष्ण एकादशी का व्रत समस्त प्रकार के मानसिक व शारीरिक क्लेशों को नष्ट कर भगवान विष्णु का अनुग्रह दिलाता है।',
+      english: 'Padma Purana: The sacred fast of Krishna Ekadashi purifies body and mind and attracts Lord Vishnu\'s divine grace.'
+    },
+    shastraReferences: ['Padma Purana', 'Nirnayasindhu']
+  },
+  27: {
+    tithiIndex: 27,
+    pureName: 'Dwadashi',
+    hindiName: 'कृष्ण द्वादशी',
+    presidingDeity: 'Lord Vishnu (भगवान विष्णु)',
+    observance: 'Parana charity & concluding sacred vow',
+    briefRule: {
+      hindi: 'हरिभक्तिविलास: कृष्ण द्वादशी को पारण के पश्चात अन्न-जल का दान एवं साधु सेवा से व्रत की पूर्ण प्रतिष्ठा होती है।',
+      english: 'Hari Bhakti Vilasa: Food and water charity following Krishna Dwadashi Parana completes the sacred spiritual discipline.'
+    },
+    shastraReferences: ['Hari Bhakti Vilasa', 'Dharmasindhu']
+  },
+  28: {
+    tithiIndex: 28,
+    pureName: 'Trayodashi',
+    hindiName: 'कृष्ण त्रयोदशी (प्रदोष)',
+    presidingDeity: 'Lord Shiva (भगवान शिव)',
+    observance: 'Twilight Pradosha Shiva worship & poverty dispelling',
+    briefRule: {
+      hindi: 'धर्मसिन्धु: कृष्ण त्रयोदशी के प्रदोष काल में शिव आराधना व रुद्राभिषेक से दारिद्र्य का नाश एवं दीर्घायु की प्राप्ति होती है।',
+      english: 'Dharmasindhu: Twilight Pradosha worship of Shiva on Krishna Trayodashi destroys poverty and grants longevity.'
+    },
+    shastraReferences: ['Dharmasindhu', 'Skanda Purana']
+  },
+  29: {
+    tithiIndex: 29,
+    pureName: 'Chaturdashi',
+    hindiName: 'कृष्ण चतुर्दशी (मासिक शिवरात्रि)',
+    presidingDeity: 'Lord Shiva (भगवान शिव)',
+    observance: 'Masik Shivaratri vigil, Japa & inner liberation',
+    briefRule: {
+      hindi: 'शिव पुराण: कृष्ण चतुर्दशी (मासिक शिवरात्रि) को निशीथ काल में "ॐ नमः शिवाय" जप व शिव पूजन से समस्त पाप भस्म हो जाते हैं।',
+      english: 'Shiva Purana: Nishita midnight Shivaratri worship on Krishna Chaturdashi washes away karmas and brings liberation.'
+    },
+    shastraReferences: ['Shiva Purana', 'Nirnayasindhu']
+  },
+  30: {
+    tithiIndex: 30,
+    pureName: 'Amavasya',
+    hindiName: 'दर्श अमावस्या',
+    presidingDeity: 'Pitridevatas (पितृगण व अर्यमा)',
+    observance: 'Pitri Tarpana, ancestral peace & charitable food',
+    briefRule: {
+      hindi: 'गरुड़ पुराण: दर्श अमावस्या को पितरों हेतु तिलाञ्जलि तर्पण, धूप-दीप व असहायों को अन्न दान से पितृदोष दूर होकर कुल में शांति होती है।',
+      english: 'Garuda Purana: Water-sesame Tarpana and food charity for ancestors on Amavasya appeases Pitris and blesses the lineage.'
+    },
+    shastraReferences: ['Garuda Purana', 'Dharmasindhu']
+  }
+};

@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { X, Calendar, BookOpen, Filter, Sparkles } from 'lucide-react';
 import { LocationCoordinates, PRESET_LOCATIONS } from '../../../src/lib/vedic-astronomy';
 import { getUpcomingFestivalsList, UpcomingFestivalResult } from '../../../src/lib/festivals';
+import { useUserLanguage, getLocalizedShastraRule } from '../../../src/lib/user-language';
 
 interface Props {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface Props {
 
 export function UpcomingFestivalsModal({ isOpen, onClose, location, currentDate }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const { language, isHindi, toggleLanguage } = useUserLanguage();
 
   const loc = location || PRESET_LOCATIONS[0];
 
@@ -154,18 +156,28 @@ export function UpcomingFestivalsModal({ isOpen, onClose, location, currentDate 
                     {fest.description}
                   </p>
 
-                  {/* Brief Bilingual Dharmashastra Rule for this festival */}
+                  {/* Dharmashastra Rule for this festival (Single Preferred Language) */}
                   {fest.briefRule && (
-                    <div className="p-3 rounded-xl bg-[#11192e] border border-amber-500/20 text-xs space-y-1">
-                      <div className="text-amber-300 font-bold flex items-center gap-1.5 text-[11px]">
-                        <BookOpen size={12} />
-                        <span>📜 Dharmashastra Determination Rule (धर्मशास्त्र निर्णय):</span>
+                    <div className="p-2.5 rounded-xl bg-[#11192e] border border-amber-500/20 text-xs space-y-1">
+                      <div className="flex items-center justify-between text-amber-300 font-bold text-[11px]">
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen size={12} />
+                          <span>{isHindi ? '📜 धर्मशास्त्र निर्णय नियम:' : '📜 Shastra Canonical Rule:'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleLanguage();
+                          }}
+                          className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
+                          title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
+                        >
+                          {isHindi ? 'English' : 'हिन्दी'}
+                        </button>
                       </div>
-                      <p className="text-neutral-200">
-                        <strong className="text-amber-300">हिंदी:</strong> {fest.briefRule.hindi}
-                      </p>
-                      <p className="text-neutral-300">
-                        <strong className="text-amber-300">English:</strong> {fest.briefRule.english}
+                      <p className="text-neutral-200 leading-relaxed text-[11px]">
+                        {getLocalizedShastraRule(fest.briefRule, language)}
                       </p>
                     </div>
                   )}

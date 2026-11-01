@@ -3,6 +3,7 @@
 import React from 'react';
 import { X, Calendar, BookOpen, Sun, Play, Square, Sparkles } from 'lucide-react';
 import { PanchangData } from '../../../src/lib/vedic-astronomy';
+import { useUserLanguage } from '../../../src/lib/user-language';
 
 interface Props {
   isOpen: boolean;
@@ -11,16 +12,19 @@ interface Props {
 }
 
 export function TodayFestivalModal({ isOpen, onClose, panchang }: Props) {
+  const { language, isHindi, toggleLanguage } = useUserLanguage();
+
   if (!isOpen) return null;
 
   const fest = panchang.todayFestival;
   const isMajor = fest.isMajor;
 
-  const defaultHindiRule = 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित तिथि (औदयिक तिथि) ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।';
+  const defaultHindiRule = 'सूर्यसिद्धान्त: सूर्योदय के समय उपस्थित औदयिक तिथि ही उस सम्पूर्ण दिवस के धार्मिक व नित्य कर्मों हेतु मान्य होती है।';
   const defaultEnglishRule = 'Surya Siddhanta: The Tithi prevailing at local Sunrise (Udaya Tithi) governs all canonical rituals and civil duties for the day.';
 
   const ruleHindi = fest.briefRule?.hindi || defaultHindiRule;
   const ruleEnglish = fest.briefRule?.english || defaultEnglishRule;
+  const activeRule = isHindi ? ruleHindi : ruleEnglish;
   const references = fest.shastraReferences || ['Surya Siddhanta', 'Nirnayasindhu', 'Dharmasindhu'];
 
   return (
@@ -133,20 +137,25 @@ export function TodayFestivalModal({ isOpen, onClose, panchang }: Props) {
             </div>
           </div>
 
-          {/* 📜 Brief Bilingual Dharmashastra Determination Rule */}
+          {/* 📜 Dharmashastra Determination Rule (Single Preferred Language) */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#0e1629] to-orange-500/10 border border-amber-500/30 text-xs">
-            <div className="flex items-center gap-2 text-amber-300 font-bold uppercase tracking-wider mb-2">
-              <BookOpen size={15} />
-              <span>📜 Dharmashastra Determination Rule (धर्मशास्त्र निर्णय)</span>
+            <div className="flex items-center justify-between text-amber-300 font-bold mb-2">
+              <div className="flex items-center gap-2">
+                <BookOpen size={15} />
+                <span>{isHindi ? '📜 धर्मशास्त्र निर्णय नियम' : '📜 Dharmashastra Determination Rule'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
+                title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
+              >
+                {isHindi ? 'View English' : 'हिन्दी में देखें'}
+              </button>
             </div>
-            <div className="space-y-2 text-neutral-200">
-              <p>
-                <strong className="text-amber-300">हिंदी:</strong> {ruleHindi}
-              </p>
-              <p className="text-neutral-300">
-                <strong className="text-amber-300">English:</strong> {ruleEnglish}
-              </p>
-            </div>
+            <p className="text-neutral-200 leading-relaxed text-xs sm:text-sm">
+              {activeRule}
+            </p>
           </div>
 
           {/* Shastra Reference Badges */}

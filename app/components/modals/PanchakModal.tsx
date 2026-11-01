@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, ShieldAlert, BookOpen, Calendar, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { generatePanchaksForYear, getActivePanchakStatus } from '../../../src/lib/dharmashastra-rules';
+import { useUserLanguage } from '../../../src/lib/user-language';
 
 interface Props {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 export function PanchakModal({ isOpen, onClose }: Props) {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const { language, isHindi, toggleLanguage } = useUserLanguage();
 
   if (!isOpen) return null;
 
@@ -88,20 +90,28 @@ export function PanchakModal({ isOpen, onClose }: Props) {
             </span>
           </div>
 
-          {/* Brief Bilingual Determination Rule */}
+          {/* Panchak Determination Rule (Single Preferred Language) */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#0e1629] to-orange-500/10 border border-amber-500/30 text-xs">
-            <div className="flex items-center gap-2 text-amber-300 font-bold uppercase tracking-wider mb-1.5">
-              <BookOpen size={15} />
-              <span>📜 Panchak Determination & Prohibitions (पञ्चक शास्त्र नियम)</span>
+            <div className="flex items-center justify-between text-amber-300 font-bold mb-2">
+              <div className="flex items-center gap-2 uppercase tracking-wider text-[11px] sm:text-xs">
+                <BookOpen size={15} />
+                <span>{isHindi ? '📜 पञ्चक शास्त्र निर्णय व निषेध' : '📜 Panchak Determination & Prohibitions'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-colors font-mono cursor-pointer shrink-0"
+                title={isHindi ? 'Switch display language to English' : 'भाषा बदलकर हिन्दी करें'}
+              >
+                {isHindi ? 'English' : 'हिन्दी'}
+              </button>
             </div>
-            <div className="space-y-1 text-neutral-200">
-              <p>
-                <strong className="text-amber-300">हिंदी:</strong> चन्द्रमा के धनिष्ठा से रेवती तक विचरण काल में पञ्चक होता है। इसमें छत ढालना, दक्षिण दिशा की यात्रा, तृण/काष्ठ संग्रह, खाट बनाना व बिना शान्ति दाह संस्कार वर्जित है (मुहूर्तचिन्तामणि व निर्णयसिन्धु)।
-              </p>
-              <p className="text-neutral-300">
-                <strong className="text-amber-300">English:</strong> Panchak occurs when the Moon transits from Dhanishta to Revati. Roof construction, southward travel, wood/grass collection, cot crafting, and un-sanctified cremation are canonically prohibited (Muhurta Chintamani & Nirnayasindhu).
-              </p>
-            </div>
+            <p className="text-neutral-200 leading-relaxed text-xs">
+              {isHindi
+                ? 'चन्द्रमा के धनिष्ठा से रेवती तक विचरण काल में पञ्चक होता है। इसमें छत ढालना, दक्षिण दिशा की यात्रा, तृण/काष्ठ संग्रह, खाट बनाना व बिना शान्ति दाह संस्कार वर्जित है (मुहूर्तचिन्तामणि व निर्णयसिन्धु)।'
+                : 'Panchak occurs when the Moon transits from Dhanishta to Revati. Roof construction, southward travel, wood/grass collection, cot crafting, and un-sanctified cremation are canonically prohibited (Muhurta Chintamani & Nirnayasindhu).'
+              }
+            </p>
           </div>
 
           {/* 6 Varieties */}
@@ -227,7 +237,7 @@ export function PanchakModal({ isOpen, onClose }: Props) {
                           </span>
                         </td>
                         <td className="p-3 text-[11px] text-neutral-300 min-w-[200px]">
-                          {panchak.briefEffects.hindi}
+                          {isHindi ? panchak.briefEffects.hindi : panchak.briefEffects.english}
                         </td>
                       </tr>
                     ))}

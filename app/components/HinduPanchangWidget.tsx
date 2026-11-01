@@ -6,8 +6,9 @@ import {
   Clock, Sun, Compass, Hourglass, Calendar, Moon,
   CheckCircle2, ChevronRight, ChevronLeft, Star, Flame, Layers,
   ShieldAlert, ShieldCheck, ArrowUpRight, Bell, Code2, RotateCcw,
-  Share2, Check
+  Share2, Check, Globe
 } from 'lucide-react';
+import { useUserLanguage } from '../../src/lib/user-language';
 import { 
   calculatePanchang, 
   PRESET_LOCATIONS, 
@@ -267,6 +268,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const [locationSource, setLocationSource] = useState<'gps' | 'dropdown' | 'fallback'>('fallback');
   const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('Just now');
   const [isGpsDetecting, setIsGpsDetecting] = useState<boolean>(false);
+  const { language, isHindi, toggleLanguage } = useUserLanguage();
 
   // Single Source of Truth (SSOT) Cascading Panchang Hook
   const {
@@ -601,8 +603,20 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </button>
           </div>
 
-          {/* Right Group: WhatsApp Share Button Only (Restores uncluttered mobile bar) */}
-          <div className="relative inline-flex items-center shrink-0 ml-auto">
+          {/* Right Group: Language Switcher & WhatsApp Share */}
+          <div className="relative inline-flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+            {/* Preferred Language Toggle: English / हिन्दी */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              title={isHindi ? "Switch display language to English" : "भाषा बदलकर हिन्दी करें"}
+              aria-label="Toggle Preferred Language"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-white/10 hover:border-amber-500/30 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+            >
+              <Globe size={11} className="text-amber-400" />
+              <span>{isHindi ? 'हिन्दी' : 'English'}</span>
+            </button>
+
             {/* WhatsApp Share Button */}
             <button
               type="button"
