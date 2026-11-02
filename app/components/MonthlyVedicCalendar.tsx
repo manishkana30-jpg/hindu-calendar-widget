@@ -218,7 +218,7 @@ export function MonthlyVedicCalendar({
   };
 
   return (
-    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
+    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl font-sans ${embeddedInModal ? 'border-none p-0 overflow-visible' : 'p-3 sm:p-6 overflow-hidden'}`}>
       
       {/* ── Top Header Bar: Title, Contextual Masa/Samvat & Location ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#162038]">
@@ -381,13 +381,13 @@ export function MonthlyVedicCalendar({
       </div>
 
       {/* ── Structured Tabular List View (Vedic Almanac Table) ── */}
-      <div className="mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl overflow-hidden">
+      <div className={`mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl ${embeddedInModal ? 'overflow-visible' : 'overflow-hidden'}`}>
         
         {/* Scrollable Container with Sticky Table Column Header Row */}
-        <div className="flex-1 w-full max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] pb-32 sm:pb-24 mb-safe">
+        <div className={embeddedInModal ? "w-full pb-20" : "flex-1 w-full max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] pb-36 sm:pb-28 mb-safe"}>
           
           {/* ── Sticky Table Column Header Row (sticky top-0 z-20) ── */}
-          <div className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90 select-none shadow-sm grid grid-cols-[68px_1fr_auto] sm:grid-cols-12 items-stretch">
+          <div className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90 select-none shadow-sm grid grid-cols-[76px_1fr_auto] sm:grid-cols-12 items-stretch rounded-t-2xl">
             
             {/* Col 1: Date & Vara */}
             <div className="sm:col-span-2 border-r border-[#1e2d4f] p-2 sm:p-2.5 text-center flex items-center justify-center min-w-0">
@@ -473,7 +473,7 @@ export function MonthlyVedicCalendar({
                     role="button"
                     tabIndex={0}
                     aria-label={`${day.dateFormatted}: ${translatedTithiName}`}
-                    className={`grid grid-cols-[68px_1fr_auto] sm:grid-cols-12 items-stretch transition-colors hover:bg-[#10192e] active:bg-[#15203b] cursor-pointer group select-none min-w-0 relative ${
+                    className={`grid grid-cols-[76px_1fr_auto] sm:grid-cols-12 items-stretch transition-colors hover:bg-[#10192e] active:bg-[#15203b] cursor-pointer group select-none min-w-0 relative ${
                       isToday ? 'bg-orange-500/10' : ''
                     }`}
                   >
@@ -483,17 +483,20 @@ export function MonthlyVedicCalendar({
                     )}
 
                     {/* ── Col 1: Date & Weekday (sm:col-span-2) ── */}
-                    <div className="sm:col-span-2 border-r border-[#162038] p-2 sm:p-3 flex flex-col justify-center items-center text-center relative min-w-0">
-                      <span className={`text-base sm:text-xl font-extrabold font-grotesk leading-snug ${
+                    <div className="sm:col-span-2 border-r border-[#162038] p-1.5 sm:p-3 flex flex-col justify-center items-center text-center relative min-w-0">
+                      <span className={`text-lg sm:text-xl font-extrabold font-grotesk leading-none ${
                         isToday ? 'text-orange-400' : isPurnima ? 'text-amber-300' : isAmavasya ? 'text-indigo-300' : isEkadashi ? 'text-emerald-300' : 'text-neutral-100'
                       }`}>
                         {day.dayNumber}
                       </span>
-                      <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 mt-0.5 leading-snug break-words">
-                        {weekdayShort}, {monthShort}
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-300 mt-1 leading-tight text-center break-words max-w-full">
+                        {weekdayShort}
+                      </span>
+                      <span className="text-[9px] text-neutral-500 leading-none text-center">
+                        {monthShort}
                       </span>
                       {isToday && (
-                        <span className="mt-1 px-1.5 py-0.2 rounded bg-orange-500 text-white text-[9px] font-extrabold uppercase shrink-0 whitespace-nowrap shadow-sm">
+                        <span className="mt-1 px-1.5 py-0.5 rounded bg-orange-500 text-white text-[8px] font-extrabold uppercase shrink-0 whitespace-nowrap shadow-sm">
                           {t('live')}
                         </span>
                       )}
@@ -526,15 +529,15 @@ export function MonthlyVedicCalendar({
                         )}
                       </div>
 
-                      <div className="text-[11px] text-neutral-400 font-mono mt-1 leading-snug flex items-center gap-1 flex-wrap">
-                        <span className="text-neutral-500">⏱️ {t('tithiEnds')}:</span>
-                        <strong className="text-amber-300 font-medium whitespace-nowrap">{day.tithiEndTime}</strong>
+                      <div className="text-[11px] text-neutral-400 font-mono mt-1 leading-snug flex items-center gap-1 flex-wrap min-w-0">
+                        <span className="text-neutral-500 shrink-0">⏱️ {t('tithiEnds')}:</span>
+                        <strong className="text-amber-300 font-medium break-words">{day.tithiEndTime}</strong>
                       </div>
 
                       {/* Dharma Shastra Tithi & Observance Rule Sub-Row */}
-                      <div className="mt-1.5 inline-flex items-start gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10.5px] text-indigo-300 leading-snug break-words">
+                      <div className="mt-1.5 flex items-start gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10.5px] text-indigo-300 leading-snug break-words w-full min-w-0 max-w-full">
                         <span className="font-semibold shrink-0 select-none">{dharmaRule.prefix}</span>
-                        <span className="text-indigo-200/90 break-words">{dharmaRule.ruleText}</span>
+                        <span className="text-indigo-200/90 break-words min-w-0 flex-1">{dharmaRule.ruleText}</span>
                       </div>
 
                       {/* Mobile-only Lunar Masa sub-line */}

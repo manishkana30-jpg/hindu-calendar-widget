@@ -65,7 +65,7 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
+      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-[88dvh] max-h-dvh sm:max-h-[88dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
         
         {/* Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -124,7 +124,7 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
 
         {/* ── Scrollable Limb Content ── */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 sm:p-6 space-y-4 [-webkit-overflow-scrolling:touch]"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-4 sm:p-6 pb-28 sm:pb-20 mb-safe space-y-4 [-webkit-overflow-scrolling:touch]"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
 
