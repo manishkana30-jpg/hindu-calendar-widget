@@ -1,4 +1,10 @@
-import { calculateMonthlyMuhurat, mergeIntervals, subtractInterval } from '../src/lib/panchang/monthlyMuhuratEngine';
+import { 
+  calculateMonthlyMuhurat, 
+  mergeIntervals, 
+  subtractInterval,
+  calculateDayMuhurat,
+  findNextAuspiciousMuhurat 
+} from '../src/lib/panchang/monthlyMuhuratEngine';
 import { PRESET_LOCATIONS } from '../src/lib/vedic-astronomy';
 
 console.log('=== TESTING MONTHLY SHUBH KARYA MUHURAT ENGINE ===');
@@ -59,6 +65,22 @@ console.log('\nSample Day Check (5 Nov 2026):', {
   bestWindows: sample.bestTimeWindowsString,
   rahuKaal: sample.rahuKaalString
 });
+
+// Test calculateDayMuhurat
+const testDate = new Date(2026, 10, 5); // 5 Nov 2026
+const dayMuhurat = calculateDayMuhurat(testDate, location);
+console.log('calculateDayMuhurat (5 Nov 2026):', dayMuhurat.dayNumber, dayMuhurat.weekdayShort, dayMuhurat.isAuspiciousDay);
+if (dayMuhurat.dayNumber !== 5 || !dayMuhurat.isAuspiciousDay) {
+  throw new Error('calculateDayMuhurat failed');
+}
+
+// Test findNextAuspiciousMuhurat from an inauspicious or preceding day
+const preDate = new Date(2026, 10, 1);
+const nextAusp = findNextAuspiciousMuhurat(preDate, location);
+console.log('findNextAuspiciousMuhurat from 1 Nov 2026:', nextAusp?.dayNumber, nextAusp?.weekdayShort);
+if (!nextAusp || nextAusp.dayNumber <= 1 || !nextAusp.isAuspiciousDay) {
+  throw new Error('findNextAuspiciousMuhurat failed');
+}
 
 console.log('\n🎉 ALL MONTHLY MUHURAT ENGINE ASSERTIONS PASSED!');
 

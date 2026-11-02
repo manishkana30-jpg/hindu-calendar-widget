@@ -143,6 +143,13 @@ export interface TranslationDictionary {
   // Monthly Shubh Karya Muhurat Planner
   tabTodayMuhuratChoghadiya: string;
   tabMonthlyShubhKarya: string;
+  todayShubhKarya: string;
+  monthlyMuhurat: string;
+  nextUpcomingMuhurat: string;
+  viewFullMonthlyMuhurat: string;
+  table30Days: string;
+  monthlyMuhuratCalendarTitle: string;
+  generalShubhWindow: string;
   filterAllActivities: string;
   filterPropertyPurchase: string;
   filterConstructionBhoomi: string;
@@ -339,6 +346,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     // Monthly Shubh Karya Muhurat Planner
     tabTodayMuhuratChoghadiya: "Today's Muhurat & Choghadiya",
     tabMonthlyShubhKarya: 'Monthly Shubh Karya Muhurat',
+    todayShubhKarya: "Today's Shubh Karya Muhurat",
+    monthlyMuhurat: 'Monthly Muhurat',
+    nextUpcomingMuhurat: 'Next Shubh Karya',
+    viewFullMonthlyMuhurat: 'View Full Monthly Shubh Karya Muhurat Calendar',
+    table30Days: '30-Day Table',
+    monthlyMuhuratCalendarTitle: 'Monthly Shubh Karya Muhurat Calendar',
+    generalShubhWindow: 'Auspicious Window',
     filterAllActivities: 'All Activities',
     filterPropertyPurchase: 'House / Property Purchase',
     filterConstructionBhoomi: 'Bhoomi Pujan & Construction',
@@ -528,6 +542,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     // Monthly Shubh Karya Muhurat Planner
     tabTodayMuhuratChoghadiya: 'आज का मुहूर्त व चौघड़िया',
     tabMonthlyShubhKarya: 'मासिक शुभ कार्य मुहूर्त',
+    todayShubhKarya: 'आज का शुभ कार्य मुहूर्त',
+    monthlyMuhurat: 'मासिक मुहूर्त',
+    nextUpcomingMuhurat: 'अगला शुभ मुहूर्त',
+    viewFullMonthlyMuhurat: 'पूर्ण मासिक शुभ कार्य मुहूर्त कैलेंडर देखें',
+    table30Days: '३०-दिवसीय तालिका',
+    monthlyMuhuratCalendarTitle: 'मासिक शुभ कार्य मुहूर्त कैलेंडर',
+    generalShubhWindow: 'शुभ समय',
     filterAllActivities: 'सभी शुभ कार्य',
     filterPropertyPurchase: 'मकान / संपत्ति खरीद',
     filterConstructionBhoomi: 'भूमि पूजन / गृह निर्माण',
@@ -717,6 +738,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     // Monthly Shubh Karya Muhurat Planner
     tabTodayMuhuratChoghadiya: 'अद्यतनमुहूर्तः चौघडिया च',
     tabMonthlyShubhKarya: 'मासिकशुभकार्यमुहूर्ताः',
+    todayShubhKarya: 'अद्यतनं शुभकार्यमुहूर्तः',
+    monthlyMuhurat: 'मासिकमुहूर्तः',
+    nextUpcomingMuhurat: 'अग्रिमः शुभमुहूर्तः',
+    viewFullMonthlyMuhurat: 'सम्पूर्णमासिकशुभकार्यमुहूर्तदिनदर्शिकां पश्यन्तु',
+    table30Days: 'त्रिंशद्दिनात्मकतालिका',
+    monthlyMuhuratCalendarTitle: 'मासिकशुभकार्यमुहूर्तदिनदर्शिका',
+    generalShubhWindow: 'शुभकालः',
     filterAllActivities: 'सर्वाणि शुभकार्याणि',
     filterPropertyPurchase: 'गृह / सम्पत्ति क्रयः',
     filterConstructionBhoomi: 'भूमिपूजनम् गृहनिर्माणं च',
@@ -906,6 +934,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     // Monthly Shubh Karya Muhurat Planner
     tabTodayMuhuratChoghadiya: 'आजचा मुहूर्त व चौघडिया',
     tabMonthlyShubhKarya: 'मासिक शुभ कार्य मुहूर्त',
+    todayShubhKarya: 'आजचा शुभ कार्य मुहूर्त',
+    monthlyMuhurat: 'मासिक मुहूर्त',
+    nextUpcomingMuhurat: 'पुढील शुभ मुहूर्त',
+    viewFullMonthlyMuhurat: 'पूर्ण मासिक शुभ कार्य मुहूर्त दिनदर्शिका पहा',
+    table30Days: '३०-दिवसीय सारणी',
+    monthlyMuhuratCalendarTitle: 'मासिक शुभ कार्य मुहूर्त दिनदर्शिका',
+    generalShubhWindow: 'शुभ वेळ',
     filterAllActivities: 'सर्व शुभ कार्ये',
     filterPropertyPurchase: 'घर / मालमत्ता खरेदी',
     filterConstructionBhoomi: 'भूमीपूजन व गृहनिर्माण',
@@ -1095,6 +1130,13 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> =
     // Monthly Shubh Karya Muhurat Planner
     tabTodayMuhuratChoghadiya: 'આજનો મુહૂર્ત અને ચોઘડિયા',
     tabMonthlyShubhKarya: 'માસિક શુભ કાર્ય મુહૂર્ત',
+    todayShubhKarya: 'આજનો શુભ કાર્ય મુહૂર્ત',
+    monthlyMuhurat: 'માસિક મુહૂર્ત',
+    nextUpcomingMuhurat: 'આગામી શુભ મુહૂર્ત',
+    viewFullMonthlyMuhurat: 'સંપૂર્ણ માસિક શુભ કાર્ય મુહૂર્ત કેલેન્ડર જુઓ',
+    table30Days: '૩૦-દિવસીય યાદી',
+    monthlyMuhuratCalendarTitle: 'માસિક શુભ કાર્ય મુહૂર્ત કેલેન્ડર',
+    generalShubhWindow: 'શુભ સમય',
     filterAllActivities: 'બધા શુભ કાર્યો',
     filterPropertyPurchase: 'મકાન / મિલકત ખરીદી',
     filterConstructionBhoomi: 'ભૂમિ પૂજન અને ગૃહ નિર્માણ',

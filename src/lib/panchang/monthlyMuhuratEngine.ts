@@ -481,3 +481,49 @@ export function calculateMonthlyMuhurat(
 
   return items;
 }
+
+/**
+ * Calculate Shubh Karya Muhurat details for a single target date
+ */
+export function calculateDayMuhurat(date: Date, location: LocationCoordinates): DayMuhuratItem {
+  const monthItems = calculateMonthlyMuhurat(date.getFullYear(), date.getMonth() + 1, location);
+  const found = monthItems.find(m => m.dayNumber === date.getDate());
+  if (found) return found;
+  return monthItems[0];
+}
+
+/**
+ * Scan forward from a given date to find the next upcoming auspicious day
+ */
+export function findNextAuspiciousMuhurat(fromDate: Date, location: LocationCoordinates): DayMuhuratItem | null {
+  const year = fromDate.getFullYear();
+  const month = fromDate.getMonth() + 1;
+  const currentMonthItems = calculateMonthlyMuhurat(year, month, location);
+
+  // Search remaining days of the current month
+  for (const item of currentMonthItems) {
+    if (item.dayNumber > fromDate.getDate() && item.isAuspiciousDay) {
+      return item;
+    }
+  }
+
+  // If not found in current month, scan the next month
+  const nextMonthYear = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
+  const nextMonthItems = calculateMonthlyMuhurat(nextMonthYear.year, nextMonthYear.month, location);
+  for (const item of nextMonthItems) {
+    if (item.isAuspiciousDay) {
+      return item;
+    }
+  }
+
+  // Scan one more month if needed
+  const thirdMonthYear = nextMonthYear.month === 12 ? { year: nextMonthYear.year + 1, month: 1 } : { year: nextMonthYear.year, month: nextMonthYear.month + 1 };
+  const thirdMonthItems = calculateMonthlyMuhurat(thirdMonthYear.year, thirdMonthYear.month, location);
+  for (const item of thirdMonthItems) {
+    if (item.isAuspiciousDay) {
+      return item;
+    }
+  }
+
+  return null;
+}
