@@ -1071,18 +1071,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
-              {/* Top Header: Label & Monthly Action Pill */}
+              {/* Top Header: Label */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 mb-2">
                 <div className="flex items-center gap-1.5 text-orange-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-orange-300 transition-colors min-w-0">
                   <Sparkles size={12} className="text-orange-400 shrink-0" />
                   <span className="whitespace-nowrap shrink-0">{t('todayShubhKarya')}</span>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[10px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
-                    <Calendar size={11} className="text-orange-400 shrink-0" />
-                    <span>{t('monthlyMuhurat')}</span>
-                    <ChevronRight size={11} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                  </span>
                 </div>
               </div>
 
