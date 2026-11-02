@@ -256,6 +256,7 @@ export interface PanchangState {
   selectedDate: Date;
   liveTime: Date;
   targetInstant: Date;
+  targetDayKey: string;
   isLiveMode: boolean;
   isMounted: boolean;
   displayTime: string;
@@ -674,6 +675,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     selectedDate,
     liveTime,
     targetInstant,
+    targetDayKey,
     isLiveMode,
     isMounted,
     displayTime,

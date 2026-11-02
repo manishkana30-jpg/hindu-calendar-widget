@@ -333,7 +333,13 @@ function getMoonSiderealDeg(date: Date): number {
   return getSiderealMoonLongitude(jd);
 }
 
+const panchakYearCache = new Map<string, PanchakEntry[]>();
+
 export function generatePanchaksForYear(year: number, ianaTimezone?: string): PanchakEntry[] {
+  const cacheKey = `${year}-${ianaTimezone || 'default'}`;
+  const cached = panchakYearCache.get(cacheKey);
+  if (cached) return cached;
+
   const panchaks: PanchakEntry[] = [];
   const startOfYear = new Date(year, 0, 1, 0, 0, 0);
   const endOfYear = new Date(year, 11, 31, 23, 59, 59);
@@ -456,6 +462,7 @@ export function generatePanchaksForYear(year: number, ianaTimezone?: string): Pa
     t += stepMs;
   }
 
+  panchakYearCache.set(cacheKey, panchaks);
   return panchaks;
 }
 

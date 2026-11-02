@@ -215,6 +215,8 @@ const ACTIVITIES_MAP: Record<Exclude<ShubhKaryaCategory, 'all'>, AuspiciousActiv
   }
 };
 
+const monthlyMuhuratCache = new Map<string, DayMuhuratItem[]>();
+
 /**
  * Calculates auspicious Shubh Karya dates and exact timings for all days of a month
  */
@@ -223,13 +225,23 @@ export function calculateMonthlyMuhurat(
   month: number, // 1 to 12
   location: LocationCoordinates
 ): DayMuhuratItem[] {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const items: DayMuhuratItem[] = [];
-
+  const cacheKey = `${year}-${month}-${location.latitude.toFixed(2)}-${location.longitude.toFixed(2)}`;
+  const cached = monthlyMuhuratCache.get(cacheKey);
   const today = new Date();
   const todayYear = today.getFullYear();
   const todayMonth = today.getMonth() + 1;
   const todayDay = today.getDate();
+
+  if (cached) {
+    const isCur = todayYear === year && todayMonth === month;
+    return cached.map(item => ({
+      ...item,
+      isToday: isCur && item.dayNumber === todayDay
+    }));
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const items: DayMuhuratItem[] = [];
 
   for (let d = 1; d <= daysInMonth; d++) {
     const targetDate = new Date(year, month - 1, d, 6, 0, 0);
@@ -479,6 +491,8 @@ export function calculateMonthlyMuhurat(
     });
   }
 
+  if (monthlyMuhuratCache.size > 100) monthlyMuhuratCache.clear();
+  monthlyMuhuratCache.set(cacheKey, items);
   return items;
 }
 

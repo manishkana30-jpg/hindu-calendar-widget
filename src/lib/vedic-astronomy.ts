@@ -1248,6 +1248,8 @@ export function getSamvatDetails(targetDate: Date): {
   return { vikramSamvat, shakaSamvat, kaliYugaYear, samvatsaraName };
 }
 
+const panchangCalculationCache = new Map<string, PanchangData>();
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN PANCHANG CALCULATION FUNCTION (UDAYA TITHI + INSTANTANEOUS LIMBS)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1275,6 +1277,12 @@ export function calculatePanchang(
           0
         )
   );
+
+  const timeKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}:${now.getMinutes()}`;
+  const targetDayKey = `${targetDate.getFullYear()}-${targetDate.getMonth()}-${targetDate.getDate()}`;
+  const cacheKey = `${targetDayKey}_${timeKey}_${location.latitude.toFixed(2)}_${location.longitude.toFixed(2)}_${elev}`;
+  const cached = panchangCalculationCache.get(cacheKey);
+  if (cached) return cached;
 
   // 2. RESOLVE THE MIDNIGHT VS. SUNRISE ROLLOVER TRAP
   // A civil Vedic day (Ahoratra) extends strictly from local sunrise to next local sunrise.
@@ -1657,7 +1665,7 @@ export function calculatePanchang(
     shastraReferences: upcomingFest.shastraReferences
   };
 
-  return {
+  const result: PanchangData = {
     date: targetDate,
     dateString: targetDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
     dayOfWeekName: vaar.name,
@@ -1822,17 +1830,33 @@ export function calculatePanchang(
     upcomingFestival,
     festivals: [todayFestival.title, upcomingFestival.title]
   };
+
+  if (panchangCalculationCache.size > 200) panchangCalculationCache.clear();
+  panchangCalculationCache.set(cacheKey, result);
+  return result;
 }
+
+const monthVedicCalendarCache = new Map<string, MonthCalendarDay[]>();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MONTHLY VEDIC CALENDAR DATA GENERATOR (ACCURATE FOR EVERY DAY OF THE MONTH)
 // ─────────────────────────────────────────────────────────────────────────────
 export function getMonthVedicCalendar(year: number, month: number, location: LocationCoordinates): MonthCalendarDay[] {
-  const days: MonthCalendarDay[] = [];
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cacheKey = `${year}-${month}-${location.latitude.toFixed(2)}-${location.longitude.toFixed(2)}`;
+  const cached = monthVedicCalendarCache.get(cacheKey);
   const today = new Date();
   const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
   const todayDateNum = today.getDate();
+
+  if (cached) {
+    return cached.map(d => ({
+      ...d,
+      isToday: isCurrentMonth && d.dayNumber === todayDateNum
+    }));
+  }
+
+  const days: MonthCalendarDay[] = [];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   for (let d = 1; d <= daysInMonth; d++) {
     const targetDate = new Date(year, month, d, 6, 0, 0);
@@ -1978,6 +2002,8 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
     }
   }
 
+  if (monthVedicCalendarCache.size > 100) monthVedicCalendarCache.clear();
+  monthVedicCalendarCache.set(cacheKey, days);
   return days;
 }
 

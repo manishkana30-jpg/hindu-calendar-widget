@@ -292,6 +292,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     selectedDate,
     liveTime,
     targetInstant,
+    targetDayKey,
     isLiveMode,
     isMounted,
     displayTime,
@@ -463,12 +464,12 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const nextTithiIndex = (((panchang.udayaTithi?.index || panchang.tithi.index || 1) % 30) + 1);
   const shortNextTithi = formatShortenedTithi(nextTithiIndex, language, nextTithiName);
 
-  // Chronological upcoming festivals list for compact list view (showing strictly only one upcoming on front screen)
+  // Chronological upcoming festivals list for compact list view (memoized by civil date & location)
   const upcomingFestivalsList = useMemo(() => {
     return getUpcomingFestivalsList(targetInstant, selectedLocation, 1, 90);
-  }, [targetInstant, selectedLocation]);
+  }, [targetDayKey, selectedLocation]);
 
-  // Dedicated Gregorian Date formatters (strictly decoupled from Vedic calendar)
+  // Dedicated Gregorian Date formatters (memoized by civil date, timezone & locale)
   const gregorianDayNumber = useMemo(() => {
     try {
       return new Intl.DateTimeFormat(localeCode, {
@@ -478,7 +479,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     } catch {
       return String(targetInstant.getDate()).padStart(2, '0');
     }
-  }, [targetInstant, observer.timezone, localeCode]);
+  }, [targetDayKey, observer.timezone, localeCode]);
 
   const gregorianMonthYear = useMemo(() => {
     try {
@@ -490,7 +491,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     } catch {
       return targetInstant.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' });
     }
-  }, [targetInstant, observer.timezone, localeCode]);
+  }, [targetDayKey, observer.timezone, localeCode]);
 
   const gregorianWeekday = useMemo(() => {
     try {
@@ -501,17 +502,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     } catch {
       return targetInstant.toLocaleDateString(localeCode, { weekday: 'long' });
     }
-  }, [targetInstant, observer.timezone, localeCode]);
+  }, [targetDayKey, observer.timezone, localeCode]);
 
-  // Today's Shubh Karya Muhurat calculation for Card 3
+  // Today's Shubh Karya Muhurat calculation for Card 3 (memoized by civil date & location)
   const todayMuhurat = useMemo(() => {
     return calculateDayMuhurat(targetInstant, selectedLocation);
-  }, [targetInstant, selectedLocation]);
+  }, [targetDayKey, selectedLocation]);
 
   const nextUpcomingMuhurat = useMemo(() => {
     if (todayMuhurat.isAuspiciousDay) return null;
     return findNextAuspiciousMuhurat(targetInstant, selectedLocation);
-  }, [todayMuhurat.isAuspiciousDay, targetInstant, selectedLocation]);
+  }, [todayMuhurat.isAuspiciousDay, targetDayKey, selectedLocation]);
 
   // Formatted date string for native date input (YYYY-MM-DD)
   const selectedDateYyyyMmDd = useMemo(() => {

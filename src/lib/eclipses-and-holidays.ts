@@ -437,6 +437,8 @@ export interface MonthHolidayItem {
   icon: string;
 }
 
+const monthlyHolidaysCache = new Map<string, MonthHolidayItem[]>();
+
 /**
  * Returns all public, gazetted, and major religious holidays for a given month.
  */
@@ -445,6 +447,10 @@ export function getMonthlyHolidays(
   month: number, // 1 to 12
   location: LocationCoordinates
 ): MonthHolidayItem[] {
+  const cacheKey = `${year}-${month}-${location.latitude.toFixed(2)}-${location.longitude.toFixed(2)}`;
+  const cached = monthlyHolidaysCache.get(cacheKey);
+  if (cached) return cached;
+
   const daysInMonth = new Date(year, month, 0).getDate();
   const list: MonthHolidayItem[] = [];
 
@@ -494,5 +500,7 @@ export function getMonthlyHolidays(
     }
   }
 
+  if (monthlyHolidaysCache.size > 100) monthlyHolidaysCache.clear();
+  monthlyHolidaysCache.set(cacheKey, list);
   return list;
 }
