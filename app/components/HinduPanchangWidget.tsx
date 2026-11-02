@@ -463,9 +463,9 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
   const nextTithiIndex = (((panchang.udayaTithi?.index || panchang.tithi.index || 1) % 30) + 1);
   const shortNextTithi = formatShortenedTithi(nextTithiIndex, language, nextTithiName);
 
-  // Chronological upcoming festivals list for compact list view
+  // Chronological upcoming festivals list for compact list view (showing strictly only one upcoming on front screen)
   const upcomingFestivalsList = useMemo(() => {
-    return getUpcomingFestivalsList(targetInstant, selectedLocation, 4, 90);
+    return getUpcomingFestivalsList(targetInstant, selectedLocation, 1, 90);
   }, [targetInstant, selectedLocation]);
 
   // Dedicated Gregorian Date formatters (strictly decoupled from Vedic calendar)
@@ -938,11 +938,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 shrink-0">
                     {t('today')}
                   </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all">
-                    <Calendar size={11} className="text-orange-400 shrink-0" />
-                    <span>{t('fullAlmanac')}</span>
-                    <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                  </span>
                 </div>
               </div>
 
@@ -1239,7 +1234,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             } flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans shadow-xl min-w-0`}
           >
             <div className="space-y-2 relative z-10 min-w-0">
-              {/* Header row: Label + Festive Badge + Action Pill */}
+              {/* Header row: Label + Festive Badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
                 <div className="text-orange-400 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 min-w-0">
                   <span className="leading-snug">{t('todaysObservance')}</span>
@@ -1249,11 +1244,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     </span>
                   )}
                 </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-orange-500/25 group-hover:border-orange-400/50 transition-all shrink-0">
-                  <Calendar size={11} className="text-orange-400 shrink-0" />
-                  <span>{t('viewAllFestivals')}</span>
-                  <ChevronRight size={12} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                </span>
               </div>
 
               {/* Main content */}
@@ -1393,61 +1383,59 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           {/* BOTTOM RIGHT: UPCOMING FESTIVALS COMPACT LIST */}
           <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-emerald-500/40 shadow-xl flex flex-col justify-between font-sans min-w-0">
             <div className="space-y-2 min-w-0">
-              {/* Header row: Label + Action badge */}
+              {/* Header row: Label */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
-                <span className="text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase leading-snug">
-                  {t('upcomingFestivals').toUpperCase()}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => openCalendar('vrats')}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold font-outfit shadow-sm hover:bg-emerald-500/25 transition-all shrink-0 cursor-pointer"
-                >
-                  <Calendar size={11} className="text-emerald-400 shrink-0" />
-                  <span>{t('viewAllFestivals')}</span>
-                  <ChevronRight size={12} className="text-emerald-400 shrink-0" />
-                </button>
+                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase min-w-0">
+                  <Sparkles size={11} className="text-emerald-400 shrink-0" />
+                  <span className="leading-snug">{t('upcomingFestivals')}</span>
+                </div>
               </div>
 
-              {/* Compact Chronological List Container */}
+              {/* Single Upcoming Observance Display */}
               <div className="rounded-xl bg-[#090e1a] border border-[#1a2542] divide-y divide-[#162038] overflow-hidden">
-                {upcomingFestivalsList.map((fest, idx) => {
-                  const festTitle = translateTerm(language === 'hi' ? fest.hindiName || fest.name : fest.name, language);
-                  const dateBadgeDay = fest.targetDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
-                  const dateBadgeWeekday = fest.targetDate.toLocaleDateString(localeCode, { weekday: 'short' });
-                  const countdown = fest.daysRemaining === 0 
-                    ? t('live') 
-                    : (fest.daysRemaining === 1 ? (language === 'hi' ? 'कल' : 'Tomorrow') : t('inDays').replace('{n}', String(fest.daysRemaining)));
+                {upcomingFestivalsList.length === 0 ? (
+                  <div className="p-3 text-center text-xs text-neutral-400 font-sans">
+                    {language === 'hi' ? 'कोई आगामी व्रत/त्योहार नहीं' : 'No upcoming festivals found'}
+                  </div>
+                ) : (
+                  upcomingFestivalsList.slice(0, 1).map((fest, idx) => {
+                    const festTitle = translateTerm(language === 'hi' ? fest.hindiName || fest.name : fest.name, language);
+                    const dateBadgeDay = fest.targetDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
+                    const dateBadgeWeekday = fest.targetDate.toLocaleDateString(localeCode, { weekday: 'short' });
+                    const countdown = fest.daysRemaining === 0 
+                      ? t('live') 
+                      : (fest.daysRemaining === 1 ? (language === 'hi' ? 'कल' : 'Tomorrow') : t('inDays').replace('{n}', String(fest.daysRemaining)));
 
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => openCalendar('vrats')}
-                      className="flex items-center justify-between gap-2.5 px-3 py-2 hover:bg-[#11192e] transition-colors cursor-pointer group"
-                    >
-                      {/* Left: Date pill (DD MMM + Weekday) */}
-                      <div className="flex flex-col items-center justify-center min-w-[48px] px-1.5 py-0.5 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
-                        <span className="text-[11px] font-bold text-white font-grotesk">{dateBadgeDay}</span>
-                        <span className="text-[9px] text-neutral-400">{dateBadgeWeekday}</span>
-                      </div>
-
-                      {/* Middle: Title & Category / Description */}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors break-words whitespace-normal leading-snug">
-                          {festTitle}
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => openCalendar('vrats')}
+                        className="flex items-center justify-between gap-2.5 px-3 py-2.5 hover:bg-[#11192e] transition-colors cursor-pointer group"
+                      >
+                        {/* Left: Date pill (DD MMM + Weekday) */}
+                        <div className="flex flex-col items-center justify-center min-w-[50px] px-1.5 py-1 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
+                          <span className="text-xs font-bold text-white font-grotesk leading-none">{dateBadgeDay}</span>
+                          <span className="text-[9px] text-neutral-400 mt-0.5">{dateBadgeWeekday}</span>
                         </div>
-                        <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5">
-                          {fest.category ? `${fest.category} • ` : ''}{fest.description}
+
+                        {/* Middle: Title & Category / Description */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors break-words whitespace-normal leading-snug">
+                            {festTitle}
+                          </div>
+                          <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5 truncate">
+                            {fest.category ? `${fest.category} • ` : ''}{fest.description}
+                          </div>
+                        </div>
+
+                        {/* Right: Countdown badge */}
+                        <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 shrink-0">
+                          {countdown}
                         </div>
                       </div>
-
-                      {/* Right: Countdown badge */}
-                      <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 shrink-0">
-                        {countdown}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
 

@@ -218,7 +218,7 @@ export function MonthlyVedicCalendar({
   };
 
   return (
-    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl font-sans ${embeddedInModal ? 'border-none p-0 overflow-visible' : 'p-3 sm:p-6 overflow-hidden'}`}>
+    <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
       
       {/* ── Top Header Bar: Title, Contextual Masa/Samvat & Location ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#162038]">
@@ -381,7 +381,7 @@ export function MonthlyVedicCalendar({
       </div>
 
       {/* ── Structured Tabular List View (Vedic Almanac Table) ── */}
-      <div className={`mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl ${embeddedInModal ? 'overflow-visible' : 'overflow-hidden'}`}>
+      <div className={`mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl ${embeddedInModal ? '' : 'overflow-hidden'}`}>
         
         {/* Scrollable Container with Sticky Table Column Header Row */}
         <div className={embeddedInModal ? "w-full pb-20" : "flex-1 w-full max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] pb-36 sm:pb-28 mb-safe"}>

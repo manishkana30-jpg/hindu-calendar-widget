@@ -224,7 +224,7 @@ export function GregorianCalendarModal({
       aria-labelledby="gregorian-modal-title"
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-[88dvh] max-h-dvh sm:max-h-[88dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto max-h-dvh sm:max-h-[90dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -437,12 +437,12 @@ export function GregorianCalendarModal({
                     >
                       {/* Left: Date Badge */}
                       <div className="flex items-center gap-3 shrink-0">
-                        <div className="w-12 h-12 rounded-xl bg-[#0f172a] border border-[#233152] flex flex-col items-center justify-center text-center p-0.5">
+                        <div className="w-12 h-12 rounded-xl bg-[#0f172a] border border-[#233152] flex flex-col items-center justify-center text-center">
                           <span className="text-xs font-bold text-white font-mono leading-none">
                             {String(item.dayNumber).padStart(2, '0')}
                           </span>
-                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mt-0.5 w-full truncate text-center">
-                            {item.date.toLocaleDateString(localeCode, { weekday: 'short' })}
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mt-0.5">
+                            {item.weekdayShort}
                           </span>
                         </div>
 

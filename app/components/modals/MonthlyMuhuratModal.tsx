@@ -160,7 +160,7 @@ export function MonthlyMuhuratModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-stretch sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -169,7 +169,7 @@ export function MonthlyMuhuratModal({
       <div 
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-4xl h-dvh sm:h-[88dvh] max-h-dvh sm:max-h-[88dvh] flex flex-col rounded-none sm:rounded-3xl border-0 sm:border border-[#1e2d4f] bg-[#090e1a] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 relative text-slate-200"
+        className="w-full max-w-4xl max-h-[90dvh] sm:max-h-[88dvh] flex flex-col rounded-t-3xl sm:rounded-3xl border border-[#1e2d4f] bg-[#090e1a] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 relative text-slate-200"
       >
         {/* ── 1. Modal Header (Pinned at Top) ── */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-[#1e2d4f] bg-[#0c1222] shrink-0">
