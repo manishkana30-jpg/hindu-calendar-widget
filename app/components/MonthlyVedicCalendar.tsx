@@ -14,6 +14,7 @@ import {
   getLunarMonthDetails
 } from '../../src/lib/vedic-astronomy';
 import { useLanguage } from '../../src/context/LanguageContext';
+import { resolveDharmaShastraRule } from '../../src/lib/panchang/dharmaShastraRuleEngine';
 
 export type CalendarFilterTab = 'all' | 'vrats' | 'ekadashi' | 'pradosh' | 'purnima_amavasya' | 'major';
 
@@ -383,7 +384,7 @@ export function MonthlyVedicCalendar({
       <div className="mt-3 rounded-2xl border border-[#1e2942] bg-[#090e1a] shadow-xl overflow-hidden">
         
         {/* Scrollable Container with Sticky Table Column Header Row */}
-        <div className="max-h-[72dvh] sm:max-h-[78dvh] overflow-y-auto touch-pan-y overscroll-contain pb-16">
+        <div className="flex-1 w-full max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch] pb-32 sm:pb-24 mb-safe">
           
           {/* ── Sticky Table Column Header Row (sticky top-0 z-20) ── */}
           <div className="sticky top-0 z-20 bg-[#0d1424] border-b border-[#1e2d4f] text-[11px] font-bold uppercase tracking-wider text-orange-300/90 select-none shadow-sm grid grid-cols-[68px_1fr_auto] sm:grid-cols-12 items-stretch">
@@ -441,6 +442,7 @@ export function MonthlyVedicCalendar({
                 const cleanPurnimanta = day.purnimantaMonth.replace(/\s*\([^)]*\)/g, '').trim();
                 const translatedMasa = translateTerm(`${cleanPurnimanta} Masa`, language) || translateTerm(cleanPurnimanta, language);
                 const translatedFestival = day.festival ? translateTerm(day.festival, language) : null;
+                const dharmaRule = resolveDharmaShastraRule(day, language, t);
 
                 // Relative countdown calculation
                 const todayMidnight = new Date(todayYear, todayMonth, todayDateNum).getTime();
@@ -527,6 +529,12 @@ export function MonthlyVedicCalendar({
                       <div className="text-[11px] text-neutral-400 font-mono mt-1 leading-snug flex items-center gap-1 flex-wrap">
                         <span className="text-neutral-500">⏱️ {t('tithiEnds')}:</span>
                         <strong className="text-amber-300 font-medium whitespace-nowrap">{day.tithiEndTime}</strong>
+                      </div>
+
+                      {/* Dharma Shastra Tithi & Observance Rule Sub-Row */}
+                      <div className="mt-1.5 inline-flex items-start gap-1.5 px-2 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-[10.5px] text-indigo-300 leading-snug break-words">
+                        <span className="font-semibold shrink-0 select-none">{dharmaRule.prefix}</span>
+                        <span className="text-indigo-200/90 break-words">{dharmaRule.ruleText}</span>
                       </div>
 
                       {/* Mobile-only Lunar Masa sub-line */}
@@ -735,6 +743,21 @@ export function MonthlyVedicCalendar({
                     </p>
                   </div>
                 )}
+
+                {/* Dedicated Dharma Shastra Rule Box in Day Detail */}
+                {(() => {
+                  const detailRule = resolveDharmaShastraRule(selectedDayDetail, language, t);
+                  return (
+                    <div className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 mt-2 space-y-1">
+                      <div className="font-bold text-indigo-300 flex items-center gap-1.5">
+                        <span>{detailRule.prefix}</span>
+                      </div>
+                      <p className="text-[11.5px] text-indigo-100/90 leading-relaxed break-words min-w-0">
+                        {detailRule.ruleText}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* 5-Limbs Grid */}
