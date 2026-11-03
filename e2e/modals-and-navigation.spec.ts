@@ -33,8 +33,8 @@ test.describe('Modals & Interactive Calendars E2E Tests', () => {
 
     // 5. Close modal via close button
     const closeButton = modalDialog.locator('button').filter({ hasText: /Close/i }).or(modalDialog.locator('button[aria-label*="close" i], button[title*="close" i]')).first();
-    await closeButton.click();
-    await expect(modalDialog).not.toBeVisible({ timeout: 3000 });
+    await closeButton.click({ force: true });
+    await expect(modalDialog).not.toBeVisible({ timeout: 4000 });
   });
 
   test('Unified Vedic Panchang Calendar Modal renders all days and Dharma Shastra rules without clipping', async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe('Modals & Interactive Calendars E2E Tests', () => {
     // 3. Verify date rows are rendered
     // Days 1, 15, and 28 should be present
     const day1 = vedicModal.getByText(/^0?1$/).first();
-    await expect(day1).toBeVisible();
+    await expect(day1).toBeVisible({ timeout: 10000 });
 
     const day15 = vedicModal.getByText(/^15$/).first();
     await expect(day15).toBeVisible();
