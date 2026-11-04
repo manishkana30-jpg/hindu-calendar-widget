@@ -146,8 +146,8 @@ export function MonthlyMuhuratModal({
   };
 
   const handleShareDayMuhurat = useCallback((item: DayMuhuratItem) => {
-    const activitiesStr = item.auspiciousActivities.map(a => `${a.icon} ${language === 'hi' ? a.hindiName : a.name}`).join(', ');
-    const yogasStr = item.specialYogas.length > 0 ? `\n✨ *Special Yogas:* ${item.specialYogas.map(y => translateTermRaw(y, language)).join(', ')}` : '';
+    const activitiesStr = (item.auspiciousActivities ?? []).map(a => `${a.icon} ${language === 'hi' ? a.hindiName : a.name}`).join(', ');
+    const yogasStr = (item.specialYogas ?? []).length > 0 ? `\n✨ *Special Yogas:* ${(item.specialYogas ?? []).map(y => translateTermRaw(y, language)).join(', ')}` : '';
     const monthShort = new Date(item.year, item.month - 1, 1).toLocaleDateString(localeCode, { month: 'short' });
     
     const text = `🌸 *Shubh Muhurat Alert* 🌸\n📅 *Date:* ${item.dayNumber} ${monthShort} ${item.year} (${item.weekdayLong})\n🪷 *Tithi:* ${translateTermRaw(item.tithiName, language)}\n⭐ *Nakshatra:* ${translateTermRaw(item.nakshatraName, language)}\n🎯 *Auspicious For:* ${activitiesStr || 'General Observances'}${yogasStr}\n⏰ *Best Timings:* ${item.bestTimeWindowsString}\n⚠️ *Rahu Kaal (Avoid):* ${item.rahuKaalString}\n📍 *Location:* ${location.name}\n🔗 https://dailytithi.com`;
@@ -179,14 +179,14 @@ export function MonthlyMuhuratModal({
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold font-outfit text-white tracking-tight truncate">
+                <h2 className="text-sm sm:text-base font-bold font-outfit text-white tracking-tight break-words min-w-0 leading-snug">
                   {t('monthlyMuhuratCalendarTitle')}
                 </h2>
                 <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
                   धर्मशास्त्र सम्मत
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-sans truncate">
+              <div className="text-[10px] text-slate-400 font-sans break-words min-w-0 leading-snug">
                 {location.name} • {language === 'hi' ? 'गृह, वाहन, व्यापार, विवाह एवं संपत्ति' : 'Griha, Property, Vehicle, Business & Vivah'}
               </div>
             </div>
@@ -254,7 +254,7 @@ export function MonthlyMuhuratModal({
 
         {/* ── 3. Purpose Filter Pills (Horizontally Scrollable) ── */}
         <div className="px-4 sm:px-6 py-2 bg-[#090e1a] border-b border-[#162038] flex items-center gap-1.5 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] shrink-0">
-          {KARYA_FILTER_TABS.map(tab => {
+          {(KARYA_FILTER_TABS ?? []).map(tab => {
             const isActive = selectedCategory === tab.id;
             return (
               <button
@@ -296,7 +296,7 @@ export function MonthlyMuhuratModal({
                   </td>
                 </tr>
               ) : (
-                filteredDays.map((item) => {
+                (filteredDays ?? []).map((item) => {
                   const isSelected = item.date.toDateString() === selectedDate.toDateString();
                   const monthShort = new Date(item.year, item.month - 1, 1).toLocaleDateString(localeCode, { month: 'short' });
 
@@ -327,7 +327,7 @@ export function MonthlyMuhuratModal({
                               : 'bg-[#11192e] text-white border border-[#233152]'
                           }`}>
                             <span className="text-xs font-extrabold leading-none">{String(item.dayNumber).padStart(2, '0')}</span>
-                            <span className="text-[9px] font-semibold text-neutral-400 uppercase mt-0.5">{item.weekdayShort}</span>
+                            <span className="text-[9px] font-semibold text-neutral-400 uppercase mt-0.5 leading-snug py-0.5">{item.weekdayShort}</span>
                           </div>
                           <div>
                             <div className="text-xs font-bold text-white font-sans">
@@ -338,7 +338,7 @@ export function MonthlyMuhuratModal({
                                 {t('today')}
                               </span>
                             ) : (
-                              <span className="text-[10px] text-neutral-400">
+                              <span className="text-[10px] text-neutral-400 leading-snug">
                                 {item.weekdayLong}
                               </span>
                             )}
@@ -349,7 +349,7 @@ export function MonthlyMuhuratModal({
                       {/* Col 2: Shubh Karya / Purpose */}
                       <td className="px-3.5 py-3">
                         <div className="flex flex-wrap items-center gap-1.5 max-w-[280px]">
-                          {item.auspiciousActivities.map(act => (
+                          {(item.auspiciousActivities ?? []).map(act => (
                             <span 
                               key={act.category}
                               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${act.colorClass}`}
@@ -358,7 +358,7 @@ export function MonthlyMuhuratModal({
                               <span>{language === 'hi' ? act.hindiName : act.name}</span>
                             </span>
                           ))}
-                          {item.specialYogas.map(yoga => (
+                          {(item.specialYogas ?? []).map(yoga => (
                             <span
                               key={yoga}
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold border bg-amber-500/20 text-amber-200 border-amber-500/40 shadow-sm"
@@ -434,7 +434,7 @@ export function MonthlyMuhuratModal({
 
         {/* ── 5. Modal Footer Note ── */}
         <div className="px-4 py-2.5 border-t border-[#1e2d4f] bg-[#0c1222] flex items-center justify-between text-[11px] text-slate-400 shrink-0">
-          <span className="font-sans text-[10px] text-slate-400 truncate">
+          <span className="font-sans text-[10px] text-slate-400 break-words min-w-0 leading-snug">
             {language === 'hi' ? 'किसी भी दिन पर क्लिक करके उसे मुख्य पंचांग में चुनें' : 'Click any date row to select that day in the main Panchang'}
           </span>
           <span className="font-mono text-[10px] text-amber-300 shrink-0 ml-2">

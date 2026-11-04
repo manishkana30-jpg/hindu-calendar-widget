@@ -314,7 +314,7 @@ export function MonthlyVedicCalendar({
 
       {/* ── Almanac Mode Filter Pills ── */}
       <div className="py-2.5 border-b border-[#162038] flex items-center gap-1.5 overflow-x-auto horizontal-tabs-scroll overscroll-x-contain">
-        {filterOptions.map((opt) => {
+        {(filterOptions ?? []).map((opt) => {
           const isActive = activeFilterTab === opt.id;
           return (
             <button
@@ -385,7 +385,7 @@ export function MonthlyVedicCalendar({
                 </td>
               </tr>
             ) : (
-              displayedDays.map((day) => {
+              (displayedDays ?? []).map((day) => {
                 const isToday = day.isToday;
                 const isPurnima = day.udayaTithi.isPurnima;
                 const isAmavasya = day.udayaTithi.isAmavasya;
@@ -479,7 +479,7 @@ export function MonthlyVedicCalendar({
                         }`}>
                           {day.dayNumber}
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-300 mt-1 leading-tight text-center whitespace-nowrap">
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-300 mt-1 leading-snug py-0.5 text-center whitespace-nowrap">
                           {weekdayShort}
                         </span>
                         <span className="text-[9px] text-neutral-500 leading-none text-center whitespace-nowrap">

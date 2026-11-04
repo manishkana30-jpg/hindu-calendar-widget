@@ -245,7 +245,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
       </head>
-      <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-dvh overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-200`}>
+      <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-200`}>
         <LanguageProvider>
           <Suspense fallback={null}>
             <NotificationNavigationHandler />

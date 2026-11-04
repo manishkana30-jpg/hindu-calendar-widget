@@ -789,7 +789,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isGregorianCalendarModalOpen}
             title="Click to open Full Gregorian Calendar & Holidays"
             aria-label="Open Full Gregorian Calendar & Holidays"
-            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-blue-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
+            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-blue-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
               {/* Top Header: Live Indicator & Location Timezone Badge */}
@@ -813,10 +813,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   {gregorianDayNumber}
                 </div>
                 <div className="min-w-0 flex flex-col justify-center">
-                  <span className="text-base sm:text-lg font-bold text-amber-300 font-sans leading-tight break-words">
+                  <span className="text-base sm:text-lg font-bold text-amber-300 font-sans leading-snug py-0.5 break-words">
                     {gregorianWeekday}
                   </span>
-                  <span className="text-xs sm:text-sm text-slate-300 font-medium font-sans leading-tight break-words mt-0.5">
+                  <span className="text-xs sm:text-sm text-slate-300 font-medium font-sans leading-snug py-0.5 break-words mt-0.5">
                     {gregorianMonthYear}
                   </span>
                 </div>
@@ -846,10 +846,10 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">{holidayDetails.todayHoliday.icon || '🎉'}</span>
                     <div className="min-w-0">
-                      <div className="text-xs font-bold text-emerald-200 truncate">
+                      <div className="text-xs font-bold text-emerald-200 break-words min-w-0 leading-snug">
                         {translateTerm(holidayDetails.todayHoliday.title)}
                       </div>
-                      <div className="text-[10px] text-emerald-400/80 truncate">
+                      <div className="text-[10px] text-emerald-400/80 break-words min-w-0 leading-snug">
                         {holidayDetails.todayHoliday.subtitle}
                       </div>
                     </div>
@@ -863,11 +863,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">{holidayDetails.upcomingHoliday.icon || '📅'}</span>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-neutral-200 truncate">
+                      <div className="text-[11px] font-bold text-neutral-200 break-words min-w-0 leading-snug">
                         <span className="text-neutral-400 mr-1">{t('nextHoliday')}</span>
                         <span>{translateTerm(holidayDetails.upcomingHoliday.title)}</span>
                       </div>
-                      <div className="text-[10px] text-neutral-400 truncate">
+                      <div className="text-[10px] text-neutral-400 break-words min-w-0 leading-snug">
                         {holidayDetails.upcomingHoliday.dateFormatted} • {holidayDetails.upcomingHoliday.daysText}
                       </div>
                     </div>
@@ -881,7 +881,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">⚪</span>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-neutral-300 truncate">
+                      <div className="text-[11px] font-bold text-neutral-300 break-words min-w-0 leading-snug">
                         {t('noHolidaysInMonth')}
                       </div>
                     </div>
@@ -917,7 +917,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isCalendarModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
-            className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-amber-500/35 hover:border-orange-500/60 shadow-[0_0_25px_rgba(245,158,11,0.1)] hover:shadow-[0_0_35px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans overflow-hidden min-w-0"
+            className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-amber-500/35 hover:border-orange-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.1)] hover:shadow-[0_0_35px_rgba(245,158,11,0.18)] flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans overflow-hidden min-w-0"
           >
             {/* Subtle ambient radial backdrop glow */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/12 via-purple-950/20 to-transparent" />
@@ -1067,7 +1067,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             aria-expanded={isMonthlyMuhuratOpen}
             title={t('viewFullMonthlyMuhurat')}
             aria-label={t('todayShubhKarya')}
-            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
+            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-orange-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 flex flex-col justify-between shadow-xl cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
               {/* Top Header: Label */}
@@ -1086,7 +1086,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider font-outfit">
                       {todayMuhurat.isAuspiciousDay ? (language === 'hi' ? 'शुभ वेला' : 'Shubh Window') : t('generalShubhWindow')}
                     </div>
-                    <div className="text-sm sm:text-base font-extrabold font-grotesk font-mono tracking-tight text-white tabular-nums truncate">
+                    <div className="text-sm sm:text-base font-extrabold font-grotesk font-mono tracking-tight text-white tabular-nums whitespace-nowrap shrink-0">
                       {todayMuhurat.bestTimeWindowsString !== '—' 
                         ? todayMuhurat.bestTimeWindowsString 
                         : (todayMuhurat.abhijitString !== '—' ? todayMuhurat.abhijitString : (language === 'hi' ? 'विशेष वेला नहीं' : 'No Major Window'))}
@@ -1105,13 +1105,13 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               </div>
 
               {/* Auspicious Activities Chips or Next Upcoming Auspicious Teaser */}
-              {todayMuhurat.auspiciousActivities.length > 0 ? (
+              {(todayMuhurat.auspiciousActivities ?? []).length > 0 ? (
                 <div className="space-y-1.5 mb-2">
                   <div className="text-[10px] text-slate-400 font-medium font-sans">
                     {language === 'hi' ? 'आज हेतु प्रशस्त कार्य:' : 'Recommended today:'}
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {todayMuhurat.auspiciousActivities.slice(0, 4).map(act => (
+                    {(todayMuhurat.auspiciousActivities ?? []).slice(0, 4).map(act => (
                       <button
                         key={act.category}
                         type="button"
@@ -1125,7 +1125,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                         <span>{language === 'hi' ? act.hindiName : act.name}</span>
                       </button>
                     ))}
-                    {todayMuhurat.specialYogas.map(yoga => (
+                    {(todayMuhurat.specialYogas ?? []).map(yoga => (
                       <span
                         key={yoga}
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold border bg-amber-500/20 text-amber-200 border-amber-500/40 shadow-sm"
@@ -1156,7 +1156,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   </div>
                   {nextUpcomingMuhurat && (
                     <div className="flex flex-wrap items-center gap-1 mt-1">
-                      {nextUpcomingMuhurat.auspiciousActivities.slice(0, 3).map(act => (
+                      {(nextUpcomingMuhurat.auspiciousActivities ?? []).slice(0, 3).map(act => (
                         <span 
                           key={act.category}
                           className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
@@ -1292,7 +1292,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                           <div className="text-xs sm:text-sm font-bold text-white break-words whitespace-normal leading-snug">
                             {festTitle}
                           </div>
-                          <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5 truncate">
+                          <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5">
                             {fest.category ? `${fest.category} • ` : ''}{fest.description}
                           </div>
                         </div>
