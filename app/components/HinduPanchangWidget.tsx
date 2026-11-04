@@ -1206,24 +1206,11 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT */}
           <div 
-            onClick={() => openCalendar('vrats')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openCalendar('vrats');
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-haspopup="dialog"
-            aria-expanded={isCalendarModalOpen}
-            title={t('viewFullVratCalendar')}
-            aria-label={t('viewFullVratCalendar')}
             className={`p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border ${
               panchang.todayFestival.isMajor 
-                ? 'border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_20px_rgba(245,158,11,0.08)]'
-                : 'border-[#1e2d4f] hover:border-orange-500/40'
-            } flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative font-sans shadow-xl min-w-0`}
+                ? 'border-amber-500/40 hover:border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.08)]'
+                : 'border-[#1e2d4f] hover:border-[#283b66]'
+            } flex flex-col justify-between relative font-sans shadow-xl min-w-0`}
           >
             <div className="space-y-2 relative z-10 min-w-0">
               {/* Header row: Label + Festive Badge */}
@@ -1240,7 +1227,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
               {/* Main content */}
               <div className="flex items-start gap-2.5 min-w-0 pt-0.5">
-                <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 p-2 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10">
+                <div className="rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 p-2 shrink-0 flex items-center justify-center w-10 h-10">
                   {panchang.todayFestival.icon ? (
                     <span className="text-xl leading-none select-none">{panchang.todayFestival.icon}</span>
                   ) : (
@@ -1248,8 +1235,8 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-bold transition-colors font-sans break-words whitespace-normal leading-snug min-w-0 ${
-                    panchang.todayFestival.isMajor ? 'text-amber-200 group-hover:text-amber-100' : 'text-white group-hover:text-amber-300'
+                  <div className={`text-sm font-bold font-sans break-words whitespace-normal leading-snug min-w-0 ${
+                    panchang.todayFestival.isMajor ? 'text-amber-200' : 'text-white'
                   }`}>
                     {translateTerm(panchang.todayFestival.title, language)}
                   </div>
@@ -1258,19 +1245,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                       ? (panchang.todayFestival.briefRule?.hindi || panchang.todayFestival.description)
                       : (panchang.todayFestival.briefRule?.english || panchang.todayFestival.description)}
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Value-Driven Tap Micro-CTA Footer */}
-            <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] relative z-10 min-w-0">
-              <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/35 group-hover:border-orange-400/70 text-orange-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <Calendar size={12} className="text-orange-400 shrink-0" />
-                  <span className="break-words whitespace-normal leading-snug">{t('viewFullVratCalendar')}</span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <ChevronRight size={13} className="text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
               </div>
             </div>
@@ -1373,7 +1347,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
           </div>
 
           {/* BOTTOM RIGHT: UPCOMING FESTIVALS COMPACT LIST */}
-          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] hover:border-emerald-500/40 shadow-xl flex flex-col justify-between font-sans min-w-0">
+          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] shadow-xl flex flex-col justify-between font-sans min-w-0">
             <div className="space-y-2 min-w-0">
               {/* Header row: Label */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
@@ -1401,8 +1375,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     return (
                       <div
                         key={idx}
-                        onClick={() => openCalendar('vrats')}
-                        className="flex items-center justify-between gap-2.5 px-3 py-2.5 hover:bg-[#11192e] transition-colors cursor-pointer group"
+                        className="flex items-center justify-between gap-2.5 px-3 py-2.5"
                       >
                         {/* Left: Date pill (DD MMM + Weekday) */}
                         <div className="flex flex-col items-center justify-center min-w-[50px] px-1.5 py-1 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
@@ -1412,7 +1385,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
 
                         {/* Middle: Title & Category / Description */}
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors break-words whitespace-normal leading-snug">
+                          <div className="text-xs sm:text-sm font-bold text-white break-words whitespace-normal leading-snug">
                             {festTitle}
                           </div>
                           <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5 truncate">
@@ -1429,23 +1402,6 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                   })
                 )}
               </div>
-            </div>
-
-            {/* Value-Driven Tap Micro-CTA Footer */}
-            <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] relative z-10 min-w-0">
-              <button
-                type="button"
-                onClick={() => openCalendar('vrats')}
-                className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/35 hover:border-emerald-400/70 text-emerald-200 hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <Sparkles size={12} className="text-emerald-400 shrink-0" />
-                  <span className="break-words whitespace-normal leading-snug">{t('viewFullVratCalendar')}</span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <ChevronRight size={13} className="text-emerald-400 shrink-0" />
-                </div>
-              </button>
             </div>
           </div>
 
