@@ -1250,7 +1250,66 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* MIDDLE: PANCHAK CARD */}
+          {/* 2: UPCOMING FESTIVALS COMPACT LIST */}
+          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] shadow-xl flex flex-col justify-between font-sans min-w-0">
+            <div className="space-y-2 min-w-0">
+              {/* Header row: Label */}
+              <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
+                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase min-w-0">
+                  <Sparkles size={11} className="text-emerald-400 shrink-0" />
+                  <span className="leading-snug">{t('upcomingFestivals')}</span>
+                </div>
+              </div>
+
+              {/* Single Upcoming Observance Display */}
+              <div className="rounded-xl bg-[#090e1a] border border-[#1a2542] divide-y divide-[#162038] overflow-hidden">
+                {upcomingFestivalsList.length === 0 ? (
+                  <div className="p-3 text-center text-xs text-neutral-400 font-sans">
+                    {language === 'hi' ? 'कोई आगामी व्रत/त्योहार नहीं' : 'No upcoming festivals found'}
+                  </div>
+                ) : (
+                  upcomingFestivalsList.slice(0, 1).map((fest, idx) => {
+                    const festTitle = translateTerm(language === 'hi' ? fest.hindiName || fest.name : fest.name, language);
+                    const dateBadgeDay = fest.targetDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
+                    const dateBadgeWeekday = fest.targetDate.toLocaleDateString(localeCode, { weekday: 'short' });
+                    const countdown = fest.daysRemaining === 0 
+                      ? t('live') 
+                      : (fest.daysRemaining === 1 ? (language === 'hi' ? 'कल' : 'Tomorrow') : t('inDays').replace('{n}', String(fest.daysRemaining)));
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between gap-2.5 px-3 py-2.5"
+                      >
+                        {/* Left: Date pill (DD MMM + Weekday) */}
+                        <div className="flex flex-col items-center justify-center min-w-[50px] px-1.5 py-1 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
+                          <span className="text-xs font-bold text-white font-grotesk leading-none">{dateBadgeDay}</span>
+                          <span className="text-[9px] text-neutral-400 mt-0.5">{dateBadgeWeekday}</span>
+                        </div>
+
+                        {/* Middle: Title & Category / Description */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs sm:text-sm font-bold text-white break-words whitespace-normal leading-snug">
+                            {festTitle}
+                          </div>
+                          <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5 truncate">
+                            {fest.category ? `${fest.category} • ` : ''}{fest.description}
+                          </div>
+                        </div>
+
+                        {/* Right: Countdown badge */}
+                        <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 shrink-0">
+                          {countdown}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 3: PANCHAK STATUS CARD */}
           <div 
             onClick={() => setIsPanchakModalOpen(true)}
             onKeyDown={(e) => {
@@ -1346,67 +1405,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
             </div>
           </div>
 
-          {/* BOTTOM RIGHT: UPCOMING FESTIVALS COMPACT LIST */}
-          <div className="p-3 rounded-2xl bg-gradient-to-b from-[#090e1a] to-[#0f172a] border border-[#1e2d4f] shadow-xl flex flex-col justify-between font-sans min-w-0">
-            <div className="space-y-2 min-w-0">
-              {/* Header row: Label */}
-              <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold font-outfit tracking-wider uppercase min-w-0">
-                  <Sparkles size={11} className="text-emerald-400 shrink-0" />
-                  <span className="leading-snug">{t('upcomingFestivals')}</span>
-                </div>
-              </div>
-
-              {/* Single Upcoming Observance Display */}
-              <div className="rounded-xl bg-[#090e1a] border border-[#1a2542] divide-y divide-[#162038] overflow-hidden">
-                {upcomingFestivalsList.length === 0 ? (
-                  <div className="p-3 text-center text-xs text-neutral-400 font-sans">
-                    {language === 'hi' ? 'कोई आगामी व्रत/त्योहार नहीं' : 'No upcoming festivals found'}
-                  </div>
-                ) : (
-                  upcomingFestivalsList.slice(0, 1).map((fest, idx) => {
-                    const festTitle = translateTerm(language === 'hi' ? fest.hindiName || fest.name : fest.name, language);
-                    const dateBadgeDay = fest.targetDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'short' });
-                    const dateBadgeWeekday = fest.targetDate.toLocaleDateString(localeCode, { weekday: 'short' });
-                    const countdown = fest.daysRemaining === 0 
-                      ? t('live') 
-                      : (fest.daysRemaining === 1 ? (language === 'hi' ? 'कल' : 'Tomorrow') : t('inDays').replace('{n}', String(fest.daysRemaining)));
-
-                    return (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between gap-2.5 px-3 py-2.5"
-                      >
-                        {/* Left: Date pill (DD MMM + Weekday) */}
-                        <div className="flex flex-col items-center justify-center min-w-[50px] px-1.5 py-1 rounded-lg bg-slate-900 border border-[#233152] shrink-0 text-center">
-                          <span className="text-xs font-bold text-white font-grotesk leading-none">{dateBadgeDay}</span>
-                          <span className="text-[9px] text-neutral-400 mt-0.5">{dateBadgeWeekday}</span>
-                        </div>
-
-                        {/* Middle: Title & Category / Description */}
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs sm:text-sm font-bold text-white break-words whitespace-normal leading-snug">
-                            {festTitle}
-                          </div>
-                          <div className="text-[10px] text-neutral-400 break-words whitespace-normal leading-snug mt-0.5 truncate">
-                            {fest.category ? `${fest.category} • ` : ''}{fest.description}
-                          </div>
-                        </div>
-
-                        {/* Right: Countdown badge */}
-                        <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 shrink-0">
-                          {countdown}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-
         </div>
-
 
         {/* ── Optional Expandable Deep Panchang Details ── */}
         <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between relative z-10">

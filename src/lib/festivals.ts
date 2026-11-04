@@ -1079,12 +1079,14 @@ export function getUpcomingFestivalsList(
   location: LocationCoordinates,
   count: number = 15,
   maxDays: number = 240,
-  options?: DharmashastraEngineOptions
+  options?: DharmashastraEngineOptions,
+  includeToday: boolean = false
 ): UpcomingFestivalResult[] {
   const results: UpcomingFestivalResult[] = [];
   const baseMidnight = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
 
-  for (let offset = 0; offset <= maxDays && results.length < count; offset++) {
+  const startOffset = includeToday ? 0 : 1;
+  for (let offset = startOffset; offset <= maxDays && results.length < count; offset++) {
     const scanDate = new Date(baseMidnight.getTime() + offset * 86400000);
     const fest = getFestivalForDate(scanDate, location, options);
 
