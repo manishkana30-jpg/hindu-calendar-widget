@@ -94,8 +94,8 @@ export function MonthlyVedicCalendar({
   }, [currentMonth, currentYear, activeFilterTab]);
 
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
   // Reference date around the middle of the selected month
@@ -113,9 +113,9 @@ export function MonthlyVedicCalendar({
     return getLunarMonthDetails(activeMonthMidDate);
   }, [activeMonthMidDate]);
 
-  // Localized long month name
+  // Localized 3-letter short month name
   const activeMonthFormattedName = useMemo(() => {
-    return activeMonthMidDate.toLocaleDateString(localeCode, { month: 'long' });
+    return activeMonthMidDate.toLocaleDateString(localeCode, { month: 'short' });
   }, [activeMonthMidDate, localeCode]);
 
   // High-precision calendar days calculation for the month (memoized)
@@ -223,16 +223,18 @@ export function MonthlyVedicCalendar({
   return (
     <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
       
-      {/* ── Top Header Bar: Title, Contextual Masa/Samvat & Location ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#162038]">
+      {/* ── Top Header Bar: Unified Title, Month/Year Controls, Live & Location ── */}
+      <div className="pb-3 border-b border-[#162038] space-y-2.5">
         
-        {/* Title & Masa/Samvat Badges */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="p-2 sm:p-2.5 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
-            <CalendarIcon size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
+        {/* Row 1: Unified Title & Controls (Date, Year, Live near Vedic Calendar) */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          
+          {/* Title & Udaya Tithi Badge */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 shrink-0">
+              <CalendarIcon size={18} />
+            </div>
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
               <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight break-words min-w-0 leading-snug">
                 {language === 'hi' ? 'मासिक वैदिक पञ्चाङ्ग एवं व्रत सारणी' : (language === 'sa' ? 'मासिकवैदिकपञ्चाङ्गम्' : (language === 'mr' ? 'मासिक वैदिक पंचांग व सण' : (language === 'gu' ? 'માસિક વૈદિક પંચાંગ અને વ્રત' : 'Unified Vedic Calendar & Vrat Almanac')))}
               </h2>
@@ -240,119 +242,113 @@ export function MonthlyVedicCalendar({
                 Udaya Tithi
               </span>
             </div>
+          </div>
+
+          {/* Controls: Date (Month 3-letters), Year, Live & Location pulled to top */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             
-            {/* Contextual Month, Vikram Samvat & Masa Display */}
-            <div className="flex items-center gap-2 flex-wrap mt-1 text-xs text-neutral-400">
-              <span className="font-semibold text-neutral-200">
-                {activeMonthFormattedName} {currentYear}
-              </span>
-              <span className="text-neutral-500">•</span>
-              <span className="text-orange-300/90 font-semibold font-mono">
-                {t('vikramSamvat')}: {monthSamvat.vikramSamvat}
-              </span>
-              <span className="text-neutral-500">•</span>
-              <span className="text-amber-300/90 font-medium">
-                {cleanMasaMonthName(monthMasa.purnimantaMonth, language)} {t('masa')}
-              </span>
-              <span className="text-neutral-500 hidden sm:inline">•</span>
-              <span className="text-neutral-400 hidden sm:inline">
-                {location.name}
-              </span>
+            {/* Prev / Month (3 letters) / Year / Next Switcher */}
+            <div className="flex items-center gap-1 bg-[#0e1629] p-0.5 rounded-xl border border-[#233152] shadow-sm">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="p-1.5 rounded-lg hover:bg-[#15223e] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
+                title={t('prevDay')}
+                aria-label={t('prevDay')}
+              >
+                <ChevronLeft size={15} />
+              </button>
+
+              {/* Month Dropdown (Strictly 3 letters: Jan, Feb, Mar...) */}
+              <select
+                value={currentMonth}
+                onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}
+                aria-label="Select Month"
+                className="px-2 py-1 bg-transparent hover:bg-[#15223e] rounded-lg text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+              >
+                {monthNames.map((name, idx) => (
+                  <option key={idx} value={idx} className="bg-[#090e1a] text-white">
+                    {name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Year Dropdown */}
+              <select
+                value={currentYear}
+                onChange={(e) => setCurrentYear(parseInt(e.target.value, 10))}
+                aria-label="Select Year"
+                className="px-1.5 py-1 bg-transparent hover:bg-[#15223e] rounded-lg text-xs font-bold text-orange-400 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+              >
+                {Array.from({ length: 41 }, (_, i) => 2010 + i).map(yr => (
+                  <option key={yr} value={yr} className="bg-[#090e1a] text-white">
+                    {yr}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="p-1.5 rounded-lg hover:bg-[#15223e] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
+                title={t('nextDay')}
+                aria-label={t('nextDay')}
+              >
+                <ChevronRight size={15} />
+              </button>
             </div>
-          </div>
-        </div>
 
-        {/* Location Selector */}
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          <div className="relative inline-flex items-center text-xs">
-            <MapPin size={12} className="absolute left-2.5 text-orange-400 pointer-events-none" />
-            <select
-              value={location.name}
-              onChange={(e) => {
-                const loc = PRESET_LOCATIONS.find(l => l.name === e.target.value);
-                if (loc) setLocation(loc);
-              }}
-              aria-label={t('selectCity')}
-              className="pl-7 pr-6 py-1.5 bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] rounded-xl text-xs font-semibold text-neutral-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors"
+            {/* Jump to Today Button ("Live") */}
+            <button
+              type="button"
+              onClick={handleResetToCurrentMonth}
+              className="px-2.5 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer active:scale-95 whitespace-nowrap flex items-center gap-1 shadow-sm"
+              title="Jump to Current Month"
             >
-              {PRESET_LOCATIONS.map((loc) => (
-                <option key={loc.name} value={loc.name} className="bg-[#090e1a] text-white">
-                  {loc.name}
-                </option>
-              ))}
-            </select>
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+              <span>{t('live')}</span>
+            </button>
+
+            {/* Location Selector */}
+            <div className="relative inline-flex items-center text-xs">
+              <MapPin size={11} className="absolute left-2 text-orange-400 pointer-events-none" />
+              <select
+                value={location.name}
+                onChange={(e) => {
+                  const loc = PRESET_LOCATIONS.find(l => l.name === e.target.value);
+                  if (loc) setLocation(loc);
+                }}
+                aria-label={t('selectCity')}
+                className="pl-6 pr-5 py-1.5 bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] rounded-xl text-xs font-semibold text-neutral-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors"
+              >
+                {PRESET_LOCATIONS.map((loc) => (
+                  <option key={loc.name} value={loc.name} className="bg-[#090e1a] text-white">
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
           </div>
         </div>
 
-      </div>
-
-      {/* ── Month / Year Switcher Bar ── */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 py-3 border-b border-[#162038]">
-        
-        {/* Prev / Month Dropdown / Year Dropdown / Next / Today */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handlePrevMonth}
-            className="p-1.5 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
-            title={t('prevDay')}
-            aria-label={t('prevDay')}
-          >
-            <ChevronLeft size={16} />
-          </button>
-
-          {/* Month Dropdown */}
-          <select
-            value={currentMonth}
-            onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}
-            aria-label="Select Month"
-            className="px-3 py-1.5 bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] rounded-xl text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm"
-          >
-            {monthNames.map((name, idx) => (
-              <option key={idx} value={idx} className="bg-[#090e1a] text-white">
-                {name}
-              </option>
-            ))}
-          </select>
-
-          {/* Year Dropdown */}
-          <select
-            value={currentYear}
-            onChange={(e) => setCurrentYear(parseInt(e.target.value, 10))}
-            aria-label="Select Year"
-            className="px-3 py-1.5 bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] rounded-xl text-xs font-bold text-orange-400 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500 shadow-sm"
-          >
-            {Array.from({ length: 41 }, (_, i) => 2010 + i).map(yr => (
-              <option key={yr} value={yr} className="bg-[#090e1a] text-white">
-                {yr}
-              </option>
-            ))}
-          </select>
-
-          <button
-            type="button"
-            onClick={handleNextMonth}
-            className="p-1.5 rounded-xl bg-[#0e1629] hover:bg-[#15223e] border border-[#233152] text-neutral-300 hover:text-white transition-colors cursor-pointer active:scale-95"
-            title={t('nextDay')}
-            aria-label={t('nextDay')}
-          >
-            <ChevronRight size={16} />
-          </button>
-
-          {/* Jump to Today Button */}
-          <button
-            type="button"
-            onClick={handleResetToCurrentMonth}
-            className="px-2.5 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer active:scale-95 whitespace-nowrap"
-          >
-            {t('live')}
-          </button>
-        </div>
-
-        {/* Informational Shastra Rule Banner Snippet */}
-        <div className="hidden md:flex items-center gap-1.5 text-[11px] text-neutral-400">
-          <BookOpen size={12} className="text-amber-400 shrink-0" />
-          <span>{t('shastraAuthority')}: <strong className="text-amber-300 font-medium">Udaya-Vyapini Rule</strong></span>
+        {/* Row 2: Contextual Month (3-letters), Year, Vikram Samvat & Masa Display */}
+        <div className="flex items-center gap-2 flex-wrap text-xs text-neutral-400">
+          <span className="font-semibold text-neutral-200">
+            {activeMonthFormattedName} {currentYear}
+          </span>
+          <span className="text-neutral-500">•</span>
+          <span className="text-orange-300/90 font-semibold font-mono">
+            {t('vikramSamvat')}: {monthSamvat.vikramSamvat}
+          </span>
+          <span className="text-neutral-500">•</span>
+          <span className="text-amber-300/90 font-medium">
+            {cleanMasaMonthName(monthMasa.purnimantaMonth, language)} {t('masa')}
+          </span>
+          <span className="text-neutral-500 hidden sm:inline">•</span>
+          <span className="text-neutral-400 hidden sm:inline">
+            {location.name}
+          </span>
         </div>
 
       </div>
@@ -384,7 +380,7 @@ export function MonthlyVedicCalendar({
       </div>
 
       {/* ── Structured Tabular List View (Vedic Almanac Table) ── */}
-      <div className="mt-3 relative w-full max-h-[75dvh] overflow-x-auto overflow-y-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a] shadow-xl">
+      <div className="mt-3 relative w-full overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a] shadow-xl">
         <table className="w-full min-w-[640px] sm:min-w-full border-collapse text-left">
           
           {/* ── Sticky Table Column Header Row (sticky top-0 z-20) ── */}
