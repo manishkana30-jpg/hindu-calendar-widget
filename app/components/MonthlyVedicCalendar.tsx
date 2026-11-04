@@ -10,8 +10,6 @@ import {
   PRESET_LOCATIONS, 
   getMonthVedicCalendar, 
   MonthCalendarDay,
-  getSamvatDetails,
-  getLunarMonthDetails,
   formatNormalizedPakshaTithi,
   cleanMasaMonthName,
   formatTithiEndTime
@@ -97,26 +95,6 @@ export function MonthlyVedicCalendar({
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
-
-  // Reference date around the middle of the selected month
-  const activeMonthMidDate = useMemo(() => {
-    return new Date(currentYear, currentMonth, 15);
-  }, [currentYear, currentMonth]);
-
-  // Vikram Samvat details for the selected month
-  const monthSamvat = useMemo(() => {
-    return getSamvatDetails(activeMonthMidDate);
-  }, [activeMonthMidDate]);
-
-  // Lunar Month (Masa) details for the selected month
-  const monthMasa = useMemo(() => {
-    return getLunarMonthDetails(activeMonthMidDate);
-  }, [activeMonthMidDate]);
-
-  // Localized 3-letter short month name
-  const activeMonthFormattedName = useMemo(() => {
-    return activeMonthMidDate.toLocaleDateString(localeCode, { month: 'short' });
-  }, [activeMonthMidDate, localeCode]);
 
   // High-precision calendar days calculation for the month (memoized)
   const calendarDays = useMemo(() => {
@@ -224,9 +202,9 @@ export function MonthlyVedicCalendar({
     <div className={`w-full bg-[#070b16] text-neutral-100 rounded-3xl border border-[#1a233a] shadow-2xl overflow-hidden font-sans ${embeddedInModal ? 'border-none p-0' : 'p-3 sm:p-6'}`}>
       
       {/* ── Top Header Bar: Unified Title, Month/Year Controls, Live & Location ── */}
-      <div className="pb-3 border-b border-[#162038] space-y-2.5">
+      <div className="pb-3 border-b border-[#162038]">
         
-        {/* Row 1: Unified Title & Controls (Date, Year, Live near Vedic Calendar) */}
+        {/* Unified Title & Controls (Date, Year, Live near Vedic Calendar) */}
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           
           {/* Title & Udaya Tithi Badge */}
@@ -330,25 +308,6 @@ export function MonthlyVedicCalendar({
             </div>
 
           </div>
-        </div>
-
-        {/* Row 2: Contextual Month (3-letters), Year, Vikram Samvat & Masa Display */}
-        <div className="flex items-center gap-2 flex-wrap text-xs text-neutral-400">
-          <span className="font-semibold text-neutral-200">
-            {activeMonthFormattedName} {currentYear}
-          </span>
-          <span className="text-neutral-500">•</span>
-          <span className="text-orange-300/90 font-semibold font-mono">
-            {t('vikramSamvat')}: {monthSamvat.vikramSamvat}
-          </span>
-          <span className="text-neutral-500">•</span>
-          <span className="text-amber-300/90 font-medium">
-            {cleanMasaMonthName(monthMasa.purnimantaMonth, language)} {t('masa')}
-          </span>
-          <span className="text-neutral-500 hidden sm:inline">•</span>
-          <span className="text-neutral-400 hidden sm:inline">
-            {location.name}
-          </span>
         </div>
 
       </div>
