@@ -119,7 +119,7 @@ export function TithiMonthModal({
         </div>
 
         {/* Scrollable Monthly Vedic Calendar Content */}
-        <div className="flex-1 w-full min-h-0 overflow-y-auto overscroll-contain touch-pan-y p-2 sm:p-4 pb-36 sm:pb-28 mb-safe [-webkit-overflow-scrolling:touch]">
+        <div className="flex-1 w-full min-h-0 overflow-y-auto overscroll-contain touch-pan-x touch-pan-y p-2 sm:p-4 pb-36 sm:pb-28 mb-safe [-webkit-overflow-scrolling:touch]">
           <MonthlyVedicCalendar 
             initialLocation={location} 
             onSelectDate={(d) => {
@@ -132,7 +132,7 @@ export function TithiMonthModal({
 
         {/* Modal Footer */}
         <div className="p-3 px-4 sm:px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400 shrink-0">
-          <div className="break-words min-w-0 leading-snug">{t('shastraAuthority')} (Lahiri Sidereal Ayanamsha)</div>
+          <div className="break-words min-w-0 leading-snug">{t('shastraAuthority')} • Lahiri Sidereal Ayanamsha</div>
           <button
             type="button"
             onClick={onClose}

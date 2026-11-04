@@ -18,7 +18,9 @@ import {
   LocationCoordinates, 
   PanchangData,
   TITHIS,
-  formatUtcDateToLocalTime
+  formatUtcDateToLocalTime,
+  cleanMasaMonthName,
+  formatNormalizedPakshaTithi
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { usePanchang } from '../../src/hooks/usePanchang';
@@ -250,29 +252,25 @@ function getLocalizedMasaString(
   // North India: Latitude >= 21.5°N, excluding Gujarat/Maharashtra
   const isNorthIndia = location.latitude >= 21.5 && !isGujaratOrMaharashtra;
 
-  const cleanAmanta = (amantaMonth || '').split('(')[0].trim() || 'Masa';
-  const cleanPurnimanta = (purnimantaMonth || '').split('(')[0].trim() || 'Masa';
-
-  const masaAmantaTr = translateTermRaw(cleanAmanta, lang);
-  const masaPurnimantaTr = translateTermRaw(cleanPurnimanta, lang);
+  const cleanAmanta = cleanMasaMonthName(amantaMonth, lang) || 'Masa';
+  const cleanPurnimanta = cleanMasaMonthName(purnimantaMonth, lang) || 'Masa';
 
   if (isNorthIndia) {
-    return `${masaPurnimantaTr} (${purnimantaLabel}) · VS ${vikramSamvat}`;
+    return `${cleanPurnimanta} · ${purnimantaLabel} · VS ${vikramSamvat}`;
   } else {
-    return `${masaAmantaTr} (${amantaLabel}) · Shaka ${shakaSamvat}`;
+    return `${cleanAmanta} · ${amantaLabel} · Shaka ${shakaSamvat}`;
   }
 }
 
-// Shortened Tithi string output (e.g. "Shukla 1 (Pratipada)")
+// Normalized Tithi string output (strict "[Paksha]- [Tithi]", e.g. "Krishna- Saptami" or "Shukla- Pratipada")
 function formatShortenedTithi(tithiIndex: number, lang: SupportedLanguage = 'en', fallbackName?: string): string {
   const tithiObj = TITHIS[(tithiIndex - 1) % 30];
-  if (!tithiObj) return fallbackName || 'Tithi';
+  if (!tithiObj) {
+    if (!fallbackName) return 'Tithi';
+    return formatNormalizedPakshaTithi(undefined, fallbackName, lang);
+  }
 
-  const paksha = translateTermRaw(tithiObj.paksha, lang);
-  const pakshaDay = ((tithiIndex - 1) % 15) + 1;
-  const pureName = translateTermRaw(tithiObj.pureName, lang);
-
-  return `${paksha} ${pakshaDay} (${pureName})`;
+  return formatNormalizedPakshaTithi(tithiObj.paksha, tithiObj.name, lang, tithiObj.pureName);
 }
 
 export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
