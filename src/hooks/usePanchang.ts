@@ -281,6 +281,7 @@ export interface PanchangState {
 export interface UsePanchangOptions {
   initialLocation?: LocationCoordinates;
   initialDate?: Date;
+  initialData?: PanchangData;
   isLiveMode?: boolean;
   localeCode?: string;
 }
@@ -332,7 +333,8 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     location: observerLocation,
     isLiveMode,
     customDate: selectedDate,
-    elevationMeters: observerLocation.elevation || 0
+    elevationMeters: observerLocation.elevation || 0,
+    initialData: options.initialData
   });
 
   // Effective Target Instant (live clock or user-selected calendar inspection date)

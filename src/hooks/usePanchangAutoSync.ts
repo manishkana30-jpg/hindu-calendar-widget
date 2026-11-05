@@ -16,6 +16,7 @@ export interface AutoSyncOptions {
   isLiveMode?: boolean;
   customDate?: Date;
   elevationMeters?: number;
+  initialData?: PanchangData;
 }
 
 export interface AutoSyncResult {
@@ -38,7 +39,8 @@ export function usePanchangAutoSync({
   location,
   isLiveMode = true,
   customDate,
-  elevationMeters = 0
+  elevationMeters = 0,
+  initialData
 }: AutoSyncOptions): AutoSyncResult {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<Date>(() =>
@@ -112,6 +114,9 @@ export function usePanchangAutoSync({
   // Heavy astronomical calculation (DECOUPLED from 1-second tick)
   // ONLY recalculates when location changes, crossing midnight (civilDayKey), or on explicit sync
   const panchang: PanchangData = useMemo(() => {
+    if (initialData && !isMounted && isLiveMode && !customDate) {
+      return initialData;
+    }
     const calcDate = isLiveMode ? new Date() : (customDate || new Date());
     return calculatePanchang(calcDate, location, calcDate, elevationMeters);
   }, [
@@ -122,7 +127,10 @@ export function usePanchangAutoSync({
     location.ianaTimezone,
     elevationMeters,
     isLiveMode,
-    lastSyncTimestamp
+    lastSyncTimestamp,
+    initialData,
+    isMounted,
+    customDate
   ]);
 
   const tithiResolution: DailyTithiResolution = useMemo(() => {

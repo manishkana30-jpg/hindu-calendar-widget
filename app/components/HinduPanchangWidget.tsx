@@ -273,7 +273,17 @@ function formatShortenedTithi(tithiIndex: number, lang: SupportedLanguage = 'en'
   return formatNormalizedPakshaTithi(tithiObj.paksha, tithiObj.name, lang, tithiObj.pureName);
 }
 
-export function HinduPanchangWidget({ initialLocation }: { initialLocation?: LocationCoordinates }) {
+export interface HinduPanchangWidgetProps {
+  initialLocation?: LocationCoordinates;
+  initialData?: PanchangData;
+  isCityPage?: boolean;
+}
+
+export function HinduPanchangWidget({
+  initialLocation,
+  initialData,
+  isCityPage = false
+}: HinduPanchangWidgetProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
     initialLocation || PRESET_LOCATIONS[0]
   );
@@ -311,22 +321,31 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
     forceSync
   } = usePanchang({
     initialLocation: selectedLocation,
+    initialData,
     isLiveMode: true,
     localeCode
   });
 
   useEffect(() => {
-    if (initialLocation) {
+    // If locked to a dedicated city page route, preserve that city
+    if (isCityPage && initialLocation) {
       setSelectedLocation(initialLocation);
       setObserver(initialLocation);
       return;
     }
 
+    // On client mount, check localStorage for saved user coordinates
+    // Smoothly transition state without wiping the server-rendered DOM
     const saved = getSavedLocationState();
     if (saved?.location) {
-      setSelectedLocation(saved.location);
-      setObserver(saved.location);
-      setLocationSource(saved.source);
+      const isDiff =
+        Math.abs(saved.location.latitude - selectedLocation.latitude) > 0.001 ||
+        Math.abs(saved.location.longitude - selectedLocation.longitude) > 0.001;
+      if (isDiff) {
+        setSelectedLocation(saved.location);
+        setObserver(saved.location);
+        setLocationSource(saved.source);
+      }
     }
 
     // Re-check location on app open if user moved > 50 km or changed timezone
@@ -352,7 +371,7 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
         { timeout: 8000, maximumAge: 300000 }
       );
     }
-  }, [initialLocation, setObserver]);
+  }, [initialLocation, isCityPage, setObserver]);
 
   // Periodic update of "Last updated" indicator every 30 seconds with strict clearInterval cleanup
   useEffect(() => {
@@ -680,18 +699,18 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
               <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
             </button>
 
-            {/* 3. Compact Share Button (Directly adjacent to GPS pill) */}
+            {/* 3. High-Visibility WhatsApp Share Button */}
             <div className="relative inline-flex items-center shrink-0">
               <button
                 type="button"
                 onClick={handleShare}
-                title={t('shareOnWhatsApp')}
-                aria-label={t('shareOnWhatsApp') || 'Share Panchang on WhatsApp'}
-                /* Share Panchang on WhatsApp */
-                className="inline-flex items-center justify-center gap-1 h-8 w-8 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/40 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.25)] active:scale-95 cursor-pointer shrink-0"
+                title="Share Today's Panchang on WhatsApp"
+                aria-label="Share Today's Panchang on WhatsApp"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-emerald-950/80 hover:bg-emerald-900/90 border border-emerald-500/50 text-emerald-300 hover:text-white transition-all shadow-sm hover:shadow-[0_0_12px_rgba(16,185,129,0.3)] active:scale-95 cursor-pointer shrink-0"
               >
-                <Share2 size={13} className="text-emerald-400 shrink-0" />
-                <span className="hidden sm:inline">{t('share')}</span>
+                <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="hidden sm:inline">Share on WhatsApp</span>
+                <span className="sm:hidden">Share</span>
               </button>
 
               {shareToast && (
@@ -998,6 +1017,17 @@ export function HinduPanchangWidget({ initialLocation }: { initialLocation?: Loc
                     {currentTithiEndTime}
                   </span>
                 </div>
+
+                {/* 1-Tap WhatsApp "Daily Suvichar & Panchang" Hero Button */}
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  title="Share Today's Panchang on WhatsApp"
+                  className="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-950/90 to-emerald-900/90 hover:from-emerald-900 hover:to-emerald-800 border border-emerald-500/40 text-emerald-300 hover:text-white text-[11px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>Share Today&apos;s Panchang on WhatsApp</span>
+                </button>
               </div>
 
               {/* 4: Compact Horizontal / Single-Line Next Tithi Box (Task 4) */}

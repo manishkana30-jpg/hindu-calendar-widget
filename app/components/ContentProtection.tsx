@@ -31,7 +31,7 @@ export function ContentProtection() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Helper: Is the user actively interacting with an editable input field?
+    // Helper: Is the user actively interacting with an editable input field, button, link, or advertisement?
     const isInputElement = (target: EventTarget | null): boolean => {
       if (!target || !(target instanceof HTMLElement)) return false;
       const tag = target.tagName.toLowerCase();
@@ -39,8 +39,11 @@ export function ContentProtection() {
         tag === 'input' ||
         tag === 'textarea' ||
         tag === 'select' ||
+        tag === 'button' ||
+        tag === 'a' ||
+        tag === 'iframe' ||
         target.isContentEditable ||
-        Boolean(target.closest('input, textarea, select, [contenteditable="true"]'))
+        Boolean(target.closest('input, textarea, select, button, a, iframe, ins.adsbygoogle, [data-ad-client], aside[aria-label*="Advertisement"]'))
       );
     };
 

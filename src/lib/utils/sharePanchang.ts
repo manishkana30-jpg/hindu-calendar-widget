@@ -7,8 +7,11 @@ export interface PanchangShareData {
   vara?: string;
   dayOfWeekName?: string;
   tithiName?: string;
+  paksha?: 'Shukla' | 'Krishna' | string;
   significance?: string;
   tithiEndTime?: string;
+  sunrise?: string;
+  sunset?: string;
   auspiciousWindow?: string;
   rahuKaalWindow?: string;
   panchakStatus?: string;
@@ -45,6 +48,7 @@ export function buildShareDataFromPanchang(
 
   const tithi = panchang.udayaTithi || panchang.tithi;
   const tithiName = tithi?.name || 'Pratipada';
+  const paksha = tithi?.paksha || 'Shukla';
 
   let significance = '';
   if (panchang.todayFestival?.title) {
@@ -54,7 +58,7 @@ export function buildShareDataFromPanchang(
   } else if (tithi?.deity) {
     significance = `Deity: ${tithi.deity}`;
   } else {
-    significance = tithi?.paksha === 'Shukla' ? 'Shukla Paksha' : 'Krishna Paksha';
+    significance = paksha === 'Shukla' ? 'Shukla Paksha' : 'Krishna Paksha';
   }
   if (significance.length > 28) {
     significance = significance.split('(')[0].trim();
@@ -70,13 +74,13 @@ export function buildShareDataFromPanchang(
   let auspiciousWindow = '';
   const abhijit = panchang.muhurats?.abhijitMuhurat;
   if (abhijit?.start && abhijit?.end) {
-    auspiciousWindow = `${abhijit.start} – ${abhijit.end} (Abhijit Muhurat)`;
+    auspiciousWindow = `${abhijit.start} – ${abhijit.end}`;
   } else if (panchang.muhurats?.amritKaal?.start && panchang.muhurats?.amritKaal?.end) {
-    auspiciousWindow = `${panchang.muhurats.amritKaal.start} – ${panchang.muhurats.amritKaal.end} (Amrit Kaal)`;
+    auspiciousWindow = `${panchang.muhurats.amritKaal.start} – ${panchang.muhurats.amritKaal.end}`;
   } else if (activeMuhurat?.windowString) {
-    auspiciousWindow = `${activeMuhurat.windowString} (${activeMuhurat.title})`;
+    auspiciousWindow = `${activeMuhurat.windowString}`;
   } else {
-    auspiciousWindow = '11:45 AM – 12:35 PM (Abhijit Muhurat)';
+    auspiciousWindow = '11:45 AM – 12:35 PM';
   }
 
   let rahuKaalWindow = '';
@@ -103,8 +107,11 @@ export function buildShareDataFromPanchang(
     date,
     vara,
     tithiName,
+    paksha,
     significance,
     tithiEndTime,
+    sunrise: panchang.sunrise || '06:30 AM',
+    sunset: panchang.sunset || '06:15 PM',
     auspiciousWindow,
     rahuKaalWindow,
     panchakStatus,
@@ -114,34 +121,35 @@ export function buildShareDataFromPanchang(
 
 /**
  * Assembles today's calculated Tithi, Muhurat, and Rahu Kaal data into
- * the exact WhatsApp greeting card specification.
+ * the exact viral WhatsApp greeting card specification.
  */
 export function formatPanchangShareText(data: PanchangShareData): string {
   const day = data.date.getDate();
   const month = MONTH_NAMES[data.date.getMonth()];
   const year = data.date.getFullYear();
   const vara = data.vara || data.dayOfWeekName || data.date.toLocaleDateString('en-US', { weekday: 'long' });
-  const tithiName = data.tithiName || 'Pratipada';
-  const significance = data.significance || 'Sacred Day';
-  const tithiEndTime = data.tithiEndTime || 'At Sunset';
-  const auspiciousWindow = data.auspiciousWindow || '11:45 AM – 12:35 PM (Abhijit Muhurat)';
+  const paksha = data.paksha || 'Shukla';
+  
+  // Format clean Tithi name e.g. "Shukla- Saptami" or just the tithi name
+  let cleanTithi = data.tithiName || 'Pratipada';
+  cleanTithi = cleanTithi.replace(/^(Shukla|Krishna)\s*/i, '').trim();
+
+  const formattedDate = `${day} ${month} ${year}, ${vara}`;
+  const tithiEndTime = data.tithiEndTime || 'Sunset';
+  const sunrise = data.sunrise || '06:30 AM';
+  const sunset = data.sunset || '06:15 PM';
+  const auspiciousWindow = data.auspiciousWindow || '11:45 AM – 12:35 PM';
   const rahuKaalWindow = data.rahuKaalWindow || '09:15 AM – 10:45 AM';
-  const panchakStatus = data.panchakStatus || 'No Active Panchak (Free)';
   const appUrl = data.appUrl || 'https://dailytithi.com';
-  const cta = data.callToAction || 'Live real-time muhurat & panchang:';
 
-  return `🌅 Aaj Ka Panchang • Daily Tithi
-📅 ${vara}, ${day} ${month} ${year}
+  return `🌸 *Aaj Ka Panchang • Daily Tithi* 🌸
+📅 ${formattedDate}
+✨ Tithi: ${paksha}- ${cleanTithi} (upto ${tithiEndTime})
+🌅 Sunrise: ${sunrise} | 🌇 Sunset: ${sunset}
+⚡ Shubh Muhurat: ${auspiciousWindow}
+⚠️ Rahu Kaal: ${rahuKaalWindow} (Avoid)
 
-🪔 Tithi: ${tithiName} (${significance})
-⏳ Tithi Ends: ${tithiEndTime}
-
-🟢 Shubh Window: ${auspiciousWindow}
-🔴 Rahu Kaal: ${rahuKaalWindow}
-🛡️ Panchak: ${panchakStatus}
-
-${cta}
-${appUrl}`;
+👉 Check full Panchang & Choghadiya: ${appUrl}`;
 }
 
 /**
@@ -163,54 +171,54 @@ export async function sharePanchang(
   data: PanchangShareData,
   options: ShareOptions = {}
 ): Promise<ShareResult> {
-  const formattedText = formatPanchangShareText(data);
+  const shareText = formatPanchangShareText(data);
   const appUrl = data.appUrl || 'https://dailytithi.com';
-  const isMobile = isMobileClient();
+  const onToast = options.onToast || (() => {});
 
-  // 1. Mobile First: On mobile devices with navigator.share, trigger the native share sheet
-  if (isMobile && typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+  // 1. Mobile Web Share API Attempt
+  if (isMobileClient() && typeof navigator !== 'undefined' && 'share' in navigator) {
     try {
-      await navigator.share({
-        title: 'Aaj Ka Panchang • Daily Tithi',
-        text: formattedText,
-        url: appUrl
-      });
-      return { success: true, method: 'native' };
-    } catch (err: unknown) {
-      const error = err as Error;
-      if (error && error.name === 'AbortError') {
-        return { success: false, method: 'native', message: 'Share sheet dismissed' };
+      if (navigator.canShare && navigator.canShare({ title: 'Daily Tithi — Aaj Ka Panchang', text: shareText, url: appUrl })) {
+        await navigator.share({
+          title: 'Daily Tithi — Aaj Ka Panchang',
+          text: shareText,
+          url: appUrl
+        });
+        return { success: true, method: 'native' };
       }
-      // On failure, fall through to WhatsApp direct
+    } catch (err: unknown) {
+      if ((err as Error)?.name === 'AbortError') {
+        return { success: false, method: 'native', message: 'Share dismissed' };
+      }
     }
   }
 
-  // 2. WhatsApp Direct Fallback (or default behavior on Desktop)
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedText)}`;
+  // 2. Direct WhatsApp URL Intent
   try {
+    const encodedText = encodeURIComponent(shareText);
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+
     if (typeof window !== 'undefined') {
-      const win = window.open(whatsappUrl, options.target || '_blank', 'noopener,noreferrer');
-      if (win) {
+      const opened = window.open(whatsappUrl, options.target || '_blank', 'noopener,noreferrer');
+      if (opened) {
+        onToast('Opening WhatsApp...');
         return { success: true, method: 'whatsapp' };
       }
     }
-  } catch {
-    // Window open blocked by browser popup blocker
+  } catch (err: unknown) {
+    console.warn('[Share] WhatsApp direct open error:', err);
   }
 
-  // 3. Clipboard Fallback
-  try {
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(formattedText);
-      const toastMsg = 'Panchang copied to clipboard!';
-      if (options.onToast) {
-        options.onToast(toastMsg);
-      }
-      return { success: true, method: 'clipboard', message: toastMsg };
+  // 3. Resilient Clipboard Fallback
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      onToast('Panchang copied to clipboard! Ready to paste in WhatsApp.');
+      return { success: true, method: 'clipboard' };
+    } catch (clipErr) {
+      console.warn('[Share] Clipboard write failed:', clipErr);
     }
-  } catch {
-    // Clipboard failed
   }
 
-  return { success: false, method: 'clipboard', message: 'Unable to share' };
+  return { success: false, method: 'whatsapp', message: 'Unable to open share sheet' };
 }
