@@ -17,6 +17,7 @@ export interface AdSlotProps {
 }
 
 const DEFAULT_ADSENSE_CLIENT = 'ca-pub-4999722531202967';
+const DEFAULT_ASTROLOGER_PHONE = process.env.NEXT_PUBLIC_ASTROLOGER_WHATSAPP_PHONE || '919873789525';
 
 // Slot IDs can be overridden via props or environment variables
 const DEFAULT_SLOTS = {
@@ -86,7 +87,7 @@ export function AdSlot({
                 <span className="font-semibold text-neutral-200">Certified Vedic Consultation &amp; Puja Services</span>
               </div>
               <a
-                href="https://api.whatsapp.com/send?phone=919871144000&text=Namaste!%20I%20would%20like%20to%20inquire%20about%20personalized%20Panchang%20and%20Muhurat%20guidance."
+                href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20to%20inquire%20about%20personalized%20Panchang%20and%20Muhurat%20guidance.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold hover:bg-emerald-500/30 transition-colors text-[11px] shrink-0"
@@ -140,7 +141,7 @@ export function AdSlot({
                 Custom Birth-Chart (Janma Kundli) Alignment
               </span>
               <a
-                href="https://api.whatsapp.com/send?phone=919871144000&text=Namaste!%20I%20would%20like%20a%20certified%20gemstone%20and%20Rudraksha%20recommendation%20based%20on%20my%20Kundli."
+                href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20a%20certified%20gemstone%20and%20Rudraksha%20recommendation%20based%20on%20my%20Kundli.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-extrabold text-xs transition-transform active:scale-95 shadow cursor-pointer"
@@ -182,7 +183,7 @@ export function AdSlot({
               🕉️ Need Personalized Muhurat or Kundli Matching? Consult Verified Pandits
             </span>
             <a
-              href="https://api.whatsapp.com/send?phone=919871144000&text=Namaste!%20I%20would%20like%20to%20consult%20a%20verified%20Vedic%20astrologer."
+              href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20to%20consult%20a%20verified%20Vedic%20astrologer.`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[11px] shrink-0 transition-transform active:scale-95 shadow"

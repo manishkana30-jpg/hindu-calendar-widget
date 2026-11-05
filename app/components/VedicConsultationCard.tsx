@@ -13,10 +13,11 @@ export function VedicConsultationCard({
   className = ''
 }: VedicConsultationCardProps) {
   const eventLabel = categoryName ? `your ${categoryName}` : 'a major life event';
+  const astrologerPhone = process.env.NEXT_PUBLIC_ASTROLOGER_WHATSAPP_PHONE || '919873789525';
   const whatsappMessage = encodeURIComponent(
-    `Namaste Pandit Ji! I am planning ${eventLabel} and would like to consult verified Vedic Pandits for personalized Kundli matching, Graha Shanti, and the most auspicious auspicious Muhurat window.`
+    `Namaste Pandit Ji! I am planning ${eventLabel} and would like to consult verified Vedic Pandits for personalized Kundli matching, Graha Shanti, and the most auspicious Muhurat window.`
   );
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=919871144000&text=${whatsappMessage}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${astrologerPhone}&text=${whatsappMessage}`;
 
   return (
     <div
