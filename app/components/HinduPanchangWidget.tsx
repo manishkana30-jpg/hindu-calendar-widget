@@ -1109,29 +1109,54 @@ export function HinduPanchangWidget({
               </div>
 
               {/* Primary Auspicious Time Window Banner */}
-              <div className="my-2 p-2.5 rounded-xl bg-slate-950/70 border border-white/10 flex items-center justify-between gap-2 min-w-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${todayMuhurat.isAuspiciousDay ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider font-outfit">
+              <div className="my-2 p-2.5 rounded-xl bg-slate-950/70 border border-white/10 flex flex-col gap-1.5 min-w-0 overflow-hidden">
+                <div className="flex items-center justify-between gap-1.5 min-w-0">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${todayMuhurat.isAuspiciousDay ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider font-outfit truncate">
                       {todayMuhurat.isAuspiciousDay ? (language === 'hi' ? 'शुभ वेला' : 'Shubh Window') : t('generalShubhWindow')}
-                    </div>
-                    <div className="text-sm sm:text-base font-extrabold font-grotesk font-mono tracking-tight text-white tabular-nums whitespace-nowrap shrink-0">
-                      {todayMuhurat.bestTimeWindowsString !== '—' 
-                        ? todayMuhurat.bestTimeWindowsString 
-                        : (todayMuhurat.abhijitString !== '—' ? todayMuhurat.abhijitString : (language === 'hi' ? 'विशेष वेला नहीं' : 'No Major Window'))}
-                    </div>
+                    </span>
                   </div>
+                  {todayMuhurat.isAuspiciousDay ? (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 font-outfit">
+                      {language === 'hi' ? 'शुभ दिवस' : 'Auspicious'}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 font-outfit">
+                      {language === 'hi' ? 'अभिजित वेला' : 'Abhijit'}
+                    </span>
+                  )}
                 </div>
-                {todayMuhurat.isAuspiciousDay ? (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 font-outfit">
-                    {language === 'hi' ? 'शुभ दिवस' : 'Auspicious'}
-                  </span>
-                ) : (
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0 font-outfit">
-                    {language === 'hi' ? 'अभिजित वेला' : 'Abhijit'}
-                  </span>
-                )}
+
+                {/* Auspicious Time Windows (Stacked / Wrapped to prevent any card overflow) */}
+                {(() => {
+                  const rawString = todayMuhurat.bestTimeWindowsString !== '—' 
+                    ? todayMuhurat.bestTimeWindowsString 
+                    : (todayMuhurat.abhijitString !== '—' ? todayMuhurat.abhijitString : (language === 'hi' ? 'विशेष वेला नहीं' : 'No Major Window'));
+                  const timeWindows = rawString.split(',').map(s => s.trim()).filter(Boolean);
+
+                  if (timeWindows.length <= 1) {
+                    return (
+                      <div className="text-xs sm:text-sm font-extrabold font-grotesk font-mono tracking-tight text-white tabular-nums leading-tight break-words">
+                        {rawString}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="flex flex-col gap-1 w-full min-w-0">
+                      {timeWindows.map((tw, idx) => (
+                        <div
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold font-grotesk font-mono tracking-tight text-white tabular-nums bg-[#0b101e] px-2 py-1 rounded-lg border border-white/5 w-fit max-w-full"
+                        >
+                          <Clock size={11} className="text-emerald-400 shrink-0" />
+                          <span className="break-words">{tw}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Auspicious Activities Chips or Next Upcoming Auspicious Teaser */}
