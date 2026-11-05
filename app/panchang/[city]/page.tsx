@@ -2,32 +2,40 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Sparkles, MapPin, Compass, Sun, Moon, ArrowLeft, Clock, ShieldAlert, Share2 } from 'lucide-react';
-import { CITIES, getCityBySlug, getAllCitySlugs } from '@/src/lib/cities';
-import { calculatePanchang } from '@/src/lib/vedic-astronomy';
+import { Sparkles, MapPin, Compass, Sun, Moon, ArrowLeft, Clock, ShieldAlert } from 'lucide-react';
+import { TOP_CITIES, getCityConfig, CityConfig } from '@/src/lib/constants/cities';
+import { calculatePanchang, LocationCoordinates } from '@/src/lib/vedic-astronomy';
 import { HinduPanchangWidget } from '@/app/components/HinduPanchangWidget';
 import { WidgetErrorBoundary } from '@/app/components/WidgetErrorBoundary';
 import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
-import { FaqAccordion } from '@/app/components/FaqAccordion';
 import { Footer } from '@/src/components/Footer';
 import { AdSlot } from '@/app/components/AdSlot';
 import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
 import { generatePanchangFaqSchema, generateBreadcrumbSchema } from '@/src/lib/seo-schemas';
 
-export const revalidate = 3600; // 1 hour ISR revalidation
+// ── Next.js 15 Incremental Static Regeneration (ISR) ──
+export const revalidate = 3600; // Revalidate every hour
+export const dynamicParams = true;
 
 interface PageProps {
   params: Promise<{ city: string }>;
 }
 
+/**
+ * Pre-renders static pages for all registered cities at build time.
+ */
 export async function generateStaticParams() {
-  const slugs = getAllCitySlugs();
-  return slugs.map((city) => ({ city }));
+  return Object.keys(TOP_CITIES).map((slug) => ({
+    city: slug,
+  }));
 }
 
+/**
+ * Dynamic SEO Metadata for City Panchang Route
+ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city: citySlug } = await params;
-  const city = getCityBySlug(citySlug);
+  const city = getCityConfig(citySlug);
 
   if (!city) {
     return {
@@ -40,11 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dateFormatted = now.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   });
 
-  const title = `Today's Tithi & Panchang in ${city.name} (${dateFormatted}) | Rahu Kaal & Shubh Muhurat`;
-  const description = `Accurate today's Vedic Panchang in ${city.name}, ${city.country}. Exact Udaya Tithi, Rahu Kaal (${city.name} time), Shubh Abhijit Muhurat, Choghadiya, Nakshatra, and Sunrise/Sunset powered by Swiss Ephemeris.`;
+  const title = `Today's Tithi & Panchang in ${city.name} (${dateFormatted}) | Shubh Muhurat & Rahu Kaal`;
+  const description = `Live Vedic Panchang for ${city.name}, ${city.state}. Get exact Tithi, Paksha, Nakshatra, Sunrise, Sunset, Rahu Kaal, and Shubh Muhurat timings for ${dateFormatted}.`;
   const canonicalUrl = `https://dailytithi.com/panchang/${city.slug}`;
   const ogImageUrl = `https://dailytithi.com/api/og?city=${city.slug}`;
 
@@ -52,9 +60,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     keywords: [
-      `Today tithi in ${city.name}`, `${city.name} Panchang today`, `Rahu Kaal ${city.name}`,
-      `Abhijit Muhurat in ${city.name}`, `${city.name} Choghadiya`, `${city.name} Sunrise Sunset`,
-      'Daily Tithi', 'Swiss Ephemeris', 'Vedic Astrometry'
+      `Today tithi in ${city.name}`,
+      `${city.name} Panchang today`,
+      `Rahu Kaal ${city.name}`,
+      `Abhijit Muhurat in ${city.name}`,
+      `${city.name} Choghadiya`,
+      `${city.name} Sunrise Sunset`,
+      `${city.hindiName} पंचांग`,
+      `${city.name} Tithi today`,
+      'Daily Tithi',
+      'Swiss Ephemeris',
+      'Vedic Astrometry',
     ],
     alternates: {
       canonical: canonicalUrl,
@@ -84,21 +100,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/**
+ * Server Component: City Panchang Page with Instant SSR Hydration & Rich Schemas
+ */
 export default async function CityPanchangPage({ params }: PageProps) {
   const { city: citySlug } = await params;
-  const city = getCityBySlug(citySlug);
+  const city = getCityConfig(citySlug);
 
   if (!city) {
     notFound();
   }
 
-  const cityLocation = {
-    name: `${city.name}, ${city.country}`,
-    country: city.country,
+  const cityLocation: LocationCoordinates = {
+    name: `${city.name}, ${city.state}`,
+    country: 'India',
     latitude: city.latitude,
     longitude: city.longitude,
-    timezone: city.timezone,
-    ianaTimezone: city.ianaTimezone,
+    timezone: 5.5,
+    ianaTimezone: city.timezone || 'Asia/Kolkata',
     regionName: city.state,
   };
 
@@ -112,21 +131,17 @@ export default async function CityPanchangPage({ params }: PageProps) {
     year: 'numeric',
   });
 
-  const shortDateFormatted = now.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
   // Cross-linking popular cities
-  const popularCities = CITIES.filter((c) => c.slug !== city.slug).slice(0, 16);
+  const popularCities = Object.values(TOP_CITIES)
+    .filter((c) => c.slug !== city.slug)
+    .slice(0, 16);
 
   // SEO Schemas
   const faqSchema = generatePanchangFaqSchema(panchang, city.name);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: 'https://dailytithi.com' },
-    { name: 'Panchang', url: 'https://dailytithi.com/panchang/delhi' },
-    { name: city.name, url: `https://dailytithi.com/panchang/${city.slug}` }
+    { name: 'Panchang', url: 'https://dailytithi.com/panchang/new-delhi' },
+    { name: city.name, url: `https://dailytithi.com/panchang/${city.slug}` },
   ]);
 
   return (
@@ -156,10 +171,10 @@ export default async function CityPanchangPage({ params }: PageProps) {
             </Link>
             <div className="min-w-0">
               <span className="text-xs sm:text-base font-extrabold tracking-tight text-white block leading-snug truncate">
-                {city.name} Today&apos;s Panchang
+                {city.name} ({city.hindiName}) Today&apos;s Panchang
               </span>
               <span className="text-[9px] sm:text-[10px] text-orange-400 font-mono tracking-wider uppercase block truncate">
-                {city.state ? `${city.state}, ` : ''}{city.country} • Vedic Astrometry
+                {city.state ? `${city.state}, ` : ''}India • Vedic Astrometry
               </span>
             </div>
           </div>
@@ -189,7 +204,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
 
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-orange-500/15 border border-orange-500/30 text-orange-300 text-[11px] sm:text-xs font-bold mb-3 backdrop-blur-md">
           <MapPin size={13} className="text-amber-400 shrink-0" />
-          <span>{city.name}, {city.country} Coordinates: {city.latitude.toFixed(2)}°N, {city.longitude.toFixed(2)}°E</span>
+          <span>{city.name} ({city.hindiName}), {city.state} • Coordinates: {city.latitude.toFixed(2)}°N, {city.longitude.toFixed(2)}°E</span>
         </div>
 
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2 leading-tight">
@@ -200,16 +215,32 @@ export default async function CityPanchangPage({ params }: PageProps) {
         </h1>
         
         <p className="text-xs sm:text-sm md:text-base text-neutral-400 max-w-2xl mx-auto mb-4 leading-relaxed px-2">
-          Topocentric astronomical calculations for {city.name}. Real-time Udaya Tithi, exact Rahu Kaal timings, Shubh Abhijit Muhurat, Dina Mana Choghadiya, and Sunrise/Sunset.
+          Topocentric Vedic calculations for {city.name} ({city.hindiName}), {city.state}. Real-time Udaya Tithi, exact Rahu Kaal timings, Shubh Abhijit Muhurat, Dina Mana Choghadiya, and Sunrise/Sunset.
         </p>
+
+        {/* ── Crawlable Plain-Text Summary for Search Bots ── */}
+        <div className="sr-only" aria-label="Astronomical Summary for Search Engines">
+          <h2>Astronomical Values for {city.name} on {formattedDate}</h2>
+          <p>Location: {city.name} ({city.hindiName}), {city.state}, India. Coordinates: {city.latitude} N, {city.longitude} E.</p>
+          <p>Tithi: {panchang.udayaTithi?.name || panchang.tithi.name} ({panchang.udayaTithi?.paksha || panchang.tithi.paksha} Paksha)</p>
+          <p>Nakshatra: {panchang.nakshatra?.name || 'Ashwini'}</p>
+          <p>Sunrise: {panchang.sunrise}, Sunset: {panchang.sunset}</p>
+          <p>Rahu Kaal: {panchang.muhurats?.rahuKaal?.start} to {panchang.muhurats?.rahuKaal?.end}</p>
+          <p>Abhijit Muhurat: {panchang.muhurats?.abhijitMuhurat?.start} to {panchang.muhurats?.abhijitMuhurat?.end}</p>
+        </div>
 
         {/* ── PHASE 5: Slot 1 (Header Banner Ad - CLS = 0) ── */}
         <AdSlot slot="header" />
 
-        {/* ── Main Panchang Widget Pre-loaded for this City ── */}
+        {/* ── Main Panchang Widget Pre-loaded for this City with initialCity & initialData ── */}
         <div className="my-4 sm:my-6">
           <WidgetErrorBoundary>
-            <HinduPanchangWidget initialLocation={cityLocation} initialData={panchang} isCityPage={true} />
+            <HinduPanchangWidget
+              initialCity={city}
+              initialLocation={cityLocation}
+              initialData={panchang}
+              isCityPage={true}
+            />
           </WidgetErrorBoundary>
         </div>
 
@@ -226,7 +257,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
             <div>
               <span className="text-xs font-mono text-orange-400 tracking-wider uppercase">Local Geodetic Astrometry</span>
               <h2 className="text-lg sm:text-xl font-bold text-white">
-                How Vedic Panchang is Calculated for {city.name}
+                How Vedic Panchang is Calculated for {city.name} ({city.hindiName})
               </h2>
             </div>
           </div>
@@ -292,7 +323,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
                 href={`/panchang/${c.slug}`}
                 className="px-3 py-1.5 rounded-xl bg-[#11192e] hover:bg-[#16213d] border border-[#233152] text-xs text-neutral-300 hover:text-amber-300 transition-colors"
               >
-                📍 {c.name} Panchang
+                📍 {c.name} ({c.hindiName}) Panchang
               </Link>
             ))}
           </div>
@@ -304,7 +335,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
         {/* ── City-Specific Dynamic FAQ Accordion ── */}
         <section className="mt-12 text-left max-w-5xl mx-auto">
           <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">
-            Frequently Asked Questions for {city.name} Panchang
+            Frequently Asked Questions for {city.name} ({city.hindiName}) Panchang
           </h2>
           <div className="space-y-3">
             <details className="group p-4 rounded-2xl bg-[#090e1a] border border-[#1a2542] open:border-orange-500/40">

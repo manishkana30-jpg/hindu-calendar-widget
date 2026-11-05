@@ -25,6 +25,7 @@ import {
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { usePanchang } from '../../src/hooks/usePanchang';
 import { CITIES } from '../../src/lib/cities';
+import type { CityConfig } from '../../src/lib/constants/cities';
 import { getActivePanchakStatus } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal, CalendarFilterTab } from './modals/TithiMonthModal';
 import { GregorianCalendarModal } from './modals/GregorianCalendarModal';
@@ -275,17 +276,32 @@ function formatShortenedTithi(tithiIndex: number, lang: SupportedLanguage = 'en'
 
 export interface HinduPanchangWidgetProps {
   initialLocation?: LocationCoordinates;
-  initialData?: PanchangData;
+  initialData?: PanchangData | any;
+  initialCity?: CityConfig;
   isCityPage?: boolean;
 }
 
 export function HinduPanchangWidget({
   initialLocation,
   initialData,
+  initialCity,
   isCityPage = false
 }: HinduPanchangWidgetProps) {
+  // Resolve location from initialCity (typed CityConfig), initialLocation, or default New Delhi
+  const resolvedInitialLocation: LocationCoordinates = initialCity
+    ? {
+        name: `${initialCity.name}, ${initialCity.state}`,
+        country: 'India',
+        latitude: initialCity.latitude,
+        longitude: initialCity.longitude,
+        timezone: 5.5,
+        ianaTimezone: initialCity.timezone || 'Asia/Kolkata',
+        regionName: initialCity.state,
+      }
+    : (initialLocation || PRESET_LOCATIONS[0]);
+
   const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates>(
-    initialLocation || PRESET_LOCATIONS[0]
+    resolvedInitialLocation
   );
   type WidgetTabType = 'panchang' | 'astrometry';
 
@@ -327,10 +343,11 @@ export function HinduPanchangWidget({
   });
 
   useEffect(() => {
-    // If locked to a dedicated city page route, preserve that city
-    if (isCityPage && initialLocation) {
-      setSelectedLocation(initialLocation);
-      setObserver(initialLocation);
+    // If locked to a dedicated city page route or initialCity is provided, preserve that city
+    if ((isCityPage || initialCity) && (initialCity || initialLocation)) {
+      const targetLoc = initialCity ? resolvedInitialLocation : initialLocation!;
+      setSelectedLocation(targetLoc);
+      setObserver(targetLoc);
       return;
     }
 

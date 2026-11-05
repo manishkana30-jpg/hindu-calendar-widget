@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
-import { CITIES } from '@/src/lib/cities';
+import { TOP_CITIES } from '@/src/lib/constants/cities';
 import { VRAT_DEFINITIONS } from '@/src/lib/vrat-data';
 import { MUHURAT_CATEGORIES } from '@/src/lib/muhurat-data';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://dailytithi.com';
-  const currentDate = new Date().toISOString().split('T')[0];
+  // Valid RFC 3339 timestamp
+  const currentDate = new Date().toISOString();
 
   const staticUrls: MetadataRoute.Sitemap = [
     {
@@ -40,15 +41,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // City Pages (Metros get 0.9, others get 0.85)
-  const cityUrls: MetadataRoute.Sitemap = CITIES.map((city) => ({
-    url: `${baseUrl}/panchang/${city.slug}`,
+  // City Pages mapped over TOP_CITIES registry with hourly revalidation & 0.85 priority
+  const cityUrls: MetadataRoute.Sitemap = Object.keys(TOP_CITIES).map((slug) => ({
+    url: `${baseUrl}/panchang/${slug}`,
     lastModified: currentDate,
-    changeFrequency: 'daily',
-    priority: city.isMetro ? 0.9 : 0.85,
+    changeFrequency: 'hourly',
+    priority: 0.85,
   }));
 
-  // Dedicated Vrat & Festival Hubs (0.8)
+  // Dedicated Vrat & Festival Hubs (0.8 priority)
   const vratUrls: MetadataRoute.Sitemap = Object.values(VRAT_DEFINITIONS).map((vrat) => ({
     url: `${baseUrl}/vrat/${vrat.slug}`,
     lastModified: currentDate,
@@ -56,7 +57,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Dedicated Shubh Muhurat Hubs (0.8)
+  // Dedicated Shubh Muhurat Hubs (0.8 priority)
   const muhuratUrls: MetadataRoute.Sitemap = Object.values(MUHURAT_CATEGORIES).map((muhurat) => ({
     url: `${baseUrl}/muhurat/${muhurat.slug}`,
     lastModified: currentDate,
