@@ -23,7 +23,7 @@ export function VedicConsultationCard({
     <div
       className={`my-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-[#121c33] via-[#0d162b] to-[#18112e] border border-amber-500/30 shadow-xl relative overflow-hidden text-left ${className}`}
     >
-      <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none -z-0" />
+      <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-[radial-gradient(circle,_rgba(245,158,11,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
         <div className="space-y-1.5 max-w-xl">

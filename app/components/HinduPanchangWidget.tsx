@@ -652,9 +652,9 @@ export function HinduPanchangWidget({
   return (
     <>
       <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/80 backdrop-blur-2xl border border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-x-hidden touch-pan-y">
-        {/* Subtle celestial observatory ambient background lighting */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-0" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none -z-0" />
+        {/* Subtle celestial observatory ambient background lighting (Zero-blur radial gradients) */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(245,158,11,0.06)_0%,_transparent_70%)] pointer-events-none -z-0" />
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.06)_0%,_transparent_70%)] pointer-events-none -z-0" />
         
         {/* ── Consolidated Top Control Bar ── */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-slate-900/70 backdrop-blur-xl rounded-2xl border border-white/10 text-xs relative z-30 mb-2.5">

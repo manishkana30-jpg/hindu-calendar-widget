@@ -114,10 +114,10 @@ export default async function MuhuratHubPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Decorative ambient lighting */}
+      {/* Decorative ambient lighting (Hardware-accelerated zero-blur radial gradients) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-orange-600/10 blur-[140px] rounded-full" />
-        <div className="absolute top-[600px] right-[-100px] w-[500px] h-[500px] bg-amber-500/5 blur-[160px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
+        <div className="absolute top-[600px] right-[-100px] w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.08)_0%,_transparent_70%)]" />
       </div>
 
       {/* ── Navbar ── */}

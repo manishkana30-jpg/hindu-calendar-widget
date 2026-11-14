@@ -17,9 +17,9 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200">
       
-      {/* Ambient background glow */}
+      {/* Ambient background glow (Hardware-accelerated zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-orange-600/10 blur-[140px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
       </div>
 
       <nav className="border-b border-[#162038] bg-[#070b16]/90 backdrop-blur-xl sticky top-0 z-50">
@@ -57,7 +57,7 @@ export default function ContactPage() {
             
             {/* Primary Email Card */}
             <div className="p-6 rounded-3xl bg-[#090e1a]/90 border border-orange-500/30 shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[radial-gradient(circle,_rgba(249,115,22,0.12)_0%,_transparent_70%)] pointer-events-none" />
               <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 mb-3">
                 <Mail size={20} />
               </div>

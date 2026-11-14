@@ -6,9 +6,9 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex flex-col items-center justify-center p-6 text-center">
       
-      {/* Decorative ambient lighting */}
+      {/* Decorative ambient lighting (Hardware-accelerated zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-600/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
       </div>
 
       <div className="max-w-md w-full p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-2xl space-y-6">
