@@ -11,6 +11,7 @@ import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
 import { Footer } from '@/src/components/Footer';
 import { AdSlot } from '@/app/components/AdSlot';
 import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
+import { CitySearchModal } from '@/app/components/CitySearchModal';
 import { generatePanchangFaqSchema, generateBreadcrumbSchema } from '@/src/lib/seo-schemas';
 
 // ── Next.js 15 Incremental Static Regeneration (ISR) ──
@@ -74,6 +75,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ],
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        'en-IN': `https://dailytithi.com/panchang/${city.slug}`,
+        'hi-IN': `https://dailytithi.com/hi/panchang/${city.slug}`,
+        'mr-IN': `https://dailytithi.com/mr/panchang/${city.slug}`,
+        'gu-IN': `https://dailytithi.com/gu/panchang/${city.slug}`,
+        'x-default': `https://dailytithi.com/panchang/${city.slug}`,
+      },
     },
     openGraph: {
       type: 'website',
@@ -180,6 +188,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <CitySearchModal />
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#11192e] hover:bg-[#16213d] border border-[#233152] text-xs font-semibold text-neutral-300 hover:text-white transition-colors shrink-0"
@@ -240,6 +249,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
               initialLocation={cityLocation}
               initialData={panchang}
               isCityPage={true}
+              initialLanguage="en"
             />
           </WidgetErrorBoundary>
         </div>

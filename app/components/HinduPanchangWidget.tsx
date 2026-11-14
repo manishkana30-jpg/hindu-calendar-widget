@@ -279,13 +279,15 @@ export interface HinduPanchangWidgetProps {
   initialData?: PanchangData | any;
   initialCity?: CityConfig;
   isCityPage?: boolean;
+  initialLanguage?: SupportedLanguage;
 }
 
 export function HinduPanchangWidget({
   initialLocation,
   initialData,
   initialCity,
-  isCityPage = false
+  isCityPage = false,
+  initialLanguage,
 }: HinduPanchangWidgetProps) {
   // Resolve location from initialCity (typed CityConfig), initialLocation, or default New Delhi
   const resolvedInitialLocation: LocationCoordinates = initialCity
@@ -308,7 +310,13 @@ export function HinduPanchangWidget({
   const [locationSource, setLocationSource] = useState<'gps' | 'dropdown' | 'fallback'>('fallback');
   const [lastUpdatedTime, setLastUpdatedTime] = useState<string>('Just now');
   const [isGpsDetecting, setIsGpsDetecting] = useState<boolean>(false);
-  const { language, isHindi, t, translateTerm, localeCode } = useLanguage();
+  const { language, setLanguage, isHindi, t, translateTerm, localeCode } = useLanguage();
+
+  useEffect(() => {
+    if (initialLanguage && language !== initialLanguage) {
+      setLanguage(initialLanguage);
+    }
+  }, [initialLanguage, language, setLanguage]);
 
   // Single Source of Truth (SSOT) Cascading Panchang Hook
   const {

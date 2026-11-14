@@ -49,6 +49,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }));
 
+  // Regional City Pages (Hindi, Marathi, Gujarati) mapped over TOP_CITIES registry
+  const regionalCityUrls: MetadataRoute.Sitemap = ['hi', 'mr', 'gu'].flatMap((lang) =>
+    Object.keys(TOP_CITIES).map((slug) => ({
+      url: `${baseUrl}/${lang}/panchang/${slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'hourly' as const,
+      priority: 0.85,
+    }))
+  );
+
   // Dedicated Vrat & Festival Hubs (0.8 priority)
   const vratUrls: MetadataRoute.Sitemap = Object.values(VRAT_DEFINITIONS).map((vrat) => ({
     url: `${baseUrl}/vrat/${vrat.slug}`,
@@ -65,5 +75,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticUrls, ...cityUrls, ...vratUrls, ...muhuratUrls];
+  return [...staticUrls, ...cityUrls, ...regionalCityUrls, ...vratUrls, ...muhuratUrls];
 }

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { WidgetErrorBoundary } from './components/WidgetErrorBoundary';
 import { NavbarBrand } from './components/NavbarElements';
+import { CitySearchModal } from './components/CitySearchModal';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
 import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
@@ -86,6 +87,11 @@ export default async function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <span className="text-xl sm:text-2xl drop-shadow-md shrink-0 select-none">🕉️</span>
             <NavbarBrand />
+          </div>
+
+          {/* Interactive City Search Matrix Modal */}
+          <div className="flex items-center gap-2 shrink-0">
+            <CitySearchModal />
           </div>
         </div>
       </nav>

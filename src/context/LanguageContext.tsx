@@ -55,12 +55,18 @@ function getSavedLanguage(): SupportedLanguage {
   return 'en';
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<SupportedLanguage>('en');
+export function LanguageProvider({
+  children,
+  defaultLanguage,
+}: {
+  children: React.ReactNode;
+  defaultLanguage?: SupportedLanguage;
+}) {
+  const [language, setLanguageState] = useState<SupportedLanguage>(defaultLanguage || 'en');
 
   // Synchronize on mount and update document html lang
   useEffect(() => {
-    const initialLang = getSavedLanguage();
+    const initialLang = defaultLanguage || getSavedLanguage();
     setLanguageState(initialLang);
 
     if (typeof document !== 'undefined') {

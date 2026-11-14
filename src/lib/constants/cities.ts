@@ -7,6 +7,8 @@ export interface CityConfig {
   slug: string;
   name: string;
   hindiName: string;
+  marathiName?: string;
+  gujaratiName?: string;
   state: string;
   latitude: number;
   longitude: number;
@@ -627,5 +629,91 @@ export function getCityConfig(slug: string): CityConfig | null {
   }
 
   return null;
+}
+
+/**
+ * Regional Script Registry for Hindi, Marathi, and Gujarati City SEO Matrix
+ */
+export const REGIONAL_CITY_NAMES: Record<string, { mr: string; gu: string }> = {
+  'new-delhi': { mr: 'नवी दिल्ली', gu: 'નવી દિલ્હી' },
+  ghaziabad: { mr: 'गाझियाबाद', gu: 'ગાઝિયાબાદ' },
+  varanasi: { mr: 'वाराणसी', gu: 'વારાણસી' },
+  mumbai: { mr: 'मुंबई', gu: 'મુંબઈ' },
+  bengaluru: { mr: 'बेंगळुरू', gu: 'બેંગલુરુ' },
+  pune: { mr: 'पुणे', gu: 'પુણે' },
+  hyderabad: { mr: 'हैदराबाद', gu: 'હૈદરાબાદ' },
+  jaipur: { mr: 'जयपूर', gu: 'જયપુર' },
+  lucknow: { mr: 'लखनौ', gu: 'લખનૌ' },
+  kolkata: { mr: 'कोलकाता', gu: 'કોલકાતા' },
+  ahmedabad: { mr: 'अहमदाबाद', gu: 'અમદાવાદ' },
+  chandigarh: { mr: 'चंदीगढ', gu: 'ચંદીગઢ' },
+  patna: { mr: 'पाटणा', gu: 'પટના' },
+  indore: { mr: 'इंदूर', gu: 'ઇન્દોર' },
+  surat: { mr: 'सुरत', gu: 'સુરત' },
+  bhopal: { mr: 'भोपाळ', gu: 'ભોપાલ' },
+  ayodhya: { mr: 'अयोध्या', gu: 'અયોધ્યા' },
+  haridwar: { mr: 'हरिद्वार', gu: 'હરિદ્વાર' },
+  ujjain: { mr: 'उज्जैन', gu: 'ઉજ્જૈન' },
+  nagpur: { mr: 'नागपूर', gu: 'નાગપુર' },
+  delhi: { mr: 'दिल्ली', gu: 'દિલ્હી' },
+  noida: { mr: 'नोएडा', gu: 'નોઈડા' },
+  kanpur: { mr: 'कानपूर', gu: 'કાનપુર' },
+  prayagraj: { mr: 'प्रयागराज', gu: 'પ્રયાગરાજ' },
+  agra: { mr: 'आग्रा', gu: 'આગ્રા' },
+  mathura: { mr: 'मथुरा', gu: 'મથુરા' },
+  chennai: { mr: 'चेन्नई', gu: 'ચેન્નાઈ' },
+  vadodara: { mr: 'वडोदरा', gu: 'વડોદરા' },
+  visakhapatnam: { mr: 'विशाखापट्टणम', gu: 'વિશાખાપટ્ટનમ' },
+  ludhiana: { mr: 'लुधियाना', gu: 'લુધિયાણા' },
+  nashik: { mr: 'नाशिक', gu: 'નાસિક' },
+  faridabad: { mr: 'फरीदाबाद', gu: 'ફરીદાબાદ' },
+  meerut: { mr: 'मेरठ', gu: 'મેરઠ' },
+  rajkot: { mr: 'राजकोट', gu: 'રાજકોટ' },
+  amritsar: { mr: 'अमृतसर', gu: 'અમૃતસર' },
+  ranchi: { mr: 'रांची', gu: 'રાંચી' },
+  coimbatore: { mr: 'कोईम्बतूर', gu: 'કોઈમ્બતૂર' },
+  jabalpur: { mr: 'जबलपूर', gu: 'જબલપુર' },
+  gwalior: { mr: 'ग्वाल्हेर', gu: 'ગ્વાલિયર' },
+  vijayawada: { mr: 'विजयवाडा', gu: 'વિજયવાડા' },
+  jodhpur: { mr: 'जोधपूर', gu: 'જોધપુર' },
+  madurai: { mr: 'मदुरै', gu: 'મદુરાઈ' },
+  raipur: { mr: 'रायपूर', gu: 'રાયપુર' },
+  kota: { mr: 'कोटा', gu: 'કોટા' },
+  mysuru: { mr: 'म्हैसूर', gu: 'મૈસૂર' },
+  dehradun: { mr: 'देहरादून', gu: 'દેહરાદૂન' },
+  rishikesh: { mr: 'ऋषिकेश', gu: 'ઋષિકેશ' },
+  shimla: { mr: 'शिमला', gu: 'શિમલા' },
+  tirupati: { mr: 'तिरुपती', gu: 'તિરુપતિ' },
+  bhubaneswar: { mr: 'भुवनेश्वर', gu: 'ભુવનેશ્વર' },
+  puri: { mr: 'पुरी', gu: 'પુરી' },
+  jammu: { mr: 'जम्मू', gu: 'જમ્મુ' },
+  srinagar: { mr: 'श्रीनगर', gu: 'શ્રીનગર' },
+  thiruvananthapuram: { mr: 'तिरुवनंतपुरम', gu: 'તિરુવનંતપુરમ' },
+  guwahati: { mr: 'गुवाहाटी', gu: 'ગુવાહાટી' },
+  kochi: { mr: 'कोची', gu: 'કોચી' },
+  kathmandu: { mr: 'काठमांडू', gu: 'કાઠમંડુ' },
+  london: { mr: 'लंडन', gu: 'લંડન' },
+  'new-york': { mr: 'न्यूयॉर्क', gu: 'ન્યૂ યોર્ક' },
+  toronto: { mr: 'टोरंटो', gu: 'ટોરોન્ટો' },
+  'san-francisco': { mr: 'सॅन फ्रान्सिस्को', gu: 'સાન ફ્રાન્સિસ્કો' },
+  dubai: { mr: 'दुबई', gu: 'દુબઈ' },
+  singapore: { mr: 'सिंगापूर', gu: 'સિંગાપોર' },
+  sydney: { mr: 'सिडनी', gu: 'સિડની' },
+};
+
+/**
+ * Returns localized city name based on language code ('hi', 'mr', 'gu', 'en').
+ */
+export function getLocalizedCityName(city: CityConfig, lang: string = 'en'): string {
+  if (lang === 'hi') {
+    return city.hindiName || city.name;
+  }
+  if (lang === 'mr') {
+    return REGIONAL_CITY_NAMES[city.slug]?.mr || city.marathiName || city.hindiName || city.name;
+  }
+  if (lang === 'gu') {
+    return REGIONAL_CITY_NAMES[city.slug]?.gu || city.gujaratiName || city.name;
+  }
+  return city.name;
 }
 
