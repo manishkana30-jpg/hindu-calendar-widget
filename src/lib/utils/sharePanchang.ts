@@ -175,14 +175,13 @@ export async function sharePanchang(
   const appUrl = data.appUrl || 'https://dailytithi.com';
   const onToast = options.onToast || (() => {});
 
-  // 1. Mobile Web Share API Attempt
+  // 1. Mobile Web Share API Attempt (Pass text only so WhatsApp doesn't duplicate the URL at the end)
   if (isMobileClient() && typeof navigator !== 'undefined' && 'share' in navigator) {
     try {
-      if (navigator.canShare && navigator.canShare({ title: 'Daily Tithi — Aaj Ka Panchang', text: shareText, url: appUrl })) {
+      if (navigator.canShare && navigator.canShare({ title: 'Daily Tithi — Aaj Ka Panchang', text: shareText })) {
         await navigator.share({
           title: 'Daily Tithi — Aaj Ka Panchang',
-          text: shareText,
-          url: appUrl
+          text: shareText
         });
         return { success: true, method: 'native' };
       }

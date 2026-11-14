@@ -587,13 +587,12 @@ export function HinduPanchangWidget({
         typeof navigator !== 'undefined' &&
         navigator.share &&
         navigator.canShare &&
-        navigator.canShare({ title: 'Daily Tithi — Vedic Panchang', text: formattedText, url: appUrl })
+        navigator.canShare({ title: 'Daily Tithi — Vedic Panchang', text: formattedText })
       ) {
         try {
           await navigator.share({
             title: 'Daily Tithi — Vedic Panchang',
-            text: formattedText,
-            url: appUrl
+            text: formattedText
           });
           return;
         } catch (err: unknown) {
