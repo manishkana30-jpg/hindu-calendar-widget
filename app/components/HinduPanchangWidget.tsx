@@ -755,7 +755,7 @@ export function HinduPanchangWidget({
                 onClick={handlePrevDay}
                 aria-label={t('prevDay')}
                 title={t('prevDay')}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
                 <ChevronLeft size={13} />
               </button>
@@ -766,7 +766,7 @@ export function HinduPanchangWidget({
                 onChange={handleDateChange}
                 aria-label={t('selectDate')}
                 title={t('selectDate')}
-                className="bg-transparent text-[11px] font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-0.5 max-w-[105px]"
+                className="bg-transparent text-base sm:text-[11px] font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-0.5 max-w-[105px]"
               />
 
               <button
@@ -774,7 +774,7 @@ export function HinduPanchangWidget({
                 onClick={handleNextDay}
                 aria-label={t('nextDay')}
                 title={t('nextDay')}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
                 <ChevronRight size={13} />
               </button>
@@ -811,7 +811,7 @@ export function HinduPanchangWidget({
         </div>
 
         {/* ── Main Top 3-Card Row (Compact Above-The-Fold Layout) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 pt-2.5 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2.5 relative z-10">
           
           {/* COLUMN 1: GREGORIAN LIVE CLOCK CARD */}
           <div 

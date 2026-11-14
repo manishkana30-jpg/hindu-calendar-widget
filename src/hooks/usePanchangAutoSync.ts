@@ -155,18 +155,46 @@ export function usePanchangAutoSync({
   // Guard against SSR hydration mismatch for DOM elements
   const isPreSunrise = isMounted && Boolean(tithiResolution.isPreSunrise);
 
-  // 1-second lightweight live clock update (ONLY updates Date for UI clock)
+  // 1-second lightweight live clock update (Pauses in background to preserve mobile battery)
   useEffect(() => {
     if (!isLiveMode) return;
 
-    clockTickRef.current = setInterval(() => {
+    const startClock = () => {
+      if (clockTickRef.current) return;
       setCurrentTime(new Date());
-    }, 1000);
+      clockTickRef.current = setInterval(() => {
+        setCurrentTime(new Date());
+      }, 1000);
+    };
 
-    return () => {
+    const stopClock = () => {
       if (clockTickRef.current) {
         clearInterval(clockTickRef.current);
         clockTickRef.current = null;
+      }
+    };
+
+    const handleVisibility = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        stopClock();
+      } else {
+        startClock();
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      if (document.visibilityState !== 'hidden') {
+        startClock();
+      }
+      document.addEventListener('visibilitychange', handleVisibility);
+    } else {
+      startClock();
+    }
+
+    return () => {
+      stopClock();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibility);
       }
     };
   }, [isLiveMode]);

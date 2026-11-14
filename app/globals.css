@@ -75,18 +75,27 @@ body {
   box-shadow: 0 0 30px rgba(245, 158, 11, 0.08);
 }
 
-/* ── Anti-Scraping & Content Theft Protection ── */
+/* ── Anti-Scraping & Content Protection (Allows text selection on tables and editorial articles) ── */
 .protected-data,
 .tithi-card,
 .panchang-grid,
-table,
-article,
 [data-protected="true"] {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+/* Safe-area inset utilities for iOS Home Indicator and dynamic notch/islands */
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 /* Guarantee search bars, filters, and form inputs remain fully functional */

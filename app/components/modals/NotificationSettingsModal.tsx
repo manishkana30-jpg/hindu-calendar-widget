@@ -538,7 +538,7 @@ export function NotificationSettingsModal({
                       type="time"
                       value={settings?.quietHoursStart || '22:00'}
                       onChange={(e) => updateSettingField('quietHoursStart', e.target.value)}
-                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-xs font-mono outline-none"
+                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-base sm:text-xs font-mono outline-none"
                     />
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -547,7 +547,7 @@ export function NotificationSettingsModal({
                       type="time"
                       value={settings?.quietHoursEnd || '06:00'}
                       onChange={(e) => updateSettingField('quietHoursEnd', e.target.value)}
-                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-xs font-mono outline-none"
+                      className="bg-[#131d33] border border-[#233554] rounded-lg px-2 py-1 text-white text-base sm:text-xs font-mono outline-none"
                     />
                   </div>
                 </div>

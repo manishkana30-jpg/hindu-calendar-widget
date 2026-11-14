@@ -57,6 +57,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Pass non-same-origin requests (e.g. Google AdSense, DoubleClick, Microsoft Clarity) directly to network
+  // Only same-origin static assets and Google Fonts should enter CacheStorage
+  if (url.origin !== self.location.origin && !url.hostname.includes('fonts.gstatic.com')) {
+    return;
+  }
+
   // HTML page navigations: Network-First with cache fallback
   if (event.request.mode === 'navigate') {
     event.respondWith(

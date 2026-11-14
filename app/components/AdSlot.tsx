@@ -159,7 +159,7 @@ export function AdSlot({
   return (
     <aside
       aria-label="Advertisement Sticky Footer Anchor"
-      className={`min-h-[50px] sm:min-h-[60px] w-full bg-[#070b16]/98 backdrop-blur-md border-t border-[#1e2d4f] flex flex-col items-center justify-center text-center px-3 py-1 fixed bottom-0 left-0 right-0 z-30 shadow-[0_-4px_25px_rgba(0,0,0,0.6)] ${className}`}
+      className={`min-h-[50px] sm:min-h-[60px] w-full bg-[#070b16]/98 backdrop-blur-md border-t border-[#1e2d4f] flex flex-col items-center justify-center text-center px-3 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] fixed bottom-0 left-0 right-0 z-30 shadow-[0_-4px_25px_rgba(0,0,0,0.6)] ${className}`}
     >
       <div className="flex items-center justify-between w-full max-w-4xl gap-2">
         <span className="text-[9px] font-mono tracking-widest text-neutral-500 uppercase shrink-0">
