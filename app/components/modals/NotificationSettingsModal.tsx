@@ -222,37 +222,37 @@ export function NotificationSettingsModal({
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="relative w-full max-w-none sm:max-w-xl bg-[#0a101f] border-0 sm:border border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-none sm:rounded-3xl p-5 sm:p-6 pb-24 text-neutral-200 h-dvh sm:h-auto sm:max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
+        className="relative w-full max-w-none sm:max-w-xl bg-[#fcf8f0] dark:bg-[#0a101f] border-0 sm:border border-amber-200/60 dark:border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.5)] rounded-none sm:rounded-3xl p-5 sm:p-6 pb-24 text-stone-800 dark:text-neutral-200 h-dvh sm:h-auto sm:max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close Notification Settings"
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#131d33] hover:bg-[#1d2b4b] border border-[#2b3e66] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#131d33] dark:hover:bg-[#1d2b4b] border border-amber-300/60 dark:border-[#2b3e66] flex items-center justify-center text-stone-600 hover:text-stone-900 dark:text-neutral-400 dark:hover:text-white transition-colors cursor-pointer"
         >
           <X size={18} />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-5 pr-8">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center flex-shrink-0 shadow-inner">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0 shadow-inner">
             <Bell size={24} className="animate-pulse" />
           </div>
           <div>
-            <h2 id="notification-settings-title" className="text-lg sm:text-xl font-bold text-white tracking-tight">
+            <h2 id="notification-settings-title" className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white tracking-tight">
               Panchang Notifications & Auto-Updates
             </h2>
-            <p className="text-xs text-neutral-400 mt-0.5">
+            <p className="text-xs text-stone-600 dark:text-neutral-400 mt-0.5">
               Daily morning pushes, real-time Tithi change alerts & background updates
             </p>
           </div>
         </div>
 
         {/* ── Section 1: Main Master Notification Toggle ── */}
-        <div className="p-4 rounded-2xl bg-[#0f182c] border border-[#202f4d] flex items-center justify-between gap-4 mb-5 shadow-sm">
+        <div className="p-4 rounded-2xl bg-[#fffdf9]/95 dark:bg-[#0f182c] border border-amber-200/60 dark:border-[#202f4d] flex items-center justify-between gap-4 mb-5 shadow-sm">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">Push Notifications</span>
+              <span className="text-sm font-bold text-stone-900 dark:text-white">Push Notifications</span>
               {isEnabled ? (
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   Active

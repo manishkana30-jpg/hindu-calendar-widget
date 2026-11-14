@@ -9,6 +9,7 @@ import { ClientNotificationScheduler } from './components/ClientNotificationSche
 import { FloatingAlertBanner } from './components/FloatingAlertBanner';
 import { ContentProtection } from './components/ContentProtection';
 import { LanguageProvider } from '@/src/context/LanguageContext';
+import { ThemeProvider } from '@/src/context/ThemeContext';
 
 const outfit = Outfit({ 
   subsets: ['latin'], 
@@ -210,8 +211,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        <meta name="color-scheme" content="light dark" />
         <meta name="theme-color" content="#090e1a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -224,6 +226,32 @@ export default function RootLayout({
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500;600;700;800&display=swap"
+        />
+        {/* Immediate client theme resolution to prevent FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('dt_theme_mode');
+                  var d = new Date();
+                  var hours = d.getHours() + d.getMinutes() / 60;
+                  var isDay = hours >= 6.0 && hours < 18.5;
+                  var resolved = saved === 'dawn' ? 'dawn' : (saved === 'cosmic' ? 'cosmic' : (isDay ? 'dawn' : 'cosmic'));
+                  var root = document.documentElement;
+                  if (resolved === 'cosmic') {
+                    root.classList.add('dark');
+                    root.classList.remove('light');
+                    root.setAttribute('data-theme', 'cosmic');
+                  } else {
+                    root.classList.add('light');
+                    root.classList.remove('dark');
+                    root.setAttribute('data-theme', 'dawn');
+                  }
+                } catch(e) {}
+              })();
+            `
+          }}
         />
         <script
           type="application/ld+json"
@@ -246,19 +274,20 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
       </head>
-      <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-200`}>
-        <LanguageProvider>
-          <Suspense fallback={null}>
-            <NotificationNavigationHandler />
-          </Suspense>
-          <ClientNotificationScheduler />
-          <ContentProtection />
-          {children}
-          <FloatingAlertBanner />
-          <PwaUpdatePrompt />
-        </LanguageProvider>
+      <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-[#fcf8f0] dark:bg-neutral-950 text-stone-900 dark:text-neutral-100 antialiased min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-900 dark:selection:text-orange-200 transition-colors duration-200`}>
+        <ThemeProvider>
+          <LanguageProvider>
+            <Suspense fallback={null}>
+              <NotificationNavigationHandler />
+            </Suspense>
+            <ClientNotificationScheduler />
+            <ContentProtection />
+            {children}
+            <FloatingAlertBanner />
+            <PwaUpdatePrompt />
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
-
   );
 }

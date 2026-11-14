@@ -224,19 +224,19 @@ export function GregorianCalendarModal({
       aria-labelledby="gregorian-modal-title"
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto max-h-dvh sm:max-h-[90dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto max-h-dvh sm:max-h-[90dvh] bg-[#fcf8f0] dark:bg-[#090e1a] text-stone-900 dark:text-neutral-100 border-0 sm:border border-amber-200/60 dark:border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-[#11192e] dark:via-[#0e1629] dark:to-[#11192e] border-b border-amber-200/60 dark:border-[#1e2942] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <CalendarIcon size={20} />
             </div>
             <div>
-              <h2 id="gregorian-modal-title" className="text-base sm:text-lg font-extrabold text-white">
+              <h2 id="gregorian-modal-title" className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-white">
                 {t('gregorianCalendarTitle')}
               </h2>
-              <p className="text-xs text-neutral-400 font-medium">
+              <p className="text-xs text-stone-600 dark:text-neutral-400 font-medium">
                 {monthName} {viewYear} • {location.name}
               </p>
             </div>
@@ -245,14 +245,14 @@ export function GregorianCalendarModal({
           <button
             onClick={onClose}
             aria-label={t('close')}
-            className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#1f2c4d] border border-amber-300/60 dark:border-[#233152] flex items-center justify-center text-stone-600 hover:text-stone-900 dark:text-neutral-400 dark:hover:text-white transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Month Switcher & Quick Navigation Bar */}
-        <div className="p-3 sm:px-5 bg-[#0c1222] border-b border-[#1a233a] flex items-center justify-between gap-2 shrink-0">
+        <div className="p-3 sm:px-5 bg-[#fbf5ea] dark:bg-[#0c1222] border-b border-amber-200/60 dark:border-[#1a233a] flex items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-1">
             <button
               onClick={handlePrevMonth}
@@ -485,13 +485,13 @@ export function GregorianCalendarModal({
         </div>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 bg-[#0a0f1d] border-t border-[#1a233a] flex items-center justify-between text-xs text-neutral-400 shrink-0">
-          <span className="text-[11px] text-neutral-400">
+        <div className="p-3 sm:p-4 bg-[#fbf5ea] dark:bg-[#0a0f1d] border-t border-amber-200/60 dark:border-[#1a233a] flex items-center justify-between text-xs text-stone-600 dark:text-neutral-400 shrink-0">
+          <span className="text-[11px] text-stone-600 dark:text-neutral-400">
             {t('tapGregorianCalendar').replace('›', '').trim()}
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-[#141e36] hover:bg-[#1c2a4d] border border-[#233152] text-neutral-200 hover:text-white font-bold transition-all cursor-pointer"
+            className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 dark:bg-[#141e36] dark:hover:bg-[#1c2a4d] border border-orange-400/40 dark:border-[#233152] text-white font-bold transition-all cursor-pointer shadow-sm"
           >
             {t('close')}
           </button>

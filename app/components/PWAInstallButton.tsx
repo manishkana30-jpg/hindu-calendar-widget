@@ -55,7 +55,7 @@ export function PWAInstallButton({ className = '', compact = false }: PWAInstall
       <button
         type="button"
         onClick={handleInstallClick}
-        className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-950/70 hover:bg-sky-900/90 border border-sky-500/40 text-sky-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(14,165,233,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0 animate-in fade-in duration-200 select-none ${className}`}
+        className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-100 hover:bg-sky-200 dark:bg-sky-950/70 dark:hover:bg-sky-900/90 border border-sky-300 dark:border-sky-500/40 text-sky-900 dark:text-sky-300 transition-all shadow-sm hover:shadow-[0_0_12px_rgba(14,165,233,0.25)] hover:scale-105 active:scale-95 cursor-pointer shrink-0 animate-in fade-in duration-200 select-none ${className}`}
         title="Install Daily Tithi Web App (PWA) for 100% offline access"
         aria-label="Install App"
       >

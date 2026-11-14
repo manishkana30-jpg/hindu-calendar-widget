@@ -4,6 +4,7 @@ import { HinduPanchangWidget } from './components/HinduPanchangWidget';
 import { WidgetErrorBoundary } from './components/WidgetErrorBoundary';
 import { NavbarBrand } from './components/NavbarElements';
 import { CitySearchModal } from './components/CitySearchModal';
+import { ThemeToggle } from './components/ThemeToggle';
 import { VedicEditorialGuide } from './components/VedicEditorialGuide';
 import { FaqAccordion } from './components/FaqAccordion';
 import { BackgroundAlertsSetup } from '@/src/components/BackgroundAlertsSetup';
@@ -62,7 +63,7 @@ export default async function LandingPage() {
   ]);
 
   return (
-    <div className="min-h-dvh w-full max-w-full bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden touch-pan-y pb-24">
+    <div className="min-h-dvh w-full max-w-full bg-[#fcf8f0] dark:bg-[#050811] text-stone-900 dark:text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-950 dark:selection:text-orange-200 overflow-x-hidden touch-pan-y pb-24 transition-colors duration-200">
       {/* ── Structured Data JSON-LD Schemas ── */}
       <script
         type="application/ld+json"
@@ -73,27 +74,28 @@ export default async function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      {/* Decorative ambient lighting: Rich Multi-Spectrum Vedic Cosmic Aurora */}
+      {/* Decorative ambient lighting: Dawn Sunbeams & Cosmic Vedic Aurora */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[550px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.20)_0%,_rgba(234,88,12,0.10)_45%,_transparent_70%)]" />
-        <div className="absolute top-[350px] -right-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.12)_0%,_transparent_70%)]" />
-        <div className="absolute top-[750px] -left-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(59,130,246,0.10)_0%,_transparent_70%)]" />
-        <div className="absolute top-[1300px] right-10 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[550px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.18)_0%,_rgba(234,88,12,0.08)_45%,_transparent_70%)]" />
+        <div className="hidden dark:block absolute top-[350px] -right-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.12)_0%,_transparent_70%)]" />
+        <div className="hidden dark:block absolute top-[750px] -left-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(59,130,246,0.10)_0%,_transparent_70%)]" />
+        <div className="hidden dark:block absolute top-[1300px] right-10 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)]" />
       </div>
 
-      {/* ── Navbar: Brand & Live Status Indicator ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#070b16]/90 backdrop-blur-xl border-b border-[#162038]">
+      {/* ── Navbar: Brand, Theme Switcher & City Search Matrix ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#fffdf9]/90 dark:bg-[#070b16]/90 backdrop-blur-xl border-b border-[#e7d8be] dark:border-[#162038] transition-colors duration-200">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-amber-500/10 border border-amber-500/40 flex items-center justify-center text-xl shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.3)] select-none">
+            <div className="w-9 h-9 rounded-2xl bg-amber-500/15 dark:bg-gradient-to-br dark:from-amber-500/20 dark:via-orange-500/15 dark:to-amber-500/10 border border-amber-500/40 flex items-center justify-center text-xl shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.25)] select-none">
               🕉️
             </div>
             <NavbarBrand />
           </div>
 
-          {/* Interactive City Search Matrix Modal */}
+          {/* Theme Switcher (Dawn/Cosmic/Auto) & Interactive City Search */}
           <div className="flex items-center gap-2 shrink-0">
+            <ThemeToggle />
             <CitySearchModal />
           </div>
         </div>

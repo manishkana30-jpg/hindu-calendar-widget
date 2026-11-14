@@ -50,14 +50,14 @@ export function FaqAccordion() {
     <section className="mt-16 max-w-5xl mx-auto px-4 sm:px-6 text-left">
       
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-3">
-          <HelpCircle size={14} className="text-amber-400" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-semibold mb-3">
+          <HelpCircle size={14} className="text-amber-600 dark:text-amber-400" />
           <span>Frequently Asked Questions</span>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
           Vedic Astrometry & Panchang FAQ
         </h2>
-        <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto mt-2">
+        <p className="text-stone-600 dark:text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto mt-2">
           Clear, mathematically verified answers to essential questions regarding Hindu calendar calculations, Udaya Tithi, and dynamic Muhurats.
         </p>
       </div>
@@ -68,7 +68,7 @@ export function FaqAccordion() {
           return (
             <div
               key={faq.id}
-              className="rounded-2xl bg-[#090e1a]/90 border border-[#1a2542] overflow-hidden transition-all shadow-md hover:border-[#2a3860]"
+              className="rounded-2xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-[#e2d5bd] dark:border-[#1a2542] overflow-hidden transition-all shadow-sm dark:shadow-md hover:border-amber-400 dark:hover:border-[#2a3860]"
             >
               <h3>
                 <button
@@ -78,15 +78,15 @@ export function FaqAccordion() {
                   onClick={() => toggleAccordion(faq.id)}
                   className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer group focus:outline-none focus:ring-1 focus:ring-orange-500 rounded-2xl"
                 >
-                  <span className="flex items-center gap-3 text-sm sm:text-base font-bold text-neutral-100 group-hover:text-amber-300 transition-colors">
-                    <span className="w-6 h-6 rounded-full bg-[#11192e] border border-[#233152] flex items-center justify-center text-xs font-mono text-orange-400 shrink-0">
+                  <span className="flex items-center gap-3 text-sm sm:text-base font-bold text-stone-900 dark:text-neutral-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors">
+                    <span className="w-6 h-6 rounded-full bg-amber-100 dark:bg-[#11192e] border border-amber-300 dark:border-[#233152] flex items-center justify-center text-xs font-mono text-orange-600 dark:text-orange-400 shrink-0">
                       {index + 1}
                     </span>
                     {faq.question}
                   </span>
                   <ChevronDown
                     size={18}
-                    className={`text-neutral-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-amber-400' : ''}`}
+                    className={`text-stone-500 dark:text-neutral-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''}`}
                   />
                 </button>
               </h3>
@@ -95,11 +95,11 @@ export function FaqAccordion() {
                 id={`faq-panel-${faq.id}`}
                 role="region"
                 aria-labelledby={`faq-btn-${faq.id}`}
-                className={`transition-all duration-300 ease-in-out px-5 sm:px-6 pb-5 sm:pb-6 text-xs sm:text-sm text-neutral-300 leading-relaxed ${
+                className={`transition-all duration-300 ease-in-out px-5 sm:px-6 pb-5 sm:pb-6 text-xs sm:text-sm text-stone-700 dark:text-neutral-300 leading-relaxed ${
                   isOpen ? 'block' : 'hidden'
                 }`}
               >
-                <div className="pt-2 border-t border-[#16213a]">
+                <div className="pt-2 border-t border-stone-200 dark:border-[#16213a]">
                   {faq.answer}
                 </div>
               </div>

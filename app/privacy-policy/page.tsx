@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft, ShieldCheck, Lock, Eye, Server, RefreshCw, Mail, Globe, Cookie } from 'lucide-react';
 import { Footer } from '@/src/components/Footer';
+import { ThemeToggle } from '@/app/components/ThemeToggle';
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Daily Tithi",
@@ -14,25 +15,28 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200">
+    <div className="min-h-screen bg-[#fcf8f0] dark:bg-[#050811] text-stone-900 dark:text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-900 dark:selection:text-orange-200 transition-colors duration-300">
       
       {/* Ambient background glow (Hardware-accelerated zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)] hidden dark:block" />
       </div>
 
-      <nav className="border-b border-[#162038] bg-[#070b16]/90 backdrop-blur-xl sticky top-0 z-50">
+      <nav className="border-b border-amber-200/60 dark:border-[#162038] bg-[#fdfaf3]/90 dark:bg-[#070b16]/90 backdrop-blur-xl sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link 
             href="/" 
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-neutral-300 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-stone-700 dark:text-neutral-300 hover:text-stone-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
             <span>Back to Daily Tithi</span>
           </Link>
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
-            <ShieldCheck size={16} className="text-emerald-400" />
-            <span>Privacy &amp; Compliance</span>
+          <div className="flex items-center gap-3 text-xs text-stone-600 dark:text-neutral-400">
+            <div className="hidden sm:flex items-center gap-1.5">
+              <ShieldCheck size={16} className="text-emerald-500 dark:text-emerald-400" />
+              <span>Privacy &amp; Compliance</span>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </nav>
@@ -40,25 +44,25 @@ export default function PrivacyPolicyPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-left">
         
         <div className="mb-10">
-          <span className="text-xs font-mono text-orange-400 uppercase tracking-wider">Compliance &amp; Transparency</span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white mt-2 tracking-tight">
+          <span className="text-xs font-mono text-orange-600 dark:text-orange-400 uppercase tracking-wider">Compliance &amp; Transparency</span>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-stone-900 dark:text-white mt-2 tracking-tight">
             Privacy Policy
           </h1>
-          <p className="text-neutral-400 text-sm mt-2">
+          <p className="text-stone-600 dark:text-neutral-400 text-sm mt-2">
             Last Updated: October 2026 • Official Policy for <strong>Daily Tithi</strong> (<code>https://dailytithi.com</code>)
           </p>
         </div>
 
-        <div className="space-y-8 text-neutral-300 text-sm sm:text-base leading-relaxed">
+        <div className="space-y-8 text-stone-700 dark:text-neutral-300 text-sm sm:text-base leading-relaxed">
           
           {/* Section 1: Introduction & Identity */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Globe size={20} className="text-orange-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Globe size={20} className="text-orange-500 dark:text-orange-400" />
               <h2>1. Introduction &amp; Ownership</h2>
             </div>
             <p>
-              Welcome to <strong>Daily Tithi</strong>, accessible at <a href="https://dailytithi.com" className="text-orange-400 hover:underline">https://dailytithi.com</a> (&quot;Daily Tithi&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). We are committed to protecting your privacy and providing transparent disclosures regarding how data is processed when you visit our website, install our Progressive Web Application (PWA), or interact with our live Vedic astrometry services.
+              Welcome to <strong>Daily Tithi</strong>, accessible at <a href="https://dailytithi.com" className="text-orange-600 dark:text-orange-400 hover:underline">https://dailytithi.com</a> (&quot;Daily Tithi&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). We are committed to protecting your privacy and providing transparent disclosures regarding how data is processed when you visit our website, install our Progressive Web Application (PWA), or interact with our live Vedic astrometry services.
             </p>
             <p className="mt-3">
               This Privacy Policy explains our practices concerning data collection, client-side computing, cookie usage, third-party advertising partners (including Google AdSense), and your rights under global privacy regulations including the General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA).
@@ -66,24 +70,24 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Section 2: Client-Side Geolocation */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Lock size={20} className="text-emerald-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Lock size={20} className="text-emerald-600 dark:text-emerald-400" />
               <h2>2. Client-Side Geolocation &amp; Astrometry Processing</h2>
             </div>
             <p>
               Daily Tithi (<code>dailytithi.com</code>) offers high-precision topocentric astrometric calculations—such as local Sunrise, Sunset, Udaya Tithi, Ishta Kaal, Dina Mana, and dynamic Choghadiya Muhurats. These calculations require geographic latitude and longitude coordinates.
             </p>
-            <div className="mt-3 p-4 rounded-xl bg-[#0e1629] border border-[#233152] text-xs sm:text-sm text-neutral-300">
-              <strong className="text-emerald-300 block mb-1">Zero Remote Location Tracking Guarantee:</strong>
+            <div className="mt-3 p-4 rounded-xl bg-amber-50/70 dark:bg-[#0e1629] border border-amber-200/60 dark:border-[#233152] text-xs sm:text-sm text-stone-700 dark:text-neutral-300">
+              <strong className="text-emerald-700 dark:text-emerald-300 block mb-1">Zero Remote Location Tracking Guarantee:</strong>
               When you permit browser geolocation or select a city, your coordinates are processed <strong>100% locally within your device&apos;s browser memory</strong> using client-side mathematical algorithms. Daily Tithi never transmits, logs, stores, sells, or monetizes your GPS coordinates or IP-derived location data on any external server.
             </div>
           </section>
 
           {/* Section 3: Google AdSense & Cookies */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Eye size={20} className="text-amber-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Eye size={20} className="text-amber-500 dark:text-amber-400" />
               <h2>3. Google AdSense &amp; Third-Party Advertising Disclosures</h2>
             </div>
             <p>
@@ -101,9 +105,9 @@ export default function PrivacyPolicyPage() {
               </li>
             </ul>
 
-            <div className="mt-4 p-4 rounded-xl bg-[#0e1629] border border-[#233152] text-xs sm:text-sm">
-              <strong className="text-amber-300 block mb-1">How You Can Opt Out of Personalized Advertising:</strong>
-              <p className="text-neutral-300 mb-2">
+            <div className="mt-4 p-4 rounded-xl bg-amber-50/70 dark:bg-[#0e1629] border border-amber-200/60 dark:border-[#233152] text-xs sm:text-sm">
+              <strong className="text-amber-800 dark:text-amber-300 block mb-1">How You Can Opt Out of Personalized Advertising:</strong>
+              <p className="text-stone-700 dark:text-neutral-300 mb-2">
                 You may opt out of personalized advertising by visiting:
               </p>
               <div className="flex flex-wrap gap-3">
@@ -111,7 +115,7 @@ export default function PrivacyPolicyPage() {
                   href="https://adssettings.google.com" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="px-3 py-1.5 rounded-lg bg-[#16213d] border border-[#233152] text-orange-400 hover:text-orange-300 hover:border-orange-400/40 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-orange-100/80 dark:bg-[#16213d] border border-orange-300/60 dark:border-[#233152] text-orange-700 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
                 >
                   Google Ads Settings →
                 </a>
@@ -119,7 +123,7 @@ export default function PrivacyPolicyPage() {
                   href="https://www.aboutads.info/choices/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="px-3 py-1.5 rounded-lg bg-[#16213d] border border-[#233152] text-orange-400 hover:text-orange-300 hover:border-orange-400/40 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-orange-100/80 dark:bg-[#16213d] border border-orange-300/60 dark:border-[#233152] text-orange-700 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
                 >
                   AboutAds.info Opt-Out Portal →
                 </a>
@@ -127,7 +131,7 @@ export default function PrivacyPolicyPage() {
                   href="https://www.networkadvertising.org/choices/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="px-3 py-1.5 rounded-lg bg-[#16213d] border border-[#233152] text-orange-400 hover:text-orange-300 hover:border-orange-400/40 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-orange-100/80 dark:bg-[#16213d] border border-orange-300/60 dark:border-[#233152] text-orange-700 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors"
                 >
                   Network Advertising Initiative (NAI) →
                 </a>
@@ -136,9 +140,9 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Section 4: Web Storage & PWA Caching */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Server size={20} className="text-blue-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Server size={20} className="text-blue-500 dark:text-blue-400" />
               <h2>4. Web Storage, Local Storage &amp; Service Worker Offline Caching</h2>
             </div>
             <p>
@@ -155,15 +159,15 @@ export default function PrivacyPolicyPage() {
                 <strong>Service Worker (<code>/sw.js</code>)</strong>: Pre-caches core HTML, modern CSS, SVG icons, and application bundles so that Daily Tithi functions reliably under intermittent connectivity or airplane mode.
               </li>
             </ul>
-            <p className="mt-3 text-xs sm:text-sm text-neutral-400">
+            <p className="mt-3 text-xs sm:text-sm text-stone-600 dark:text-neutral-400">
               You can clear these cached items at any time through your browser&apos;s site settings or application storage management console.
             </p>
           </section>
 
           {/* Section 5: Web Push Notifications */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <RefreshCw size={20} className="text-purple-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <RefreshCw size={20} className="text-purple-500 dark:text-purple-400" />
               <h2>5. Web Push Notification Architecture</h2>
             </div>
             <p>
@@ -172,9 +176,9 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Section 6: Children's Privacy */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Cookie size={20} className="text-rose-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Cookie size={20} className="text-rose-500 dark:text-rose-400" />
               <h2>6. Children&apos;s Privacy &amp; COPPA</h2>
             </div>
             <p>
@@ -183,24 +187,24 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Section 7: Data Controller & Contact Information */}
-          <section className="p-6 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542]">
-            <div className="flex items-center gap-3 mb-3 text-white font-bold text-lg">
-              <Mail size={20} className="text-emerald-400" />
+          <section className="p-6 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-amber-200/60 dark:border-[#1a2542] shadow-sm">
+            <div className="flex items-center gap-3 mb-3 text-stone-900 dark:text-white font-bold text-lg">
+              <Mail size={20} className="text-emerald-500 dark:text-emerald-400" />
               <h2>7. Data Controller &amp; Official Privacy Inquiries</h2>
             </div>
             <p>
               If you have any questions, concerns, or requests regarding this Privacy Policy, your personal data, or our compliance with Google AdSense standards, please reach out to our designated privacy officer:
             </p>
-            <div className="mt-4 p-4 rounded-xl bg-[#0e1629] border border-[#233152] text-sm">
-              <p className="text-white font-semibold">Daily Tithi Privacy Administration</p>
-              <p className="text-neutral-300 mt-1">Official Domain: <code>https://dailytithi.com</code></p>
+            <div className="mt-4 p-4 rounded-xl bg-amber-50/70 dark:bg-[#0e1629] border border-amber-200/60 dark:border-[#233152] text-sm">
+              <p className="text-stone-900 dark:text-white font-semibold">Daily Tithi Privacy Administration</p>
+              <p className="text-stone-700 dark:text-neutral-300 mt-1">Official Domain: <code>https://dailytithi.com</code></p>
               <p className="mt-1">
                 Official Contact Email:{' '}
-                <a href="mailto:contact@dailytithi.com" className="text-orange-400 font-mono font-medium hover:underline">
+                <a href="mailto:contact@dailytithi.com" className="text-orange-600 dark:text-orange-400 font-mono font-medium hover:underline">
                   contact@dailytithi.com
                 </a>
               </p>
-              <p className="text-neutral-400 text-xs mt-2">
+              <p className="text-stone-600 dark:text-neutral-400 text-xs mt-2">
                 Expected Response Time: All legitimate privacy and data inquiry requests are addressed within 24–48 business hours.
               </p>
             </div>

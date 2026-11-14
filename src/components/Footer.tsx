@@ -10,28 +10,28 @@ export function Footer({ cityName }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="pt-16 pb-12 border-t border-[#162038] bg-[#050811] text-xs text-neutral-400">
+    <footer className="pt-16 pb-12 border-t border-amber-200/60 dark:border-[#162038] bg-[#f8f3e8] dark:bg-[#050811] text-xs text-stone-600 dark:text-neutral-400 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-[#162038]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b border-amber-200/60 dark:border-[#162038]">
           
           {/* Column 1: Brand & Description */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-xl">🕉️</span>
-              <span className="font-bold text-white text-sm">Daily Tithi</span>
+              <span className="font-bold text-stone-900 dark:text-white text-sm">Daily Tithi</span>
             </div>
-            <p className="text-xs text-neutral-400 leading-relaxed">
+            <p className="text-xs text-stone-600 dark:text-neutral-400 leading-relaxed">
               High-precision, ad-light Vedic astrometry platform delivering live Ghati/Pala timekeeping, Udaya Tithi, dynamic Choghadiya Muhurats, and Dharmashastra-compliant festival calculations.
             </p>
             <div className="flex flex-col gap-2 pt-1">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#11192e] border border-emerald-500/30 text-[11px] text-emerald-300 font-mono w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-[#11192e] border border-emerald-500/30 text-[11px] text-emerald-800 dark:text-emerald-300 font-mono w-fit">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
                 <span>100% Offline PWA Ready</span>
               </div>
               <a 
                 href="mailto:contact@dailytithi.com"
-                className="inline-flex items-center gap-1.5 text-[11px] text-orange-400 hover:text-orange-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-[11px] text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
               >
                 <Mail size={13} />
                 <span>contact@dailytithi.com</span>
@@ -41,11 +41,11 @@ export function Footer({ cityName }: FooterProps) {
 
           {/* Column 2: Astrometric Foundation */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
-              <Sparkles size={14} className="text-amber-400" />
+            <h3 className="font-bold text-stone-900 dark:text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
+              <Sparkles size={14} className="text-amber-500 dark:text-amber-400" />
               <span>Astrometric Science</span>
             </h3>
-            <ul className="space-y-2 text-neutral-400 text-xs">
+            <ul className="space-y-2 text-stone-600 dark:text-neutral-400 text-xs">
               <li>• Swiss Ephemeris (DE431 Engine)</li>
               <li>• Lahiri (Chitra Paksha) Ayanamsa</li>
               <li>• Sidereal Zodiac (Nirayana System)</li>
@@ -56,28 +56,28 @@ export function Footer({ cityName }: FooterProps) {
 
           {/* Column 3: Trust & Compliance */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-emerald-400" />
+            <h3 className="font-bold text-stone-900 dark:text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
+              <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
               <span>Compliance &amp; Trust</span>
             </h3>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/about" className="hover:text-amber-400 transition-colors">
+                <Link href="/about" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                   About Us &amp; Methodology
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-amber-400 transition-colors">
+                <Link href="/contact" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                   Contact &amp; Inquiries
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-amber-400 transition-colors">
+                <Link href="/privacy-policy" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                   Privacy Policy (AdSense &amp; GDPR)
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-amber-400 transition-colors">
+                <Link href="/terms" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                   Terms of Service &amp; Disclaimers
                 </Link>
               </li>
@@ -86,15 +86,15 @@ export function Footer({ cityName }: FooterProps) {
 
           {/* Column 4: Intellectual Property & Copyright Protection */}
           <div className="space-y-3">
-            <h3 className="font-bold text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-amber-400" />
+            <h3 className="font-bold text-stone-900 dark:text-white uppercase font-mono tracking-wider text-xs flex items-center gap-1.5">
+              <ShieldCheck size={14} className="text-amber-500 dark:text-amber-400" />
               <span>Intellectual Property</span>
             </h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">
+            <p className="text-xs text-stone-600 dark:text-neutral-400 leading-relaxed">
               Proprietary astronomical calculation pipeline, algorithms, and micro-app architecture are protected under international copyright conventions and DMCA regulations.
             </p>
             <div className="pt-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0e1629] border border-amber-500/30 text-[11px] text-amber-300">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-50 dark:bg-[#0e1629] border border-amber-500/30 text-[11px] text-amber-800 dark:text-amber-300">
                 <span>🛡️ DMCA Protected &amp; Anti-Scraping Active</span>
               </div>
             </div>
@@ -103,18 +103,18 @@ export function Footer({ cityName }: FooterProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-neutral-400 text-xs">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-stone-500 dark:text-neutral-400 text-xs">
           <div>
             © {currentYear} Daily Tithi (dailytithi.com). All Rights Reserved.{cityName ? ` • ${cityName} Edition` : ''} • Unauthorized copying or scraping is prohibited.
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-neutral-400">
-            <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-stone-500 dark:text-neutral-400">
+            <Link href="/about" className="hover:text-stone-900 dark:hover:text-white transition-colors">About Us</Link>
             <span>•</span>
-            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+            <Link href="/contact" className="hover:text-stone-900 dark:hover:text-white transition-colors">Contact</Link>
             <span>•</span>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/privacy-policy" className="hover:text-stone-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
             <span>•</span>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms &amp; Copyright</Link>
+            <Link href="/terms" className="hover:text-stone-900 dark:hover:text-white transition-colors">Terms &amp; Copyright</Link>
           </div>
         </div>
 

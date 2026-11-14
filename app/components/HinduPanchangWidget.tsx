@@ -662,19 +662,19 @@ export function HinduPanchangWidget({
 
   return (
     <>
-      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-slate-950/85 backdrop-blur-2xl border border-amber-500/25 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-x-hidden touch-pan-y">
+      <div className="w-full max-w-5xl mx-auto rounded-3xl bg-[#fffdf9]/95 dark:bg-slate-950/85 backdrop-blur-2xl border border-amber-400/40 dark:border-amber-500/25 shadow-[0_15px_50px_-15px_rgba(217,119,6,0.15)] dark:shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85)] p-2.5 sm:p-5 text-left transition-all duration-300 font-sans relative overflow-x-hidden touch-pan-y">
         {/* Subtle celestial observatory ambient background lighting */}
-        <div className="absolute -top-10 right-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(245,158,11,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
-        <div className="absolute top-20 -left-10 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(20,184,166,0.08)_0%,_transparent_70%)] pointer-events-none -z-0" />
+        <div className="hidden dark:block absolute -top-10 right-1/4 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(245,158,11,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
+        <div className="hidden dark:block absolute top-20 -left-10 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
+        <div className="hidden dark:block absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(20,184,166,0.08)_0%,_transparent_70%)] pointer-events-none -z-0" />
         
         {/* ── Consolidated Top Control Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-[#0b1224]/90 via-[#0e162d]/90 to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-amber-50/90 via-orange-50/90 to-amber-50/90 dark:from-[#0b1224]/90 dark:via-[#0e162d]/90 dark:to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-300/70 dark:border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md">
           {/* Left Group: Location / GPS Selector & Share Button */}
           <div className="flex items-center gap-1.5 min-w-0">
             {/* 1. City Dropdown */}
             <div className="relative inline-flex items-center min-w-0 shrink-0">
-              <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none z-10" />
+              <MapPin size={12} className="absolute left-2.5 text-amber-500 dark:text-amber-400 pointer-events-none z-10" />
               <select
                 aria-label={t('selectCity')}
                 value={selectedLocation.name}
@@ -689,15 +689,15 @@ export function HinduPanchangWidget({
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-[11px] sm:text-xs font-semibold text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate"
+                className="pl-7 pr-6 py-1.5 bg-white/95 dark:bg-slate-900/90 hover:bg-amber-50 dark:hover:bg-slate-800/90 border border-amber-400/50 dark:border-amber-500/30 hover:border-amber-500 rounded-xl text-[11px] sm:text-xs font-semibold text-stone-800 dark:text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate"
               >
                 {ALL_LOCATIONS.map((loc) => (
-                  <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
+                  <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-white dark:bg-slate-900 text-stone-900 dark:text-white">
                     {loc.name} ({loc.country})
                   </option>
                 ))}
               </select>
-              <ChevronDown size={12} className="absolute right-2 text-slate-400 pointer-events-none z-10" />
+              <ChevronDown size={12} className="absolute right-2 text-stone-500 dark:text-slate-400 pointer-events-none z-10" />
             </div>
 
             {/* 2. Precision GPS Button */}
@@ -720,11 +720,11 @@ export function HinduPanchangWidget({
               aria-label={t('useGps')}
               className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
                 locationSource === 'gps'
-                  ? 'bg-gradient-to-r from-emerald-950 to-teal-950 text-emerald-300 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                  : 'bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-amber-500/25 hover:border-amber-400'
+                  ? 'bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-950 dark:to-teal-950 text-emerald-900 dark:text-emerald-300 border border-emerald-400/60 dark:border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                  : 'bg-white/90 dark:bg-slate-900/90 hover:bg-amber-50 dark:hover:bg-slate-800/90 text-amber-800 dark:text-amber-300 hover:text-stone-900 dark:hover:text-white border border-amber-400/40 dark:border-amber-500/25 hover:border-amber-500'
               }`}
             >
-              <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
+              <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-500 dark:text-amber-400' : (locationSource === 'gps' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-500 dark:text-amber-400')} />
               <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
             </button>
 
@@ -758,13 +758,13 @@ export function HinduPanchangWidget({
           {/* Right Group: Date Picker / Live, Global Language Dropdown, Install App */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end ml-auto shrink-0">
             {/* 4. Date Picker & Live Indicator */}
-            <div className="inline-flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-amber-500/30 shrink-0 shadow-sm">
+            <div className="inline-flex items-center gap-1 bg-white/95 dark:bg-slate-950/80 p-0.5 rounded-xl border border-amber-400/40 dark:border-amber-500/30 shrink-0 shadow-sm">
               <button
                 type="button"
                 onClick={handlePrevDay}
                 aria-label={t('prevDay')}
                 title={t('prevDay')}
-                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
               >
                 <ChevronLeft size={13} />
               </button>
@@ -775,7 +775,7 @@ export function HinduPanchangWidget({
                 onChange={handleDateChange}
                 aria-label={t('selectDate')}
                 title={t('selectDate')}
-                className="bg-transparent text-base sm:text-[11px] font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-0.5 max-w-[105px]"
+                className="bg-transparent text-base sm:text-[11px] font-mono text-stone-800 dark:text-slate-200 cursor-pointer focus:outline-none px-1 py-0.5 max-w-[105px]"
               />
 
               <button
@@ -783,7 +783,7 @@ export function HinduPanchangWidget({
                 onClick={handleNextDay}
                 aria-label={t('nextDay')}
                 title={t('nextDay')}
-                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-stone-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
               >
                 <ChevronRight size={13} />
               </button>
@@ -840,19 +840,19 @@ export function HinduPanchangWidget({
             aria-expanded={isGregorianCalendarModalOpen}
             title="Click to open Full Gregorian Calendar & Holidays"
             aria-label="Open Full Gregorian Calendar & Holidays"
-            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#0a1128] via-[#070e20] to-[#040814] border border-blue-500/35 hover:border-blue-400/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.12)] hover:shadow-[0_0_40px_rgba(59,130,246,0.22)] flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
+            className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#f0f6ff] via-[#e8f1fc] to-[#deebf8] dark:from-[#0a1128] dark:via-[#070e20] dark:to-[#040814] border border-blue-300/80 dark:border-blue-500/35 hover:border-blue-400 dark:hover:border-blue-400/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shadow-[0_4px_20px_rgba(59,130,246,0.08)] dark:shadow-[0_0_30px_rgba(59,130,246,0.12)] hover:shadow-[0_4px_25px_rgba(59,130,246,0.15)] dark:hover:shadow-[0_0_40px_rgba(59,130,246,0.22)] flex flex-col justify-between cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             <div className="min-w-0">
               {/* Top Header: Live Indicator & Location Timezone Badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 mb-2">
-                <div className="flex items-center gap-1.5 text-cyan-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-cyan-300 transition-colors min-w-0">
-                  <Clock size={13} className="text-cyan-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-cyan-700 dark:text-cyan-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-cyan-800 dark:group-hover:text-cyan-300 transition-colors min-w-0">
+                  <Clock size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
                   <span className="whitespace-nowrap shrink-0">{isLiveMode ? t('liveClock') : t('selectedDate')}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0e1b38] border border-blue-500/30 text-amber-300 text-[10px] font-mono font-medium shadow-sm">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 dark:bg-[#0e1b38] border border-blue-200 dark:border-blue-500/30 text-amber-900 dark:text-amber-300 text-[10px] font-mono font-medium shadow-sm">
                     <span className="truncate max-w-[120px] sm:max-w-[160px]">{selectedLocation.name}</span>
-                    <span className="text-slate-500">•</span>
+                    <span className="text-stone-400 dark:text-slate-500">•</span>
                     <span>{formattedTzOffset}</span>
                   </span>
                 </div>
@@ -860,25 +860,25 @@ export function HinduPanchangWidget({
 
               {/* Prominent Gregorian Hero Day & Date */}
               <div className="flex items-center gap-3 my-2 min-w-0">
-                <div className="text-4xl sm:text-5xl font-extrabold font-grotesk tracking-tight text-white tabular-nums drop-shadow-[0_2px_12px_rgba(255,255,255,0.2)] shrink-0">
+                <div className="text-4xl sm:text-5xl font-extrabold font-grotesk tracking-tight text-slate-900 dark:text-white tabular-nums drop-shadow-[0_1px_8px_rgba(0,0,0,0.06)] dark:drop-shadow-[0_2px_12px_rgba(255,255,255,0.2)] shrink-0">
                   {gregorianDayNumber}
                 </div>
                 <div className="min-w-0 flex flex-col justify-center">
-                  <span className="text-base sm:text-lg font-bold text-amber-300 font-sans leading-snug py-0.5 break-words">
+                  <span className="text-base sm:text-lg font-bold text-amber-800 dark:text-amber-300 font-sans leading-snug py-0.5 break-words">
                     {gregorianWeekday}
                   </span>
-                  <span className="text-xs sm:text-sm text-slate-300 font-medium font-sans leading-snug py-0.5 break-words mt-0.5">
+                  <span className="text-xs sm:text-sm text-stone-600 dark:text-slate-300 font-medium font-sans leading-snug py-0.5 break-words mt-0.5">
                     {gregorianMonthYear}
                   </span>
                 </div>
               </div>
 
               {/* Metallic gradient tabular-nums clock & Region Name */}
-              <div className="p-2 sm:p-2.5 rounded-xl bg-[#030712]/80 border border-blue-500/25 flex items-center justify-between gap-2 min-w-0 mb-2 shadow-inner">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/95 dark:bg-[#030712]/80 border border-blue-200 dark:border-blue-500/25 flex items-center justify-between gap-2 min-w-0 mb-2 shadow-inner">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shrink-0" />
                   <span 
-                    className="text-xl sm:text-2xl font-extrabold font-grotesk font-mono tracking-tight bg-gradient-to-r from-amber-200 via-white to-cyan-200 bg-clip-text text-transparent tabular-nums select-all drop-shadow-[0_0_15px_rgba(245,158,11,0.25)]"
+                    className="text-xl sm:text-2xl font-extrabold font-grotesk font-mono tracking-tight bg-gradient-to-r from-amber-800 via-stone-900 to-cyan-800 dark:from-amber-200 dark:via-white dark:to-cyan-200 bg-clip-text text-transparent tabular-nums select-all drop-shadow-[0_0_15px_rgba(245,158,11,0.15)] dark:drop-shadow-[0_0_15px_rgba(245,158,11,0.25)]"
                     aria-label={`Current time: ${displayTime}`}
                   >
                     <span aria-hidden="true" suppressHydrationWarning>
@@ -886,36 +886,36 @@ export function HinduPanchangWidget({
                     </span>
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-sans font-medium shrink-0">
+                <span className="text-[10px] text-stone-500 dark:text-slate-400 font-sans font-medium shrink-0">
                   {selectedLocation.regionName || selectedLocation.name}
                 </span>
               </div>
 
               {/* Vibrant Sunrise & Sunset Dual Horizon Bar */}
               <div className="grid grid-cols-2 gap-2 my-2 min-w-0">
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/30 shadow-sm group/sun">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 text-sm shrink-0 shadow-inner group-hover/sun:scale-105 transition-transform">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-100/90 dark:bg-gradient-to-r dark:from-amber-500/15 dark:to-orange-500/10 border border-amber-300 dark:border-amber-500/30 shadow-sm group/sun">
+                  <div className="w-7 h-7 rounded-lg bg-amber-200/90 dark:bg-amber-500/20 border border-amber-400/50 dark:border-amber-500/40 flex items-center justify-center text-amber-800 dark:text-amber-300 text-sm shrink-0 shadow-inner group-hover/sun:scale-105 transition-transform">
                     🌅
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400/90 block leading-none font-outfit">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-400/90 block leading-none font-outfit">
                       {t('localSunrise')}
                     </span>
-                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight">
+                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-stone-900 dark:text-white tabular-nums block mt-0.5 tracking-tight">
                       {panchang.sunrise}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-orange-500/15 to-rose-500/10 border border-orange-500/30 shadow-sm group/sunset">
-                  <div className="w-7 h-7 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-300 text-sm shrink-0 shadow-inner group-hover/sunset:scale-105 transition-transform">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-orange-100/90 dark:bg-gradient-to-r dark:from-orange-500/15 dark:to-rose-500/10 border border-orange-300 dark:border-orange-500/30 shadow-sm group/sunset">
+                  <div className="w-7 h-7 rounded-lg bg-orange-200/90 dark:bg-orange-500/20 border border-orange-400/50 dark:border-orange-500/40 flex items-center justify-center text-orange-800 dark:text-orange-300 text-sm shrink-0 shadow-inner group-hover/sunset:scale-105 transition-transform">
                     🌇
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-orange-400/90 block leading-none font-outfit">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-orange-800 dark:text-orange-400/90 block leading-none font-outfit">
                       {t('sunset')}
                     </span>
-                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight">
+                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-stone-900 dark:text-white tabular-nums block mt-0.5 tracking-tight">
                       {panchang.sunset}
                     </span>
                   </div>
@@ -924,37 +924,37 @@ export function HinduPanchangWidget({
 
               {/* Dynamic Holiday Badge: Today's Holiday or Next Upcoming Holiday */}
               {holidayDetails.todayHoliday.isHoliday ? (
-                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-between gap-2 min-w-0 mb-2">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-300 flex items-center justify-between gap-2 min-w-0 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">{holidayDetails.todayHoliday.icon || '🎉'}</span>
                     <div className="min-w-0">
-                      <div className="text-xs font-bold text-emerald-200 break-words min-w-0 leading-snug">
+                      <div className="text-xs font-bold text-emerald-950 dark:text-emerald-200 break-words min-w-0 leading-snug">
                         {translateTerm(holidayDetails.todayHoliday.title)}
                       </div>
-                      <div className="text-[10px] text-emerald-400/80 break-words min-w-0 leading-snug">
+                      <div className="text-[10px] text-emerald-700 dark:text-emerald-400/80 break-words min-w-0 leading-snug">
                         {holidayDetails.todayHoliday.subtitle}
                       </div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 shrink-0">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-200 dark:bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 border border-emerald-400 dark:border-emerald-500/30 shrink-0">
                     {t('todayHolidayBadge')}
                   </span>
                 </div>
               ) : holidayDetails.upcomingHoliday ? (
-                <div className="p-2 sm:p-2.5 rounded-xl bg-[#0b1222] border border-[#1e2d4f] flex items-center justify-between gap-2 min-w-0 mb-2">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-white/90 dark:bg-[#0b1222] border border-blue-200 dark:border-[#1e2d4f] flex items-center justify-between gap-2 min-w-0 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm shrink-0">{holidayDetails.upcomingHoliday.icon || '📅'}</span>
                     <div className="min-w-0">
-                      <div className="text-[11px] font-bold text-neutral-200 break-words min-w-0 leading-snug">
-                        <span className="text-neutral-400 mr-1">{t('nextHoliday')}</span>
+                      <div className="text-[11px] font-bold text-stone-800 dark:text-neutral-200 break-words min-w-0 leading-snug">
+                        <span className="text-stone-500 dark:text-neutral-400 mr-1">{t('nextHoliday')}</span>
                         <span>{translateTerm(holidayDetails.upcomingHoliday.title)}</span>
                       </div>
-                      <div className="text-[10px] text-neutral-400 break-words min-w-0 leading-snug">
+                      <div className="text-[10px] text-stone-500 dark:text-neutral-400 break-words min-w-0 leading-snug">
                         {holidayDetails.upcomingHoliday.dateFormatted} • {holidayDetails.upcomingHoliday.daysText}
                       </div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/25 shrink-0">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-500/15 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-500/25 shrink-0">
                     {holidayDetails.upcomingHoliday.badge || t('publicHoliday')}
                   </span>
                 </div>
@@ -999,35 +999,35 @@ export function HinduPanchangWidget({
             aria-expanded={isCalendarModalOpen}
             title="Click to open Monthly Calendar of Tithis, Ekadashis & Dharmashastra Rules"
             aria-label="Open Vedic Monthly Calendar and Udaya Tithi Almanac"
-            className="p-3 sm:p-4 rounded-2xl bg-gradient-to-b from-[#1c0e02] via-[#100702] to-[#060812] border-2 border-amber-500/50 hover:border-amber-400/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.22)] hover:shadow-[0_0_55px_rgba(245,158,11,0.35)] flex flex-col justify-between cursor-pointer select-none transition-all duration-200 active:scale-[0.98] group relative font-sans overflow-hidden min-w-0"
+            className="p-3 sm:p-4 rounded-2xl bg-gradient-to-b from-[#fff7ed] via-[#ffedd5] to-[#fef3c7] dark:from-[#1c0e02] dark:via-[#100702] dark:to-[#060812] border-2 border-amber-500/70 dark:border-amber-500/50 hover:border-amber-500 dark:hover:border-amber-400/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 shadow-[0_4px_25px_rgba(245,158,11,0.18)] dark:shadow-[0_0_40px_rgba(245,158,11,0.22)] hover:shadow-[0_6px_35px_rgba(245,158,11,0.28)] dark:hover:shadow-[0_0_55px_rgba(245,158,11,0.35)] flex flex-col justify-between cursor-pointer select-none transition-all duration-200 active:scale-[0.98] group relative font-sans overflow-hidden min-w-0"
           >
             {/* Luminous ambient radial backdrop glow */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.22)_0%,_rgba(147,51,234,0.10)_45%,_transparent_75%)]" />
+            <div className="hidden dark:block absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.22)_0%,_rgba(147,51,234,0.10)_45%,_transparent_75%)]" />
 
             <div className="space-y-2 relative z-10 min-w-0">
               {/* 1: Day of Week & Today Badge */}
-              <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-amber-500/20 min-w-0">
+              <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-amber-500/30 dark:border-amber-500/20 min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <div className="p-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 shrink-0 shadow-sm">
-                    <Sun size={14} className="animate-spin-slow" />
+                  <div className="p-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-800 dark:text-amber-300 shrink-0 shadow-sm">
+                    <Sun size={14} className="animate-spin-slow text-amber-600 dark:text-amber-300" />
                   </div>
-                  <span className="font-serif font-devanagari text-amber-200 text-sm sm:text-base font-bold tracking-tight leading-snug break-words drop-shadow">
+                  <span className="font-serif font-devanagari text-amber-950 dark:text-amber-200 text-sm sm:text-base font-bold tracking-tight leading-snug break-words drop-shadow-sm">
                     {translateTerm(panchang.dayOfWeekName, language)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-slate-950 shadow-[0_0_12px_rgba(245,158,11,0.5)] shrink-0">
+                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold font-outfit uppercase tracking-widest bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white dark:text-slate-950 shadow-[0_0_12px_rgba(245,158,11,0.5)] shrink-0">
                     {t('today')}
                   </span>
                 </div>
               </div>
 
               {/* 2: Localized Masa Pill (Task 5: North Purnimanta vs South/West Amanta) */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-300 min-w-0">
-                <span className="text-[9px] font-extrabold font-outfit text-amber-300 tracking-wider uppercase px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-500/25 to-orange-500/25 border border-amber-500/40 shrink-0 shadow-sm">
+              <div className="flex items-center gap-1.5 text-xs text-stone-700 dark:text-slate-300 min-w-0">
+                <span className="text-[9px] font-extrabold font-outfit text-amber-900 dark:text-amber-300 tracking-wider uppercase px-2 py-0.5 rounded-md bg-amber-200/90 dark:bg-gradient-to-r dark:from-amber-500/25 dark:to-orange-500/25 border border-amber-400/60 dark:border-amber-500/40 shrink-0 shadow-sm">
                   {t('masa')}
                 </span>
-                <span className="font-serif font-devanagari font-semibold text-amber-100 text-xs sm:text-sm break-words whitespace-normal leading-snug min-w-0">
+                <span className="font-serif font-devanagari font-semibold text-amber-950 dark:text-amber-100 text-xs sm:text-sm break-words whitespace-normal leading-snug min-w-0">
                   {localizedMasa}
                 </span>
               </div>
@@ -1036,19 +1036,19 @@ export function HinduPanchangWidget({
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <div className="flex items-center gap-1 min-w-0">
-                    <Sparkles size={12} className="text-amber-400 shrink-0" />
-                    <span className="text-[10px] font-extrabold font-outfit tracking-wider uppercase text-amber-300 leading-snug">
+                    <Sparkles size={12} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="text-[10px] font-extrabold font-outfit tracking-wider uppercase text-amber-800 dark:text-amber-300 leading-snug">
                       {isHindi ? 'आज की औदयिक तिथि' : t('tithi')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {tithiResolution.isVriddhi && (
-                      <span className="px-2 py-0.5 rounded-full bg-purple-950/80 text-purple-200 border border-purple-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-sm">
                         {translateTerm('Vriddhi', language)}
                       </span>
                     )}
                     {tithiResolution.isKshaya && (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-950/80 text-rose-200 border border-rose-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-[0_0_10px_rgba(244,63,94,0.3)]">
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border border-rose-300 dark:border-rose-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-sm">
                         {translateTerm('Kshaya', language)}
                       </span>
                     )}
@@ -1057,7 +1057,7 @@ export function HinduPanchangWidget({
 
                 {/* Shortened Tithi Name & Badges */}
                 <div className="flex items-center gap-2 flex-wrap py-0.5 min-w-0">
-                  <h3 className="text-lg sm:text-2xl font-serif font-devanagari font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-amber-300 to-orange-400 tracking-tight leading-snug group-hover:from-white group-hover:via-amber-200 group-hover:to-orange-300 transition-colors drop-shadow-[0_2px_14px_rgba(245,158,11,0.6)] break-words whitespace-normal min-w-0">
+                  <h3 className="text-lg sm:text-2xl font-serif font-devanagari font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-950 via-orange-800 to-amber-900 dark:from-yellow-100 dark:via-amber-300 dark:to-orange-400 tracking-tight leading-snug group-hover:from-amber-900 group-hover:via-orange-700 group-hover:to-amber-800 dark:group-hover:from-white dark:group-hover:via-amber-200 dark:group-hover:to-orange-300 transition-colors drop-shadow-[0_1px_8px_rgba(180,83,9,0.25)] dark:drop-shadow-[0_2px_14px_rgba(245,158,11,0.6)] break-words whitespace-normal min-w-0">
                     {shortenedTithi}
                   </h3>
                   {panchang.tithi.index === 15 && (
@@ -1067,38 +1067,38 @@ export function HinduPanchangWidget({
                     <span className="text-xl drop-shadow-[0_0_14px_rgba(168,85,247,0.7)] select-none shrink-0" title={translateTerm('Amavasya', language)}>🌑</span>
                   )}
                   {(panchang.tithi.index === 11 || panchang.tithi.index === 26) && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] bg-gradient-to-r from-emerald-950/90 to-teal-950/90 border border-emerald-400/50 text-emerald-200 font-extrabold font-outfit shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.35)]">
+                    <span className="px-2.5 py-0.5 rounded-full text-[9px] bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-950/90 dark:to-teal-950/90 border border-emerald-400/60 dark:border-emerald-400/50 text-emerald-900 dark:text-emerald-200 font-extrabold font-outfit shrink-0 shadow-sm">
                       ✨ {translateTerm('Ekadashi', language)}
                     </span>
                   )}
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-[#170e03] to-[#120a02] border border-amber-500/35 text-[11px] font-grotesk tabular-nums shadow-sm min-w-0">
-                  <Clock size={12} className="text-amber-400 shrink-0" />
-                  <span className="font-sans text-amber-200/80 font-medium text-[10px] shrink-0">{t('tithiEnds')}:</span>
-                  <span className="font-extrabold text-white tracking-tight whitespace-nowrap text-xs leading-snug">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/90 dark:bg-gradient-to-r dark:from-[#170e03] dark:to-[#120a02] border border-amber-400/50 dark:border-amber-500/35 text-[11px] font-grotesk tabular-nums shadow-sm min-w-0">
+                  <Clock size={12} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span className="font-sans text-amber-900/80 dark:text-amber-200/80 font-medium text-[10px] shrink-0">{t('tithiEnds')}:</span>
+                  <span className="font-extrabold text-stone-900 dark:text-white tracking-tight whitespace-nowrap text-xs leading-snug">
                     {currentTithiEndTime}
                   </span>
                 </div>
               </div>
 
               {/* 4: Compact Horizontal / Single-Line Next Tithi Box (Task 4) */}
-              <div className="p-2.5 rounded-xl bg-[#090b16]/90 border border-amber-500/25 space-y-1.5 text-[11px] min-w-0 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-white/85 dark:bg-[#090b16]/90 border border-amber-300/60 dark:border-amber-500/25 space-y-1.5 text-[11px] min-w-0 shadow-sm">
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-amber-200/70 text-[10px] font-medium font-sans shrink-0">{t('nextTithi')}:</span>
-                  <span className="font-serif font-devanagari font-bold text-amber-300 text-right text-xs break-words whitespace-normal leading-snug min-w-0">
+                  <span className="text-amber-900/80 dark:text-amber-200/70 text-[10px] font-medium font-sans shrink-0">{t('nextTithi')}:</span>
+                  <span className="font-serif font-devanagari font-bold text-amber-900 dark:text-amber-300 text-right text-xs break-words whitespace-normal leading-snug min-w-0">
                     {shortNextTithi}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('starts')}:</span>
-                  <span className="font-mono tabular-nums text-slate-200 text-right text-[10px] whitespace-nowrap shrink-0">
+                  <span className="text-stone-500 dark:text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('starts')}:</span>
+                  <span className="font-mono tabular-nums text-stone-800 dark:text-slate-200 text-right text-[10px] whitespace-nowrap shrink-0">
                     {newTithiStartTime}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
-                  <span className="text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('observed')}:</span>
-                  <span className="font-bold text-emerald-300 text-right text-[10px] break-words whitespace-normal leading-snug min-w-0">
+                  <span className="text-stone-500 dark:text-slate-400 text-[10px] font-medium font-sans shrink-0">{t('observed')}:</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-300 text-right text-[10px] break-words whitespace-normal leading-snug min-w-0">
                     {newTithiObservedWhen}
                   </span>
                 </div>
@@ -1106,8 +1106,8 @@ export function HinduPanchangWidget({
 
               {/* 5: Pahar (Single-line) */}
               <div className="flex items-center justify-between text-[11px] py-0.5 px-0.5 min-w-0">
-                <span className="text-[10px] font-medium text-amber-200/70 flex items-center gap-1 font-sans shrink-0">
-                  <Compass size={12} className="text-amber-400 shrink-0" />
+                <span className="text-[10px] font-medium text-amber-900/80 dark:text-amber-200/70 flex items-center gap-1 font-sans shrink-0">
+                  <Compass size={12} className="text-amber-600 dark:text-amber-400 shrink-0" />
                   <span>Pahar:</span>
                 </span>
                 <span className="font-semibold text-amber-100 font-grotesk tabular-nums text-[10px] bg-slate-950/80 border border-amber-500/25 px-2.5 py-0.5 rounded-md shadow-sm break-words whitespace-normal leading-snug min-w-0">
@@ -1149,35 +1149,35 @@ export function HinduPanchangWidget({
             aria-expanded={isMonthlyMuhuratOpen}
             title={t('viewFullMonthlyMuhurat')}
             aria-label={t('todayShubhKarya')}
-            className="p-3 sm:p-4 rounded-2xl bg-gradient-to-b from-[#021810] via-[#04120c] to-[#050812] border border-emerald-500/45 hover:border-emerald-400/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-[0_0_35px_rgba(16,185,129,0.16)] hover:shadow-[0_0_48px_rgba(16,185,129,0.26)] flex flex-col justify-between cursor-pointer select-none transition-all duration-200 active:scale-[0.98] group relative min-w-0 font-sans"
+            className="p-3 sm:p-4 rounded-2xl bg-gradient-to-b from-[#f0fdf4] via-[#ecfdf5] to-[#e6fcf5] dark:from-[#021810] dark:via-[#04120c] dark:to-[#050812] border border-emerald-400/70 dark:border-emerald-500/45 hover:border-emerald-500 dark:hover:border-emerald-400/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-[0_4px_25px_rgba(16,185,129,0.12)] dark:shadow-[0_0_35px_rgba(16,185,129,0.16)] hover:shadow-[0_6px_35px_rgba(16,185,129,0.20)] dark:hover:shadow-[0_0_48px_rgba(16,185,129,0.26)] flex flex-col justify-between cursor-pointer select-none transition-all duration-200 active:scale-[0.98] group relative min-w-0 font-sans"
           >
             {/* Luminous ambient radial backdrop glow */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(16,185,129,0.15)_0%,_transparent_70%)]" />
+            <div className="hidden dark:block absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_rgba(16,185,129,0.15)_0%,_transparent_70%)]" />
 
             <div className="min-w-0 relative z-10">
               {/* Top Header: Label */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 mb-2">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-emerald-300 transition-colors min-w-0">
-                  <Sparkles size={13} className="text-emerald-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-400 text-[10px] sm:text-[11px] font-bold font-outfit tracking-wider uppercase group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors min-w-0">
+                  <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span className="whitespace-nowrap shrink-0">{t('todayShubhKarya')}</span>
                 </div>
               </div>
 
               {/* Primary Auspicious Time Window Banner */}
-              <div className="my-2 p-2.5 rounded-xl bg-[#021c13]/90 border border-emerald-500/40 shadow-inner flex flex-col gap-1.5 min-w-0 overflow-hidden">
+              <div className="my-2 p-2.5 rounded-xl bg-white/95 dark:bg-[#021c13]/90 border border-emerald-300 dark:border-emerald-500/40 shadow-sm dark:shadow-inner flex flex-col gap-1.5 min-w-0 overflow-hidden">
                 <div className="flex items-center justify-between gap-1.5 min-w-0">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${todayMuhurat.isAuspiciousDay ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                    <span className="text-[10px] font-semibold text-emerald-200/90 uppercase tracking-wider font-outfit truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${todayMuhurat.isAuspiciousDay ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-amber-500 dark:bg-amber-400'}`} />
+                    <span className="text-[10px] font-semibold text-emerald-900 dark:text-emerald-200/90 uppercase tracking-wider font-outfit truncate">
                       {todayMuhurat.isAuspiciousDay ? (language === 'hi' ? 'शुभ वेला' : 'Shubh Window') : t('generalShubhWindow')}
                     </span>
                   </div>
                   {todayMuhurat.isAuspiciousDay ? (
-                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-500/25 text-emerald-200 border border-emerald-400/50 shadow-sm shrink-0 font-outfit">
+                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-400/50 shadow-sm shrink-0 font-outfit">
                       {language === 'hi' ? 'शुभ दिवस' : 'Auspicious'}
                     </span>
                   ) : (
-                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-amber-500/25 text-amber-200 border border-amber-400/50 shadow-sm shrink-0 font-outfit">
+                    <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/25 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-400/50 shadow-sm shrink-0 font-outfit">
                       {language === 'hi' ? 'अभिजित वेला' : 'Abhijit'}
                     </span>
                   )}
@@ -1192,7 +1192,7 @@ export function HinduPanchangWidget({
 
                   if (timeWindows.length <= 1) {
                     return (
-                      <div className="text-xs sm:text-sm font-extrabold font-grotesk font-mono tracking-tight text-white tabular-nums leading-tight break-words">
+                      <div className="text-xs sm:text-sm font-extrabold font-grotesk font-mono tracking-tight text-stone-900 dark:text-white tabular-nums leading-tight break-words">
                         {rawString}
                       </div>
                     );
@@ -1203,9 +1203,9 @@ export function HinduPanchangWidget({
                       {timeWindows.map((tw, idx) => (
                         <div
                           key={idx}
-                          className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold font-grotesk font-mono tracking-tight text-white tabular-nums bg-[#0b101e] px-2 py-1 rounded-lg border border-white/5 w-fit max-w-full"
+                          className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold font-grotesk font-mono tracking-tight text-stone-900 dark:text-white tabular-nums bg-emerald-50 dark:bg-[#0b101e] px-2 py-1 rounded-lg border border-emerald-200 dark:border-white/5 w-fit max-w-full"
                         >
-                          <Clock size={11} className="text-emerald-400 shrink-0" />
+                          <Clock size={11} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="break-words">{tw}</span>
                         </div>
                       ))}
@@ -1281,29 +1281,29 @@ export function HinduPanchangWidget({
               )}
 
               {/* High-Visibility Rahu Kaal Avoidance Strip */}
-              <div className="flex items-center justify-between text-[11px] py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-rose-950/70 via-red-950/50 to-rose-950/70 border border-rose-500/40 min-w-0 mb-2 shadow-[0_0_12px_rgba(244,63,94,0.18)]">
-                <span className="text-[10px] font-bold text-rose-300 flex items-center gap-1.5 font-sans shrink-0">
-                  <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse shrink-0" />
+              <div className="flex items-center justify-between text-[11px] py-1.5 px-2.5 rounded-xl bg-rose-100/90 dark:bg-gradient-to-r dark:from-rose-950/70 dark:via-red-950/50 dark:to-rose-950/70 border border-rose-300 dark:border-rose-500/40 min-w-0 mb-2 shadow-sm dark:shadow-[0_0_12px_rgba(244,63,94,0.18)]">
+                <span className="text-[10px] font-bold text-rose-900 dark:text-rose-300 flex items-center gap-1.5 font-sans shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0" />
                   <span>{language === 'hi' ? 'राहु काल (त्याज्य):' : 'Rahu Kaal (Avoid):'}</span>
                 </span>
-                <span className="font-extrabold text-rose-200 font-grotesk tabular-nums text-xs tracking-tight">
+                <span className="font-extrabold text-rose-950 dark:text-rose-200 font-grotesk tabular-nums text-xs tracking-tight">
                   {todayMuhurat.rahuKaalString}
                 </span>
               </div>
             </div>
 
             {/* Micro-CTA Footer */}
-            <div className="mt-2 pt-2 border-t border-emerald-500/25 relative z-10 min-w-0">
-              <div className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600/20 via-teal-600/15 to-emerald-600/20 hover:from-emerald-600/30 hover:to-teal-600/30 border border-emerald-500/40 group-hover:border-emerald-400/80 text-emerald-200 group-hover:text-white text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-between shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <div className="mt-2 pt-2 border-t border-emerald-400/40 dark:border-emerald-500/25 relative z-10 min-w-0">
+              <div className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 border border-emerald-400/50 text-white text-[11px] font-bold font-outfit tracking-wide transition-all flex items-center justify-between shadow-[0_0_15px_rgba(16,185,129,0.25)]">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Calendar size={12} className="text-emerald-400 shrink-0" />
+                  <Calendar size={12} className="text-white shrink-0" />
                   <span className="break-words whitespace-normal leading-snug">{t('viewFullMonthlyMuhurat')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-500/25 text-emerald-200 border border-emerald-500/40 font-grotesk">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-800 text-emerald-100 border border-emerald-400/40 font-grotesk">
                     {t('table30Days')}
                   </span>
-                  <ChevronRight size={13} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ChevronRight size={13} className="text-white group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
               </div>
             </div>
@@ -1316,19 +1316,19 @@ export function HinduPanchangWidget({
           
           {/* BOTTOM LEFT: TODAY'S FESTIVAL / VRAT (FESTIVE KESARIYA) */}
           <div 
-            className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#1e0f04] via-[#100802] to-[#060812] border ${
+            className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#fff7ed] via-[#ffedd5] to-[#fef3c7] dark:from-[#1e0f04] dark:via-[#100802] dark:to-[#060812] border ${
               panchang.todayFestival.isMajor 
-                ? 'border-amber-400/60 hover:border-amber-300 shadow-[0_0_30px_rgba(245,158,11,0.20)]'
-                : 'border-orange-500/40 hover:border-orange-400/70 shadow-[0_0_20px_rgba(249,115,22,0.12)]'
+                ? 'border-amber-400/80 dark:border-amber-400/60 shadow-[0_4px_20px_rgba(245,158,11,0.15)] dark:shadow-[0_0_30px_rgba(245,158,11,0.20)]'
+                : 'border-orange-300 dark:border-orange-500/40 shadow-sm dark:shadow-[0_0_20px_rgba(249,115,22,0.12)]'
             } flex flex-col justify-between relative font-sans min-w-0 transition-all duration-200`}
           >
             <div className="space-y-2 relative z-10 min-w-0">
               {/* Header row: Label + Festive Badge */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-orange-500/20">
-                <div className="text-amber-300 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 min-w-0">
+                <div className="text-amber-800 dark:text-amber-300 text-[10px] font-bold font-outfit tracking-wider uppercase flex items-center gap-1.5 min-w-0">
                   <span className="leading-snug">{t('todaysObservance')}</span>
                   {panchang.todayFestival.isMajor && (
-                    <span className="px-2 py-0.5 rounded-full text-[8px] font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 uppercase shrink-0 font-outfit shadow-sm">
+                    <span className="px-2 py-0.5 rounded-full text-[8px] font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-white dark:text-slate-950 uppercase shrink-0 font-outfit shadow-sm">
                       {t('majorFestival')}
                     </span>
                   )}
@@ -1337,7 +1337,7 @@ export function HinduPanchangWidget({
 
               {/* Main content */}
               <div className="flex items-start gap-2.5 min-w-0 pt-0.5">
-                <div className="rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/35 p-2 shrink-0 flex items-center justify-center w-10 h-10 select-none">
+                <div className="rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/35 p-2 shrink-0 flex items-center justify-center w-10 h-10 select-none">
                   {panchang.todayFestival.icon ? (
                     <span className="text-xl leading-none select-none">{panchang.todayFestival.icon}</span>
                   ) : (
@@ -1346,7 +1346,7 @@ export function HinduPanchangWidget({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm sm:text-base font-bold font-sans break-words whitespace-normal leading-snug min-w-0 ${
-                    panchang.todayFestival.isMajor ? 'text-amber-200 drop-shadow' : 'text-white'
+                    panchang.todayFestival.isMajor ? 'text-amber-950 dark:text-amber-200 drop-shadow-sm' : 'text-stone-900 dark:text-white'
                   }`}>
                     {translateTerm(panchang.todayFestival.title, language)}
                   </div>
@@ -1361,20 +1361,20 @@ export function HinduPanchangWidget({
           </div>
 
           {/* 2: UPCOMING FESTIVALS COMPACT LIST (CELESTIAL BLUE) */}
-          <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#071324] via-[#050c18] to-[#050812] border border-blue-500/35 hover:border-blue-400/65 shadow-[0_0_30px_rgba(59,130,246,0.12)] hover:shadow-[0_0_40px_rgba(59,130,246,0.22)] flex flex-col justify-between font-sans min-w-0 transition-all duration-200">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#f0f6ff] via-[#e8f1fc] to-[#deebf8] dark:from-[#071324] dark:via-[#050c18] dark:to-[#050812] border border-blue-300/80 dark:border-blue-500/35 hover:border-blue-400 dark:hover:border-blue-400/65 shadow-[0_4px_20px_rgba(59,130,246,0.08)] dark:shadow-[0_0_30px_rgba(59,130,246,0.12)] hover:shadow-[0_4px_25px_rgba(59,130,246,0.15)] dark:hover:shadow-[0_0_40px_rgba(59,130,246,0.22)] flex flex-col justify-between font-sans min-w-0 transition-all duration-200">
             <div className="space-y-2 min-w-0">
               {/* Header row: Label */}
               <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-blue-500/20">
-                <div className="flex items-center gap-1.5 text-cyan-300 text-[10px] font-bold font-outfit tracking-wider uppercase min-w-0">
-                  <Sparkles size={12} className="text-cyan-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-cyan-800 dark:text-cyan-300 text-[10px] font-bold font-outfit tracking-wider uppercase min-w-0">
+                  <Sparkles size={12} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
                   <span className="leading-snug">{t('upcomingFestivals')}</span>
                 </div>
               </div>
 
               {/* Single Upcoming Observance Display */}
-              <div className="rounded-xl bg-[#090e1a] border border-[#1a2542] divide-y divide-[#162038] overflow-hidden">
+              <div className="rounded-xl bg-white/95 dark:bg-[#090e1a] border border-blue-200 dark:border-[#1a2542] divide-y divide-blue-100 dark:divide-[#162038] overflow-hidden">
                 {upcomingFestivalsList.length === 0 ? (
-                  <div className="p-3 text-center text-xs text-neutral-400 font-sans">
+                  <div className="p-3 text-center text-xs text-stone-500 dark:text-neutral-400 font-sans">
                     {language === 'hi' ? 'कोई आगामी व्रत/त्योहार नहीं' : 'No upcoming festivals found'}
                   </div>
                 ) : (
@@ -1392,23 +1392,23 @@ export function HinduPanchangWidget({
                         className="flex items-center justify-between gap-2.5 px-3 py-2.5"
                       >
                         {/* Left: Date pill (DD MMM + Weekday) */}
-                        <div className="flex flex-col items-center justify-center min-w-[50px] px-2 py-1 rounded-lg bg-slate-900 border border-blue-500/30 shrink-0 text-center shadow-inner">
-                          <span className="text-xs font-extrabold text-white font-grotesk leading-none">{dateBadgeDay}</span>
-                          <span className="text-[9px] text-amber-300 font-medium mt-0.5">{dateBadgeWeekday}</span>
+                        <div className="flex flex-col items-center justify-center min-w-[50px] px-2 py-1 rounded-lg bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-blue-500/30 shrink-0 text-center shadow-inner">
+                          <span className="text-xs font-extrabold text-stone-900 dark:text-white font-grotesk leading-none">{dateBadgeDay}</span>
+                          <span className="text-[9px] text-amber-800 dark:text-amber-300 font-medium mt-0.5">{dateBadgeWeekday}</span>
                         </div>
 
                         {/* Middle: Title & Category / Description */}
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs sm:text-sm font-bold text-white break-words whitespace-normal leading-snug">
+                          <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-white break-words whitespace-normal leading-snug">
                             {festTitle}
                           </div>
-                          <div className="text-[10px] text-slate-400 break-words whitespace-normal leading-snug mt-0.5">
+                          <div className="text-[10px] text-stone-600 dark:text-slate-400 break-words whitespace-normal leading-snug mt-0.5">
                             {fest.category ? `${fest.category} • ` : ''}{fest.description}
                           </div>
                         </div>
 
                         {/* Right: Countdown badge */}
-                        <div className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shrink-0 shadow-sm shadow-orange-500/40">
+                        <div className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white dark:text-slate-950 shrink-0 shadow-sm shadow-orange-500/40">
                           {countdown}
                         </div>
                       </div>
@@ -1436,29 +1436,29 @@ export function HinduPanchangWidget({
             aria-label="View Multi-Year Panchak Calendar and Guidelines"
             className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b ${
               panchakStatus.isActive 
-                ? 'from-[#200808] via-[#140505] to-[#080303] border-red-500/50 hover:border-red-400/80 shadow-[0_0_30px_rgba(239,68,68,0.2)]'
-                : 'from-[#021c18] via-[#041210] to-[#050812] border-teal-500/45 hover:border-teal-400/75 shadow-[0_0_30px_rgba(20,184,166,0.16)] hover:shadow-[0_0_42px_rgba(20,184,166,0.26)]'
+                ? 'from-rose-50 via-red-50 to-rose-50 dark:from-[#200808] dark:via-[#140505] dark:to-[#080303] border-red-300 dark:border-red-500/50 hover:border-red-400 dark:hover:border-red-400/80 shadow-sm dark:shadow-[0_0_30px_rgba(239,68,68,0.2)]'
+                : 'from-teal-50 via-emerald-50 to-teal-50 dark:from-[#021c18] dark:via-[#041210] dark:to-[#050812] border-teal-300 dark:border-teal-500/45 hover:border-teal-400 dark:hover:border-teal-400/75 shadow-sm dark:shadow-[0_0_30px_rgba(20,184,166,0.16)] hover:shadow-[0_4px_30px_rgba(20,184,166,0.2)] dark:hover:shadow-[0_0_42px_rgba(20,184,166,0.26)]'
             } flex flex-col justify-between cursor-pointer select-none transition-all duration-200 active:scale-[0.98] group relative font-sans min-w-0`}
           >
             <div className="space-y-2 relative z-10 min-w-0">
               {/* Header row: Label + Badge + Action Pill */}
-              <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-white/5">
+              <div className="flex items-center justify-between gap-1.5 min-w-0 pb-1.5 border-b border-stone-200 dark:border-white/5">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-amber-400 text-[10px] font-bold font-outfit tracking-wider uppercase leading-snug">
+                  <span className="text-amber-800 dark:text-amber-400 text-[10px] font-bold font-outfit tracking-wider uppercase leading-snug">
                     {t('panchakStatus')}
                   </span>
                   <span className={`px-1.5 py-0.5 rounded text-[8px] font-extrabold font-outfit uppercase shrink-0 ${
                     panchakStatus.isActive 
-                      ? 'text-red-400 bg-red-950/60 border border-red-500/40 animate-pulse'
-                      : 'text-teal-400 bg-teal-950/50 border border-teal-500/30'
+                      ? 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950/60 border border-red-300 dark:border-red-500/40 animate-pulse'
+                      : 'text-teal-800 bg-teal-100 dark:text-teal-400 dark:bg-teal-950/50 border border-teal-300 dark:border-teal-500/30'
                   }`}>
                     {panchakStatus.badgeText}
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-teal-500/25 group-hover:border-teal-400/50 transition-all shrink-0">
-                  <ShieldCheck size={11} className="text-teal-400 shrink-0" />
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-100 dark:bg-teal-500/15 border border-teal-300 dark:border-teal-500/30 text-teal-900 dark:text-teal-300 text-[11px] font-semibold font-outfit shadow-sm group-hover:bg-teal-200 dark:group-hover:bg-teal-500/25 transition-all shrink-0">
+                  <ShieldCheck size={11} className="text-teal-700 dark:text-teal-400 shrink-0" />
                   <span>{language === 'en' ? 'Multi-Year' : (language === 'hi' ? 'बहु-वर्षीय' : (language === 'sa' ? 'बहुवर्षीयम्' : (language === 'mr' ? 'अनेक वर्षांचे' : 'બહુ-વર્ષીય')))}</span>
-                  <ChevronRight size={12} className="text-teal-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ChevronRight size={12} className="text-teal-700 dark:text-teal-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </span>
               </div>
 
@@ -1466,8 +1466,8 @@ export function HinduPanchangWidget({
               <div className="flex items-start gap-2.5 min-w-0 pt-0.5">
                 <div className={`rounded-xl ${
                   panchakStatus.isActive 
-                    ? 'text-red-400 bg-red-950/60 border border-red-500/40 animate-pulse'
-                    : 'text-teal-400 bg-teal-950/50 border border-teal-500/30'
+                    ? 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950/60 border border-red-300 dark:border-red-500/40 animate-pulse'
+                    : 'text-teal-800 bg-teal-100 dark:text-teal-400 dark:bg-teal-950/50 border border-teal-300 dark:border-teal-500/30'
                 } p-2 shrink-0 group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10`}>
                   {panchakStatus.isActive ? (
                     <ShieldAlert size={18} />
@@ -1478,15 +1478,15 @@ export function HinduPanchangWidget({
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-bold transition-colors font-sans break-words whitespace-normal leading-snug min-w-0 ${
                     panchakStatus.isActive 
-                      ? 'text-red-400 group-hover:text-red-300'
-                      : 'text-white group-hover:text-teal-300'
+                      ? 'text-red-700 dark:text-red-400 group-hover:text-red-800 dark:group-hover:text-red-300'
+                      : 'text-stone-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-300'
                   }`}>
                     {panchakStatus.isActive && panchakStatus.panchak
                       ? translateTerm(panchakStatus.panchak.type, language)
                       : t('panchakFree')
                     }
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5 break-words whitespace-normal font-sans line-clamp-2 min-w-0">
+                  <div className="text-[11px] text-stone-600 dark:text-slate-400 mt-0.5 break-words whitespace-normal font-sans line-clamp-2 min-w-0">
                     {panchakStatus.isActive && panchakStatus.panchak
                       ? (isHindi ? panchakStatus.panchak.briefEffects.hindi : `Starts: ${panchakStatus.panchak.startDate} (${panchakStatus.panchak.startTime}) • Ends: ${panchakStatus.panchak.endDate} (${panchakStatus.panchak.endTime})`)
                       : panchakStatus.nextPanchak 
@@ -1499,17 +1499,17 @@ export function HinduPanchangWidget({
             </div>
 
             {/* Value-Driven Tap Micro-CTA Footer */}
-            <div className="mt-2.5 pt-2 border-t border-[#1e2d4f] relative z-10 min-w-0">
-              <div className="w-full py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-teal-500/15 via-emerald-500/10 to-teal-500/15 hover:from-teal-500/25 hover:to-emerald-500/25 border border-teal-500/35 group-hover:border-teal-400/70 text-teal-200 group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
+            <div className="mt-2.5 pt-2 border-t border-teal-200 dark:border-[#1e2d4f] relative z-10 min-w-0">
+              <div className="w-full py-1.5 px-2.5 rounded-xl bg-teal-100/90 dark:bg-gradient-to-r dark:from-teal-500/15 dark:via-emerald-500/10 dark:to-teal-500/15 hover:bg-teal-200 dark:hover:from-teal-500/25 dark:hover:to-emerald-500/25 border border-teal-300 dark:border-teal-500/35 group-hover:border-teal-400/70 text-teal-950 dark:text-teal-200 group-hover:text-stone-900 dark:group-hover:text-white text-[11px] font-semibold font-outfit tracking-wide transition-all flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <Calendar size={12} className="text-teal-400 shrink-0" />
+                  <Calendar size={12} className="text-teal-700 dark:text-teal-400 shrink-0" />
                   <span className="break-words whitespace-normal leading-snug">{language === 'en' ? "Tap for Multi-Year Panchak Calendar & Dos/Don'ts" : (language === 'hi' ? 'बहु-वर्षीय पञ्चक कैलेंडर एवं शास्त्र नियम' : (language === 'sa' ? 'बहुवर्षीयपञ्चकदिनदर्शिका शास्त्रनियमाः च' : (language === 'mr' ? 'बहु-वर्षीय पंचक दिनदर्शिका व शास्त्र नियम' : 'બહુ-વર્ષીય પંચક કેલેન્ડર અને શાસ્ત્ર નિયમો')))}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 font-grotesk">
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-200 dark:bg-teal-500/20 text-teal-900 dark:text-teal-300 border border-teal-300 dark:border-teal-500/30 font-grotesk">
                     {language === 'en' ? '2025–2030 Guidance' : (language === 'hi' ? '२०२५-२०३० मार्गदर्शन' : (language === 'sa' ? '२०२५-२०३० मार्गदर्शनम्' : (language === 'mr' ? '२०२५-२०३० मार्गदर्शन' : '૨૦૨૫-૨૦૩૦ માર્ગદર્શન')))}
                   </span>
-                  <ChevronRight size={13} className="text-teal-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ChevronRight size={13} className="text-teal-700 dark:text-teal-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                 </div>
               </div>
             </div>
@@ -1581,23 +1581,23 @@ export function HinduPanchangWidget({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLimbModal('tithi'); }}}
                   title="Click to view deep Tithi attributes and deity"
                   aria-label="View Tithi details"
-                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#1c0e02] to-[#070b16] border border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_20px_rgba(245,158,11,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
+                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#fff7ed] to-[#fef3c7] dark:from-[#1c0e02] dark:to-[#070b16] border border-amber-400/60 dark:border-amber-500/40 hover:border-amber-500 dark:hover:border-amber-400/70 shadow-sm dark:shadow-[0_0_20px_rgba(245,158,11,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
                 >
                   <div className="space-y-1.5 min-w-0">
-                    <div className="flex items-center justify-between text-[10px] text-amber-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-amber-500/20">
+                    <div className="flex items-center justify-between text-[10px] text-amber-800 dark:text-amber-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-amber-500/20">
                       <span className="leading-snug">1. {t('tithi').toUpperCase()}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-amber-500/30 transition-all shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-500/20 border border-amber-400/60 dark:border-amber-500/40 text-amber-900 dark:text-amber-300 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-amber-300/80 dark:group-hover:bg-amber-500/30 transition-all shrink-0">
                         <span>{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}</span>
-                        <ChevronRight size={11} className="text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <ChevronRight size={11} className="text-amber-700 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm sm:text-base font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.tithi.name, language)}</div>
-                    <div className="text-[11px] text-amber-200/80 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}: {translateTerm(panchang.tithi.deity, language)}</div>
+                    <div className="text-sm sm:text-base font-bold text-stone-900 dark:text-white font-serif font-devanagari group-hover:text-amber-800 dark:group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.tithi.name, language)}</div>
+                    <div className="text-[11px] text-amber-900 dark:text-amber-200/80 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Deity' : (language === 'hi' ? 'देवता' : (language === 'sa' ? 'देवता' : (language === 'mr' ? 'देवता' : 'દેવતા')))}: {translateTerm(panchang.tithi.deity, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-amber-500/20 min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 hover:from-amber-500/30 hover:to-orange-500/25 border border-amber-500/40 group-hover:border-amber-400 text-amber-200 group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
+                    <div className="w-full py-1.5 px-2 rounded-xl bg-amber-100/90 dark:bg-gradient-to-r dark:from-amber-500/20 dark:via-orange-500/15 dark:to-amber-500/20 hover:bg-amber-200 dark:hover:from-amber-500/30 dark:hover:to-orange-500/25 border border-amber-300 dark:border-amber-500/40 group-hover:border-amber-400 text-amber-950 dark:text-amber-200 group-hover:text-stone-900 dark:group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
                       <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Tithi Attributes & Deity' : (language === 'hi' ? 'तिथी के गुण एवं देवता विस्तार देखें' : (language === 'sa' ? 'तिथिलक्षणानि देवतां च पश्यन्तु' : (language === 'mr' ? 'तिथीचे गुणधर्म व देवता पहा' : 'તિથિના ગુણો અને દેવતા જુઓ')))}</span>
-                      <ChevronRight size={11} className="text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                      <ChevronRight size={11} className="text-amber-700 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -1610,23 +1610,23 @@ export function HinduPanchangWidget({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLimbModal('nakshatra'); }}}
                   title="Click to view deep Nakshatra pada, lord and symbol"
                   aria-label="View Nakshatra details"
-                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#150a26] to-[#070b16] border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_rgba(168,85,247,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
+                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#faf5ff] to-[#f3e8ff] dark:from-[#150a26] dark:to-[#070b16] border border-purple-300 dark:border-purple-500/40 hover:border-purple-400 dark:hover:border-purple-400/70 shadow-sm dark:shadow-[0_0_20px_rgba(168,85,247,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
                 >
                   <div className="space-y-1.5 min-w-0">
-                    <div className="flex items-center justify-between text-[10px] text-purple-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-purple-500/20">
+                    <div className="flex items-center justify-between text-[10px] text-purple-800 dark:text-purple-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-purple-500/20">
                       <span className="leading-snug">2. {t('nakshatra').toUpperCase()}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-purple-500/30 transition-all shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-200/80 dark:bg-purple-500/20 border border-purple-400/60 dark:border-purple-500/40 text-purple-900 dark:text-purple-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-purple-300/80 transition-all shrink-0">
                         <span>{language === 'en' ? 'Pada & Lord' : (language === 'hi' ? 'चरण एवं स्वामी' : (language === 'sa' ? 'पादः स्वामी च' : (language === 'mr' ? 'चरण व स्वामी' : 'ચરણ અને સ્વામી')))}</span>
-                        <ChevronRight size={11} className="text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <ChevronRight size={11} className="text-purple-700 dark:text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm sm:text-base font-bold text-white font-serif font-devanagari group-hover:text-purple-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.nakshatra.name, language)}</div>
-                    <div className="text-[11px] text-purple-200/80 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Pada' : (language === 'hi' ? 'चरण' : (language === 'sa' ? 'पादः' : (language === 'mr' ? 'चरण' : 'ચરણ')))} {panchang.nakshatra.pada} • {t('ruler')} {translateTerm(panchang.nakshatra.lord, language)}</div>
+                    <div className="text-sm sm:text-base font-bold text-stone-900 dark:text-white font-serif font-devanagari group-hover:text-purple-800 dark:group-hover:text-purple-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.nakshatra.name, language)}</div>
+                    <div className="text-[11px] text-purple-900 dark:text-purple-200/80 font-sans break-words whitespace-normal leading-snug">{language === 'en' ? 'Pada' : (language === 'hi' ? 'चरण' : (language === 'sa' ? 'पादः' : (language === 'mr' ? 'चरण' : 'ચરણ')))} {panchang.nakshatra.pada} • {t('ruler')} {translateTerm(panchang.nakshatra.lord, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-purple-500/20 min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-purple-500/20 via-indigo-500/15 to-purple-500/20 hover:from-purple-500/30 hover:to-indigo-500/25 border border-purple-500/40 group-hover:border-purple-400 text-purple-200 group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
+                    <div className="w-full py-1.5 px-2 rounded-xl bg-purple-100/90 dark:bg-gradient-to-r dark:from-purple-500/20 dark:via-indigo-500/15 dark:to-purple-500/20 hover:bg-purple-200 dark:hover:from-purple-500/30 dark:hover:to-indigo-500/25 border border-purple-300 dark:border-purple-500/40 group-hover:border-purple-400 text-purple-950 dark:text-purple-200 group-hover:text-stone-900 dark:group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
                       <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Planetary & Nakshatra Details' : (language === 'hi' ? 'ग्रह एवं नक्षत्र विस्तार देखें' : (language === 'sa' ? 'ग्रहाणां नक्षत्राणां च विवरणं पश्यन्तु' : (language === 'mr' ? 'ग्रह व नक्षत्र तपशील पहा' : 'ગ્રહ અને નક્ષત્ર વિગતો જુઓ')))}</span>
-                      <ChevronRight size={11} className="text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                      <ChevronRight size={11} className="text-purple-700 dark:text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -1639,31 +1639,31 @@ export function HinduPanchangWidget({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLimbModal('yoga'); }}}
                   title="Click to view deep Yoga meaning and auspiciousness"
                   aria-label="View Yoga details"
-                  className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#021810] to-[#070b16] border ${
-                    panchang.yoga.nature === 'Shubh' ? 'border-emerald-500/45 hover:border-emerald-400/75 shadow-[0_0_20px_rgba(16,185,129,0.14)]' : 'border-rose-500/45 hover:border-rose-400/75 shadow-[0_0_20px_rgba(244,63,94,0.14)]'
+                  className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#f0fdf4] to-[#dcfce7] dark:from-[#021810] dark:to-[#070b16] border ${
+                    panchang.yoga.nature === 'Shubh' ? 'border-emerald-300 dark:border-emerald-500/45 hover:border-emerald-400 dark:hover:border-emerald-400/75 shadow-sm dark:shadow-[0_0_20px_rgba(16,185,129,0.14)]' : 'border-rose-300 dark:border-rose-500/45 hover:border-rose-400 dark:hover:border-rose-400/75 shadow-sm dark:shadow-[0_0_20px_rgba(244,63,94,0.14)]'
                   } cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0`}
                 >
                   <div className="space-y-1.5 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-emerald-300 font-bold font-outfit uppercase leading-snug">3. {t('yoga').toUpperCase()}</span>
+                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-stone-200 dark:border-white/5">
+                      <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold font-outfit uppercase leading-snug">3. {t('yoga').toUpperCase()}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-[8px] font-extrabold px-1.5 py-0.5 rounded border font-outfit uppercase shrink-0 ${
-                          panchang.yoga.nature === 'Shubh' ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300' : 'bg-rose-950/80 border-rose-500/40 text-rose-300'
+                          panchang.yoga.nature === 'Shubh' ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-950/80 border-rose-300 dark:border-rose-500/40 text-rose-900 dark:text-rose-300'
                         }`}>
                           {panchang.yoga.nature === 'Shubh' ? t('auspicious').toUpperCase() : t('inauspicious').toUpperCase()}
                         </span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-emerald-500/30 transition-all shrink-0">
-                          <ChevronRight size={11} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-emerald-200 transition-all shrink-0">
+                          <ChevronRight size={11} className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                         </span>
                       </div>
                     </div>
-                    <div className="text-sm sm:text-base font-bold text-white font-serif font-devanagari group-hover:text-emerald-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.yoga.name, language)}</div>
-                    <div className="text-[11px] text-emerald-200/80 font-sans break-words whitespace-normal leading-snug">{panchang.yoga.meaning}</div>
+                    <div className="text-sm sm:text-base font-bold text-stone-900 dark:text-white font-serif font-devanagari group-hover:text-emerald-800 dark:group-hover:text-emerald-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.yoga.name, language)}</div>
+                    <div className="text-[11px] text-emerald-900 dark:text-emerald-200/80 font-sans break-words whitespace-normal leading-snug">{panchang.yoga.meaning}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-emerald-500/20 min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-emerald-600/20 via-teal-600/15 to-emerald-600/20 hover:from-emerald-600/30 hover:to-teal-600/25 border border-emerald-500/40 group-hover:border-emerald-400 text-emerald-200 group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
+                    <div className="w-full py-1.5 px-2 rounded-xl bg-emerald-100/90 dark:bg-gradient-to-r dark:from-emerald-600/20 dark:via-teal-600/15 dark:to-emerald-600/20 hover:bg-emerald-200 dark:hover:from-emerald-600/30 dark:hover:to-teal-600/25 border border-emerald-300 dark:border-emerald-500/40 group-hover:border-emerald-400 text-emerald-950 dark:text-emerald-200 group-hover:text-stone-900 dark:group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
                       <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Yoga Astrological Meaning' : (language === 'hi' ? 'योग फल एवं फलित विस्तार देखें' : (language === 'sa' ? 'योगफलितं विवरणं च पश्यन्तु' : (language === 'mr' ? 'योगाचे फलित व महत्त्व पहा' : 'યોગનું ફળ અને મહત્વ જુઓ')))}</span>
-                      <ChevronRight size={11} className="text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                      <ChevronRight size={11} className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -1676,31 +1676,31 @@ export function HinduPanchangWidget({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLimbModal('karana'); }}}
                   title="Click to view Karana category and ruling lord"
                   aria-label="View Karana details"
-                  className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#041524] to-[#070b16] border ${
-                    panchang.karana.auspicious ? 'border-cyan-500/45 hover:border-cyan-400/75 shadow-[0_0_20px_rgba(6,182,212,0.14)]' : 'border-rose-500/45 hover:border-rose-400/75 shadow-[0_0_20px_rgba(244,63,94,0.14)]'
+                  className={`p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] dark:from-[#041524] dark:to-[#070b16] border ${
+                    panchang.karana.auspicious ? 'border-cyan-300 dark:border-cyan-500/45 hover:border-cyan-400 dark:hover:border-cyan-400/75 shadow-sm dark:shadow-[0_0_20px_rgba(6,182,212,0.14)]' : 'border-rose-300 dark:border-rose-500/45 hover:border-rose-400 dark:hover:border-rose-400/75 shadow-sm dark:shadow-[0_0_20px_rgba(244,63,94,0.14)]'
                   } cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0`}
                 >
                   <div className="space-y-1.5 min-w-0">
-                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-white/5">
-                      <span className="text-[10px] text-cyan-300 font-bold font-outfit uppercase leading-snug">4. {t('karana').toUpperCase()}</span>
+                    <div className="flex justify-between items-center gap-1 min-w-0 pb-1 border-b border-stone-200 dark:border-white/5">
+                      <span className="text-[10px] text-cyan-800 dark:text-cyan-300 font-bold font-outfit uppercase leading-snug">4. {t('karana').toUpperCase()}</span>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-[8px] font-extrabold px-1.5 py-0.5 rounded border font-outfit uppercase shrink-0 ${
-                          panchang.karana.auspicious ? 'bg-cyan-950/80 border-cyan-500/40 text-cyan-300' : 'bg-rose-950/80 border-rose-500/40 text-rose-300'
+                          panchang.karana.auspicious ? 'bg-cyan-100 dark:bg-cyan-950/80 border-cyan-300 dark:border-cyan-500/40 text-cyan-900 dark:text-cyan-300' : 'bg-rose-100 dark:bg-rose-950/80 border-rose-300 dark:border-rose-500/40 text-rose-900 dark:text-rose-300'
                         }`}>
                           {panchang.karana.auspicious ? t('auspicious').toUpperCase() : t('inauspicious').toUpperCase()}
                         </span>
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-cyan-500/30 transition-all shrink-0">
-                          <ChevronRight size={11} className="text-cyan-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-500/20 border border-cyan-300 dark:border-cyan-500/40 text-cyan-900 dark:text-cyan-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-cyan-200 transition-all shrink-0">
+                          <ChevronRight size={11} className="text-cyan-700 dark:text-cyan-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                         </span>
                       </div>
                     </div>
-                    <div className="text-sm sm:text-base font-bold text-white font-serif font-devanagari group-hover:text-cyan-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.karana.name, language)}</div>
-                    <div className="text-[11px] text-cyan-200/80 font-sans break-words whitespace-normal leading-snug">{panchang.karana.type}</div>
+                    <div className="text-sm sm:text-base font-bold text-stone-900 dark:text-white font-serif font-devanagari group-hover:text-cyan-800 dark:group-hover:text-cyan-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.karana.name, language)}</div>
+                    <div className="text-[11px] text-cyan-900 dark:text-cyan-200/80 font-sans break-words whitespace-normal leading-snug">{panchang.karana.type}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-cyan-500/20 min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-cyan-600/20 via-blue-600/15 to-cyan-600/20 hover:from-cyan-600/30 hover:to-blue-600/25 border border-cyan-500/40 group-hover:border-cyan-400 text-cyan-200 group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
+                    <div className="w-full py-1.5 px-2 rounded-xl bg-cyan-100/90 dark:bg-gradient-to-r dark:from-cyan-600/20 dark:via-blue-600/15 dark:to-cyan-600/20 hover:bg-cyan-200 dark:hover:from-cyan-600/30 dark:hover:to-blue-600/25 border border-cyan-300 dark:border-cyan-500/40 group-hover:border-cyan-400 text-cyan-950 dark:text-cyan-200 group-hover:text-stone-900 dark:group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
                       <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Karana Category & Ruling Lord' : (language === 'hi' ? 'करण प्रकार एवं स्वामी विस्तार देखें' : (language === 'sa' ? 'करणप्रकारं स्वामिनं च पश्यन्तु' : (language === 'mr' ? 'करण प्रकार व स्वामी पहा' : 'કરણ પ્રકાર અને સ્વામી જુઓ')))}</span>
-                      <ChevronRight size={11} className="text-cyan-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                      <ChevronRight size={11} className="text-cyan-700 dark:text-cyan-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
                 </div>
@@ -1713,23 +1713,23 @@ export function HinduPanchangWidget({
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLimbModal('vaar'); }}}
                   title="Click to view Vaar ruler and civil Ahoratra span"
                   aria-label="View Vaar details"
-                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#1c0f04] to-[#070b16] border border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_20px_rgba(245,158,11,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
+                  className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-b from-[#fff7ed] to-[#fed7aa] dark:from-[#1c0f04] dark:to-[#070b16] border border-amber-300 dark:border-amber-500/40 hover:border-amber-400 dark:hover:border-amber-400/70 shadow-sm dark:shadow-[0_0_20px_rgba(245,158,11,0.12)] cursor-pointer select-none transition-all duration-150 active:scale-[0.98] group flex flex-col justify-between min-w-0"
                 >
                   <div className="space-y-1.5 min-w-0">
-                    <div className="flex items-center justify-between text-[10px] text-amber-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-amber-500/20">
+                    <div className="flex items-center justify-between text-[10px] text-amber-800 dark:text-amber-300 font-bold font-outfit uppercase gap-1 min-w-0 pb-1 border-b border-amber-500/20">
                       <span className="leading-snug">5. {t('vaar').toUpperCase()}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-amber-500/30 transition-all shrink-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-200/80 dark:bg-amber-500/20 border border-amber-400/60 dark:border-amber-500/40 text-amber-900 dark:text-amber-200 text-[10px] font-bold font-outfit shadow-sm group-hover:bg-amber-300/80 transition-all shrink-0">
                         <span>{t('ruler')}</span>
-                        <ChevronRight size={11} className="text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                        <ChevronRight size={11} className="text-amber-700 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </span>
                     </div>
-                    <div className="text-sm sm:text-base font-bold text-white font-serif font-devanagari group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.name, language)}</div>
-                    <div className="text-[11px] text-amber-200/80 font-sans break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.lord, language)}</div>
+                    <div className="text-sm sm:text-base font-bold text-stone-900 dark:text-white font-serif font-devanagari group-hover:text-amber-800 dark:group-hover:text-amber-200 transition-colors break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.name, language)}</div>
+                    <div className="text-[11px] text-amber-900 dark:text-amber-200/80 font-sans break-words whitespace-normal leading-snug">{translateTerm(panchang.vaar.lord, language)}</div>
                   </div>
                   <div className="mt-2.5 pt-2 border-t border-amber-500/20 min-w-0">
-                    <div className="w-full py-1.5 px-2 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 hover:from-amber-500/30 hover:to-orange-500/25 border border-amber-500/40 group-hover:border-amber-400 text-amber-200 group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
+                    <div className="w-full py-1.5 px-2 rounded-xl bg-amber-100/90 dark:bg-gradient-to-r dark:from-amber-500/20 dark:via-orange-500/15 dark:to-amber-500/20 hover:bg-amber-200 dark:hover:from-amber-500/30 dark:hover:to-orange-500/25 border border-amber-300 dark:border-amber-500/40 group-hover:border-amber-400 text-amber-950 dark:text-amber-200 group-hover:text-stone-900 dark:group-hover:text-white text-[10px] font-bold font-outfit flex items-center justify-between shadow-sm transition-all">
                       <span className="break-words whitespace-normal leading-snug">{language === 'en' ? 'Tap for Vaar Ruler & Civil Span' : (language === 'hi' ? 'वार स्वामी एवं अहोरात्र विस्तार देखें' : (language === 'sa' ? 'वारस्वामिनम् अहोरात्रविस्तारं च पश्यन्तु' : (language === 'mr' ? 'वार स्वामी व अहोरात्र तपशील पहा' : 'વાર સ્વામી અને અહોરાત્ર વિગત જુઓ')))}</span>
-                      <ChevronRight size={11} className="text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
+                      <ChevronRight size={11} className="text-amber-700 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
                     </div>
                   </div>
                 </div>
