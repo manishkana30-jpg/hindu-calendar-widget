@@ -64,65 +64,35 @@ function clampLine(text: string, maxLen: number): string {
 }
 
 /**
- * Builds the exact 5-line all-in-one floating lock-screen notification payload.
+ * Builds the compact, glanceable lock-screen notification payload.
  *
- * Budget constraints:
- * - Title: Max 38 chars
- * - Line 1: Max 45 chars
- * - Line 2: Max 38 chars
- * - Line 3: Max 45 chars
- * - Line 4: Max 42 chars
- * - Line 5: Max 48 chars
- * - Total Body: strictly between 180 and 230 characters
+ * Designed to fit completely within mobile notification shade and lock-screen
+ * budgets without truncation on Android, iOS Web Push, and Windows.
  */
 export function buildDailyFloatingPayload(data: DailyPanchangData): DailyFloatingPayloadResult {
   // Title (Max 38 chars)
-  const titleRaw = `🌅 Daily Tithi • ${data.vara}, ${data.day} ${data.month}`;
+  const titleRaw = `🌸 Daily Tithi • ${data.vara}, ${data.day} ${data.month}`;
   const title = clampLine(titleRaw, 38);
 
-  // Line 1 (Max 45 chars): 🪔 {TithiName} ({FestivalOrSignificance})
-  const line1Raw = `🪔 ${data.tithiName} (${data.significance})`;
-  const line1 = clampLine(line1Raw, 45);
+  // Line 1: ✨ Tithi: {TithiName} (upto {EndTime})
+  const line1Raw = `✨ Tithi: ${data.tithiName} (upto ${data.tithiEndTime})`;
+  const line1 = clampLine(line1Raw, 48);
 
-  // Line 2 (Max 38 chars): ⏳ Tithi ends {TodayOrTomorrow} at {TithiEndTime}
-  const line2Raw = `⏳ Tithi ends ${data.tithiEndRelative} at ${data.tithiEndTime}`;
-  const line2 = clampLine(line2Raw, 38);
+  // Line 2: ⚡ Shubh: {Start}–{End} • ⚠️ Rahu: {Start}–{End}
+  const line2Raw = `⚡ Shubh: ${data.auspiciousStart}–${data.auspiciousEnd} • ⚠️ Rahu: ${data.rahuStart}–${data.rahuEnd}`;
+  const line2 = clampLine(line2Raw, 52);
 
-  // Line 3 (Max 45 chars): 🟢 Auspicious ({Window}): {Start} – {End}
-  const line3Raw = `🟢 Auspicious (${data.auspiciousName}): ${data.auspiciousStart} – ${data.auspiciousEnd}`;
-  const line3 = clampLine(line3Raw, 45);
-
-  // Line 4 (Max 42 chars): 🔴 Inauspicious (Rahu): {Start} – {End}
-  const line4Raw = `🔴 Inauspicious (Rahu): ${data.rahuStart} – ${data.rahuEnd}`;
-  const line4 = clampLine(line4Raw, 42);
-
-  // Line 5 (Max 48 chars): 🛡️ Panchak: {Status} • ☀️ Sun: {SunRise} – {SunSet}
-  const line5Raw = `🛡️ Panchak: ${data.panchakStatus} • ☀️ Sun: ${data.sunrise} – ${data.sunset}`;
-  const line5 = clampLine(line5Raw, 48);
+  // Line 3: 🛡️ Panchak: {Status} • ☀️ Sun: {SunRise}–{SunSet}
+  const line3Raw = `🛡️ Panchak: ${data.panchakStatus} • ☀️ Sun: ${data.sunrise}–${data.sunset}`;
+  const line3 = clampLine(line3Raw, 48);
 
   const lines = [
     line1,
     line2,
-    '',
-    line3,
-    line4,
-    line5
+    line3
   ];
 
-  let body = lines.join('\n');
-
-  // Guard: Total body length must stay strictly between 180 and 230 characters total.
-  if (body.length < 180) {
-    // If body is slightly under 180 due to very short words, expand relative label gracefully
-    const padNeeded = 180 - body.length;
-    if (padNeeded > 0) {
-      const enrichedLine2 = line2.replace('at ', 'today at ');
-      if (enrichedLine2.length <= 38) {
-        lines[1] = enrichedLine2;
-        body = lines.join('\n');
-      }
-    }
-  }
+  const body = lines.join('\n');
 
   return {
     title,
@@ -130,9 +100,9 @@ export function buildDailyFloatingPayload(data: DailyPanchangData): DailyFloatin
       body,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/badge-72x72.png',
-      tag: 'daily-floating-panchang', // Replaces previous day's alert in-place
-      requireInteraction: true,        // Keeps notification docked on lock screen
-      renotify: true,                  // Forces OS lock-screen banner and buzz even on tag update
+      tag: 'daily-tithi-panchang',      // Canonical tag: automatically replaces older notifications
+      requireInteraction: true,        // Keeps notification visible on lock screen
+      renotify: true,                  // Alerts device on fresh delivery
       silent: false,                   // Informs Android not to demote to silent channel
       vibrate: [200, 100, 200],
       data: {

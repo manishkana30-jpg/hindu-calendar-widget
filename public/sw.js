@@ -154,6 +154,7 @@ self.addEventListener('push', (event) => {
       ...payload.options,
       icon: payload.options.icon || '/icons/icon-192x192.png',
       badge: payload.options.badge || '/icons/badge-72x72.png',
+      tag: payload.options.tag || 'daily-tithi-panchang',
       renotify: true,
       requireInteraction: true,
       silent: false,
@@ -167,12 +168,10 @@ self.addEventListener('push', (event) => {
     const isTestBroadcast = Boolean(payload.isTestBroadcast || payload.data?.isTestBroadcast);
     title = payload.title || (isTestBroadcast ? 'Panchang Test Notification' : '🌅 Daily Tithi');
     const body = payload.body || (isTestBroadcast 
-      ? 'If you see this, daily Panchang alerts are working on your device. Tap to confirm.' 
+      ? 'If you see this, daily Panchang alerts are working on your device. Tap to view.' 
       : 'Vedic Panchang update available.');
 
-    const finalTag = (payload.tag && payload.tag !== 'panchang-alert')
-      ? payload.tag
-      : (isTestBroadcast ? 'panchang-test' : 'daily-floating-panchang');
+    const finalTag = isAppUpdate ? 'app-update' : 'daily-tithi-panchang';
 
     options = {
       body,
@@ -197,22 +196,37 @@ self.addEventListener('push', (event) => {
   }
 
   // Crucial: All async work MUST be wrapped in event.waitUntil(...)
-  // Failure to wrap causes OS process termination before notification renders
-  event.waitUntil(self.registration.showNotification(title, options)
-    .catch((err) => {
-      console.warn('[SW] Advanced notification display failed; falling back to core layout:', err);
-      return self.registration.showNotification(title, {
-        body: options.body || 'Vedic Panchang update available.',
-        icon: options.icon || '/icons/icon-192x192.png',
-        badge: options.badge || '/icons/badge-72x72.png',
-        tag: options.tag || 'daily-floating-panchang'
-      });
-    })
-      .then(() => {
-        // If this is a test broadcast, report receipt confirmation back to server silently
-        const isTestBroadcast = Boolean(options.data?.isTestBroadcast);
-        if (isTestBroadcast && options.data?.testId && options.data?.subId) {
-          return fetch('/api/push/test-confirm', {
+  // Problem 2 Fix: Close any active older panchang notifications so old alerts do not pile up
+  event.waitUntil(
+    (async () => {
+      try {
+        const activeNotifs = await self.registration.getNotifications();
+        for (const notif of activeNotifs) {
+          if (notif.tag !== 'app-update') {
+            notif.close();
+          }
+        }
+      } catch (err) {
+        console.warn('[SW] Could not prune previous notifications:', err);
+      }
+
+      try {
+        await self.registration.showNotification(title, options);
+      } catch (err) {
+        console.warn('[SW] Advanced notification display failed; falling back to core layout:', err);
+        await self.registration.showNotification(title, {
+          body: options.body || 'Vedic Panchang update available.',
+          icon: options.icon || '/icons/icon-192x192.png',
+          badge: options.badge || '/icons/badge-72x72.png',
+          tag: options.tag || 'daily-tithi-panchang'
+        });
+      }
+
+      // If this is a test broadcast, report receipt confirmation back to server silently
+      const isTestBroadcast = Boolean(options.data?.isTestBroadcast);
+      if (isTestBroadcast && options.data?.testId && options.data?.subId) {
+        try {
+          await fetch('/api/push/test-confirm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -222,9 +236,12 @@ self.addEventListener('push', (event) => {
               platform: navigator.userAgentData?.platform || 'Unknown',
               browser: 'ServiceWorker'
             })
-          }).catch((err) => console.warn('[SW] Confirmation delivery failed:', err));
+          });
+        } catch (confirmErr) {
+          console.warn('[SW] Confirmation delivery failed:', confirmErr);
         }
-      })
+      }
+    })()
   );
 });
 
@@ -287,18 +304,25 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
 
-  // Standard Panchang / Muhurat Deep-Linking
-  let targetUrl = `${baseUrl}/`;
-  let viewAction = 'default';
+  // Standard Panchang / Muhurat Deep-Linking & Notification Content Viewer
+  const notifTitle = event.notification.title || 'Daily Tithi';
+  const notifBody = event.notification.body || '';
+  const notifData = event.notification.data || {};
+  const encodedTitle = encodeURIComponent(notifTitle);
+  const encodedBody = encodeURIComponent(notifBody);
+
+  // Problem 1 Fix: Always pass notification content so webapp displays the exact alert to the user
+  let targetUrl = `${baseUrl}/?notif_alert=1&title=${encodedTitle}&body=${encodedBody}`;
+  let viewAction = 'notification';
 
   if (event.action === 'open_muhurat') {
-    targetUrl = `${baseUrl}/?view=muhurat`;
+    targetUrl = `${baseUrl}/?view=muhurat&notif_alert=1&title=${encodedTitle}&body=${encodedBody}`;
     viewAction = 'muhurat';
   } else if (event.action === 'open_panchang') {
-    targetUrl = `${baseUrl}/?view=calendar`;
+    targetUrl = `${baseUrl}/?view=calendar&notif_alert=1&title=${encodedTitle}&body=${encodedBody}`;
     viewAction = 'calendar';
-  } else if (event.notification.data?.url) {
-    targetUrl = event.notification.data.url;
+  } else if (notifData.url && notifData.url !== `${baseUrl}/` && notifData.url !== 'https://dailytithi.com' && notifData.url !== '/') {
+    targetUrl = notifData.url;
   }
 
   event.waitUntil(
@@ -306,11 +330,13 @@ self.addEventListener('notificationclick', (event) => {
       // Check if Daily Tithi tab is already open (warm tab)
       for (const client of windowClients) {
         if (client.url && client.url.startsWith(baseUrl)) {
-          // Send message to open view dynamically if tab is alive
+          // Send message with notification content to open view dynamically if tab is alive
           client.postMessage({
             type: 'NOTIFICATION_NAVIGATE',
             view: viewAction,
-            targetUrl: targetUrl
+            targetUrl: targetUrl,
+            title: notifTitle,
+            body: notifBody
           });
 
           // Navigate the tab to ensure query params update

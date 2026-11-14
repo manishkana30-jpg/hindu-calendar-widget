@@ -1,21 +1,29 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export type DeepLinkView = 'muhurat' | 'calendar' | 'default';
 
+export interface NotificationAlertData {
+  title: string;
+  body: string;
+  timestamp?: number;
+}
+
 /**
  * Handles deep-linking from Web Push notifications (cold starts and warm background tabs).
+ * - Reads `?notif_alert=1`, `?title=...`, `?body=...` query parameters to display the exact notification clicked.
  * - Reads `?view=muhurat` or `?view=calendar` query parameters on mount or route changes.
  * - Listens for Service Worker `NOTIFICATION_NAVIGATE` messages on warm open tabs.
  * - Programmatically opens the respective 24h Muhurat Matrix or 30-Day Almanac modal.
- * - Cleans up the query parameters (`/`) when the user closes the modal.
+ * - Cleans up query parameters (`/`) so browser refreshes stay clean.
  */
 export function useNotificationNavigation() {
   const searchParams = useSearchParams();
   const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activeViewRef = useRef<DeepLinkView | null>(null);
+  const [notificationAlert, setNotificationAlert] = useState<NotificationAlertData | null>(null);
 
   const openMuhuratModal = useCallback((): boolean => {
     const el = document.querySelector<HTMLElement>(
@@ -79,6 +87,24 @@ export function useNotificationNavigation() {
 
   // 1. URL Query Parameter Listener (Cold start & in-app navigation)
   useEffect(() => {
+    const notifAlertParam = searchParams.get('notif_alert');
+    const titleParam = searchParams.get('title') || searchParams.get('notif_title');
+    const bodyParam = searchParams.get('body') || searchParams.get('notif_body');
+
+    if (notifAlertParam || titleParam || bodyParam) {
+      setNotificationAlert({
+        title: titleParam ? decodeURIComponent(titleParam) : '🌸 Daily Tithi Alert',
+        body: bodyParam ? decodeURIComponent(bodyParam) : 'Today\'s Vedic Panchang & Shubh Muhurat update.',
+        timestamp: Date.now()
+      });
+
+      // Clean query parameters so refreshing does not keep reopening the modal
+      if (typeof window !== 'undefined') {
+        const cleanPath = window.location.pathname || '/';
+        window.history.replaceState(null, '', cleanPath);
+      }
+    }
+
     const viewParam = searchParams.get('view');
     if (viewParam === 'muhurat') {
       triggerView('muhurat');
@@ -98,6 +124,13 @@ export function useNotificationNavigation() {
   useEffect(() => {
     const handleServiceWorkerMessage = (event: MessageEvent) => {
       if (event.data?.type === 'NOTIFICATION_NAVIGATE') {
+        if (event.data.title || event.data.body) {
+          setNotificationAlert({
+            title: event.data.title || '🌸 Daily Tithi Alert',
+            body: event.data.body || '',
+            timestamp: Date.now()
+          });
+        }
         const view = event.data.view as string | undefined;
         if (view === 'muhurat') {
           triggerView('muhurat');
@@ -182,4 +215,9 @@ export function useNotificationNavigation() {
       observer.disconnect();
     };
   }, []);
+
+  return {
+    notificationAlert,
+    dismissNotificationAlert: () => setNotificationAlert(null)
+  };
 }

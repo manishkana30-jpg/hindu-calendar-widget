@@ -29,7 +29,7 @@ interface TestPushRequestBody {
 const PUSH_OPTIONS: webpush.RequestOptions = {
   TTL: 43200,                    // 12 hours
   urgency: 'high',               // Deliver immediately
-  topic: 'daily-floating-panchang'
+  topic: 'daily-tithi-panchang'
 };
 
 export async function GET() {

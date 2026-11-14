@@ -415,7 +415,7 @@ async function handleDispatch(req: NextRequest) {
         try {
           await webpush.sendNotification(pushSub, morningPayload, {
             ...PUSH_OPTIONS,
-            topic: 'daily-floating-panchang'
+            topic: 'daily-tithi-panchang'
           });
           sentMorning = true;
           morningSentCount++;
@@ -496,7 +496,7 @@ async function handleDispatch(req: NextRequest) {
         body: tithiAlert.body,
         icon: '/icons/icon-192x192.png',
         badge: '/icons/badge-72x72.png',
-        tag: `tithi-change-${tithiEval.currentTithiIndex}`,
+        tag: 'daily-tithi-panchang',
         requireInteraction: true,
         renotify: true,
         silent: false,
@@ -512,7 +512,7 @@ async function handleDispatch(req: NextRequest) {
       try {
         await webpush.sendNotification(pushSub, tithiPayload, {
           ...PUSH_OPTIONS,
-          topic: 'panchang-tithi-change'
+          topic: 'daily-tithi-panchang'
         });
         sentTithi = true;
         tithiSentCount++;

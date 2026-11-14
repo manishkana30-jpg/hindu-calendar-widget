@@ -58,16 +58,14 @@ async function runAudit() {
   console.log(`Total Body Length: ${payload.options.body.length} chars\n`);
 
   assert(payload.title.length <= 38, 'Title is strictly <= 38 characters', `Got ${payload.title.length}`);
-  assert(lines[0].length <= 45, 'Line 1 is strictly <= 45 characters', `Got ${lines[0].length}`);
-  assert(lines[1].length <= 38, 'Line 2 is strictly <= 38 characters', `Got ${lines[1].length}`);
-  assert(lines[2] === '', 'Empty divider line exists between Tithi and Muhurat');
-  assert(lines[3].length <= 45, 'Line 3 is strictly <= 45 characters', `Got ${lines[3].length}`);
-  assert(lines[4].length <= 42, 'Line 4 is strictly <= 42 characters', `Got ${lines[4].length}`);
-  assert(lines[5].length <= 48, 'Line 5 is strictly <= 48 characters', `Got ${lines[5].length}`);
-  assert(payload.options.body.length >= 180 && payload.options.body.length <= 230, 'Total Body Length is strictly between 180 and 230 characters', `Got ${payload.options.body.length}`);
+  assert(lines.length === 3, 'Notification body has exactly 3 glanceable lines without blank separators', `Got ${lines.length}`);
+  assert(lines[0].length <= 50, 'Line 1 is strictly <= 50 characters', `Got ${lines[0].length}`);
+  assert(lines[1].length <= 55, 'Line 2 is strictly <= 55 characters', `Got ${lines[1].length}`);
+  assert(lines[2].length <= 50, 'Line 3 is strictly <= 50 characters', `Got ${lines[2].length}`);
+  assert(payload.options.body.length <= 150, 'Total Body Length fits mobile lock screens without truncation', `Got ${payload.options.body.length}`);
 
   // Options verification
-  assert(payload.options.tag === 'daily-floating-panchang', 'Tag is "daily-floating-panchang"');
+  assert(payload.options.tag === 'daily-tithi-panchang', 'Canonical Tag is "daily-tithi-panchang"');
   assert(payload.options.requireInteraction === true, 'requireInteraction is true for persistent lock-screen docking');
   assert(payload.options.renotify === true, 'renotify is true for lock-screen alert and vibration');
   assert(payload.options.actions?.length === 2, 'Contains exactly 2 action buttons');
@@ -93,12 +91,11 @@ async function runAudit() {
     const dateLines = datePayload.options.body.split('\n');
 
     assert(datePayload.title.length <= 38, `Date ${date.toISOString().slice(0, 10)} title <= 38 chars (${datePayload.title.length})`);
-    assert(dateLines[0].length <= 45, `Date ${date.toISOString().slice(0, 10)} Line 1 <= 45 chars (${dateLines[0].length})`);
-    assert(dateLines[1].length <= 38, `Date ${date.toISOString().slice(0, 10)} Line 2 <= 38 chars (${dateLines[1].length})`);
-    assert(dateLines[3].length <= 45, `Date ${date.toISOString().slice(0, 10)} Line 3 <= 45 chars (${dateLines[3].length})`);
-    assert(dateLines[4].length <= 42, `Date ${date.toISOString().slice(0, 10)} Line 4 <= 42 chars (${dateLines[4].length})`);
-    assert(dateLines[5].length <= 48, `Date ${date.toISOString().slice(0, 10)} Line 5 <= 48 chars (${dateLines[5].length})`);
-    assert(datePayload.options.body.length >= 180 && datePayload.options.body.length <= 230, `Date ${date.toISOString().slice(0, 10)} Total body strictly 180-230 chars (${datePayload.options.body.length})`);
+    assert(dateLines.length === 3, `Date ${date.toISOString().slice(0, 10)} has 3 compact lines without blanks`);
+    assert(dateLines[0].length <= 50, `Date ${date.toISOString().slice(0, 10)} Line 1 <= 50 chars (${dateLines[0].length})`);
+    assert(dateLines[1].length <= 55, `Date ${date.toISOString().slice(0, 10)} Line 2 <= 55 chars (${dateLines[1].length})`);
+    assert(dateLines[2].length <= 50, `Date ${date.toISOString().slice(0, 10)} Line 3 <= 50 chars (${dateLines[2].length})`);
+    assert(datePayload.options.body.length <= 150, `Date ${date.toISOString().slice(0, 10)} Total body <= 150 chars (${datePayload.options.body.length})`);
   }
 
   // ── TEST 3: VAPID Status & Safe Validation ──────────────────────────────────
