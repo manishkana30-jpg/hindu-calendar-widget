@@ -1034,17 +1034,6 @@ export function HinduPanchangWidget({
                     {currentTithiEndTime}
                   </span>
                 </div>
-
-                {/* 1-Tap WhatsApp "Daily Suvichar & Panchang" Hero Button */}
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  title="Share Today's Panchang on WhatsApp"
-                  className="w-full mt-2 inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-emerald-950/90 to-emerald-900/90 hover:from-emerald-900 hover:to-emerald-800 border border-emerald-500/40 text-emerald-300 hover:text-white text-[11px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
-                >
-                  <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Share Today&apos;s Panchang on WhatsApp</span>
-                </button>
               </div>
 
               {/* 4: Compact Horizontal / Single-Line Next Tithi Box (Task 4) */}
