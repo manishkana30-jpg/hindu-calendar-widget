@@ -41,15 +41,15 @@ async function runShareVerification() {
 
   const output = formatPanchangShareText(sampleData);
 
-  assert(output.includes('🌅 Aaj Ka Panchang • Daily Tithi'), 'Header includes 🌅 Aaj Ka Panchang • Daily Tithi');
-  assert(output.includes('📅 Saturday (शनिवार), 10 October 2026'), 'Date line formats {Vara}, {Day} {Month} {Year}');
-  assert(output.includes('🪔 Tithi: Krishna Pratipada (Deity: Agni)'), 'Tithi line formats 🪔 Tithi: {TithiName} ({Significance})');
-  assert(output.includes('⏳ Tithi Ends: 04:32 PM'), 'Tithi Ends line formats ⏳ Tithi Ends: {TithiEndTime}');
-  assert(output.includes('🟢 Shubh Window: 11:45 AM – 12:33 PM (Abhijit Muhurat)'), 'Shubh Window line formats 🟢 Shubh Window: {AuspiciousWindow}');
-  assert(output.includes('🔴 Rahu Kaal: 09:15 AM – 10:45 AM'), 'Rahu Kaal line formats 🔴 Rahu Kaal: {RahuKaalWindow}');
-  assert(output.includes('🛡️ Panchak: No Active Panchak (Free)'), 'Panchak line formats 🛡️ Panchak: {PanchakStatus}');
-  assert(output.includes('real-time muhurat & panchang:'), 'Contains live call-to-action text');
-  assert(output.includes('https://dailytithi.com'), 'Contains direct app deep-link https://dailytithi.com');
+  assert(output.includes('🌸 *Aaj Ka Panchang • Daily Tithi* 🌸'), 'Header includes 🌸 *Aaj Ka Panchang • Daily Tithi* 🌸');
+  assert(output.includes('📅 10 October 2026, Saturday (शनिवार)'), 'Date line formats {Day} {Month} {Year}, {Vara}');
+  assert(output.includes('✨ Tithi: Shukla- Pratipada (upto 04:32 PM)'), 'Tithi line formats ✨ Tithi: {Paksha}- {TithiName} (upto {TithiEndTime})');
+  assert(output.includes('✨ Vrat/Tyohar: No active'), 'Vrat line formats ✨ Vrat/Tyohar: No active when empty');
+  assert(output.includes('⚡ Shubh Muhurat: 11:45 AM – 12:33 PM (Abhijit Muhurat)'), 'Shubh Muhurat line formats ⚡ Shubh Muhurat: {AuspiciousWindow}');
+  assert(output.includes('⚠️ Rahu Kaal: 09:15 AM – 10:45 AM (Avoid)'), 'Rahu Kaal line formats ⚠️ Rahu Kaal: {RahuKaalWindow} (Avoid)');
+  assert(output.includes('⚠️ Panchak: No Active Panchak (Free)'), 'Panchak line formats ⚠️ Panchak: {PanchakStatus}');
+  assert(output.includes('👉 Check full Panchang : https://dailytithi.com'), 'Contains direct app deep-link 👉 Check full Panchang : https://dailytithi.com');
+  assert(!output.includes('Sunrise'), 'Removed sunrise and sunset line per user specification');
 
   // ── TEST 2: Dynamic Astrometric Data Binding ───────────────────────────────
   console.log('\n▸ 2. Verifying Dynamic Ephemeris Binding Across Locations:');
@@ -63,8 +63,8 @@ async function runShareVerification() {
   assert(Boolean(delhiShare.panchakStatus), `Delhi Panchak status resolved: ${delhiShare.panchakStatus}`);
 
   const delhiFormatted = formatPanchangShareText(delhiShare);
-  assert(delhiFormatted.includes('🌅 Aaj Ka Panchang • Daily Tithi'), 'Delhi payload has valid header');
-  assert(delhiFormatted.includes('https://dailytithi.com'), 'Delhi payload has valid link');
+  assert(delhiFormatted.includes('🌸 *Aaj Ka Panchang • Daily Tithi* 🌸'), 'Delhi payload has valid header');
+  assert(delhiFormatted.includes('👉 Check full Panchang : https://dailytithi.com'), 'Delhi payload has valid link');
 
   // ── TEST 3: Multi-Tier Fallback Mechanism (Mocked Runtime) ─────────────────
   console.log('\n▸ 3. Verifying Multi-Tier Fallback Share Handler:');
@@ -95,13 +95,14 @@ async function runShareVerification() {
   const desktopResult = await sharePanchang(sampleData);
   assert(desktopResult.method === 'whatsapp', 'Desktop fallback routes to whatsapp method');
   assert(openedUrl.startsWith('https://api.whatsapp.com/send?text='), 'Desktop opens api.whatsapp.com with pre-filled text parameter');
-  assert(openedUrl.includes(encodeURIComponent('🌅 Aaj Ka Panchang • Daily Tithi')), 'URL encoded message includes proper greeting card');
+  assert(openedUrl.includes(encodeURIComponent('🌸 *Aaj Ka Panchang • Daily Tithi* 🌸')), 'URL encoded message includes proper greeting card');
 
   // 3b. Mobile Native Share -> navigator.share
   let sharedPayload: Record<string, unknown> | null = null;
   Object.defineProperty(globalThis, 'navigator', {
     value: {
       userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) Mobile Safari/537.36',
+      canShare: () => true,
       share: async (payload: Record<string, unknown>) => {
         sharedPayload = payload;
         return Promise.resolve();
@@ -146,8 +147,9 @@ async function runShareVerification() {
     }
   });
   assert(clipboardResult.method === 'clipboard', 'When popup blocked, falls through to clipboard method');
-  assert(copiedText.includes('🌅 Aaj Ka Panchang • Daily Tithi'), 'Clipboard received formatted text payload');
-  assert(toastTriggered === 'Panchang copied to clipboard!', 'Toast message is exactly "Panchang copied to clipboard!"');
+  assert(copiedText.includes('🌸 *Aaj Ka Panchang • Daily Tithi* 🌸'), 'Clipboard received formatted text payload');
+  assert(toastTriggered.includes('Panchang copied to clipboard!'), 'Toast message confirms clipboard copy');
+  assert(toastTriggered.includes('Panchang copied to clipboard!'), 'Toast message confirms clipboard copy');
 
   // ── TEST 4: Zero 'any' Types in Share Components & Utilities ───────────────
   console.log('\n▸ 4. Verifying Strict TypeScript Compliance (Zero any):');
@@ -166,7 +168,7 @@ async function runShareVerification() {
   console.log('\n▸ 5. Verifying WhatsApp UI Integration & Card 2 Cleanliness:');
   const widgetSource = fs.readFileSync('app/components/HinduPanchangWidget.tsx', 'utf8');
   assert(!widgetSource.includes("Share Today's Tithi"), "Card 2 permanently removed 'Share Today\\'s Tithi' tag");
-  assert(widgetSource.includes('Share Panchang on WhatsApp'), 'HinduPanchangWidget includes menu WhatsApp action');
+  assert(widgetSource.includes('Share on WhatsApp'), 'HinduPanchangWidget includes WhatsApp action');
 
   console.log('\n═══════════════════════════════════════════════════════════════════════════════════');
   console.log(`  RESULTS: ${passed}/${total} Assertions Passed`);
