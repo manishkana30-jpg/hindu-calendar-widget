@@ -102,49 +102,6 @@ export default async function LandingPage() {
         {/* ── PHASE 5: Slot 1 (Header Banner Ad - CLS = 0) ── */}
         <AdSlot slot="header" />
 
-        {/* ── Plain-Text Server-Rendered Astronomical Summary (Instant Googlebot Indexation) ── */}
-        <section 
-          aria-label="Today Panchang Quick Summary" 
-          className="my-3 p-3.5 sm:p-4 rounded-2xl bg-[#090e1a]/80 border border-[#1a2542] text-left max-w-5xl mx-auto text-xs sm:text-sm"
-        >
-          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-            <div className="flex items-center gap-2 text-amber-300 font-bold">
-              <span>🌸</span>
-              <span>Today&apos;s Panchang Summary ({serverFormattedDate}) — New Delhi / NCR</span>
-            </div>
-            <span className="text-[11px] font-mono text-neutral-400">
-              Vikram Samvat {initialData.vikramSamvat} • Shaka {initialData.shakaSamvat}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 font-mono text-xs">
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-neutral-400 block text-[10px]">Tithi &amp; Paksha</span>
-              <span className="font-bold text-white truncate block">{pakshaName}- {tithiName}</span>
-            </div>
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-neutral-400 block text-[10px]">Nakshatra</span>
-              <span className="font-bold text-amber-300 truncate block">{nakshatraName}</span>
-            </div>
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-neutral-400 block text-[10px]">Vedic Masa</span>
-              <span className="font-bold text-white truncate block">{masaName}</span>
-            </div>
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-neutral-400 block text-[10px]">Sunrise | Sunset</span>
-              <span className="font-bold text-orange-300 truncate block">{sunrise} | {sunset}</span>
-            </div>
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-rose-400 block text-[10px]">Rahu Kaal (Avoid)</span>
-              <span className="font-bold text-rose-300 truncate block">{rahuStart}–{rahuEnd}</span>
-            </div>
-            <div className="p-2 rounded-xl bg-[#0e1629] border border-[#233152]">
-              <span className="text-emerald-400 block text-[10px]">Abhijit Muhurat</span>
-              <span className="font-bold text-emerald-300 truncate block">{abhijitStart}–{abhijitEnd}</span>
-            </div>
-          </div>
-        </section>
-
         {/* ── Main Panchang Widget with Initial Server Data ── */}
         <div className="my-2 sm:my-4">
           <WidgetErrorBoundary>
