@@ -9,6 +9,7 @@ export interface PanchangShareData {
   tithiName?: string;
   paksha?: 'Shukla' | 'Krishna' | string;
   significance?: string;
+  vratName?: string;
   tithiEndTime?: string;
   sunrise?: string;
   sunset?: string;
@@ -49,6 +50,19 @@ export function buildShareDataFromPanchang(
   const tithi = panchang.udayaTithi || panchang.tithi;
   const tithiName = tithi?.name || 'Pratipada';
   const paksha = tithi?.paksha || 'Shukla';
+
+  // Vrat / Tyohar detection
+  let vratName = 'No active';
+  if (
+    panchang.todayFestival?.title &&
+    !panchang.todayFestival.title.includes('Nitya Panchang') &&
+    panchang.todayFestival.shortName !== 'Nitya Panchang'
+  ) {
+    vratName = panchang.todayFestival.shortName || panchang.todayFestival.title;
+    if (vratName.includes('(')) {
+      vratName = vratName.split('(')[0].trim();
+    }
+  }
 
   let significance = '';
   if (panchang.todayFestival?.title) {
@@ -91,15 +105,17 @@ export function buildShareDataFromPanchang(
     rahuKaalWindow = '09:15 AM – 10:45 AM';
   }
 
-  let panchakStatus = 'No Active Panchak (Free)';
-  if (customPanchakStatus && customPanchakStatus.trim()) {
+  // Panchak evaluation
+  let panchakStatus = 'No active';
+  if (customPanchakStatus && customPanchakStatus.trim() && customPanchakStatus !== 'No active') {
     panchakStatus = customPanchakStatus;
   } else {
     const panchakInfo = getActivePanchakStatus(date);
     if (panchakInfo?.isActive && panchakInfo.panchak) {
-      panchakStatus = `${panchakInfo.panchak.type} (Active)`;
+      const p = panchakInfo.panchak;
+      panchakStatus = `${p.type} (${p.startDate} ${p.startTime} – ${p.endDate} ${p.endTime})`;
     } else {
-      panchakStatus = 'No Active Panchak (Free)';
+      panchakStatus = 'No active';
     }
   }
 
@@ -109,6 +125,7 @@ export function buildShareDataFromPanchang(
     tithiName,
     paksha,
     significance,
+    vratName,
     tithiEndTime,
     sunrise: panchang.sunrise || '06:30 AM',
     sunset: panchang.sunset || '06:15 PM',
@@ -136,20 +153,20 @@ export function formatPanchangShareText(data: PanchangShareData): string {
 
   const formattedDate = `${day} ${month} ${year}, ${vara}`;
   const tithiEndTime = data.tithiEndTime || 'Sunset';
-  const sunrise = data.sunrise || '06:30 AM';
-  const sunset = data.sunset || '06:15 PM';
   const auspiciousWindow = data.auspiciousWindow || '11:45 AM – 12:35 PM';
   const rahuKaalWindow = data.rahuKaalWindow || '09:15 AM – 10:45 AM';
+  const vratName = data.vratName || 'No active';
+  const panchakStatus = data.panchakStatus || 'No active';
   const appUrl = data.appUrl || 'https://dailytithi.com';
 
   return `🌸 *Aaj Ka Panchang • Daily Tithi* 🌸
 📅 ${formattedDate}
 ✨ Tithi: ${paksha}- ${cleanTithi} (upto ${tithiEndTime})
-🌅 Sunrise: ${sunrise} | 🌇 Sunset: ${sunset}
+✨ Vrat/Tyohar: ${vratName}
 ⚡ Shubh Muhurat: ${auspiciousWindow}
 ⚠️ Rahu Kaal: ${rahuKaalWindow} (Avoid)
-
-👉 Check full Panchang & Choghadiya: ${appUrl}`;
+⚠️ Panchak: ${panchakStatus}
+👉 Check full Panchang : ${appUrl}`;
 }
 
 /**

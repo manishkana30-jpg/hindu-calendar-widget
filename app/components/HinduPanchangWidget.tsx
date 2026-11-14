@@ -574,11 +574,15 @@ export function HinduPanchangWidget({
     e.preventDefault();
 
     try {
+      const panchakDetail = panchakStatus?.isActive && panchakStatus?.panchak
+        ? `${panchakStatus.panchak.type} (${panchakStatus.panchak.startDate} ${panchakStatus.panchak.startTime} – ${panchakStatus.panchak.endDate} ${panchakStatus.panchak.endTime})`
+        : 'No active';
+
       const shareDataObj = buildShareDataFromPanchang(
         selectedDate,
         panchang,
         activeMuhurat,
-        panchakStatus?.badgeText || panchakStatus?.displayTitle || ''
+        panchakDetail
       );
       const formattedText = formatPanchangShareText(shareDataObj);
       const appUrl = typeof window !== 'undefined' ? window.location.href : 'https://dailytithi.com';
