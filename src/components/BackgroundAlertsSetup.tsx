@@ -63,7 +63,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   if (isIOS && !isStandalone) {
     return (
       <>
-        <div className={`p-4 rounded-2xl bg-[#0e1628]/95 border border-amber-500/30 text-white shadow-lg backdrop-blur-md ${className}`}>
+        <div className={`p-5 sm:p-7 rounded-3xl bg-[#0e1628]/95 border border-amber-500/30 text-white shadow-xl backdrop-blur-md w-full ${className}`}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
@@ -108,7 +108,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   // ── State 2: Browser completely lacks PushManager or ServiceWorker ──────────
   if (!isSupported) {
     return (
-      <div className={`p-4 rounded-xl bg-[#0c1426]/90 border border-neutral-800 text-neutral-400 text-xs ${className}`}>
+      <div className={`p-5 sm:p-7 rounded-3xl bg-[#0c1426]/90 border border-neutral-800 text-neutral-400 text-xs w-full ${className}`}>
         <div className="flex items-center gap-2 text-neutral-300 font-semibold mb-1">
           <BellOff size={16} className="text-neutral-500" />
           <span>Background Alerts Unsupported</span>
@@ -125,7 +125,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   if (permission === 'denied') {
     return (
       <>
-        <div className={`p-4 rounded-2xl bg-red-950/30 border border-red-500/40 text-red-200 shadow-md ${className}`}>
+        <div className={`p-5 sm:p-7 rounded-3xl bg-red-950/30 border border-red-500/40 text-red-200 shadow-xl backdrop-blur-md w-full ${className}`}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 flex items-center justify-center shrink-0 mt-0.5">
@@ -166,7 +166,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   if (isSubscribed) {
     return (
       <>
-        <div className={`p-4 sm:p-5 rounded-2xl bg-[#091522]/95 border border-emerald-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
+        <div className={`p-5 sm:p-7 rounded-3xl bg-[#091522]/95 border border-emerald-500/30 shadow-xl backdrop-blur-md text-white w-full ${className}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
@@ -245,7 +245,7 @@ export function BackgroundAlertsSetup({ location, className = '' }: BackgroundAl
   // ── State 5: Unsubscribed (Default / Ready to Subscribe) ────────────────────
   return (
     <>
-      <div className={`p-4 sm:p-5 rounded-2xl bg-[#091122]/95 border border-amber-500/30 shadow-xl backdrop-blur-md text-white ${className}`}>
+      <div className={`p-5 sm:p-7 rounded-3xl bg-[#091122]/95 border border-amber-500/30 shadow-xl backdrop-blur-md text-white w-full ${className}`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">

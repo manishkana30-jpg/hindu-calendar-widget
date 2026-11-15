@@ -55,7 +55,7 @@ export function PwaStandaloneBanner() {
 
   return (
     <>
-      <div className="w-full max-w-4xl mx-auto my-3 px-3">
+      <div className="w-full max-w-5xl mx-auto my-3 px-3">
         <div className="flex items-center justify-between gap-3 p-3 sm:py-2.5 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-950/70 via-indigo-950/60 to-purple-950/70 border border-sky-500/30 shadow-lg text-left backdrop-blur-md">
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="text-lg shrink-0">📲</span>

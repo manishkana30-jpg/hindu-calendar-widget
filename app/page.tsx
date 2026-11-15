@@ -121,7 +121,7 @@ export default async function LandingPage() {
         <AdSlot slot="in-feed" categoryName="upcoming life milestone" />
 
         {/* ── Background Lock-Screen Alerts Setup ── */}
-        <div className="my-6 max-w-4xl mx-auto text-left">
+        <div className="my-6 w-full max-w-5xl mx-auto text-left">
           <BackgroundAlertsSetup />
         </div>
 

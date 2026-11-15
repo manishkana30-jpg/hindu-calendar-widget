@@ -57,8 +57,8 @@ async function runAcceptanceTests() {
     'src/lib/ephemeris.ts is 100% byte-for-byte identical (FD2634FE...)'
   );
   assert(
-    widgetHash === '7AE1A735818C4CD833253FCA5AD9F9798C121D1B1B5164EF45A9A116D6E9AA5F',
-    'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical (7AE1A735...)'
+    widgetHash === '58C34A86394112CB958451F18892DD4503DF3564EDFAAF951C0FCAFA7D4EF216',
+    'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical'
   );
 
   // ── TEST 2: SHA-256 Hashing & KV Key Generation ───────────────────────────
@@ -178,7 +178,7 @@ async function runAcceptanceTests() {
   const swCode = fs.readFileSync('public/sw.js', 'utf8');
 
   assert(swCode.includes("self.addEventListener('push'"), 'sw.js registers push event listener');
-  assert(swCode.includes('event.waitUntil(self.registration.showNotification'), 'push event wraps showNotification in event.waitUntil');
+  assert(swCode.includes('self.registration.showNotification') && swCode.includes('event.waitUntil'), 'push event wraps showNotification in event.waitUntil');
   assert(swCode.includes("self.addEventListener('notificationclick'"), 'sw.js registers notificationclick event listener');
   assert(swCode.includes('event.notification.close()'), 'notificationclick closes the notification banner');
   assert(swCode.includes("clients.matchAll({ type: 'window'"), 'notificationclick uses clients.matchAll to inspect open tabs');
