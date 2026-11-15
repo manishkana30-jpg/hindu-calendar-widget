@@ -169,24 +169,24 @@ export function MonthlyMuhuratModal({
       <div 
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-4xl max-h-[90dvh] sm:max-h-[88dvh] flex flex-col rounded-t-3xl sm:rounded-3xl border border-amber-200/60 dark:border-[#1e2d4f] bg-[#fcf8f0] dark:bg-[#090e1a] text-stone-800 dark:text-slate-200 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 relative"
+        className="w-full max-w-4xl max-h-[90dvh] sm:max-h-[88dvh] flex flex-col rounded-t-3xl sm:rounded-3xl border border-[#1e2d4f] bg-[#090e1a] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 relative text-slate-200"
       >
         {/* ── 1. Modal Header (Pinned at Top) ── */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-amber-200/60 dark:border-[#1e2d4f] bg-[#fdfaf3] dark:bg-[#0c1222] shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-[#1e2d4f] bg-[#0c1222] shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="p-1.5 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-600 dark:text-orange-400 shrink-0">
+            <div className="p-1.5 rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-400 shrink-0">
               <Sparkles size={16} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold font-outfit text-stone-900 dark:text-white tracking-tight break-words min-w-0 leading-snug">
+                <h2 className="text-sm sm:text-base font-bold font-outfit text-white tracking-tight break-words min-w-0 leading-snug">
                   {t('monthlyMuhuratCalendarTitle')}
                 </h2>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-500/30 text-amber-300 font-serif font-devanagari font-semibold hidden sm:inline shrink-0">
                   धर्मशास्त्र सम्मत
                 </span>
               </div>
-              <div className="text-[10px] text-stone-600 dark:text-slate-400 font-sans break-words min-w-0 leading-snug">
+              <div className="text-[10px] text-slate-400 font-sans break-words min-w-0 leading-snug">
                 {location.name} • {language === 'hi' ? 'गृह, वाहन, व्यापार, विवाह एवं संपत्ति' : 'Griha, Property, Vehicle, Business & Vivah'}
               </div>
             </div>
@@ -196,7 +196,7 @@ export function MonthlyMuhuratModal({
             type="button"
             onClick={onClose}
             aria-label={t('close')}
-            className="p-1.5 rounded-xl bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#18233d] border border-amber-300/60 dark:border-[#233152] text-stone-600 hover:text-stone-900 dark:text-slate-300 dark:hover:text-white transition-all cursor-pointer active:scale-95 shrink-0 ml-2"
+            className="p-1.5 rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-slate-300 hover:text-white transition-all cursor-pointer active:scale-95 shrink-0 ml-2"
           >
             <X size={18} />
           </button>

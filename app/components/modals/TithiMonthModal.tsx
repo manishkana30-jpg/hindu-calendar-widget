@@ -77,39 +77,39 @@ export function TithiMonthModal({
       aria-label="Unified Vedic Calendar and Almanac"
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-6xl h-dvh sm:h-auto max-h-dvh sm:max-h-[88dvh] bg-[#fcf8f0] dark:bg-[#070b16] text-stone-900 dark:text-neutral-100 border-0 sm:border border-amber-200/60 dark:border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in fade-in sm:zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full max-w-none sm:max-w-6xl h-dvh sm:h-auto max-h-dvh sm:max-h-[88dvh] bg-[#070b16] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in fade-in sm:zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Top Navigation Bar */}
-        <div className="p-3.5 px-4 sm:px-5 bg-[#fdfaf3] dark:bg-[#090e1a] border-b border-amber-200/60 dark:border-[#1a233a] flex items-center justify-between gap-3 shrink-0">
+        <div className="p-3.5 px-4 sm:px-5 bg-[#090e1a] border-b border-[#1a233a] flex items-center justify-between gap-3 shrink-0">
           
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
             {/* Back Button */}
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#1a2544] border border-amber-300/60 dark:border-[#233152] text-stone-700 hover:text-stone-900 dark:text-neutral-200 dark:hover:text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#11192e] hover:bg-[#1a2544] border border-[#233152] text-neutral-200 hover:text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm shrink-0"
               title={t('home')}
               aria-label={t('home')}
             >
-              <ArrowLeft size={14} className="text-orange-600 dark:text-orange-400 shrink-0" />
+              <ArrowLeft size={14} className="text-orange-400 shrink-0" />
               <span>← {t('home')}</span>
             </button>
 
-            <span className="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider leading-snug">
+            <span className="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-orange-400 uppercase tracking-wider leading-snug">
               <Calendar size={13} className="shrink-0" />
               <span className="break-words">{modalTitle}</span>
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="hidden md:inline text-[11px] text-stone-600 dark:text-neutral-400 font-medium">
-              Location: <strong className="text-stone-900 dark:text-neutral-200">{location.name}</strong>
+            <span className="hidden md:inline text-[11px] text-neutral-400 font-medium">
+              Location: <strong className="text-neutral-200">{location.name}</strong>
             </span>
 
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#1f2c4d] border border-amber-300/60 dark:border-[#233152] flex items-center justify-center text-stone-600 hover:text-stone-900 dark:text-neutral-400 dark:hover:text-white transition-colors cursor-pointer shrink-0"
+              className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer shrink-0"
               title={t('close')}
               aria-label={t('close')}
             >
@@ -131,7 +131,7 @@ export function TithiMonthModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 px-4 sm:px-6 bg-[#fdfaf3] dark:bg-[#090e1a] border-t border-amber-200/60 dark:border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-600 dark:text-neutral-400 shrink-0">
+        <div className="p-3 px-4 sm:px-6 bg-[#090e1a] border-t border-[#1a233a] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-400 shrink-0">
           <div className="break-words min-w-0 leading-snug">{t('shastraAuthority')} • Lahiri Sidereal Ayanamsha</div>
           <button
             type="button"

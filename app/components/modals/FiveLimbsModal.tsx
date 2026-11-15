@@ -65,22 +65,22 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#fcf8f0] dark:bg-[#090e1a] text-stone-900 dark:text-neutral-100 border-0 sm:border border-amber-200/60 dark:border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
+      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-[#11192e] dark:via-[#0e1629] dark:to-[#11192e] border-b border-amber-200/60 dark:border-[#1e2942] flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/40 flex items-center justify-center w-11 h-11 shrink-0">
-              <Layers size={20} className="text-amber-600 dark:text-amber-400" />
+            <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center w-11 h-11 shrink-0">
+              <Layers size={20} className="text-amber-400" />
             </div>
             <div>
-              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold font-outfit uppercase tracking-wider flex items-center gap-1.5">
+              <div className="text-[10px] text-amber-400 font-bold font-outfit uppercase tracking-wider flex items-center gap-1.5">
                 <span>VEDIC PANCHANG (पञ्चाङ्ग)</span>
-                <span className="px-1.5 py-0.2 rounded text-[8px] font-extrabold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 uppercase">
+                <span className="px-1.5 py-0.2 rounded text-[8px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
                   5 Limbs
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-white mt-0.5 font-outfit">
+              <h2 className="text-lg sm:text-xl font-extrabold text-white mt-0.5 font-outfit">
                 Five Sacred Limbs of Time
               </h2>
             </div>
@@ -89,14 +89,14 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
           <button
             onClick={onClose}
             aria-label="Close Five Limbs dialog"
-            className="w-8 h-8 rounded-full bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#1f2c4d] border border-amber-300/60 dark:border-[#233152] flex items-center justify-center text-stone-600 hover:text-stone-900 dark:text-neutral-400 dark:hover:text-white transition-colors shrink-0"
+            className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors shrink-0"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* ── Horizontal Scrollable Limb Selector Tabs ── */}
-        <div className="p-2 sm:px-4 bg-[#fbf5ea] dark:bg-[#0c1222] border-b border-amber-200/60 dark:border-[#1a233a] shrink-0">
+        <div className="p-2 sm:px-4 bg-[#0c1222] border-b border-[#1a233a] shrink-0">
           <div 
             className="flex overflow-x-auto gap-1.5 pb-1 overscroll-x-contain horizontal-tabs-scroll [-webkit-overflow-scrolling:touch]"
             style={{ touchAction: 'pan-x pan-y' }}
@@ -111,7 +111,7 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
                 className={`shrink-0 py-2 px-3 rounded-xl text-xs font-bold font-outfit transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                   activeLimb === tab.id
                     ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 shadow-md shadow-orange-500/20 font-extrabold ring-1 ring-amber-400'
-                    : 'bg-amber-100/70 dark:bg-[#11192e] text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white hover:bg-amber-200/70 dark:hover:bg-[#18233d] border border-amber-300/50 dark:border-[#233152]'
+                    : 'bg-[#11192e] text-slate-300 hover:text-white hover:bg-[#18233d] border border-[#233152]'
                 }`}
               >
                 <span>{tab.icon}</span>
@@ -436,13 +436,13 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
         </div>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 bg-[#fbf5ea] dark:bg-[#0c1222] border-t border-amber-200/60 dark:border-[#1a233a] flex items-center justify-between text-xs text-stone-600 dark:text-slate-400 shrink-0">
-          <span className="text-[11px] font-grotesk text-stone-600 dark:text-slate-400">
+        <div className="p-3 sm:p-4 bg-[#0c1222] border-t border-[#1a233a] flex items-center justify-between text-xs text-slate-400 shrink-0">
+          <span className="text-[11px] font-grotesk text-slate-400">
             Dharmashastra Canonical Panchang
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 dark:bg-[#1e2942] dark:hover:bg-[#283757] text-white font-bold font-outfit text-xs transition-colors shadow-sm"
+            className="px-4 py-1.5 rounded-xl bg-[#1e2942] hover:bg-[#283757] text-white font-bold font-outfit text-xs transition-colors"
           >
             Done
           </button>

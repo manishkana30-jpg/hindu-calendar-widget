@@ -7,17 +7,17 @@ export function VedicEditorialGuide() {
       
       {/* Section Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-700 dark:text-orange-300 text-xs font-semibold mb-3">
-          <BookOpen size={14} className="text-orange-600 dark:text-orange-400" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-semibold mb-3">
+          <BookOpen size={14} className="text-orange-400" />
           <span>Authoritative Vedic Astrometry Compendium</span>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
+        <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
           The Mathematical Science of <br className="hidden sm:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-amber-700 dark:from-orange-400 dark:via-amber-300 dark:to-amber-500">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-amber-500">
             Vedic Timekeeping & Astrometry
           </span>
         </h2>
-        <p className="text-stone-600 dark:text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto mt-3">
+        <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto mt-3">
           A definitive computational analysis of solar-lunar mechanics, Ghati sexagesimal division, Udaya Tithi canonical determination, and dynamic city-specific Muhurat calculations.
         </p>
       </div>
@@ -25,20 +25,20 @@ export function VedicEditorialGuide() {
       <div className="space-y-10">
 
         {/* Chapter 1: Mathematical Foundations of Vedic Time */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-[#e2d5bd] dark:border-[#1a2542] shadow-sm dark:shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
               <Calculator size={20} />
             </div>
             <div>
-              <span className="text-xs font-mono text-orange-600 dark:text-orange-400 tracking-wider uppercase">Section 1.0 • Mathematical Division</span>
-              <h3 className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-white">
+              <span className="text-xs font-mono text-orange-400 tracking-wider uppercase">Section 1.0 • Mathematical Division</span>
+              <h3 className="text-lg sm:text-2xl font-bold text-white">
                 Sexagesimal Timekeeping: 60 Ghati, 3,600 Pala, 216,000 Vipala
               </h3>
             </div>
           </div>
 
-          <div className="text-stone-700 dark:text-neutral-300 text-sm sm:text-base leading-relaxed space-y-4">
+          <div className="text-neutral-300 text-sm sm:text-base leading-relaxed space-y-4">
             <p>
               Unlike the contemporary Gregorian civil clock which divides the 24-hour mean solar day into 86,400 seconds (base-10 / base-60 hybrid), classic Vedic astrometry—codified in the <em>Surya Siddhanta</em> and <em>Vedanga Jyotisha</em>—operates on a pure sexagesimal (base-60) division of the <strong>Ahoratra</strong> (the complete day-night cycle from sunrise to next sunrise).
             </p>
@@ -89,50 +89,50 @@ export function VedicEditorialGuide() {
         </section>
 
         {/* Chapter 2: Astronomical Definition of a Tithi & Udaya Tithi */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-[#e2d5bd] dark:border-[#1a2542] shadow-sm dark:shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Moon size={20} />
             </div>
             <div>
-              <span className="text-xs font-mono text-amber-700 dark:text-amber-400 tracking-wider uppercase">Section 2.0 • Soli-Lunar Geometry</span>
-              <h3 className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-white">
+              <span className="text-xs font-mono text-amber-400 tracking-wider uppercase">Section 2.0 • Soli-Lunar Geometry</span>
+              <h3 className="text-lg sm:text-2xl font-bold text-white">
                 The 12° Lunar Separation & The Canon of Udaya Tithi
               </h3>
             </div>
           </div>
 
-          <div className="text-stone-700 dark:text-neutral-300 text-sm sm:text-base leading-relaxed space-y-4">
+          <div className="text-neutral-300 text-sm sm:text-base leading-relaxed space-y-4">
             <p>
               Astronomically, a <strong>Tithi</strong> is defined as the longitudinal angle traversed by the Moon in excess of the Sun by exactly <strong>12 degrees</strong>:
             </p>
 
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-[#0e1629] border border-amber-200 dark:border-[#233152] font-mono text-xs sm:text-sm text-center text-amber-900 dark:text-amber-300">
+            <div className="p-4 rounded-2xl bg-[#0e1629] border border-[#233152] font-mono text-xs sm:text-sm text-center text-amber-300">
               Tithi Number = Floor( (Apparent Lunar Longitude − Apparent Solar Longitude) / 12° ) + 1
             </div>
 
             <p>
-              Because the Moon moves along an elliptical orbit governed by Kepler&apos;s laws of planetary motion, its apparent daily speed varies from approximately 11°48′ to 15°12′ per solar day. Consequently, the actual physical duration of a single Tithi is dynamic: it can span anywhere from <strong>19 to 26 hours</strong>.
+              Because the Moon moves along an elliptical orbit governed by Kepler's laws of planetary motion, its apparent daily speed varies from approximately 11°48′ to 15°12′ per solar day. Consequently, the actual physical duration of a single Tithi is dynamic: it can span anywhere from <strong>19 to 26 hours</strong>.
             </p>
 
-            <div className="bg-amber-100/70 dark:bg-[#11192e] p-5 rounded-2xl border-l-4 border-amber-500 space-y-2">
-              <h4 className="text-stone-900 dark:text-white font-bold text-sm sm:text-base">Why Udaya Tithi Dictates Hindu Observances</h4>
-              <p className="text-xs sm:text-sm text-stone-700 dark:text-neutral-300">
-                In classical <em>Dharmashastra</em> jurisprudence (notably <em>Nirnayasindhu</em> and <em>Dharmasindhu</em>), a civil day is sanctified by the <strong>Udaya Tithi</strong>—the specific Tithi active at the precise mathematical instant the Sun&apos;s upper limb touches the local horizon. Even if the Tithi terminates minutes after sunrise, the ritual merit, vrat, or festival associated with that Udaya Tithi rules the entire Hindu calendar day.
+            <div className="bg-[#11192e] p-5 rounded-2xl border-l-4 border-amber-500 space-y-2">
+              <h4 className="text-white font-bold text-sm sm:text-base">Why Udaya Tithi Dictates Hindu Observances</h4>
+              <p className="text-xs sm:text-sm text-neutral-300">
+                In classical <em>Dharmashastra</em> jurisprudence (notably <em>Nirnayasindhu</em> and <em>Dharmasindhu</em>), a civil day is sanctified by the <strong>Udaya Tithi</strong>—the specific Tithi active at the precise mathematical instant the Sun's upper limb touches the local horizon. Even if the Tithi terminates minutes after sunrise, the ritual merit, vrat, or festival associated with that Udaya Tithi rules the entire Hindu calendar day.
               </p>
             </div>
           </div>
         </section>
 
         {/* Chapter 3: Dynamic City-Specific Choghadiya Muhurats */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#fffdf9]/95 dark:bg-[#090e1a]/90 border border-[#e2d5bd] dark:border-[#1a2542] shadow-sm dark:shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
               <Sun size={20} />
             </div>
             <div>
-              <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400 tracking-wider uppercase">Section 3.0 • Dynamic Muhurat Science</span>
-              <h3 className="text-lg sm:text-2xl font-bold text-stone-900 dark:text-white">
+              <span className="text-xs font-mono text-emerald-400 tracking-wider uppercase">Section 3.0 • Dynamic Muhurat Science</span>
+              <h3 className="text-lg sm:text-2xl font-bold text-white">
                 Dina Mana & Ratri Mana: Computing 8-Fold Choghadiya
               </h3>
             </div>

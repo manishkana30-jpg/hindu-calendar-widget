@@ -17,7 +17,6 @@ import {
 import { AdSlot } from '@/app/components/AdSlot';
 import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
 import { Footer } from '@/src/components/Footer';
-import { ThemeToggle } from '@/app/components/ThemeToggle';
 
 export const revalidate = 3600; // 1 hour ISR revalidation
 
@@ -103,7 +102,7 @@ export default async function VratHubPage({ params }: PageProps) {
   const eventSchemas = generateVratEventSchema(vrat, upcomingDates);
 
   return (
-    <div className="min-h-dvh w-full max-w-full bg-[#fcf8f0] dark:bg-[#050811] text-stone-900 dark:text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-900 dark:selection:text-orange-200 overflow-x-hidden touch-pan-y pb-24 transition-colors duration-300">
+    <div className="min-h-dvh w-full max-w-full bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden touch-pan-y pb-24">
       {/* ── Structured Data JSON-LD Schemas ── */}
       <script
         type="application/ld+json"
@@ -120,32 +119,31 @@ export default async function VratHubPage({ params }: PageProps) {
 
       {/* Decorative ambient lighting (Hardware-accelerated zero-blur radial gradients) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)] hidden dark:block" />
-        <div className="absolute top-[600px] right-[-100px] w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.08)_0%,_transparent_70%)] hidden dark:block" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
+        <div className="absolute top-[600px] right-[-100px] w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.08)_0%,_transparent_70%)]" />
       </div>
 
       {/* ── Navbar ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#fdfaf3]/90 dark:bg-[#070b16]/90 backdrop-blur-xl border-b border-amber-200/60 dark:border-[#162038] transition-colors duration-300">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#070b16]/90 backdrop-blur-xl border-b border-[#162038]">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link href="/" className="text-xl sm:text-2xl drop-shadow-md shrink-0 select-none">
               🕉️
             </Link>
             <div className="min-w-0">
-              <span className="text-xs sm:text-base font-extrabold tracking-tight text-stone-900 dark:text-white block leading-snug truncate">
+              <span className="text-xs sm:text-base font-extrabold tracking-tight text-white block leading-snug truncate">
                 {vrat.name} • {vrat.hindiName}
               </span>
-              <span className="text-[9px] sm:text-[10px] text-orange-600 dark:text-orange-400 font-mono tracking-wider uppercase block truncate">
+              <span className="text-[9px] sm:text-[10px] text-orange-400 font-mono tracking-wider uppercase block truncate">
                 Vedic Vrat &amp; Festival Calendar 2026–2027
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <ThemeToggle />
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-100/80 hover:bg-amber-200/80 dark:bg-[#11192e] dark:hover:bg-[#16213d] border border-amber-300/60 dark:border-[#233152] text-xs font-semibold text-stone-700 dark:text-neutral-300 hover:text-stone-900 dark:hover:text-white transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#11192e] hover:bg-[#16213d] border border-[#233152] text-xs font-semibold text-neutral-300 hover:text-white transition-colors shrink-0"
             >
               <ArrowLeft size={13} />
               <span className="hidden sm:inline">Home Panchang</span>

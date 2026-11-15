@@ -56,16 +56,16 @@ export function LanguageDropdown({ className = '' }: Props) {
         aria-expanded={isOpen}
         aria-label="Select Language"
         title="Select Application Language"
-        className="bg-white/95 dark:bg-[#11192e] hover:bg-amber-50 dark:hover:bg-[#18233f] active:bg-amber-100 dark:active:bg-[#1c294a] border border-amber-400/40 dark:border-[#233152] text-stone-800 dark:text-neutral-100 text-xs rounded-xl px-2.5 py-1.5 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[32px]"
+        className="bg-[#11192e] hover:bg-[#18233f] active:bg-[#1c294a] border border-[#233152] text-neutral-100 text-xs rounded-xl px-2.5 py-1.5 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[32px]"
       >
-        <Globe size={13} className="text-orange-600 dark:text-orange-400 shrink-0" />
-        <span className="font-semibold tracking-tight text-stone-800 dark:text-neutral-200">
+        <Globe size={13} className="text-orange-400 shrink-0" />
+        <span className="font-semibold tracking-tight text-neutral-200">
           {currentOption.nativeName}
         </span>
         <ChevronDown
           size={12}
-          className={`text-stone-500 dark:text-neutral-400 transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180 text-orange-600 dark:text-orange-400' : ''
+          className={`text-neutral-400 transition-transform duration-200 shrink-0 ${
+            isOpen ? 'rotate-180 text-orange-400' : ''
           }`}
         />
       </button>
@@ -75,9 +75,9 @@ export function LanguageDropdown({ className = '' }: Props) {
         <div
           role="listbox"
           aria-label="Language options"
-          className="absolute right-0 mt-1.5 w-48 rounded-xl bg-white/95 dark:bg-[#0c1427] border border-[#d8c7a8] dark:border-[#233152] text-stone-800 dark:text-stone-200 shadow-[0_16px_40px_rgba(0,0,0,0.18)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.85)] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl"
+          className="absolute right-0 mt-1.5 w-48 rounded-xl bg-[#0c1427] border border-[#233152] shadow-[0_16px_40px_rgba(0,0,0,0.85)] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 backdrop-blur-xl"
         >
-          <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-stone-500 dark:text-neutral-400 border-b border-[#e2d5bd] dark:border-[#1b2642]">
+          <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-neutral-400 border-b border-[#1b2642]">
             Language • भाषा
           </div>
           <div className="py-1">
@@ -92,20 +92,20 @@ export function LanguageDropdown({ className = '' }: Props) {
                   onClick={() => handleSelect(opt.code)}
                   className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                     isSelected
-                      ? 'bg-amber-500/15 text-amber-900 dark:text-orange-300 font-semibold'
-                      : 'text-stone-700 dark:text-neutral-300 hover:bg-amber-100/60 dark:hover:bg-[#16223e] hover:text-stone-900 dark:hover:text-white'
+                      ? 'bg-orange-500/15 text-orange-300 font-semibold'
+                      : 'text-neutral-300 hover:bg-[#16223e] hover:text-white'
                   }`}
                 >
                   <div className="flex flex-col min-w-0 py-0.5">
                     <span className="font-medium text-[13px] leading-snug break-words">
                       {opt.nativeName}
                     </span>
-                    <span className="text-[10px] text-stone-500 dark:text-neutral-400 leading-normal">
+                    <span className="text-[10px] text-neutral-400 leading-normal">
                       {opt.label}
                     </span>
                   </div>
                   {isSelected && (
-                    <Check size={14} className="text-orange-600 dark:text-orange-400 shrink-0 ml-1" />
+                    <Check size={14} className="text-orange-400 shrink-0 ml-1" />
                   )}
                 </button>
               );
