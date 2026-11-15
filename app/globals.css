@@ -49,6 +49,70 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+/* ── Eye-Catching Cosmic Shimmer & Luminous Gradients ── */
+@keyframes cosmic-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #fef08a 0%, #f59e0b 25%, #fb923c 50%, #fef08a 75%, #f59e0b 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cosmic-shimmer 8s linear infinite;
+}
+
+.badge-glow-amber {
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.30);
+}
+
+.badge-glow-emerald {
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.30);
+}
+
+.badge-glow-rose {
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.30);
+}
+
+.badge-glow-blue {
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.30);
+}
+
+.badge-glow-purple {
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.30);
+}
+
+.badge-glow-teal {
+  box-shadow: 0 0 16px rgba(20, 184, 166, 0.30);
+}
+
+.border-gold-glow {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.14);
+}
+
+.border-emerald-glow {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.14);
+}
+
+.border-blue-glow {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.14);
+}
+
+.border-rose-glow {
+  border-color: rgba(244, 63, 94, 0.45);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.14);
+}
+
 /* Typography helpers */
 .font-devanagari {
   font-family: var(--font-devanagari), 'Noto Serif Devanagari', Georgia, serif;
