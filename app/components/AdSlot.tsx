@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ShieldCheck, Star, MessageCircle } from 'lucide-react';
+import { TrendingUp, MessageCircle, Sparkles } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -29,22 +29,22 @@ const DEFAULT_SLOTS = {
 };
 
 /**
- * Enterprise CLS-Safe Google AdSense & Unified Sponsorship Placement Container
+ * Enterprise CLS-Safe Google AdSense & Direct Sponsorship Placement Container
  * 
  * Strict AdSense Quality & Monetization Guarantees:
  * 1. Zero Cumulative Layout Shift (CLS = 0) via pre-reserved min-height and flex geometry.
  * 2. Injects standard Google AdSense <ins class="adsbygoogle" /> with client ca-pub-4999722531202967.
  * 3. Safe singleton adsbygoogle.push({}) trigger with duplicate execution safeguards.
- * 4. Single Sponsorship Space: When Google AdSense is active, serves the responsive ad.
- *    When in direct sponsorship mode, displays a single unified, high-converting Vedic consultation &
- *    certified astro-remedies card without clutter or duplicate stacked boxes.
+ * 4. Sponsorship & Advertisement Booking Space: When Google AdSense is active, serves responsive ads.
+ *    When in direct sponsorship mode, displays a high-converting sponsorship & advertisement booking card
+ *    with instant WhatsApp inquiry for advertisers and verified brands.
  */
 export function AdSlot({
   slot,
   adSlotId,
   adClient = DEFAULT_ADSENSE_CLIENT,
   className = '',
-  label = 'SPONSORED',
+  label = 'ADVT',
   categoryName
 }: AdSlotProps) {
   const adPushedRef = useRef(false);
@@ -64,6 +64,10 @@ export function AdSlot({
       console.debug('[AdSlot] adsbygoogle push notice:', err);
     }
   }, []);
+
+  const generalInquiryMessage = encodeURIComponent(
+    'Namaste! I would like to inquire about advertising / sponsorship space on the Vedic Panchang web app. Please share available slots, audience reach, and pricing.'
+  );
 
   if (slot === 'header') {
     return (
@@ -88,10 +92,10 @@ export function AdSlot({
             <div className="p-3 text-center w-full flex items-center justify-between gap-3 text-xs text-neutral-400 max-w-lg">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="font-semibold text-neutral-200">Certified Vedic Consultation &amp; Puja Services</span>
+                <span className="font-semibold text-neutral-200">Sponsor / Advertise With Us</span>
               </div>
               <a
-                href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20to%20inquire%20about%20personalized%20Panchang%20and%20Muhurat%20guidance.`}
+                href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=${generalInquiryMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold hover:bg-emerald-500/30 transition-colors text-[11px] shrink-0"
@@ -106,15 +110,15 @@ export function AdSlot({
   }
 
   if (slot === 'in-feed') {
-    const eventLabel = categoryName ? `your ${categoryName}` : 'a major life event';
-    const whatsappMessage = encodeURIComponent(
-      `Namaste Pandit Ji! I am planning ${eventLabel} and would like to consult verified Vedic Pandits for personalized Kundli matching, Shubh Muhurat, or authentic gemstone recommendations.`
+    const pageContext = categoryName ? ` (${categoryName})` : '';
+    const infeedWhatsappMessage = encodeURIComponent(
+      `Namaste! I would like to inquire about advertising / sponsorship opportunities on the Vedic Panchang web app${pageContext}. Please share available slots, audience metrics, and rates.`
     );
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=${whatsappMessage}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=${infeedWhatsappMessage}`;
 
     return (
       <aside
-        aria-label="Sponsored Vedic Partner & Advertisement Space"
+        aria-label="Sponsorship & Advertisement Space"
         className={`my-6 sm:my-8 w-full max-w-5xl mx-auto rounded-3xl bg-gradient-to-br from-[#0c162d]/90 via-[#080f20]/95 to-[#140e26]/90 border border-amber-500/35 hover:border-amber-400/60 shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-5 sm:p-7 relative overflow-hidden text-left transition-all backdrop-blur-md ${className}`}
       >
         {/* Ambient radial glow */}
@@ -124,19 +128,12 @@ export function AdSlot({
         <div className="flex items-center justify-between gap-3 mb-3 relative z-10 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono tracking-widest text-amber-400 font-bold uppercase bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/25">
-              {label} • VERIFIED VEDIC PARTNERS
+              {label} • SPONSORSHIP SPACE
             </span>
           </div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[10px] sm:text-xs font-semibold">
-            <ShieldCheck size={12} className="text-emerald-400" />
-            <span>100% Certified Dharmashastra Scholars</span>
-            <div className="flex items-center text-amber-400 ml-1">
-              <Star size={10} fill="currentColor" />
-              <Star size={10} fill="currentColor" />
-              <Star size={10} fill="currentColor" />
-              <Star size={10} fill="currentColor" />
-              <Star size={10} fill="currentColor" />
-            </div>
+            <TrendingUp size={12} className="text-emerald-400" />
+            <span>High-Visibility • Verified Daily Reach</span>
           </div>
         </div>
 
@@ -155,22 +152,20 @@ export function AdSlot({
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 relative z-10">
             <div className="space-y-2 max-w-2xl">
               <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug">
-                {categoryName
-                  ? `Planning ${eventLabel}? Consult verified Vedic Pandits for personalized Kundli matching & Muhurat.`
-                  : 'Planning a major life event or seeking planetary remedies? Consult verified Vedic Pandits.'}
+                Promote Your Brand / Advertise With Us
               </h3>
               <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
-                Ensure long-term prosperity, health, and harmony with personalized Kundli matching, Shubh Muhurat alignment, and certified astrological remedies (Ratna, Nepal Rudraksha, &amp; Shree Yantra) authenticated by Varanasi scholars.
+                Connect your business, spiritual products, certified puja services, or lifestyle brand with high-intent daily Vedic Panchang visitors. Pan-India and geo-targeted exposure across 60+ regional cities.
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-amber-200">
-                  <span>✨</span> Topocentric Kundli &amp; Muhurat
+                  <Sparkles size={11} className="text-amber-400" /> High-Intent Daily Visitors
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-emerald-200">
-                  <span>💎</span> Certified Gemstone &amp; Yantra
+                  <span>📍</span> 60+ Regional City Targeting
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-sky-200">
-                  <span>🕉️</span> Varanasi Vedic Scholars
+                  <span>📈</span> Premium Brand Placement
                 </span>
               </div>
             </div>
@@ -183,7 +178,7 @@ export function AdSlot({
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs sm:text-sm shadow-[0_4px_20px_rgba(16,185,129,0.35)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.5)] transition-all transform active:scale-95 text-center shrink-0"
               >
                 <MessageCircle size={16} className="text-white fill-white shrink-0" />
-                <span>Consult Pandit Ji on WhatsApp</span>
+                <span>Inquire on WhatsApp</span>
               </a>
               <span className="text-[10px] text-neutral-400 text-center lg:text-right font-mono">
                 Direct WhatsApp • Fast Response
@@ -220,15 +215,15 @@ export function AdSlot({
         ) : (
           <div className="flex items-center justify-between w-full gap-2 text-xs">
             <span className="text-neutral-300 font-medium truncate text-left">
-              🕉️ Need Personalized Muhurat or Kundli Matching? Consult Verified Pandits
+              📢 Looking to Sponsor or Advertise Here? Reach High-Intent Daily Visitors
             </span>
             <a
-              href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20to%20consult%20a%20verified%20Vedic%20astrologer.`}
+              href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=${generalInquiryMessage}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[11px] shrink-0 transition-transform active:scale-95 shadow"
             >
-              Consult Pandit Ji
+              Inquire on WhatsApp
             </a>
           </div>
         )}
