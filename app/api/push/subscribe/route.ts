@@ -8,7 +8,6 @@ import {
   PushSubscriptionKeys,
   PushSubscriptionPreferences
 } from '@/src/lib/push/subscription-store';
-import { saveSubscription, removeSubscription } from '@/src/lib/notifications/subscription-store';
 
 // Vercel Serverless Node.js runtime enforcement (required for Web Push crypto)
 export const runtime = 'nodejs';
@@ -205,36 +204,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Synchronize with legacy subscription store for backward compatibility
-    await saveSubscription({
-      subscription: {
-        endpoint,
-        keys: {
-          p256dh: keys.p256dh,
-          auth: keys.auth
-        }
-      },
-      location: body.location ? {
-        latitude: body.location.latitude,
-        longitude: body.location.longitude,
-        timezone: body.location.timezone,
-        ianaTimezone: body.location.ianaTimezone,
-        name: body.location.name,
-        source: 'gps'
-      } : undefined,
-      preferences: {
-        dailyNotification: body.preferences?.dailyNotification !== false,
-        notificationTime: body.preferences?.notificationTime || 'sunrise',
-        alertOnTithiChange: Boolean(body.preferences?.alertOnTithiChange),
-        autoUpdate: body.preferences?.autoUpdate !== false,
-        wifiOnly: Boolean(body.preferences?.wifiOnly)
-      },
-      createdAt: record.createdAt,
-      updatedAt: record.lastValidated
-    }).catch((err: unknown) => {
-      console.warn('Legacy subscription store sync note:', err);
-    });
-
     return NextResponse.json({
       success: true,
       message: 'Push subscription successfully registered and validated.',
@@ -341,7 +310,6 @@ export async function DELETE(req: NextRequest) {
 
     await updateSubscriptionPreferences({ endpoint, isActive: false });
     await deleteSubscription(endpoint);
-    await removeSubscription(endpoint).catch(() => {});
 
     return NextResponse.json({
       success: true,

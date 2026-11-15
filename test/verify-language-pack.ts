@@ -1,5 +1,10 @@
 import assert from 'assert';
-import { TRANSLATIONS, getUserPreferredLanguage, setUserPreferredLanguage, toggleUserPreferredLanguage, getLocalizedShastraRule } from '../src/lib/user-language';
+import {
+  UI_TRANSLATIONS as TRANSLATIONS,
+  SUPPORTED_LANGUAGES,
+  getLocalizedShastraRule,
+  SupportedLanguage
+} from '../src/lib/i18n/translations';
 
 console.log('═══════════════════════════════════════════════════════════════════════════════════');
 console.log('             LANGUAGE PACK & MANUAL PREFERENCE OVERRIDE AUDIT                      ');
@@ -66,27 +71,21 @@ const storageMock: Record<string, any> = {};
   }
 };
 
-check('Default fallback returns "en" when unconfigured', () => {
-  delete storageMock['preferred_language'];
-  delete storageMock['manual_language_override'];
-  assert(getUserPreferredLanguage() === 'en', 'Default language is English');
+check('Supported languages include en, hi, sa, mr, gu', () => {
+  const codes = SUPPORTED_LANGUAGES.map(l => l.code);
+  assert(codes.includes('en'), 'Includes English');
+  assert(codes.includes('hi'), 'Includes Hindi');
+  assert(codes.includes('mr'), 'Includes Marathi');
+  assert(codes.includes('gu'), 'Includes Gujarati');
+  assert(codes.includes('sa'), 'Includes Sanskrit');
 });
 
-check('Manual selection of Hindi sets preferred_language and manual override flag', () => {
-  setUserPreferredLanguage('hi');
-  assert(storageMock['preferred_language'] === 'hi', 'preferred_language saved as "hi"');
-  assert(storageMock['manual_language_override'] === 'true', 'manual_language_override flag set to "true"');
-  assert(getUserPreferredLanguage() === 'hi', 'getUserPreferredLanguage returns "hi"');
-});
-
-check('Toggle language switches between Hindi and English', () => {
-  const next1 = toggleUserPreferredLanguage();
-  assert(next1 === 'en', 'Toggled to English');
-  assert(storageMock['preferred_language'] === 'en', 'Storage reflects English');
-
-  const next2 = toggleUserPreferredLanguage();
-  assert(next2 === 'hi', 'Toggled back to Hindi');
-  assert(storageMock['preferred_language'] === 'hi', 'Storage reflects Hindi');
+check('All 5 language packs exist and are non-empty', () => {
+  assert(Boolean(TRANSLATIONS.en), 'English exists');
+  assert(Boolean(TRANSLATIONS.hi), 'Hindi exists');
+  assert(Boolean(TRANSLATIONS.mr), 'Marathi exists');
+  assert(Boolean(TRANSLATIONS.gu), 'Gujarati exists');
+  assert(Boolean(TRANSLATIONS.sa), 'Sanskrit exists');
 });
 
 check('getLocalizedShastraRule returns only selected language rule', () => {

@@ -7,8 +7,49 @@
  * 3. In-memory Set (fast local cache)
  */
 
-import { kv } from '@vercel/kv';
 import type webpush from 'web-push';
+
+// Lightweight KV REST client to avoid heavy @vercel/kv dependency
+const kv = {
+  smembers: async (key: string): Promise<any[]> => {
+    const url = process.env.KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN;
+    if (!url || !token) return [];
+    try {
+      const res = await fetch(`${url}/smembers/${key}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      return Array.isArray(data?.result) ? data.result : [];
+    } catch {
+      return [];
+    }
+  },
+  srem: async (key: string, member: any): Promise<void> => {
+    const url = process.env.KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN;
+    if (!url || !token) return;
+    try {
+      await fetch(`${url}/srem/${key}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(member)
+      });
+    } catch {}
+  },
+  sadd: async (key: string, member: any): Promise<void> => {
+    const url = process.env.KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN;
+    if (!url || !token) return;
+    try {
+      await fetch(`${url}/sadd/${key}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(member)
+      });
+    } catch {}
+  }
+};
 
 const SHARED_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a0d71c0bc80fb2';
 

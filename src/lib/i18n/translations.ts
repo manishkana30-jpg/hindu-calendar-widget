@@ -1658,3 +1658,15 @@ export function translateTerm(term: string | undefined | null, lang?: SupportedL
   // 4. Return cleaned term
   return cleaned;
 }
+
+/**
+ * Returns the localized text for a Dharmashastra canon rule based on preferred language.
+ */
+export function getLocalizedShastraRule(
+  rule: { hindi?: string; english?: string } | undefined,
+  language: SupportedLanguage
+): string {
+  if (!rule) return '';
+  if (language === 'hi' || language === 'sa') return rule.hindi || rule.english || '';
+  return rule.english || rule.hindi || '';
+}

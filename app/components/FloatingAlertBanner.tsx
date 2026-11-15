@@ -46,7 +46,7 @@ export function FloatingAlertBanner({ className = '' }: FloatingAlertBannerProps
   return (
     <aside
       aria-label="Daily Tithi Notification Setup"
-      className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom,1rem))] left-4 right-4 z-40 flex flex-col items-center pointer-events-none select-none max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 ${className}`}
+      className={`fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-40 flex flex-col items-center pointer-events-none select-none max-w-lg mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300 ${className}`}
     >
       {/* ── Downward-Pointing iOS Safari "Add to Home Screen" Tooltip ── */}
       {showIosTooltip && (

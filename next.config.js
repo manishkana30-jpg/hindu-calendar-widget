@@ -26,9 +26,32 @@ const nextConfig = {
           }
         ]
       },
-      // Programmatic SEO routes: Cloudflare & Vercel Edge caching headers
+      // Service Worker: strictly avoid zombie caching across browsers and edge proxies
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate'
+          },
+          {
+            key: 'Content-Type',
+            value: 'application/javascript; charset=utf-8'
+          }
+        ]
+      },
+      // Programmatic SEO routes (English and Multilingual): Cloudflare & Vercel Edge caching headers
       {
         source: '/(panchang|vrat|muhurat)/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=3600, stale-while-revalidate=86400'
+          }
+        ]
+      },
+      {
+        source: '/:lang(hi|mr|gu)/panchang/:path*',
         headers: [
           {
             key: 'Cache-Control',

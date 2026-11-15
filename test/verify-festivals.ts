@@ -181,7 +181,7 @@ for (let t = 1; t <= 30; t++) {
 
 // 21. USER PREFERRED SINGLE LANGUAGE LOCALIZATION
 console.log('\n▸ 21. Verifying Single Preferred Language Localization:');
-const { getLocalizedShastraRule } = require('../src/lib/user-language');
+const { getLocalizedShastraRule } = require('../src/lib/i18n/translations');
 const sampleRule = {
   hindi: 'मुहूर्तचिन्तामणि: प्रतिपदा के स्वामी अग्निदेव हैं...',
   english: 'Muhurta Chintamani: Pratipada is governed by Lord Agni...'

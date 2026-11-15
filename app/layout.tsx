@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   icons: {
     icon: '/icon-192.svg',
-    apple: '/icon-192.svg',
+    apple: '/icons/icon-192x192.png',
   },
   appleWebApp: {
     capable: true,
@@ -154,52 +154,6 @@ const jsonLdSchema = {
         bestRating: '5',
         worstRating: '1'
       }
-    },
-    {
-      '@type': 'FAQPage',
-      '@id': 'https://dailytithi.com/#faq',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: "What is today's Udaya Tithi and how is it calculated?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: "Udaya Tithi is the lunar day active at the exact moment of local sunrise at your coordinates. In Hindu Dharmashastra canons such as the Nirnayasindhu and Dharmasindhu, the Tithi prevailing at sunrise governs the religious observances, fasts (Vrats), and festivals for that entire civil day, regardless of when the Tithi concludes later in the day."
-          }
-        },
-        {
-          '@type': 'Question',
-          name: "How does this calendar differ from standard Gregorian dates?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: "Unlike the solar Gregorian calendar which resets at midnight, the Hindu calendar (Panchang) is lunisolar and resets at local sunrise. It tracks the dynamic celestial interplay of the Sun and Moon, calculating time across five sacred limbs (Pancha-Anga): Tithi (lunar day), Vara (solar weekday), Nakshatra (lunar mansion), Yoga (soli-lunar angle), and Karana (half-tithi), alongside Vikram Samvat and Shaka Samvat eras."
-          }
-        },
-        {
-          '@type': 'Question',
-          name: "What is a Ghati, Pala, and Vipala?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: "Ghati, Pala, and Vipala are the foundational sexagesimal units of traditional Vedic timekeeping. One civil day (Ahoratra, from sunrise to next sunrise, approximately 24 hours) is divided into 60 Ghatis (24 minutes each). Each Ghati is subdivided into 60 Palas (24 seconds each), and each Pala is subdivided into 60 Vipalas (0.4 seconds each), totaling 216,000 Vipalas per day."
-          }
-        },
-        {
-          '@type': 'Question',
-          name: "How is dynamic Choghadiya calculated for my specific city?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: "Dynamic Choghadiya calculates auspicious and inauspicious Muhurats based on your city's exact geographic coordinates. The time between local sunrise and sunset (Dina Mana) is divided into 8 equal daytime segments, and the time between sunset and next sunrise (Ratri Mana) is divided into 8 equal nighttime segments. Each segment is assigned a planetary ruler in a cyclical sequence starting with the day's ruler: Amrit (nectar), Shubh (auspicious), Labh (gain), Char (neutral/motion), Rog (disease), Kaal (loss), and Udveg (anxiety)."
-          }
-        },
-        {
-          '@type': 'Question',
-          name: "What makes this calculator more accurate than standard online panchangs?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: "Most generic online panchangs rely on pre-computed lookup tables calculated for a single arbitrary city (often Ujjain or Greenwich) with approximate sunrise times. This micro-tool runs client-side high-precision Swiss Ephemeris astronomical algorithms anchored to the Nirayana (sidereal) zodiac with Lahiri (Chitra Paksha) Ayanamsa. It computes exact topocentric solar and lunar coordinates and true horizon refraction for your selected city in real time, with 100% offline capability."
-          }
-        }
-      ]
     }
   ]
 };
@@ -216,7 +170,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Daily Tithi" />
-        <link rel="apple-touch-icon" href="/icon-192.svg" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="copyright" content="Daily Tithi. All Rights Reserved." />
         <meta name="author" content="Daily Tithi Research & Astrometry" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
