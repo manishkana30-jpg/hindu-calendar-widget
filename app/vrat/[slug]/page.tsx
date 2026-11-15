@@ -15,7 +15,6 @@ import {
   generateVratFaqSchema
 } from '@/src/lib/seo-schemas';
 import { AdSlot } from '@/app/components/AdSlot';
-import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
 import { Footer } from '@/src/components/Footer';
 
 export const revalidate = 3600; // 1 hour ISR revalidation
@@ -261,9 +260,8 @@ export default async function VratHubPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── PHASE 5: Slot 2 (In-Feed Native Ad) & Consultation Hook ── */}
-        <AdSlot slot="in-feed" />
-        <VedicConsultationCard categoryName={vrat.name} />
+        {/* ── Single Unified Sponsorship & Advertisement Space ── */}
+        <AdSlot slot="in-feed" categoryName={vrat.name} />
 
         {/* ── Fasting Guidelines & Parana Protocol ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">

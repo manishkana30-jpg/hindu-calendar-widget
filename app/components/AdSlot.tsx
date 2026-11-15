@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import { ShieldCheck, Star, MessageCircle } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -14,6 +15,7 @@ export interface AdSlotProps {
   adClient?: string;
   className?: string;
   label?: string;
+  categoryName?: string;
 }
 
 const DEFAULT_ADSENSE_CLIENT = 'ca-pub-4999722531202967';
@@ -27,21 +29,23 @@ const DEFAULT_SLOTS = {
 };
 
 /**
- * Enterprise CLS-Safe Google AdSense & Affiliate Placement Container
+ * Enterprise CLS-Safe Google AdSense & Unified Sponsorship Placement Container
  * 
  * Strict AdSense Quality & Monetization Guarantees:
  * 1. Zero Cumulative Layout Shift (CLS = 0) via pre-reserved min-height and flex geometry.
  * 2. Injects standard Google AdSense <ins class="adsbygoogle" /> with client ca-pub-4999722531202967.
  * 3. Safe singleton adsbygoogle.push({}) trigger with duplicate execution safeguards.
- * 4. Dual-Monetization: If ad blocker is detected or AdSense is pending review, the native high-RPM
- *    Vedic Consultation & Certified Gemstones backfill activates immediately to monetize traffic.
+ * 4. Single Sponsorship Space: When Google AdSense is active, serves the responsive ad.
+ *    When in direct sponsorship mode, displays a single unified, high-converting Vedic consultation &
+ *    certified astro-remedies card without clutter or duplicate stacked boxes.
  */
 export function AdSlot({
   slot,
   adSlotId,
   adClient = DEFAULT_ADSENSE_CLIENT,
   className = '',
-  label = 'SPONSORED'
+  label = 'SPONSORED',
+  categoryName
 }: AdSlotProps) {
   const adPushedRef = useRef(false);
   const [isAdLoaded, setIsAdLoaded] = useState(false);
@@ -102,17 +106,42 @@ export function AdSlot({
   }
 
   if (slot === 'in-feed') {
+    const eventLabel = categoryName ? `your ${categoryName}` : 'a major life event';
+    const whatsappMessage = encodeURIComponent(
+      `Namaste Pandit Ji! I am planning ${eventLabel} and would like to consult verified Vedic Pandits for personalized Kundli matching, Shubh Muhurat, or authentic gemstone recommendations.`
+    );
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=${whatsappMessage}`;
+
     return (
       <aside
-        aria-label="Advertisement In-Feed Slot"
-        className={`min-h-[250px] w-full max-w-[336px] sm:max-w-[728px] mx-auto my-6 rounded-2xl border border-dashed border-[#1e2d4f] bg-[#090e1a]/80 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden transition-all ${className}`}
+        aria-label="Sponsored Vedic Partner & Advertisement Space"
+        className={`my-6 sm:my-8 w-full max-w-5xl mx-auto rounded-3xl bg-gradient-to-br from-[#0c162d]/90 via-[#080f20]/95 to-[#140e26]/90 border border-amber-500/35 hover:border-amber-400/60 shadow-[0_4px_30px_rgba(0,0,0,0.5)] p-5 sm:p-7 relative overflow-hidden text-left transition-all backdrop-blur-md ${className}`}
       >
-        <span className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase mb-2">
-          {label} • VERIFIED VEDIC PARTNERS
-        </span>
+        {/* Ambient radial glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[radial-gradient(circle,_rgba(245,158,11,0.12)_0%,_transparent_70%)] pointer-events-none -z-0" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)] pointer-events-none -z-0" />
+
+        <div className="flex items-center justify-between gap-3 mb-3 relative z-10 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono tracking-widest text-amber-400 font-bold uppercase bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/25">
+              {label} • VERIFIED VEDIC PARTNERS
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[10px] sm:text-xs font-semibold">
+            <ShieldCheck size={12} className="text-emerald-400" />
+            <span>100% Certified Dharmashastra Scholars</span>
+            <div className="flex items-center text-amber-400 ml-1">
+              <Star size={10} fill="currentColor" />
+              <Star size={10} fill="currentColor" />
+              <Star size={10} fill="currentColor" />
+              <Star size={10} fill="currentColor" />
+              <Star size={10} fill="currentColor" />
+            </div>
+          </div>
+        </div>
 
         {activeSlotId ? (
-          <div className="w-full min-h-[250px] flex justify-center items-center">
+          <div className="w-full min-h-[250px] flex justify-center items-center relative z-10">
             <ins
               className="adsbygoogle"
               style={{ display: 'block', minHeight: '250px', width: '100%' }}
@@ -123,31 +152,42 @@ export function AdSlot({
             />
           </div>
         ) : (
-          <div className="p-5 rounded-xl bg-[#0c1427]/90 border border-[#1a2542] max-w-lg w-full text-left shadow-lg">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-amber-300 font-bold text-sm flex items-center gap-1.5">
-                <span>✨</span>
-                <span>Astrological Gemstone &amp; Yantra Recommendation</span>
-              </span>
-              <span className="text-[9px] px-2 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 font-mono">
-                100% Certified
-              </span>
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 relative z-10">
+            <div className="space-y-2 max-w-2xl">
+              <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug">
+                {categoryName
+                  ? `Planning ${eventLabel}? Consult verified Vedic Pandits for personalized Kundli matching & Muhurat.`
+                  : 'Planning a major life event or seeking planetary remedies? Consult verified Vedic Pandits.'}
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                Ensure long-term prosperity, health, and harmony with personalized Kundli matching, Shubh Muhurat alignment, and certified astrological remedies (Ratna, Nepal Rudraksha, &amp; Shree Yantra) authenticated by Varanasi scholars.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-amber-200">
+                  <span>✨</span> Topocentric Kundli &amp; Muhurat
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-emerald-200">
+                  <span>💎</span> Certified Gemstone &amp; Yantra
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#14203d] border border-[#23355e] text-[11px] text-sky-200">
+                  <span>🕉️</span> Varanasi Vedic Scholars
+                </span>
+              </div>
             </div>
-            <p className="text-neutral-300 text-xs leading-relaxed mb-3">
-              Energize your planetary transits. Discover your birth stone (Ratna), Nepal Rudraksha, and energized Shree Yantra authenticated by Varanasi Vedic scholars.
-            </p>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-[11px] text-neutral-400">
-                Custom Birth-Chart (Janma Kundli) Alignment
-              </span>
+
+            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-2.5 w-full lg:w-auto shrink-0">
               <a
-                href={`https://api.whatsapp.com/send?phone=${DEFAULT_ASTROLOGER_PHONE}&text=Namaste!%20I%20would%20like%20a%20certified%20gemstone%20and%20Rudraksha%20recommendation%20based%20on%20my%20Kundli.`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-extrabold text-xs transition-transform active:scale-95 shadow cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs sm:text-sm shadow-[0_4px_20px_rgba(16,185,129,0.35)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.5)] transition-all transform active:scale-95 text-center shrink-0"
               >
-                Get Free Recommendation
+                <MessageCircle size={16} className="text-white fill-white shrink-0" />
+                <span>Consult Pandit Ji on WhatsApp</span>
               </a>
+              <span className="text-[10px] text-neutral-400 text-center lg:text-right font-mono">
+                Direct WhatsApp • Fast Response
+              </span>
             </div>
           </div>
         )}

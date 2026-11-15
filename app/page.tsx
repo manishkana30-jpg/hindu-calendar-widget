@@ -14,7 +14,6 @@ import { VRAT_DEFINITIONS } from '@/src/lib/vrat-data';
 import { MUHURAT_CATEGORIES } from '@/src/lib/muhurat-data';
 import { generatePanchangFaqSchema, generateBreadcrumbSchema } from '@/src/lib/seo-schemas';
 import { AdSlot } from './components/AdSlot';
-import { VedicConsultationCard } from './components/VedicConsultationCard';
 import { PwaStandaloneBanner } from './components/PwaStandaloneBanner';
 import { Sun, Moon, Clock, ShieldAlert, Sparkles, MapPin, Calendar, Heart } from 'lucide-react';
 
@@ -118,9 +117,8 @@ export default async function LandingPage() {
           </WidgetErrorBoundary>
         </div>
 
-        {/* ── PHASE 5: Slot 2 (In-Feed Native Ad) & High-RPM Consultation Card ── */}
-        <AdSlot slot="in-feed" />
-        <VedicConsultationCard categoryName="upcoming life milestone" />
+        {/* ── Single Unified Sponsorship & Advertisement Space ── */}
+        <AdSlot slot="in-feed" categoryName="upcoming life milestone" />
 
         {/* ── Background Lock-Screen Alerts Setup ── */}
         <div className="my-6 max-w-4xl mx-auto text-left">

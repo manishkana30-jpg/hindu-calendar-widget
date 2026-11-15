@@ -14,7 +14,6 @@ import {
   generateMuhuratFaqSchema
 } from '@/src/lib/seo-schemas';
 import { AdSlot } from '@/app/components/AdSlot';
-import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
 import { Footer } from '@/src/components/Footer';
 
 export const revalidate = 3600; // 1 hour ISR revalidation
@@ -298,9 +297,8 @@ export default async function MuhuratHubPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* ── PHASE 5: Slot 2 (In-Feed Native Ad) & High-RPM Consultation Card ── */}
-        <AdSlot slot="in-feed" />
-        <VedicConsultationCard categoryName={muhurat.name} />
+        {/* ── Single Unified Sponsorship & Advertisement Space ── */}
+        <AdSlot slot="in-feed" categoryName={muhurat.name} />
 
         {/* ── Scriptural Authority Block ── */}
         <section className="my-8 p-6 rounded-2xl bg-[#090e1a] border border-[#1a2542]">

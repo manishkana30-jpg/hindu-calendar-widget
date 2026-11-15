@@ -10,7 +10,6 @@ import { WidgetErrorBoundary } from '@/app/components/WidgetErrorBoundary';
 import { VedicEditorialGuide } from '@/app/components/VedicEditorialGuide';
 import { Footer } from '@/src/components/Footer';
 import { AdSlot } from '@/app/components/AdSlot';
-import { VedicConsultationCard } from '@/app/components/VedicConsultationCard';
 import { CitySearchModal } from '@/app/components/CitySearchModal';
 import { LanguageProvider } from '@/src/context/LanguageContext';
 import { SupportedLanguage } from '@/src/lib/i18n/translations';
@@ -333,9 +332,8 @@ export default async function RegionalCityPanchangPage({ params }: PageProps) {
             </WidgetErrorBoundary>
           </div>
 
-          {/* ── PHASE 5: Slot 2 (In-Feed Native Ad) & High-RPM Consultation Card ── */}
-          <AdSlot slot="in-feed" />
-          <VedicConsultationCard categoryName={`event in ${city.name}`} />
+          {/* ── Single Unified Sponsorship & Advertisement Space ── */}
+          <AdSlot slot="in-feed" categoryName={`event in ${city.name}`} />
 
           {/* ── Localized Astrometric Summary Block ── */}
           <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#11192e]/90 via-[#090e1a]/95 to-[#11192e]/90 border border-[#1e2d4d] shadow-xl backdrop-blur-md">
