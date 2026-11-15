@@ -73,12 +73,11 @@ export default async function LandingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      {/* Decorative ambient lighting: Rich Multi-Spectrum Vedic Cosmic Aurora */}
+      {/* Decorative ambient lighting (Hardware-accelerated zero-blur radial gradients) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[550px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.20)_0%,_rgba(234,88,12,0.10)_45%,_transparent_70%)]" />
-        <div className="absolute top-[350px] -right-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(147,51,234,0.12)_0%,_transparent_70%)]" />
-        <div className="absolute top-[750px] -left-32 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,_rgba(59,130,246,0.10)_0%,_transparent_70%)]" />
-        <div className="absolute top-[1300px] right-10 w-[550px] h-[550px] rounded-full bg-[radial-gradient(circle,_rgba(16,185,129,0.08)_0%,_transparent_70%)]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />
+        <div className="absolute top-[600px] right-[-100px] w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.08)_0%,_transparent_70%)]" />
+        <div className="absolute top-[1200px] left-[-100px] w-[500px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.08)_0%,_transparent_70%)]" />
       </div>
 
       {/* ── Navbar: Brand & Live Status Indicator ── */}
@@ -86,9 +85,7 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-amber-500/10 border border-amber-500/40 flex items-center justify-center text-xl shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.3)] select-none">
-              🕉️
-            </div>
+            <span className="text-xl sm:text-2xl drop-shadow-md shrink-0 select-none">🕉️</span>
             <NavbarBrand />
           </div>
 

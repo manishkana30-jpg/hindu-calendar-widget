@@ -114,11 +114,11 @@ export function CitySearchModal() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open City Search"
-        className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/40 hover:border-amber-400 text-xs font-bold text-amber-200 hover:text-white transition-all shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] group active:scale-95"
+        className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-[#11192e] hover:bg-[#16213d] border border-[#233152] hover:border-orange-500/50 text-xs font-semibold text-neutral-200 hover:text-white transition-all shadow-sm group"
       >
-        <Search size={13} className="text-amber-400 group-hover:scale-110 transition-transform" />
+        <Search size={13} className="text-orange-400 group-hover:scale-110 transition-transform" />
         <span className="hidden xs:inline">{searchButtonLabel}</span>
-        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/25 text-amber-300 font-mono border border-amber-500/40 hidden md:inline">
+        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#1a2542] text-amber-300 font-mono hidden md:inline">
           60+
         </span>
       </button>
