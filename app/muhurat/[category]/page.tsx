@@ -181,42 +181,42 @@ export default async function MuhuratHubPage({ params }: PageProps) {
 
         {/* ── Shastra Rules & Favorable Alignments ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1a0e05]/90 via-[#0e1629]/90 to-[#1a0e05]/90 border border-amber-500/35 shadow-[0_0_20px_rgba(245,158,11,0.08)] backdrop-blur-md">
             <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider mb-2 font-outfit">
               <Star size={14} />
               <span>Favorable Nakshatras</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {muhurat.favorableNakshatras.map((nak, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-[#16213d] text-neutral-200 text-xs font-mono">
+                <span key={idx} className="px-2 py-0.5 rounded-md bg-[#231508] text-amber-200 border border-amber-500/25 text-xs font-mono">
                   {nak}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#021c13]/90 via-[#091522]/90 to-[#021c13]/90 border border-emerald-500/35 shadow-[0_0_20px_rgba(16,185,129,0.08)] backdrop-blur-md">
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider mb-2 font-outfit">
               <CheckCircle2 size={14} />
               <span>Auspicious Tithis</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {muhurat.favorableTithis.map((tithi, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-emerald-950/50 text-emerald-300 border border-emerald-500/20 text-xs font-mono">
+                <span key={idx} className="px-2 py-0.5 rounded-md bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 text-xs font-mono">
                   {tithi}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#1c0509]/90 via-[#140a12]/90 to-[#1c0509]/90 border border-rose-500/35 shadow-[0_0_20px_rgba(244,63,94,0.08)] backdrop-blur-md">
             <div className="flex items-center gap-2 text-rose-400 font-bold text-xs uppercase tracking-wider mb-2 font-outfit">
               <ShieldAlert size={14} />
               <span>Strict Avoidances</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {muhurat.avoidances.map((avoid, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-rose-950/40 text-rose-300 border border-rose-500/20 text-xs font-mono">
+                <span key={idx} className="px-2 py-0.5 rounded-md bg-rose-950/50 text-rose-300 border border-rose-500/30 text-xs font-mono">
                   {avoid}
                 </span>
               ))}

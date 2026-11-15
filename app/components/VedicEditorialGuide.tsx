@@ -4,7 +4,7 @@ import { BookOpen, Compass, Sun, Moon, Calculator } from 'lucide-react';
 export function VedicEditorialGuide() {
   return (
     <article className="mt-16 text-left max-w-5xl mx-auto px-4 sm:px-6">
-      
+
       {/* Section Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs font-semibold mb-3">
@@ -25,7 +25,7 @@ export function VedicEditorialGuide() {
       <div className="space-y-10">
 
         {/* Chapter 1: Mathematical Foundations of Vedic Time */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1c0e04]/90 via-[#0e1628]/90 to-[#070b16]/90 border border-orange-500/30 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
               <Calculator size={20} />
@@ -89,7 +89,7 @@ export function VedicEditorialGuide() {
         </section>
 
         {/* Chapter 2: Astronomical Definition of a Tithi & Udaya Tithi */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1e1102]/90 via-[#0e1628]/90 to-[#070b16]/90 border border-amber-500/30 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
               <Moon size={20} />
@@ -112,20 +112,20 @@ export function VedicEditorialGuide() {
             </div>
 
             <p>
-              Because the Moon moves along an elliptical orbit governed by Kepler's laws of planetary motion, its apparent daily speed varies from approximately 11°48′ to 15°12′ per solar day. Consequently, the actual physical duration of a single Tithi is dynamic: it can span anywhere from <strong>19 to 26 hours</strong>.
+              Because the Moon moves along an elliptical orbit governed by Kepler&apos;s laws of planetary motion, its apparent daily speed varies from approximately 11°48′ to 15°12′ per solar day. Consequently, the actual physical duration of a single Tithi is dynamic: it can span anywhere from <strong>19 to 26 hours</strong>.
             </p>
 
             <div className="bg-[#11192e] p-5 rounded-2xl border-l-4 border-amber-500 space-y-2">
               <h4 className="text-white font-bold text-sm sm:text-base">Why Udaya Tithi Dictates Hindu Observances</h4>
               <p className="text-xs sm:text-sm text-neutral-300">
-                In classical <em>Dharmashastra</em> jurisprudence (notably <em>Nirnayasindhu</em> and <em>Dharmasindhu</em>), a civil day is sanctified by the <strong>Udaya Tithi</strong>—the specific Tithi active at the precise mathematical instant the Sun's upper limb touches the local horizon. Even if the Tithi terminates minutes after sunrise, the ritual merit, vrat, or festival associated with that Udaya Tithi rules the entire Hindu calendar day.
+                In classical <em>Dharmashastra</em> jurisprudence (notably <em>Nirnayasindhu</em> and <em>Dharmasindhu</em>), a civil day is sanctified by the <strong>Udaya Tithi</strong>—the specific Tithi active at the precise mathematical instant the Sun&apos;s upper limb touches the local horizon. Even if the Tithi terminates minutes after sunrise, the ritual merit, vrat, or festival associated with that Udaya Tithi rules the entire Hindu calendar day.
               </p>
             </div>
           </div>
         </section>
 
         {/* Chapter 3: Dynamic City-Specific Choghadiya Muhurats */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#021c13]/90 via-[#0e1628]/90 to-[#070b16]/90 border border-emerald-500/30 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
               <Sun size={20} />
@@ -186,7 +186,7 @@ export function VedicEditorialGuide() {
         </section>
 
         {/* Chapter 4: Amanta vs. Purnimanta & Adhika Masa Derivation */}
-        <section className="p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
+        <section className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#170929]/90 via-[#0e1628]/90 to-[#070b16]/90 border border-purple-500/30 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
               <Compass size={20} />
@@ -205,13 +205,13 @@ export function VedicEditorialGuide() {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
-              <div className="p-5 rounded-2xl bg-[#0e1629] border border-[#233152]">
+              <div className="p-5 rounded-2xl bg-[#0e1629] border border-orange-500/30 shadow-sm">
                 <h4 className="font-bold text-orange-400 text-sm mb-2">Amanta (अमान्त) Calendar</h4>
                 <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
                   Prevails in Southern and Western India (Maharashtra, Gujarat, Karnataka, Andhra Pradesh, Tamil Nadu). The lunar month begins after the New Moon (Amavasya) and culminates with the subsequent Amavasya.
                 </p>
               </div>
-              <div className="p-5 rounded-2xl bg-[#0e1629] border border-[#233152]">
+              <div className="p-5 rounded-2xl bg-[#0e1629] border border-amber-500/30 shadow-sm">
                 <h4 className="font-bold text-amber-400 text-sm mb-2">Purnimanta (पूर्णिमान्त) Calendar</h4>
                 <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
                   Prevails in Northern India (Uttar Pradesh, Rajasthan, Bihar, Madhya Pradesh, Punjab). The month begins after the Full Moon (Purnima) with Krishna Paksha and culminates on the subsequent Purnima.

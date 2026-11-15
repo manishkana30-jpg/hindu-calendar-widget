@@ -260,14 +260,14 @@ export default async function CityPanchangPage({ params }: PageProps) {
         <VedicConsultationCard categoryName={`event in ${city.name}`} />
 
         {/* ── Localized Astrometric Summary Block ── */}
-        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl backdrop-blur-md">
+        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#11192e]/90 via-[#090e1a]/95 to-[#11192e]/90 border border-[#1e2d4d] shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/35 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
               <Compass size={20} />
             </div>
             <div>
-              <span className="text-xs font-mono text-orange-400 tracking-wider uppercase">Local Geodetic Astrometry</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white">
+              <span className="text-xs font-mono text-amber-400 tracking-wider uppercase font-semibold">Local Geodetic Astrometry</span>
+              <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">
                 How Vedic Panchang is Calculated for {city.name} ({city.hindiName})
               </h2>
             </div>
@@ -279,23 +279,23 @@ export default async function CityPanchangPage({ params }: PageProps) {
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 text-xs font-mono">
-              <div className="p-3.5 rounded-xl bg-[#0e1629] border border-[#233152]">
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1c1202]/90 to-[#120a02]/90 border border-amber-500/35 shadow-[0_0_15px_rgba(245,158,11,0.08)]">
                 <div className="flex items-center gap-1.5 text-amber-400 mb-1">
                   <Sun size={14} />
                   <span className="font-bold">Local Sunrise</span>
                 </div>
-                <span className="text-base font-bold text-white">{panchang.sunrise}</span>
+                <span className="text-base font-bold text-amber-100">{panchang.sunrise}</span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#0e1629] border border-[#233152]">
-                <div className="flex items-center gap-1.5 text-orange-400 mb-1">
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1a0818]/90 to-[#120614]/90 border border-purple-500/35 shadow-[0_0_15px_rgba(168,85,247,0.08)]">
+                <div className="flex items-center gap-1.5 text-purple-400 mb-1">
                   <Moon size={14} />
                   <span className="font-bold">Local Sunset</span>
                 </div>
-                <span className="text-base font-bold text-white">{panchang.sunset}</span>
+                <span className="text-base font-bold text-purple-100">{panchang.sunset}</span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#0e1629] border border-[#233152]">
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1a0509]/90 to-[#120306]/90 border border-rose-500/35 shadow-[0_0_15px_rgba(244,63,94,0.08)]">
                 <div className="flex items-center gap-1.5 text-rose-400 mb-1">
                   <ShieldAlert size={14} />
                   <span className="font-bold">Rahu Kaal</span>
@@ -305,7 +305,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
                 </span>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#0e1629] border border-[#233152]">
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#021810]/90 to-[#02100b]/90 border border-emerald-500/35 shadow-[0_0_15px_rgba(16,185,129,0.08)]">
                 <div className="flex items-center gap-1.5 text-emerald-400 mb-1">
                   <Clock size={14} />
                   <span className="font-bold">Abhijit Muhurat</span>
@@ -323,16 +323,21 @@ export default async function CityPanchangPage({ params }: PageProps) {
         </section>
 
         {/* ── Internal Linking Web: Other High-Volume Cities ── */}
-        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-[#090e1a]/90 border border-[#1a2542] shadow-xl">
-          <h2 className="text-base sm:text-lg font-bold text-white mb-3">
-            Explore Vedic Panchang in Other Major Cities
-          </h2>
+        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07132b]/95 via-[#0b162e]/95 to-[#07132b]/95 border border-sky-500/35 shadow-[0_0_30px_rgba(14,165,233,0.08)] backdrop-blur-md">
+          <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+            <div>
+              <span className="text-xs font-mono text-sky-400 tracking-wider uppercase font-semibold">City Network</span>
+              <h2 className="text-base sm:text-lg font-bold text-white drop-shadow-sm">
+                Explore Vedic Panchang in Other Major Cities
+              </h2>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
             {popularCities.map((c) => (
               <Link
                 key={c.slug}
                 href={`/panchang/${c.slug}`}
-                className="px-3 py-1.5 rounded-xl bg-[#11192e] hover:bg-[#16213d] border border-[#233152] text-xs text-neutral-300 hover:text-amber-300 transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-[#0a1838]/70 hover:bg-[#122554] border border-sky-500/25 hover:border-sky-400/60 text-xs text-neutral-200 hover:text-sky-200 hover:shadow-[0_0_12px_rgba(14,165,233,0.2)] transition-all"
               >
                 📍 {c.name} ({c.hindiName}) Panchang
               </Link>
@@ -349,30 +354,30 @@ export default async function CityPanchangPage({ params }: PageProps) {
             Frequently Asked Questions for {city.name} ({city.hindiName}) Panchang
           </h2>
           <div className="space-y-3">
-            <details className="group p-4 rounded-2xl bg-[#090e1a] border border-[#1a2542] open:border-orange-500/40">
+            <details className="group p-4 rounded-2xl bg-[#090e1a]/90 border border-[#1a2542] open:bg-gradient-to-r open:from-[#140b03]/80 open:via-[#090e1a] open:to-[#140b03]/80 open:border-amber-500/40 shadow-sm transition-all">
               <summary className="font-semibold text-white text-sm sm:text-base cursor-pointer list-none flex items-center justify-between">
                 <span>What is today&apos;s Tithi and Paksha in {city.name}?</span>
-                <span className="text-orange-400 group-open:rotate-180 transition-transform">▼</span>
+                <span className="text-amber-400 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-3 text-xs sm:text-sm text-neutral-300 leading-relaxed">
                 Today in {city.name}, the active Tithi is <strong>{panchang.udayaTithi?.name || panchang.tithi.name}</strong> during <strong>{panchang.udayaTithi?.paksha || panchang.tithi.paksha} Paksha</strong>, ending at approximately {panchang.udayaTithi?.endTime || panchang.tithi.endTime}.
               </p>
             </details>
 
-            <details className="group p-4 rounded-2xl bg-[#090e1a] border border-[#1a2542] open:border-orange-500/40">
+            <details className="group p-4 rounded-2xl bg-[#090e1a]/90 border border-[#1a2542] open:bg-gradient-to-r open:from-[#140b03]/80 open:via-[#090e1a] open:to-[#140b03]/80 open:border-amber-500/40 shadow-sm transition-all">
               <summary className="font-semibold text-white text-sm sm:text-base cursor-pointer list-none flex items-center justify-between">
                 <span>What is today&apos;s Rahu Kaal timing in {city.name}?</span>
-                <span className="text-orange-400 group-open:rotate-180 transition-transform">▼</span>
+                <span className="text-amber-400 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-3 text-xs sm:text-sm text-neutral-300 leading-relaxed">
                 Rahu Kaal in {city.name} today is from <strong>{panchang.muhurats?.rahuKaal?.start || '09:00 AM'} to {panchang.muhurats?.rahuKaal?.end || '10:30 AM'}</strong>. Auspicious beginnings, property purchases, and major contracts should be avoided during this window.
               </p>
             </details>
 
-            <details className="group p-4 rounded-2xl bg-[#090e1a] border border-[#1a2542] open:border-orange-500/40">
+            <details className="group p-4 rounded-2xl bg-[#090e1a]/90 border border-[#1a2542] open:bg-gradient-to-r open:from-[#140b03]/80 open:via-[#090e1a] open:to-[#140b03]/80 open:border-amber-500/40 shadow-sm transition-all">
               <summary className="font-semibold text-white text-sm sm:text-base cursor-pointer list-none flex items-center justify-between">
                 <span>What is today&apos;s Abhijit Muhurat in {city.name}?</span>
-                <span className="text-orange-400 group-open:rotate-180 transition-transform">▼</span>
+                <span className="text-amber-400 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-3 text-xs sm:text-sm text-neutral-300 leading-relaxed">
                 Today&apos;s Abhijit Muhurat in {city.name} is from <strong>{panchang.muhurats?.abhijitMuhurat?.start || '11:45 AM'} to {panchang.muhurats?.abhijitMuhurat?.end || '12:35 PM'}</strong>. This mid-day window dispels countless doshas and is universally auspicious.

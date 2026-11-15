@@ -68,7 +68,11 @@ export function FaqAccordion() {
           return (
             <div
               key={faq.id}
-              className="rounded-2xl bg-[#090e1a]/90 border border-[#1a2542] overflow-hidden transition-all shadow-md hover:border-[#2a3860]"
+              className={`rounded-2xl overflow-hidden transition-all shadow-md ${
+                isOpen 
+                  ? 'bg-gradient-to-br from-[#1c0f04]/90 via-[#0e1628]/90 to-[#070b16]/90 border border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.12)]' 
+                  : 'bg-[#090e1a]/90 border border-[#1a2542] hover:border-[#2a3860]'
+              }`}
             >
               <h3>
                 <button
@@ -79,7 +83,7 @@ export function FaqAccordion() {
                   className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer group focus:outline-none focus:ring-1 focus:ring-orange-500 rounded-2xl"
                 >
                   <span className="flex items-center gap-3 text-sm sm:text-base font-bold text-neutral-100 group-hover:text-amber-300 transition-colors">
-                    <span className="w-6 h-6 rounded-full bg-[#11192e] border border-[#233152] flex items-center justify-center text-xs font-mono text-orange-400 shrink-0">
+                    <span className="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-xs font-mono text-amber-300 shrink-0">
                       {index + 1}
                     </span>
                     {faq.question}

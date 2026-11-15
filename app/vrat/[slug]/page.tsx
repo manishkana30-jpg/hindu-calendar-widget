@@ -183,10 +183,10 @@ export default async function VratHubPage({ params }: PageProps) {
         <AdSlot slot="header" />
 
         {/* ── Dharma Shastra Canonical Rule Highlight ── */}
-        <section className="my-6 p-6 rounded-3xl bg-gradient-to-br from-[#0c1427] to-[#121b33] border border-orange-500/30 shadow-xl relative overflow-hidden">
-          <div className="flex items-center gap-2.5 text-orange-400 mb-3">
+        <section className="my-6 p-6 rounded-3xl bg-gradient-to-br from-[#1a0e05]/95 via-[#0c1427]/95 to-[#1a0e05]/95 border border-amber-500/35 shadow-[0_0_30px_rgba(245,158,11,0.08)] relative overflow-hidden backdrop-blur-md">
+          <div className="flex items-center gap-2.5 text-amber-400 mb-3">
             <BookOpen size={18} />
-            <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider font-outfit">
+            <h2 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider font-outfit drop-shadow-sm">
               Dharma Shastra Canonical Rule
             </h2>
           </div>
@@ -199,8 +199,8 @@ export default async function VratHubPage({ params }: PageProps) {
             {vrat.dharmaShastraRule.english}
           </p>
 
-          <div className="inline-flex items-center gap-2 text-[11px] text-orange-400/90 font-mono bg-orange-950/40 px-3 py-1 rounded-lg border border-orange-500/20">
-            <ShieldCheck size={13} />
+          <div className="inline-flex items-center gap-2 text-[11px] text-amber-300 font-mono bg-amber-950/40 px-3 py-1 rounded-lg border border-amber-500/30">
+            <ShieldCheck size={13} className="text-amber-400" />
             <span>Scriptural Authority: {vrat.dharmaShastraRule.shastraReference}</span>
           </div>
         </section>
