@@ -26,7 +26,7 @@ export function resolveDharmaShastraRule(
   t: (key: keyof TranslationDictionary) => string
 ): DharmaShastraRule {
   const prefix = t('dharmaShastraPrefix');
-  const isHi = language === 'hi';
+  const isHi = language === 'hi' || language === 'sa';
   const festLower = (day.festival || '').toLowerCase();
 
   // 1. Kshaya Tithi Rule (Tithi started after previous sunrise and ended before current sunrise)
@@ -49,7 +49,22 @@ export function resolveDharmaShastraRule(
     };
   }
 
-  // 3. Ekadashi Vrat (Dashami Vedha Rule)
+  // 3. Specific Festival/Vrat Canonical Rule (From Nirnayasindhu, Dharmasindhu, Puranas)
+  if (day.festival && day.festivalDetails?.briefRule) {
+    const customRule = isHi 
+      ? day.festivalDetails.briefRule.hindi 
+      : (day.festivalDetails.briefRule.english || day.festivalDetails.briefRule.hindi);
+    if (customRule && customRule.trim().length > 0) {
+      const cleanCustom = stripBrackets(customRule);
+      return {
+        prefix,
+        ruleText: cleanCustom,
+        fullRule: `${prefix} ${cleanCustom}`
+      };
+    }
+  }
+
+  // 4. Ekadashi Vrat (Dashami Vedha / Arunodaya Rule)
   if (day.udayaTithi.isEkadashi || festLower.includes('ekadashi')) {
     const text = t('ruleEkadashiVedha');
     return {
@@ -59,7 +74,7 @@ export function resolveDharmaShastraRule(
     };
   }
 
-  // 4. Pradosh Vrat (Pradosha Kaal Vyapini)
+  // 5. Pradosh Vrat (Pradosha Kaal Vyapini)
   if (festLower.includes('pradosh') || day.udayaTithi.index === 13 || day.udayaTithi.index === 28) {
     const text = t('rulePradoshaKaal');
     return {
@@ -69,7 +84,7 @@ export function resolveDharmaShastraRule(
     };
   }
 
-  // 5. Sankashti Chaturthi / Karwa Chauth (Chandrodaya Vyapini)
+  // 6. Sankashti Chaturthi / Karwa Chauth (Chandrodaya Vyapini)
   if (festLower.includes('sankashti') || festLower.includes('karwa') || (day.udayaTithi.paksha === 'Krishna' && day.udayaTithi.index === 19)) {
     const text = t('ruleChandrodaya');
     return {
@@ -79,7 +94,7 @@ export function resolveDharmaShastraRule(
     };
   }
 
-  // 6. Shivaratri / Masa Shivaratri (Nishita Kaal Vyapini)
+  // 7. Shivaratri / Masik Shivaratri (Nishita Kaal Vyapini)
   if (festLower.includes('shivaratri') || (day.udayaTithi.paksha === 'Krishna' && day.udayaTithi.index === 29)) {
     const text = t('ruleNishitaKaal');
     return {
@@ -89,7 +104,17 @@ export function resolveDharmaShastraRule(
     };
   }
 
-  // 7. Festival Specific Shastra briefRule (if explicitly provided in festival database)
+  // 8. Purnima & Amavasya Parva (Aparahna and Udaya Vyapini Rule)
+  if (day.udayaTithi.isPurnima || day.udayaTithi.isAmavasya) {
+    const text = t('rulePurnimaAmavasya');
+    return {
+      prefix,
+      ruleText: text,
+      fullRule: `${prefix} ${text}`
+    };
+  }
+
+  // 9. Canonical Daily Tithi Rule (From Muhurta Chintamani, Nirnayasindhu for all 30 Tithis)
   if (day.festivalDetails?.briefRule) {
     const customRule = isHi 
       ? day.festivalDetails.briefRule.hindi 
@@ -104,17 +129,7 @@ export function resolveDharmaShastraRule(
     }
   }
 
-  // 8. Purnima & Amavasya Parva
-  if (day.udayaTithi.isPurnima || day.udayaTithi.isAmavasya) {
-    const text = t('rulePurnimaAmavasya');
-    return {
-      prefix,
-      ruleText: text,
-      fullRule: `${prefix} ${text}`
-    };
-  }
-
-  // 9. Default Udaya Tithi Rule (Governs all general days per Surya Siddhanta)
+  // 10. Default Udaya Tithi Rule (Governs all general days per Surya Siddhanta)
   const sunriseTime = day.sunrise || 'Sunrise';
   const text = t('ruleUdayaTithi').replace('{time}', sunriseTime);
   return {

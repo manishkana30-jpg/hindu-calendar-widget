@@ -1919,7 +1919,7 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
     // High-precision dynamic Festival detector
     const dayFest = getFestivalForDate(targetDate, location);
     const festival = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest.name : undefined;
-    const festivalDetails = dayFest.name !== 'Nitya Panchang (नित्य पञ्चाङ्ग)' ? dayFest : undefined;
+    const festivalDetails = dayFest;
 
     // Lunar Month (Masa) details at sunrise
     const lunarMonthInfo = getLunarMonthDetails(targetDate);
