@@ -135,7 +135,7 @@ export function CitySearchModal() {
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="w-full sm:max-w-2xl bg-[#090e1a] border border-[#1a2542] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] animate-scaleUp"
+            className="w-full sm:max-w-2xl h-[85dvh] sm:h-auto max-h-[85dvh] bg-[#090e1a] border border-[#1a2542] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header & Search Bar */}

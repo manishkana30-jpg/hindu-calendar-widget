@@ -42,12 +42,8 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
     if (!supabase) {
-      const detectedSupabaseKeys = Object.keys(process.env).filter((k) => k.toUpperCase().includes('SUPABASE'));
       return NextResponse.json(
-        {
-          error: 'Service Unavailable: Supabase admin client not initialized.',
-          detectedSupabaseKeys
-        },
+        { error: 'Service Unavailable: Supabase admin client not initialized.' },
         { status: 503 }
       );
     }

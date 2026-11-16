@@ -110,7 +110,7 @@ export function EmbedWidgetModal({
       aria-labelledby="embed-modal-title"
     >
       <div 
-        className="w-full sm:max-w-3xl max-h-[85dvh] bg-[#090e1a] border border-amber-500/30 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto flex flex-col my-0 sm:my-auto transition-all overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
+        className="w-full sm:max-w-3xl h-[85dvh] sm:h-auto max-h-[85dvh] bg-[#090e1a] border border-amber-500/30 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto flex flex-col my-0 sm:my-auto transition-all overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── HEADER ── */}
