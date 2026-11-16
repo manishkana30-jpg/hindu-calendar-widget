@@ -114,6 +114,26 @@ export function GregorianCalendarModal({
     onSelectDate(todayTarget);
   };
 
+  // Year options covering years before and after the current year (2010 to 2050)
+  const yearOptions = useMemo(() => {
+    return Array.from({ length: 41 }, (_, i) => 2010 + i);
+  }, []);
+
+  // Month options localized by localeCode
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const monthNum = i + 1;
+      const d = new Date(2026, i, 1);
+      let label = '';
+      try {
+        label = d.toLocaleDateString(localeCode, { month: 'long' });
+      } catch {
+        label = d.toLocaleDateString('en-US', { month: 'long' });
+      }
+      return { value: monthNum, label };
+    });
+  }, [localeCode]);
+
   // Month name display
   const monthName = useMemo(() => {
     const d = new Date(viewYear, viewMonth - 1, 1);
@@ -251,32 +271,62 @@ export function GregorianCalendarModal({
           </button>
         </div>
 
-        {/* Month Switcher & Quick Navigation Bar */}
-        <div className="p-3 sm:px-5 bg-[#0c1222] border-b border-[#1a233a] flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-1.5">
+        {/* Month & Year Switcher Bar with Before & After Year Support */}
+        <div className="p-2.5 sm:px-5 bg-[#0c1222] border-b border-[#1a233a] flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
             <button
+              type="button"
               onClick={handlePrevMonth}
               aria-label={t('prevDay')}
-              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+              title={t('prevDay')}
+              className="p-2 min-w-[38px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
             >
               <ChevronLeft size={18} />
             </button>
+
+            {/* Month Select Dropdown */}
+            <select
+              value={viewMonth}
+              onChange={(e) => setViewMonth(parseInt(e.target.value, 10))}
+              aria-label="Select Month"
+              className="px-2.5 py-2 min-h-[44px] bg-[#11192e] hover:bg-[#18233d] border border-[#233152] rounded-xl text-xs sm:text-sm font-bold text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            >
+              {monthOptions.map((m) => (
+                <option key={m.value} value={m.value} className="bg-[#090e1a] text-white">
+                  {m.label}
+                </option>
+              ))}
+            </select>
+
+            {/* Year Select Dropdown (Years Before and After Current Year) */}
+            <select
+              value={viewYear}
+              onChange={(e) => setViewYear(parseInt(e.target.value, 10))}
+              aria-label="Select Year"
+              className="px-2.5 py-2 min-h-[44px] bg-[#11192e] hover:bg-[#18233d] border border-blue-500/40 rounded-xl text-xs sm:text-sm font-mono font-bold text-blue-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            >
+              {yearOptions.map((yr) => (
+                <option key={yr} value={yr} className="bg-[#090e1a] text-white">
+                  {yr} {yr === todayYear ? `(${t('today') || 'Current'})` : ''}
+                </option>
+              ))}
+            </select>
+
             <button
+              type="button"
               onClick={handleNextMonth}
               aria-label={t('nextDay')}
-              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+              title={t('nextDay')}
+              className="p-2 min-w-[38px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
             >
               <ChevronRight size={18} />
             </button>
           </div>
 
-          <div className="text-center font-bold text-white text-sm sm:text-base tracking-wide font-outfit">
-            {monthName} <span className="text-blue-400 font-mono">{viewYear}</span>
-          </div>
-
           <button
+            type="button"
             onClick={handleJumpToToday}
-            className="px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+            className="px-3 py-2 min-h-[44px] rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-orange-300 text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shrink-0 ml-auto"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
             <span>{t('today')}</span>
@@ -316,12 +366,18 @@ export function GregorianCalendarModal({
 
                 if (!isCurrentMonth) {
                   return (
-                    <div
+                    <button
                       key={`pad-${idx}`}
-                      className="min-h-[46px] sm:min-h-[58px] p-1 rounded-xl bg-transparent text-neutral-600 flex flex-col items-center justify-center opacity-30 select-none"
+                      type="button"
+                      onClick={() => {
+                        onSelectDate(cell.date);
+                        onClose();
+                      }}
+                      title={cell.date.toLocaleDateString()}
+                      className="min-h-[46px] sm:min-h-[58px] p-1 rounded-xl bg-transparent hover:bg-[#0c1324] text-neutral-500 hover:text-neutral-300 flex flex-col items-center justify-center opacity-40 hover:opacity-100 transition-all cursor-pointer active:scale-95"
                     >
                       <span className="text-xs sm:text-sm font-mono">{cell.dayNum}</span>
-                    </div>
+                    </button>
                   );
                 }
 

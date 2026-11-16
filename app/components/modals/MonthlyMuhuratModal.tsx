@@ -117,6 +117,26 @@ export function MonthlyMuhuratModal({
     return list;
   }, [monthlyMuhuratList, selectedCategory, showOnlyAuspicious]);
 
+  // Year options covering years before and after current year (2010 to 2050)
+  const yearOptions = useMemo(() => {
+    return Array.from({ length: 41 }, (_, i) => 2010 + i);
+  }, []);
+
+  // Month options localized by localeCode
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const monthNum = i + 1;
+      const d = new Date(2026, i, 1);
+      let label = '';
+      try {
+        label = d.toLocaleDateString(localeCode, { month: 'short' });
+      } catch {
+        label = d.toLocaleDateString('en-US', { month: 'short' });
+      }
+      return { value: monthNum, label };
+    });
+  }, [localeCode]);
+
   const monthLabel = useMemo(() => {
     const d = new Date(viewMonthYear.year, viewMonthYear.month - 1, 1);
     return d.toLocaleDateString(localeCode, { month: 'long', year: 'numeric' });
@@ -204,24 +224,52 @@ export function MonthlyMuhuratModal({
 
         {/* ── 2. Month Navigation & Auspicious Toggle ── */}
         <div className="px-4 sm:px-6 py-2.5 bg-[#0b101e] border-b border-[#162038] flex items-center justify-between gap-2 shrink-0">
-          {/* Month Switcher */}
-          <div className="flex items-center gap-1.5">
+          {/* Month & Year Switcher (Years Before & After) */}
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
             <button
               type="button"
               onClick={handlePrevMonth}
               aria-label={t('prevDay')}
-              className="p-1.5 rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+              title={t('prevDay')}
+              className="p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="font-bold text-white text-xs sm:text-sm font-outfit px-1">
-              {monthLabel}
-            </span>
+
+            {/* Month Select Dropdown */}
+            <select
+              value={viewMonthYear.month}
+              onChange={(e) => setViewMonthYear(prev => ({ ...prev, month: parseInt(e.target.value, 10) }))}
+              aria-label="Select Month"
+              className="px-2 py-1.5 min-h-[36px] bg-[#11192e] hover:bg-[#18233d] border border-[#233152] rounded-xl text-xs font-bold text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
+            >
+              {monthOptions.map((m) => (
+                <option key={m.value} value={m.value} className="bg-[#090e1a] text-white">
+                  {m.label}
+                </option>
+              ))}
+            </select>
+
+            {/* Year Select Dropdown */}
+            <select
+              value={viewMonthYear.year}
+              onChange={(e) => setViewMonthYear(prev => ({ ...prev, year: parseInt(e.target.value, 10) }))}
+              aria-label="Select Year"
+              className="px-2 py-1.5 min-h-[36px] bg-[#11192e] hover:bg-[#18233d] border border-emerald-500/40 rounded-xl text-xs font-mono font-bold text-emerald-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
+            >
+              {yearOptions.map((yr) => (
+                <option key={yr} value={yr} className="bg-[#090e1a] text-white">
+                  {yr}
+                </option>
+              ))}
+            </select>
+
             <button
               type="button"
               onClick={handleNextMonth}
               aria-label={t('nextDay')}
-              className="p-1.5 rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
+              title={t('nextDay')}
+              className="p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#18233d] border border-[#233152] text-neutral-300 hover:text-white transition-all cursor-pointer active:scale-95"
             >
               <ChevronRight size={16} />
             </button>
