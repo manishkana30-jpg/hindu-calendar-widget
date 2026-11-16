@@ -198,36 +198,14 @@ export function resolveDailyTithi(
   const instEndTimeUtc = findTithiEndTime(observationTime, instIndex, tz, 36);
   const instEndTimeIso = instEndTimeUtc ? instEndTimeUtc.toISOString() : '';
 
-  // 4. Resolve Civil Udaya Tithi and Handle the Midnight vs. Sunrise Rollover Trap
-  // A civil Vedic day (Ahoratra) extends from local sunrise to next local sunrise.
+  // 4. Resolve Civil Udaya Tithi (Canonical Vedic Rule)
+  // By Dharmashastra definition (Surya Siddhanta & Nirnayasindhu: "उदये त्रिमुहूर्तं व्यापिनी ग्राह्या"),
+  // Udaya Tithi for any civil date is strictly determined at that date's local sunrise (todaySun.sunriseDate).
   const isPreSunrise = observationTime.getTime() < todaySun.sunriseDate.getTime();
-
-  let activeSunrise: Date;
-  let prevSunriseForAnomaly: Date;
-  let nextSunriseDate: Date;
-  let civilAnchorDate: string;
-
-  if (isPreSunrise) {
-    // Between 00:00:00 midnight and local sunrise:
-    // The civil day is STILL anchored to yesterday's sunrise!
-    activeSunrise = yesterdaySun.sunriseDate;
-    const dayBeforeYesterdaySun = calculateSunTimesWithRefraction(
-      new Date(year, month, day - 2, 12, 0, 0),
-      location.latitude,
-      location.longitude,
-      tz,
-      elevationMeters
-    );
-    prevSunriseForAnomaly = dayBeforeYesterdaySun.sunriseDate;
-    nextSunriseDate = todaySun.sunriseDate;
-    civilAnchorDate = formatLocalDateString(new Date(year, month, day - 1), tz);
-  } else {
-    // Post-sunrise: Normal day progression
-    activeSunrise = todaySun.sunriseDate;
-    prevSunriseForAnomaly = yesterdaySun.sunriseDate;
-    nextSunriseDate = tomorrowSun.sunriseDate;
-    civilAnchorDate = formatLocalDateString(new Date(year, month, day), tz);
-  }
+  const activeSunrise = todaySun.sunriseDate;
+  const prevSunriseForAnomaly = yesterdaySun.sunriseDate;
+  const nextSunriseDate = tomorrowSun.sunriseDate;
+  const civilAnchorDate = formatLocalDateString(new Date(year, month, day), tz);
 
   // Prevailing Udaya Tithi at active civil sunrise
   const activeSunriseJd = getJulianDay(activeSunrise);

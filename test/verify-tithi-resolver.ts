@@ -106,21 +106,20 @@ const postSunriseRes = resolveDailyTithi(testDate, DELHI, postSunriseTime);
 assert(preSunriseRes.isPreSunrise === true, 'Pre-sunrise evaluation correctly flags isPreSunrise = true');
 assert(postSunriseRes.isPreSunrise === false, 'Post-sunrise evaluation flags isPreSunrise = false');
 
-// In pre-sunrise (03:00 AM on Aug 15), the civil day is anchored to Aug 14!
-// Aug 14 Udaya Tithi was Shukla Dwitiya (2)
-// Aug 15 Udaya Tithi is Shukla Tritiya (3)
+// The canonical Udaya Tithi for Aug 15 is determined at Aug 15 sunrise: Shukla Tritiya (3)
+// Both pre-sunrise and post-sunrise queries for Aug 15 evaluate today's Udaya Tithi in complete sync with the monthly calendar
 assert(
-  preSunriseRes.civilAnchorDate === '2026-08-14',
-  `Pre-sunrise civil day is anchored to 2026-08-14 (got ${preSunriseRes.civilAnchorDate})`
+  preSunriseRes.civilAnchorDate === '2026-08-15',
+  `Pre-sunrise civil day is 2026-08-15 (got ${preSunriseRes.civilAnchorDate})`
 );
 assert(
-  preSunriseRes.udayaTithi.index === 2,
-  `Pre-sunrise Udaya Tithi is Shukla Dwitiya (2) from yesterday's sunrise (got ${preSunriseRes.udayaTithi.name})`
+  preSunriseRes.udayaTithi.index === 3,
+  `Canonical Udaya Tithi for Aug 15 is Shukla Tritiya (3) (got ${preSunriseRes.udayaTithi.name})`
 );
 
 assert(
   postSunriseRes.civilAnchorDate === '2026-08-15',
-  `Post-sunrise civil day is anchored to 2026-08-15 (got ${postSunriseRes.civilAnchorDate})`
+  `Post-sunrise civil day is 2026-08-15 (got ${postSunriseRes.civilAnchorDate})`
 );
 assert(
   postSunriseRes.udayaTithi.index === 3,
@@ -140,7 +139,7 @@ assert(
 // Check calculatePanchang consistency
 const panchangPre = calculatePanchang(testDate, DELHI, preSunriseTime);
 assert(panchangPre.isPreSunrise === true, 'calculatePanchang returns isPreSunrise = true at 03:00 AM');
-assert(panchangPre.udayaTithi.index === 2, 'calculatePanchang returns Udaya Tithi 2 at 03:00 AM');
+assert(panchangPre.udayaTithi.index === 3, 'calculatePanchang returns canonical Udaya Tithi 3 at 03:00 AM');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. TITHI KSHAYA & VRIDDHI ANOMALY RESOLUTION

@@ -465,13 +465,13 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
     const currentTithiEndTime = newTithiStartTime;
 
     // Dharmashastra observation day determination: "date • day/vara"
-    let dayOffset = isPreSun ? 0 : 1;
+    let dayOffset = 1;
     let anomalySuffix = '';
     if (tithiResolution.isVriddhi) {
-      dayOffset = isPreSun ? 1 : 2;
+      dayOffset = 2;
       anomalySuffix = ' (Delayed: Vriddhi)';
     } else if (tithiResolution.isKshaya && tithiResolution.kshayaTithiDetails?.name === nextTithiName) {
-      dayOffset = isPreSun ? 0 : 1;
+      dayOffset = 1;
       anomalySuffix = ' (Kshaya — Skipped at Sunrise)';
     }
 

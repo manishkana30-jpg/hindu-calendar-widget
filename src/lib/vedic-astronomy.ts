@@ -1265,17 +1265,13 @@ export function calculatePanchang(
   
   // 1. INSTANTANEOUS MOMENT RESOLUTION (Real-time Clock / Selected Time)
   const isTodayDate = targetDate.toDateString() === new Date().toDateString();
+  const hasSpecificTime = specificTime !== undefined || targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0;
   const now = specificTime || (
-    isTodayDate 
-      ? new Date() 
-      : new Date(
-          targetDate.getFullYear(), 
-          targetDate.getMonth(), 
-          targetDate.getDate(), 
-          (targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0) ? targetDate.getHours() : 6,
-          (targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0) ? targetDate.getMinutes() : 0,
-          0
-        )
+    hasSpecificTime
+      ? targetDate
+      : (isTodayDate 
+          ? new Date() 
+          : new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 12, 0, 0))
   );
 
   const timeKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}:${now.getMinutes()}`;
@@ -1284,28 +1280,20 @@ export function calculatePanchang(
   const cached = panchangCalculationCache.get(cacheKey);
   if (cached) return cached;
 
-  // 2. RESOLVE THE MIDNIGHT VS. SUNRISE ROLLOVER TRAP
-  // A civil Vedic day (Ahoratra) extends strictly from local sunrise to next local sunrise.
-  // Between 00:00:00 midnight and local sunrise, civil observances remain anchored to yesterday's sunrise.
+  // 2. SUNRISE EVALUATION FOR TARGET DATE
+  // Flag whether observation time is prior to today's local sunrise (Pre-Sunrise / Brahma Muhurat)
   const isPreSunrise = now.getTime() < sunTimes.sunriseDate.getTime();
 
-  let activeSunriseDate: Date;
-  if (isPreSunrise) {
-    const yesterdayDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() - 1, 12, 0, 0);
-    const yesterdaySunTimes = calculateSunTimes(yesterdayDate, location.latitude, location.longitude, currentTz, elev);
-    activeSunriseDate = yesterdaySunTimes.sunriseDate;
-  } else {
-    activeSunriseDate = sunTimes.sunriseDate;
-  }
-
-  // 3. CALCULATE UDAYA TITHI AT ACTIVE CIVIL SUNRISE (Canonical Vedic Rule)
-  const sunriseJd = getJulianDay(activeSunriseDate);
+  // 3. CALCULATE CANONICAL CIVIL UDAYA TITHI AT LOCAL SUNRISE (Canonical Vedic Rule)
+  // By Dharmashastra definition (Surya Siddhanta & Nirnayasindhu: "उदये त्रिमुहूर्तं व्यापिनी ग्राह्या"),
+  // the Udaya Tithi for any civil date is determined at that date's local sunrise (sunTimes.sunriseDate).
+  const sunriseJd = getJulianDay(sunTimes.sunriseDate);
   const sunriseElongation = getElongationAngle(sunriseJd);
   const udayaTithiIndex = Math.min(30, Math.max(1, Math.floor(sunriseElongation / 12) + 1)); // 1 to 30
   const udayaTithiObj = TITHIS[(udayaTithiIndex - 1) % 30];
   
   // Exact End Time for prevailing Udaya Tithi
-  const endTimeUtc = findTithiEndTime(activeSunriseDate, udayaTithiIndex, currentTz);
+  const endTimeUtc = findTithiEndTime(sunTimes.sunriseDate, udayaTithiIndex, currentTz);
   let tithiEndTimeFormatted = 'Full Day';
   if (endTimeUtc) {
     const endLocalMs = endTimeUtc.getTime() + currentTz * 3600000;
