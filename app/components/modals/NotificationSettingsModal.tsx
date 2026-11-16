@@ -219,16 +219,16 @@ export function NotificationSettingsModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="notification-settings-title"
-      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="relative w-full max-w-none sm:max-w-xl bg-[#0a101f] border-0 sm:border border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-none sm:rounded-3xl p-5 sm:p-6 pb-24 text-neutral-200 h-dvh sm:h-auto sm:max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
+        className="relative w-full sm:max-w-xl bg-[#0a101f] border border-[#233554] shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 pb-24 text-neutral-200 max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close Notification Settings"
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-[#131d33] hover:bg-[#1d2b4b] border border-[#2b3e66] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+          className="absolute top-5 right-5 w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-[#131d33] hover:bg-[#1d2b4b] border border-[#2b3e66] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
         >
           <X size={18} />
         </button>

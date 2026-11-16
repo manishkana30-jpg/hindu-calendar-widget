@@ -170,7 +170,7 @@ export default async function VratHubPage({ params }: PageProps) {
             <span>Dedicated Deity: {vrat.deity}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+          <h1 className="text-[clamp(1.5rem,5vw,3rem)] font-extrabold tracking-tight text-white mb-3">
             {vrat.name} <span className="text-amber-400 font-devanagari">({vrat.hindiName})</span>
           </h1>
 
@@ -219,11 +219,11 @@ export default async function VratHubPage({ params }: PageProps) {
             </span>
           </div>
 
-          <div className="overflow-x-auto rounded-3xl border border-[#1e2d4f] bg-[#090e1a]/95 shadow-2xl backdrop-blur-md">
-            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+          <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1e2d4f] bg-[#090e1a]/95 shadow-2xl backdrop-blur-md">
+            <table className="min-w-[620px] sm:min-w-full text-left text-xs sm:text-sm border-collapse">
               <thead className="bg-[#0e1629] text-neutral-400 font-bold border-b border-[#1e2d4f] text-[10px] sm:text-[11px] uppercase tracking-wider font-outfit">
                 <tr>
-                  <th className="py-3 px-4 whitespace-nowrap">Date &amp; Day</th>
+                  <th className="py-3 px-4 whitespace-nowrap sticky left-0 z-30 bg-[#0e1629] shadow-[4px_0_8px_rgba(0,0,0,0.4)] min-w-[130px]">Date &amp; Day</th>
                   <th className="py-3 px-4 whitespace-nowrap">Festival / Vrat</th>
                   <th className="py-3 px-4 whitespace-nowrap">Tithi / Paksha</th>
                   <th className="py-3 px-4 whitespace-nowrap">Parana Fast-Breaking Window</th>
@@ -238,7 +238,7 @@ export default async function VratHubPage({ params }: PageProps) {
                   return (
                     <tr key={index} className="hover:bg-[#11192e] transition-colors group">
                       {/* 1. Date & Day Calendar Tile */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-3.5 px-4 whitespace-nowrap sticky left-0 z-10 bg-[#090e1a] shadow-[4px_0_8px_rgba(0,0,0,0.4)] min-w-[130px]">
                         <div className="flex items-center gap-3">
                           <div className="w-11 h-11 rounded-2xl flex flex-col items-center justify-center font-mono bg-[#11192e] text-white border border-[#233152] shadow-md group-hover:border-amber-500/50 group-hover:bg-[#15203a] transition-all shrink-0">
                             <span className="text-sm font-extrabold leading-none text-white">{item.date.getDate()}</span>
@@ -287,9 +287,9 @@ export default async function VratHubPage({ params }: PageProps) {
                           rel="noopener noreferrer"
                           title="Share on WhatsApp"
                           aria-label="Share this Vrat date on WhatsApp"
-                          className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
+                          className="p-2.5 min-h-[44px] min-w-[44px] rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
                         >
-                          <WhatsAppIcon className="w-3.5 h-3.5" />
+                          <WhatsAppIcon className="w-4 h-4" />
                         </a>
                       </td>
                     </tr>
@@ -337,7 +337,7 @@ export default async function VratHubPage({ params }: PageProps) {
         </div>
 
         {/* ── Internal Cross-Linking: Explore Other Vrats ── */}
-        <section className="my-10 p-6 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
+        <section className="my-10 p-4 sm:p-6 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
           <h2 className="text-lg font-bold text-white mb-3">
             Explore Other Sacred Vedic Vrats
           </h2>
@@ -346,7 +346,7 @@ export default async function VratHubPage({ params }: PageProps) {
               <Link
                 key={v.slug}
                 href={`/vrat/${v.slug}`}
-                className="px-3.5 py-2 rounded-xl bg-[#0e1629] hover:bg-[#16213d] border border-[#233152] hover:border-orange-500/40 text-xs text-neutral-300 hover:text-amber-300 transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2.5 min-h-[44px] rounded-xl bg-[#0e1629] hover:bg-[#16213d] border border-[#233152] hover:border-orange-500/40 text-xs text-neutral-300 hover:text-amber-300 transition-colors flex items-center gap-1.5"
               >
                 <span>{v.icon}</span>
                 <span>{v.name}</span>

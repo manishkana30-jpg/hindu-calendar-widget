@@ -153,11 +153,11 @@ export default async function LandingPage() {
         </section>
 
         {/* ── PHASE 2: Programmatic Vrat & Festival Hubs ── */}
-        <div className="mt-12 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1a0c02]/95 via-[#0e1629]/95 to-[#1a0c02]/95 border border-amber-500/35 shadow-[0_0_30px_rgba(245,158,11,0.08)] backdrop-blur-md">
+        <div className="mt-12 text-left max-w-5xl mx-auto p-4 sm:p-8 rounded-3xl bg-gradient-to-br from-[#1a0c02]/95 via-[#0e1629]/95 to-[#1a0c02]/95 border border-amber-500/35 shadow-[0_0_30px_rgba(245,158,11,0.08)] backdrop-blur-md">
           <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
             <div>
               <span className="text-xs font-mono text-amber-400 tracking-wider uppercase font-semibold">Dharmashastra Festival Hub</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">
+              <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white drop-shadow-sm">
                 Upcoming Vedic Vrats &amp; Festivals (2026–2027)
               </h2>
             </div>
@@ -170,12 +170,12 @@ export default async function LandingPage() {
             Detailed scriptural dates, fasting guidelines, and exact Parana (fast-breaking) intervals for all major Sanatana Dharma observances:
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
             {Object.values(VRAT_DEFINITIONS).map((vrat) => (
               <Link
                 key={vrat.slug}
                 href={`/vrat/${vrat.slug}`}
-                className="p-3 rounded-xl bg-[#1a0e05]/70 hover:bg-[#2a1708] border border-amber-500/25 hover:border-amber-400/60 text-xs text-neutral-200 hover:text-amber-200 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all flex flex-col justify-between"
+                className="p-3 rounded-xl bg-[#1a0e05]/70 hover:bg-[#2a1708] border border-amber-500/25 hover:border-amber-400/60 text-xs text-neutral-200 hover:text-amber-200 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all flex flex-col justify-between min-h-[44px]"
               >
                 <div className="flex items-start gap-1.5 mb-1">
                   <span className="text-base shrink-0 select-none">{vrat.icon}</span>
@@ -188,11 +188,11 @@ export default async function LandingPage() {
         </div>
 
         {/* ── PHASE 2: Programmatic Life-Event Muhurat Hubs ── */}
-        <div className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#021810]/95 via-[#091522]/95 to-[#021810]/95 border border-emerald-500/35 shadow-[0_0_30px_rgba(16,185,129,0.08)] backdrop-blur-md">
+        <div className="mt-8 text-left max-w-5xl mx-auto p-4 sm:p-8 rounded-3xl bg-gradient-to-br from-[#021810]/95 via-[#091522]/95 to-[#021810]/95 border border-emerald-500/35 shadow-[0_0_30px_rgba(16,185,129,0.08)] backdrop-blur-md">
           <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
             <div>
               <span className="text-xs font-mono text-emerald-400 tracking-wider uppercase font-semibold">Life-Event Shubh Timings</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">
+              <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white drop-shadow-sm">
                 Monthly Shubh Karya Muhurat Hubs (12-Month Calendar)
               </h2>
             </div>
@@ -205,12 +205,12 @@ export default async function LandingPage() {
             Plan major life milestones with verified planetary alignment, favorable Nakshatra and Tithi combinations:
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
             {Object.values(MUHURAT_CATEGORIES).map((muhurat) => (
               <Link
                 key={muhurat.slug}
                 href={`/muhurat/${muhurat.slug}`}
-                className="p-3.5 rounded-xl bg-[#031c13]/70 hover:bg-[#062c1e] border border-emerald-500/25 hover:border-emerald-400/60 text-xs text-neutral-200 hover:text-emerald-200 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex flex-col justify-between"
+                className="p-3.5 rounded-xl bg-[#031c13]/70 hover:bg-[#062c1e] border border-emerald-500/25 hover:border-emerald-400/60 text-xs text-neutral-200 hover:text-emerald-200 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex flex-col justify-between min-h-[44px]"
               >
                 <div className="flex items-start gap-2 mb-1.5">
                   <span className="text-base shrink-0 select-none">{muhurat.icon}</span>
@@ -223,11 +223,11 @@ export default async function LandingPage() {
         </div>
 
         {/* ── PHASE 2: Programmatic SEO City Hub (50+ Cities) ── */}
-        <div className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07132b]/95 via-[#0b162e]/95 to-[#07132b]/95 border border-sky-500/35 shadow-[0_0_30px_rgba(14,165,233,0.08)] backdrop-blur-md">
+        <div className="mt-8 text-left max-w-5xl mx-auto p-4 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07132b]/95 via-[#0b162e]/95 to-[#07132b]/95 border border-sky-500/35 shadow-[0_0_30px_rgba(14,165,233,0.08)] backdrop-blur-md">
           <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
             <div>
               <span className="text-xs font-mono text-sky-400 tracking-wider uppercase font-semibold">Programmatic Vedic Hub</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">
+              <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white drop-shadow-sm">
                 Live City-Specific Panchang &amp; Muhurats
               </h2>
             </div>
@@ -240,14 +240,14 @@ export default async function LandingPage() {
             Select a city to inspect exact local sunrise, topocentric Dina Mana division, local Choghadiya timings, and Udaya Tithi:
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-2.5">
             {CITIES.map((city) => (
               <Link
                 key={city.slug}
                 href={`/panchang/${city.slug}`}
-                className="px-3 py-2 rounded-xl bg-[#0a1838]/70 hover:bg-[#122554] border border-sky-500/25 hover:border-sky-400/60 text-xs text-neutral-200 hover:text-sky-200 hover:shadow-[0_0_15px_rgba(14,165,233,0.2)] transition-all block truncate"
+                className="px-3 py-2.5 rounded-xl bg-[#0a1838]/70 hover:bg-[#122554] border border-sky-500/25 hover:border-sky-400/60 text-xs text-neutral-200 hover:text-sky-200 hover:shadow-[0_0_15px_rgba(14,165,233,0.2)] transition-all flex items-center min-h-[44px] truncate"
               >
-                📍 {city.name}
+                <span className="truncate">📍 {city.name}</span>
               </Link>
             ))}
           </div>

@@ -56,14 +56,14 @@ export function LanguageDropdown({ className = '' }: Props) {
         aria-expanded={isOpen}
         aria-label="Select Language"
         title="Select Application Language"
-        className="bg-[#11192e] hover:bg-[#18233f] active:bg-[#1c294a] border border-[#233152] text-neutral-100 text-xs rounded-xl px-2.5 py-1.5 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[32px]"
+        className="bg-[#11192e] hover:bg-[#18233f] active:bg-[#1c294a] border border-[#233152] text-neutral-100 text-xs rounded-xl px-3 py-2 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[44px]"
       >
-        <Globe size={13} className="text-orange-400 shrink-0" />
+        <Globe size={14} className="text-orange-400 shrink-0" />
         <span className="font-semibold tracking-tight text-neutral-200">
           {currentOption.nativeName}
         </span>
         <ChevronDown
-          size={12}
+          size={13}
           className={`text-neutral-400 transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180 text-orange-400' : ''
           }`}
@@ -90,7 +90,7 @@ export function LanguageDropdown({ className = '' }: Props) {
                   aria-selected={isSelected}
                   type="button"
                   onClick={() => handleSelect(opt.code)}
-                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                  className={`w-full text-left px-3 py-2.5 min-h-[44px] text-xs flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                     isSelected
                       ? 'bg-orange-500/15 text-orange-300 font-semibold'
                       : 'text-neutral-300 hover:bg-[#16223e] hover:text-white'

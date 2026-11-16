@@ -4,7 +4,7 @@ import { Home, Compass, ArrowRight } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex flex-col items-center justify-center p-6 text-center">
       
       {/* Decorative ambient lighting (Hardware-accelerated zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">

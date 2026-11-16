@@ -103,14 +103,14 @@ export function EmbedWidgetModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-5 overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="embed-modal-title"
     >
       <div 
-        className="w-full max-w-3xl bg-[#090e1a] border border-amber-500/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all"
+        className="w-full sm:max-w-3xl max-h-[85dvh] bg-[#090e1a] border border-amber-500/30 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-y-auto flex flex-col my-0 sm:my-auto transition-all overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── HEADER ── */}
@@ -135,9 +135,9 @@ export function EmbedWidgetModal({
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="w-9 h-9 rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/10 hover:border-amber-500/40 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-slate-900/80 hover:bg-slate-800 border border-white/10 hover:border-amber-500/40 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 

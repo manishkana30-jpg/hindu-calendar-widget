@@ -116,26 +116,26 @@ export function CitySearchModal() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open City Search"
-        className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/40 hover:border-amber-400 text-xs font-bold text-amber-200 hover:text-white transition-all shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] group active:scale-95"
+        className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 min-h-[44px] rounded-full bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-orange-500/40 hover:border-amber-400 text-xs font-bold text-amber-200 hover:text-white transition-all shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] group active:scale-95"
       >
-        <Search size={13} className="text-amber-400 group-hover:scale-110 transition-transform" />
+        <Search size={14} className="text-amber-400 group-hover:scale-110 transition-transform" />
         <span className="hidden xs:inline">{searchButtonLabel}</span>
         <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/25 text-amber-300 font-mono border border-amber-500/40 hidden md:inline">
           60+
         </span>
       </button>
 
-      {/* ── Modal Dialog ── */}
+      {/* ── Modal Dialog / Mobile Bottom Sheet ── */}
       {isOpen && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Search City Panchang"
-          className="fixed inset-0 z-[100] flex items-start justify-center p-3 sm:p-6 sm:pt-20 bg-black/75 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="w-full max-w-2xl bg-[#090e1a] border border-[#1a2542] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-scaleUp"
+            className="w-full sm:max-w-2xl bg-[#090e1a] border border-[#1a2542] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85dvh] animate-scaleUp"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header & Search Bar */}
@@ -157,10 +157,10 @@ export function CitySearchModal() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-xl bg-[#11192e] hover:bg-[#1a2542] text-neutral-400 hover:text-white transition-colors"
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-[#11192e] hover:bg-[#1a2542] text-neutral-400 hover:text-white transition-colors"
                   aria-label="Close City Search"
                 >
-                  <X size={16} />
+                  <X size={18} />
                 </button>
               </div>
 
@@ -176,13 +176,13 @@ export function CitySearchModal() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={placeholderLabel}
-                  className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-[#0f172a] border border-[#233152] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-white placeholder-neutral-500 transition-all"
+                  className="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-2xl bg-[#0f172a] border border-[#233152] focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-white placeholder-neutral-500 transition-all"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-0.5"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
                     aria-label="Clear input"
                   >
                     <X size={14} />
@@ -206,7 +206,7 @@ export function CitySearchModal() {
                       setIsGpsLoading(false);
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:from-emerald-900/90 hover:to-teal-900/90 border border-emerald-500/40 text-emerald-300 hover:text-emerald-200 text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 min-h-[44px] rounded-xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:from-emerald-900/90 hover:to-teal-900/90 border border-emerald-500/40 text-emerald-300 hover:text-emerald-200 text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50 cursor-pointer"
                 >
                   <MapPin size={13} className="text-emerald-400" />
                   <span>

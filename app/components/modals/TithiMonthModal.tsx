@@ -75,9 +75,9 @@ export function TithiMonthModal({
       role="dialog"
       aria-modal="true"
       aria-label="Unified Vedic Calendar and Almanac"
-      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-6xl h-dvh sm:h-auto max-h-dvh sm:max-h-[88dvh] bg-[#070b16] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in fade-in sm:zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full sm:max-w-6xl h-auto max-h-[90dvh] bg-[#070b16] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans animate-in fade-in sm:zoom-in-95 duration-200 overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Modal Top Navigation Bar */}
         <div className="p-3.5 px-4 sm:px-5 bg-[#090e1a] border-b border-[#1a233a] flex items-center justify-between gap-3 shrink-0">
@@ -87,7 +87,7 @@ export function TithiMonthModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#11192e] hover:bg-[#1a2544] border border-[#233152] text-neutral-200 hover:text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm shrink-0"
+              className="flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-[#11192e] hover:bg-[#1a2544] border border-[#233152] text-neutral-200 hover:text-white text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-sm shrink-0"
               title={t('home')}
               aria-label={t('home')}
             >
@@ -109,7 +109,7 @@ export function TithiMonthModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer shrink-0"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer shrink-0"
               title={t('close')}
               aria-label={t('close')}
             >

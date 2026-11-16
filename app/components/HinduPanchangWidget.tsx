@@ -743,7 +743,7 @@ export function HinduPanchangWidget({
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-[11px] sm:text-xs font-semibold text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate"
+                className="pl-7 pr-6 py-2 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-[11px] sm:text-xs font-semibold text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate min-h-[44px]"
               >
                 {locationSource === 'gps' && !ALL_LOCATIONS.some((l) => l.name === selectedLocation.name) && (
                   <option value={selectedLocation.name} className="bg-slate-900 text-emerald-300 font-bold">
@@ -777,13 +777,13 @@ export function HinduPanchangWidget({
               }}
               title={t('useGps')}
               aria-label={t('useGps')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 min-h-[44px] ${
                 locationSource === 'gps'
                   ? 'bg-gradient-to-r from-emerald-950 to-teal-950 text-emerald-300 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                   : 'bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-amber-500/25 hover:border-amber-400'
               }`}
             >
-              <MapPin size={11} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
+              <MapPin size={12} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
               <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
             </button>
 
@@ -794,7 +794,7 @@ export function HinduPanchangWidget({
                 onClick={handleShare}
                 title="Share Today's Panchang on WhatsApp"
                 aria-label="Share Today's Panchang on WhatsApp"
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 border border-emerald-400/40 text-white transition-all shadow-[0_0_18px_rgba(16,185,129,0.38)] hover:shadow-[0_0_26px_rgba(16,185,129,0.58)] active:scale-95 cursor-pointer shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-[11px] sm:text-xs font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 border border-emerald-400/40 text-white transition-all shadow-[0_0_18px_rgba(16,185,129,0.38)] hover:shadow-[0_0_26px_rgba(16,185,129,0.58)] active:scale-95 cursor-pointer shrink-0"
               >
                 <WhatsAppIcon className="w-4 h-4 text-white shrink-0 drop-shadow" />
                 <span className="hidden sm:inline font-bold">Share on WhatsApp</span>
@@ -823,9 +823,9 @@ export function HinduPanchangWidget({
                 onClick={handlePrevDay}
                 aria-label={t('prevDay')}
                 title={t('prevDay')}
-                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
               >
-                <ChevronLeft size={13} />
+                <ChevronLeft size={14} />
               </button>
 
               <input
@@ -834,7 +834,7 @@ export function HinduPanchangWidget({
                 onChange={handleDateChange}
                 aria-label={t('selectDate')}
                 title={t('selectDate')}
-                className="bg-transparent text-base sm:text-[11px] font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-0.5 max-w-[105px]"
+                className="bg-transparent text-base sm:text-xs font-mono text-slate-200 cursor-pointer focus:outline-none px-1.5 py-1 min-h-[44px] max-w-[115px]"
               />
 
               <button
@@ -842,16 +842,16 @@ export function HinduPanchangWidget({
                 onClick={handleNextDay}
                 aria-label={t('nextDay')}
                 title={t('nextDay')}
-                className="p-1.5 sm:p-1 min-w-[32px] min-h-[32px] sm:min-w-0 sm:min-h-0 flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
               >
-                <ChevronRight size={13} />
+                <ChevronRight size={14} />
               </button>
 
               {/* Live Status Pill / Reset Button */}
               {isLiveMode ? (
                 <div 
                   title={t('live')}
-                  className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] font-mono font-bold select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                  className="flex items-center gap-1.5 px-3 py-1 min-h-[44px] rounded-lg bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] font-mono font-bold select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
                 >
                   <span className="relative flex h-2 w-2 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -865,9 +865,9 @@ export function HinduPanchangWidget({
                   onClick={handleResetToLive}
                   title={t('resetToLive')}
                   aria-label={t('resetToLive')}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold cursor-pointer transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)]"
+                  className="flex items-center gap-1.5 px-3 py-1 min-h-[44px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold cursor-pointer transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)]"
                 >
-                  <RotateCcw size={10} className="text-amber-400 shrink-0" />
+                  <RotateCcw size={12} className="text-amber-400 shrink-0" />
                   <span>{t('live')}</span>
                 </button>
               )}
@@ -951,16 +951,16 @@ export function HinduPanchangWidget({
               </div>
 
               {/* Vibrant Sunrise & Sunset Dual Horizon Bar */}
-              <div className="grid grid-cols-2 gap-2 my-2 min-w-0">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2 my-2 min-w-0">
                 <div className="flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/30 shadow-sm group/sun">
                   <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 text-sm shrink-0 shadow-inner group-hover/sun:scale-105 transition-transform">
                     🌅
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400/90 block leading-none font-outfit">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400/90 block leading-snug py-0.5 font-outfit">
                       {t('localSunrise')}
                     </span>
-                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight">
+                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight whitespace-nowrap shrink-0">
                       {panchang.sunrise}
                     </span>
                   </div>
@@ -971,10 +971,10 @@ export function HinduPanchangWidget({
                     🌇
                   </div>
                   <div className="min-w-0">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-orange-400/90 block leading-none font-outfit">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-orange-400/90 block leading-snug py-0.5 font-outfit">
                       {t('sunset')}
                     </span>
-                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight">
+                    <span className="text-xs sm:text-sm font-extrabold font-grotesk text-white tabular-nums block mt-0.5 tracking-tight whitespace-nowrap shrink-0">
                       {panchang.sunset}
                     </span>
                   </div>
@@ -1660,7 +1660,7 @@ export function HinduPanchangWidget({
             {activeTab === 'panchang' && (
               <div 
                 id="five-limbs-section"
-                className="scroll-mt-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"
+                className="scroll-mt-28 grid grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3"
               >
                 {/* 1. TITHI CARD (SURYA GOLD) */}
                 <div 
@@ -1828,7 +1828,7 @@ export function HinduPanchangWidget({
             {/* Tab 2: Astrometry */}
 
             {activeTab === 'astrometry' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
                 <div className="p-4 rounded-xl bg-slate-950/60 border border-white/10">
                   <div className="font-bold text-amber-400 mb-2 font-outfit">☀️ {language === 'en' ? 'Surya Astrometry' : (language === 'hi' ? 'सूर्य खगोलीय स्थिति' : (language === 'sa' ? 'सूर्यखगोलीयस्थितिः' : (language === 'mr' ? 'सूर्य खगोलीय स्थिती' : 'સૂર્ય ખગોળીય સ્થિતિ')))}</div>
                   <div className="space-y-1 text-slate-300">

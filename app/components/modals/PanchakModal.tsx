@@ -51,9 +51,9 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
       }}
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-5xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full sm:max-w-5xl h-auto max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Header */}
         <div className="p-4 sm:p-6 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -80,7 +80,8 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+            aria-label="Close Panchak dialog"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
           >
             <X size={18} />
           </button>
@@ -212,26 +213,25 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#1e2942] overflow-hidden bg-[#0c1222]">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
-                    <tr>
-                      <th className="p-3 font-bold">#</th>
-                      <th className="p-3 font-bold">Panchak Type</th>
-                      <th className="p-3 font-bold">Starts (Date & Time)</th>
-                      <th className="p-3 font-bold">Ends (Date & Time)</th>
-                      <th className="p-3 font-bold">Commencing Day</th>
-                      <th className="p-3 font-bold">Auspiciousness</th>
-                      <th className="p-3 font-bold">Brief Shastra Effect</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#18233c] text-neutral-300">
-                    {yearPanchaks.map((panchak, idx) => (
-                      <tr key={panchak.id} className="hover:bg-[#141d33] transition-colors">
-                        <td className="p-3 font-mono text-neutral-400 font-bold">
-                          {idx + 1}
-                        </td>
+            <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1e2942] bg-[#0c1222]">
+              <table className="min-w-[620px] sm:min-w-full text-left text-xs">
+                <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
+                  <tr>
+                    <th className="p-3 font-bold sticky left-0 z-20 bg-[#11192e] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">#</th>
+                    <th className="p-3 font-bold">Panchak Type</th>
+                    <th className="p-3 font-bold">Starts (Date & Time)</th>
+                    <th className="p-3 font-bold">Ends (Date & Time)</th>
+                    <th className="p-3 font-bold">Commencing Day</th>
+                    <th className="p-3 font-bold">Auspiciousness</th>
+                    <th className="p-3 font-bold">Brief Shastra Effect</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#18233c] text-neutral-300">
+                  {yearPanchaks.map((panchak, idx) => (
+                    <tr key={panchak.id} className="hover:bg-[#141d33] transition-colors">
+                      <td className="p-3 font-mono text-neutral-400 font-bold sticky left-0 z-10 bg-[#0c1222] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">
+                        {idx + 1}
+                      </td>
                         <td className="p-3 font-bold text-white whitespace-nowrap">
                           {panchak.typeHindi}
                         </td>
@@ -262,7 +262,6 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
                 </table>
               </div>
             </div>
-          </div>
 
         </div>
 

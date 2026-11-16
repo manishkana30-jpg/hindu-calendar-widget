@@ -152,7 +152,7 @@ export default function AdminPushTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-neutral-200 p-4 sm:p-8 font-sans">
+    <div className="min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y bg-[#070b14] text-neutral-200 p-3 sm:p-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Header */}
@@ -315,7 +315,7 @@ export default function AdminPushTestPage() {
             </div>
 
             {/* Metric Counters Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
               <div className="p-4 rounded-2xl bg-[#0e172c] border border-[#1e2f52]">
                 <div className="text-[11px] font-semibold uppercase text-neutral-400 mb-1">Total Registered</div>
                 <div className="text-2xl font-bold text-white">{report.totalSubscriptions}</div>

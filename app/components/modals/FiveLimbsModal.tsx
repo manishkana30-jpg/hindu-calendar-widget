@@ -63,9 +63,9 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
       }}
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-stretch sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-none sm:max-w-2xl h-dvh sm:h-auto sm:max-h-[85dvh] bg-[#090e1a] border-0 sm:border border-[#233152] rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
+      <div className="relative w-full sm:max-w-2xl h-auto max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain">
         
         {/* Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -89,9 +89,9 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
           <button
             onClick={onClose}
             aria-label="Close Five Limbs dialog"
-            className="w-8 h-8 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors shrink-0"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors shrink-0"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
@@ -108,7 +108,7 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
                   e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                   setActiveLimb(tab.id as LimbTabType);
                 }}
-                className={`shrink-0 py-2 px-3 rounded-xl text-xs font-bold font-outfit transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                className={`shrink-0 py-2.5 px-3 min-h-[44px] rounded-xl text-xs font-bold font-outfit transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                   activeLimb === tab.id
                     ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 shadow-md shadow-orange-500/20 font-extrabold ring-1 ring-amber-400'
                     : 'bg-[#11192e] text-slate-300 hover:text-white hover:bg-[#18233d] border border-[#233152]'

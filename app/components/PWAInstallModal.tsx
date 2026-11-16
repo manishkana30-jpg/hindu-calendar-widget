@@ -67,9 +67,9 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
       }}
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-xl max-h-[90dvh] bg-[#090e1a] border border-[#233152] rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
+      <div className="relative w-full sm:max-w-xl max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         
         {/* Header */}
         <div className="p-5 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between">
@@ -94,7 +94,8 @@ export function PWAInstallModal({ isOpen, onClose, onDirectInstall, deferredProm
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
+            aria-label="Close Install App dialog"
+            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-[#11192e] hover:bg-[#1f2c4d] border border-[#233152] flex items-center justify-center text-neutral-400 hover:text-white transition-colors"
           >
             <X size={18} />
           </button>

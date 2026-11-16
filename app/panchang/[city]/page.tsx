@@ -258,14 +258,14 @@ export default async function CityPanchangPage({ params }: PageProps) {
         <AdSlot slot="in-feed" categoryName={`event in ${city.name}`} />
 
         {/* ── Localized Astrometric Summary Block ── */}
-        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#11192e]/90 via-[#090e1a]/95 to-[#11192e]/90 border border-[#1e2d4d] shadow-xl backdrop-blur-md">
+        <section className="mt-8 text-left max-w-5xl mx-auto p-3.5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#11192e]/90 via-[#090e1a]/95 to-[#11192e]/90 border border-[#1e2d4d] shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/35 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
               <Compass size={20} />
             </div>
             <div>
               <span className="text-xs font-mono text-amber-400 tracking-wider uppercase font-semibold">Local Geodetic Astrometry</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white drop-shadow-sm">
+              <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white drop-shadow-sm leading-snug">
                 How Vedic Panchang is Calculated for {city.name} ({city.hindiName})
               </h2>
             </div>
@@ -276,13 +276,13 @@ export default async function CityPanchangPage({ params }: PageProps) {
               In authentic Vedic astrometry, sacred timings are strictly topocentric and cannot be generalized from another city. For <strong>{city.name}</strong> ({city.latitude > 0 ? `${city.latitude}°N` : `${Math.abs(city.latitude)}°S`}, {city.longitude > 0 ? `${city.longitude}°E` : `${Math.abs(city.longitude)}°W`}), today&apos;s astronomical solar events govern all ritual timings:
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 text-xs font-mono">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 my-4 text-xs font-mono">
               <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1c1202]/90 to-[#120a02]/90 border border-amber-500/35 shadow-[0_0_15px_rgba(245,158,11,0.08)]">
                 <div className="flex items-center gap-1.5 text-amber-400 mb-1">
                   <Sun size={14} />
                   <span className="font-bold">Local Sunrise</span>
                 </div>
-                <span className="text-base font-bold text-amber-100">{panchang.sunrise}</span>
+                <span className="text-base font-bold text-amber-100 whitespace-nowrap tabular-nums shrink-0">{panchang.sunrise}</span>
               </div>
 
               <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1a0818]/90 to-[#120614]/90 border border-purple-500/35 shadow-[0_0_15px_rgba(168,85,247,0.08)]">
@@ -290,7 +290,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
                   <Moon size={14} />
                   <span className="font-bold">Local Sunset</span>
                 </div>
-                <span className="text-base font-bold text-purple-100">{panchang.sunset}</span>
+                <span className="text-base font-bold text-purple-100 whitespace-nowrap tabular-nums shrink-0">{panchang.sunset}</span>
               </div>
 
               <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#1a0509]/90 to-[#120306]/90 border border-rose-500/35 shadow-[0_0_15px_rgba(244,63,94,0.08)]">
@@ -298,7 +298,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
                   <ShieldAlert size={14} />
                   <span className="font-bold">Rahu Kaal</span>
                 </div>
-                <span className="text-base font-bold text-rose-300">
+                <span className="text-base font-bold text-rose-300 whitespace-nowrap tabular-nums shrink-0">
                   {panchang.muhurats?.rahuKaal ? `${panchang.muhurats.rahuKaal.start} – ${panchang.muhurats.rahuKaal.end}` : 'Avoid'}
                 </span>
               </div>
@@ -308,7 +308,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
                   <Clock size={14} />
                   <span className="font-bold">Abhijit Muhurat</span>
                 </div>
-                <span className="text-base font-bold text-emerald-300">
+                <span className="text-base font-bold text-emerald-300 whitespace-nowrap tabular-nums shrink-0">
                   {panchang.muhurats?.abhijitMuhurat ? `${panchang.muhurats.abhijitMuhurat.start} – ${panchang.muhurats.abhijitMuhurat.end}` : 'Shubh'}
                 </span>
               </div>
@@ -321,11 +321,11 @@ export default async function CityPanchangPage({ params }: PageProps) {
         </section>
 
         {/* ── Internal Linking Web: Other High-Volume Cities ── */}
-        <section className="mt-8 text-left max-w-5xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#07132b]/95 via-[#0b162e]/95 to-[#07132b]/95 border border-sky-500/35 shadow-[0_0_30px_rgba(14,165,233,0.08)] backdrop-blur-md">
+        <section className="mt-8 text-left max-w-5xl mx-auto p-3.5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#07132b]/95 via-[#0b162e]/95 to-[#07132b]/95 border border-sky-500/35 shadow-[0_0_30px_rgba(14,165,233,0.08)] backdrop-blur-md">
           <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
             <div>
               <span className="text-xs font-mono text-sky-400 tracking-wider uppercase font-semibold">City Network</span>
-              <h2 className="text-base sm:text-lg font-bold text-white drop-shadow-sm">
+              <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white drop-shadow-sm leading-snug">
                 Explore Vedic Panchang in Other Major Cities
               </h2>
             </div>
@@ -335,7 +335,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
               <Link
                 key={c.slug}
                 href={`/panchang/${c.slug}`}
-                className="px-3 py-1.5 rounded-xl bg-[#0a1838]/70 hover:bg-[#122554] border border-sky-500/25 hover:border-sky-400/60 text-xs text-neutral-200 hover:text-sky-200 hover:shadow-[0_0_12px_rgba(14,165,233,0.2)] transition-all"
+                className="px-3 py-2 min-h-[44px] flex items-center rounded-xl bg-[#0a1838]/70 hover:bg-[#122554] border border-sky-500/25 hover:border-sky-400/60 text-xs text-neutral-200 hover:text-sky-200 hover:shadow-[0_0_12px_rgba(14,165,233,0.2)] transition-all"
               >
                 📍 {c.name} ({c.hindiName}) Panchang
               </Link>
@@ -348,7 +348,7 @@ export default async function CityPanchangPage({ params }: PageProps) {
 
         {/* ── City-Specific Dynamic FAQ Accordion ── */}
         <section className="mt-12 text-left max-w-5xl mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">
+          <h2 className="text-[clamp(1.15rem,4.5vw,1.75rem)] font-bold text-white mb-4 leading-snug">
             Frequently Asked Questions for {city.name} ({city.hindiName}) Panchang
           </h2>
           <div className="space-y-3">

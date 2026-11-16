@@ -19,7 +19,7 @@ export default function GlobalErrorBoundary({ error, reset }: ErrorProps) {
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex items-center justify-center px-4 py-16 relative overflow-hidden">
+    <div className="min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200 flex items-center justify-center px-4 py-16 relative">
       {/* Decorative ambient lighting matching brand design system (Zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(234,88,12,0.14)_0%,_transparent_70%)]" />

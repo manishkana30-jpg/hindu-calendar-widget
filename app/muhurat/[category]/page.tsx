@@ -167,7 +167,7 @@ export default async function MuhuratHubPage({ params }: PageProps) {
             <span>Vedic Muhurat Engine</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+          <h1 className="text-[clamp(1.5rem,5vw,3rem)] font-extrabold tracking-tight text-white mb-3">
             {muhurat.name} <span className="text-amber-400 font-devanagari">({muhurat.hindiName})</span>
           </h1>
 
@@ -244,7 +244,7 @@ export default async function MuhuratHubPage({ params }: PageProps) {
               <a
                 key={grp.monthNumber}
                 href={`#month-${grp.monthNumber}`}
-                className="px-3 py-1.5 rounded-xl bg-[#0e1629] hover:bg-[#16233f] border border-[#1e2d4f] hover:border-amber-500/40 text-xs font-semibold text-neutral-300 hover:text-white transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-sm active:scale-95"
+                className="px-3.5 py-2.5 min-h-[44px] rounded-xl bg-[#0e1629] hover:bg-[#16233f] border border-[#1e2d4f] hover:border-amber-500/40 text-xs font-semibold text-neutral-300 hover:text-white transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-sm active:scale-95"
               >
                 <span>{grp.monthName.split(' ')[0]}</span>
                 <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">
@@ -285,11 +285,11 @@ export default async function MuhuratHubPage({ params }: PageProps) {
                     No auspicious dates recommended this month due to astrological restrictions (e.g., Khar Maas, Tara Asta, or Chaturmas).
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                  <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] bg-[#090e1a]">
+                    <table className="min-w-[620px] sm:min-w-full text-left text-xs sm:text-sm border-collapse">
                       <thead className="bg-[#0b1222] text-neutral-400 font-bold border-b border-[#162038] text-[10px] sm:text-[11px] uppercase tracking-wider font-outfit">
                         <tr>
-                          <th className="py-3 px-4 whitespace-nowrap">Date &amp; Day</th>
+                          <th className="py-3 px-4 whitespace-nowrap sticky left-0 z-30 bg-[#0d1424] shadow-[4px_0_8px_rgba(0,0,0,0.4)] min-w-[130px]">Date &amp; Day</th>
                           <th className="py-3 px-4 whitespace-nowrap">Tithi &amp; Nakshatra</th>
                           <th className="py-3 px-4 whitespace-nowrap">Shubh Daytime Windows</th>
                           <th className="py-3 px-4 whitespace-nowrap">Rahu Kaal (Avoid)</th>
@@ -308,7 +308,7 @@ export default async function MuhuratHubPage({ params }: PageProps) {
                           return (
                             <tr key={dIdx} className="hover:bg-[#11192e] transition-colors group">
                               {/* 1. Date & Day Calendar Tile */}
-                              <td className="py-3.5 px-4 whitespace-nowrap">
+                              <td className="py-3.5 px-4 whitespace-nowrap sticky left-0 z-10 bg-[#090e1a] shadow-[4px_0_8px_rgba(0,0,0,0.4)] min-w-[130px]">
                                 <div className="flex items-center gap-3">
                                   <div className="w-11 h-11 rounded-2xl flex flex-col items-center justify-center font-mono bg-[#11192e] text-white border border-[#233152] shadow-md group-hover:border-amber-500/50 group-hover:bg-[#15203a] transition-all shrink-0">
                                     <span className="text-sm font-extrabold leading-none text-white">{String(day.dayNumber).padStart(2, '0')}</span>
@@ -379,9 +379,9 @@ export default async function MuhuratHubPage({ params }: PageProps) {
                                   rel="noopener noreferrer"
                                   title="Share this Muhurat on WhatsApp"
                                   aria-label="Share this Muhurat date on WhatsApp"
-                                  className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
+                                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
                                 >
-                                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                                  <WhatsAppIcon className="w-4 h-4" />
                                 </a>
                               </td>
                             </tr>
@@ -417,7 +417,7 @@ export default async function MuhuratHubPage({ params }: PageProps) {
         </section>
 
         {/* ── Cross-Linking: Explore Other Life Event Muhurats ── */}
-        <section className="my-8 p-6 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
+        <section className="my-8 p-4 sm:p-6 rounded-2xl bg-[#090e1a] border border-[#1a2542]">
           <h2 className="text-lg font-bold text-white mb-3">
             Explore Other Shubh Karya Muhurat Hubs
           </h2>
@@ -426,7 +426,7 @@ export default async function MuhuratHubPage({ params }: PageProps) {
               <Link
                 key={m.slug}
                 href={`/muhurat/${m.slug}`}
-                className="px-3.5 py-2 rounded-xl bg-[#0e1629] hover:bg-[#16213d] border border-[#233152] hover:border-orange-500/40 text-xs text-neutral-300 hover:text-amber-300 transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2.5 min-h-[44px] rounded-xl bg-[#0e1629] hover:bg-[#16213d] border border-[#233152] hover:border-orange-500/40 text-xs text-neutral-300 hover:text-amber-300 transition-colors flex items-center gap-1.5"
               >
                 <span>{m.icon}</span>
                 <span>{m.name}</span>

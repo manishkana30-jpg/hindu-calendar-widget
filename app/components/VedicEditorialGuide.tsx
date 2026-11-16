@@ -43,11 +43,11 @@ export function VedicEditorialGuide() {
               Unlike the contemporary Gregorian civil clock which divides the 24-hour mean solar day into 86,400 seconds (base-10 / base-60 hybrid), classic Vedic astrometry—codified in the <em>Surya Siddhanta</em> and <em>Vedanga Jyotisha</em>—operates on a pure sexagesimal (base-60) division of the <strong>Ahoratra</strong> (the complete day-night cycle from sunrise to next sunrise).
             </p>
 
-            <div className="overflow-x-auto my-6">
-              <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1a2542] my-6 bg-[#090e1a]">
+              <table className="w-full min-w-[540px] sm:min-w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-[#233152] text-neutral-400 font-mono">
-                    <th className="py-2.5 px-3">Vedic Unit</th>
+                  <tr className="border-b border-[#233152] text-neutral-400 font-mono bg-[#0d1424]">
+                    <th className="sticky left-0 z-30 bg-[#0d1424] py-2.5 px-3 border-r border-[#233152] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">Vedic Unit</th>
                     <th className="py-2.5 px-3">Sexagesimal Sub-division</th>
                     <th className="py-2.5 px-3">Standard Equivalent</th>
                     <th className="py-2.5 px-3">Daily Total</th>
@@ -55,25 +55,25 @@ export function VedicEditorialGuide() {
                 </thead>
                 <tbody className="divide-y divide-[#16213a] text-neutral-200">
                   <tr>
-                    <td className="py-2.5 px-3 font-semibold text-orange-300">1 Ahoratra (Day-Night)</td>
+                    <td className="sticky left-0 z-10 bg-[#090e1a] py-2.5 px-3 font-semibold text-orange-300 border-r border-[#16213a] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">1 Ahoratra (Day-Night)</td>
                     <td className="py-2.5 px-3 font-mono">Fundamental Cycle</td>
                     <td className="py-2.5 px-3">24 Hours (Mean Solar)</td>
                     <td className="py-2.5 px-3 font-mono">1 Cycle</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-semibold text-orange-300">1 Ghati (Nadi)</td>
+                    <td className="sticky left-0 z-10 bg-[#090e1a] py-2.5 px-3 font-semibold text-orange-300 border-r border-[#16213a] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">1 Ghati (Nadi)</td>
                     <td className="py-2.5 px-3 font-mono">1/60th of Ahoratra</td>
                     <td className="py-2.5 px-3">24 Minutes</td>
                     <td className="py-2.5 px-3 font-mono">60 Ghatis</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-semibold text-orange-300">1 Pala (Vighati)</td>
+                    <td className="sticky left-0 z-10 bg-[#090e1a] py-2.5 px-3 font-semibold text-orange-300 border-r border-[#16213a] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">1 Pala (Vighati)</td>
                     <td className="py-2.5 px-3 font-mono">1/60th of Ghati</td>
                     <td className="py-2.5 px-3">24 Seconds</td>
                     <td className="py-2.5 px-3 font-mono">3,600 Palas</td>
                   </tr>
                   <tr>
-                    <td className="py-2.5 px-3 font-semibold text-orange-300">1 Vipala</td>
+                    <td className="sticky left-0 z-10 bg-[#090e1a] py-2.5 px-3 font-semibold text-orange-300 border-r border-[#16213a] shadow-[4px_0_8px_rgba(0,0,0,0.4)]">1 Vipala</td>
                     <td className="py-2.5 px-3 font-mono">1/60th of Pala</td>
                     <td className="py-2.5 px-3">0.4 Seconds (400 ms)</td>
                     <td className="py-2.5 px-3 font-mono">216,000 Vipalas</td>
@@ -152,7 +152,7 @@ export function VedicEditorialGuide() {
               Each segment is governed by one of the 7 classic rulers in an ancient planetary cycle anchored to the lord of the weekday:
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono">
+            <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs font-mono">
               <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300">
                 <span className="font-bold block text-sm">Amrit (अमृत)</span>
                 Auspicious (Nectar)

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200">
+    <div className="min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y bg-[#050811] text-neutral-100 font-sans selection:bg-orange-500/30 selection:text-orange-200">
       
       {/* Ambient background glow (Hardware-accelerated zero-blur radial gradient) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
