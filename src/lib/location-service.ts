@@ -48,9 +48,92 @@ export function calculateHaversineDistanceKm(
 }
 
 /**
- * Finds the nearest registered city from the catalog if within 50 km.
+ * Reverse geocodes coordinates to find the exact city, state, and country.
+ * Prioritizes high-precision client reverse geocoding API with fast timeouts,
+ * followed by OpenStreetMap Nominatim, followed by closest catalog city.
  */
-function findNearestCity(lat: number, lon: number): { name: string; country: string; state?: string } | null {
+export async function reverseGeocodeCoordinates(
+  lat: number,
+  lon: number
+): Promise<{ city: string; state?: string; country: string } | null> {
+  // 1. BigDataCloud free client reverse geocoding (fast, CORS-enabled, client-friendly)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const city =
+        data.city ||
+        data.locality ||
+        data.principalSubdivision ||
+        data.localityInfo?.administrative?.[2]?.name ||
+        data.localityInfo?.administrative?.[1]?.name;
+      const state = data.principalSubdivision;
+      const country = data.countryName || data.countryCode;
+
+      if (city) {
+        return {
+          city: city.trim(),
+          state: state?.trim(),
+          country: country?.trim() || 'Local'
+        };
+      }
+    }
+  } catch {
+    // Secondary fallback
+  }
+
+  // 2. OpenStreetMap Nominatim Reverse Geocoding fallback
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`;
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' }
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const city =
+        addr.city ||
+        addr.town ||
+        addr.village ||
+        addr.suburb ||
+        addr.municipality ||
+        addr.county ||
+        addr.state_district;
+      const state = addr.state;
+      const country = addr.country;
+
+      if (city) {
+        return {
+          city: city.trim(),
+          state: state?.trim(),
+          country: country?.trim() || 'Local'
+        };
+      }
+    }
+  } catch {
+    // Tertiary fallback to catalog
+  }
+
+  return null;
+}
+
+/**
+ * Finds the nearest registered city from the catalog.
+ */
+export function findNearestCity(
+  lat: number,
+  lon: number
+): { name: string; country: string; state?: string; distanceKm: number } | null {
   let closestDist = Infinity;
   let closestCity: (typeof CITIES)[0] | null = null;
 
@@ -62,11 +145,12 @@ function findNearestCity(lat: number, lon: number): { name: string; country: str
     }
   }
 
-  if (closestCity && closestDist <= 60) {
+  if (closestCity) {
     return {
       name: closestCity.name,
       country: closestCity.country,
-      state: closestCity.state
+      state: closestCity.state,
+      distanceKm: closestDist
     };
   }
 
@@ -137,6 +221,7 @@ export function persistLocationState(loc: LocationCoordinates, source: LocationS
   try {
     localStorage.setItem(STORAGE_KEY_LOCATION, JSON.stringify(loc));
     localStorage.setItem(STORAGE_KEY_SOURCE, source);
+    window.dispatchEvent(new CustomEvent('locationchange', { detail: { location: loc, source } }));
   } catch (err) {
     console.warn('Error saving location:', err);
   }
@@ -162,26 +247,49 @@ export async function requestGpsLocation(): Promise<{
 
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const lat = Number(pos.coords.latitude.toFixed(4));
         const lon = Number(pos.coords.longitude.toFixed(4));
-        const accuracy = pos.coords.accuracy;
+        const altitude = pos.coords.altitude ? Math.round(pos.coords.altitude) : 0;
 
         const { ianaTimezone, numericOffset } = resolveCurrentTimezone();
-        const nearest = findNearestCity(lat, lon);
 
-        const displayName = nearest
-          ? `${nearest.name} (GPS)`
-          : `GPS (${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'})`;
+        let cityName = '';
+        let countryName = '';
+        let regionName = '';
+
+        // 1. Try real reverse geocode
+        const geocoded = await reverseGeocodeCoordinates(lat, lon);
+        if (geocoded?.city) {
+          cityName = geocoded.city;
+          countryName = geocoded.country;
+          regionName = geocoded.state || '';
+        } else {
+          // 2. Fallback to nearest catalog city
+          const nearest = findNearestCity(lat, lon);
+          if (nearest) {
+            cityName = nearest.name;
+            countryName = nearest.country;
+            regionName = nearest.state || '';
+          } else {
+            // 3. Fallback to timezone name
+            const tzParts = ianaTimezone.split('/');
+            cityName = tzParts[tzParts.length - 1].replace(/_/g, ' ');
+            countryName = 'Local';
+          }
+        }
+
+        const displayName = `${cityName} (GPS)`;
 
         const location: LocationCoordinates = {
           name: displayName,
-          country: nearest?.country || 'Local Coordinates',
+          country: countryName || 'Local Coordinates',
           latitude: lat,
           longitude: lon,
+          elevation: altitude,
           timezone: numericOffset,
           ianaTimezone,
-          regionName: nearest?.state || 'GPS Location'
+          regionName: regionName || 'GPS Location'
         };
 
         persistLocationState(location, 'gps');

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Search, X, MapPin, Compass, ChevronRight, Sparkles } from 'lucide-react';
 import { TOP_CITIES, CityConfig, getLocalizedCityName, REGIONAL_CITY_NAMES } from '@/src/lib/constants/cities';
 import { useLanguage } from '@/src/context/LanguageContext';
+import { requestGpsLocation } from '@/src/lib/location-service';
 
 const POPULAR_SLUGS = [
   'new-delhi',
@@ -25,6 +26,7 @@ const POPULAR_SLUGS = [
 export function CitySearchModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [isGpsLoading, setIsGpsLoading] = useState(false);
   const pathname = usePathname() || '';
   const inputRef = useRef<HTMLInputElement>(null);
   const { language } = useLanguage();
@@ -186,6 +188,33 @@ export function CitySearchModal() {
                     <X size={14} />
                   </button>
                 )}
+              </div>
+
+              {/* Precision GPS Auto-Detection Button */}
+              <div className="mt-2.5">
+                <button
+                  type="button"
+                  disabled={isGpsLoading}
+                  onClick={async () => {
+                    setIsGpsLoading(true);
+                    try {
+                      const res = await requestGpsLocation();
+                      if (res.success && res.location) {
+                        setIsOpen(false);
+                      }
+                    } finally {
+                      setIsGpsLoading(false);
+                    }
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:from-emerald-900/90 hover:to-teal-900/90 border border-emerald-500/40 text-emerald-300 hover:text-emerald-200 text-xs font-bold transition-all shadow-sm active:scale-98 disabled:opacity-50 cursor-pointer"
+                >
+                  <MapPin size={13} className="text-emerald-400" />
+                  <span>
+                    {isGpsLoading
+                      ? (routeLang === 'hi' ? 'स्थान खोजा जा रहा है...' : 'Detecting GPS Location...')
+                      : (routeLang === 'hi' ? 'मेरे वर्तमान स्थान (GPS) का उपयोग करें' : 'Use My Current Location (Exact GPS)')}
+                  </span>
+                </button>
               </div>
 
               {/* Language Switcher inside modal */}

@@ -868,10 +868,91 @@ export function formatUtcDateToLocalDateString(date: Date, tz: number, reference
 // ─────────────────────────────────────────────────────────────────────────────
 // EXACT SOLAR TIMINGS (NOAA SOLAR CALCULATIONS WITH REFRACTION & EQUATION OF TIME)
 // ─────────────────────────────────────────────────────────────────────────────
-export function calculateSunTimes(targetDate: Date, lat: number, lng: number, tz: number, elevationMeters: number = 0) {
-  const year = targetDate.getFullYear();
-  const month = targetDate.getMonth();
-  const day = targetDate.getDate();
+
+export interface CivilDateParts {
+  year: number;
+  month: number; // 0-indexed (0 = Jan, 11 = Dec)
+  day: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  dateKey: string; // 'YYYY-MM-DD'
+}
+
+/**
+ * Resolves the civil Gregorian calendar date (year, month, day, hours, minutes)
+ * strictly in the observer's local IANA timezone or numeric UTC offset.
+ */
+export function getCivilDateInLocation(
+  date: Date,
+  tzOffsetHours: number = 5.5,
+  ianaTimezone?: string
+): CivilDateParts {
+  if (ianaTimezone) {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: ianaTimezone,
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(date);
+      let year = date.getUTCFullYear();
+      let month = date.getUTCMonth();
+      let day = date.getUTCDate();
+      let hours = date.getUTCHours();
+      let minutes = date.getUTCMinutes();
+      let seconds = date.getUTCSeconds();
+
+      for (const p of parts) {
+        if (p.type === 'year') year = parseInt(p.value, 10);
+        else if (p.type === 'month') month = parseInt(p.value, 10) - 1;
+        else if (p.type === 'day') day = parseInt(p.value, 10);
+        else if (p.type === 'hour') hours = parseInt(p.value, 10) % 24;
+        else if (p.type === 'minute') minutes = parseInt(p.value, 10);
+        else if (p.type === 'second') seconds = parseInt(p.value, 10);
+      }
+
+      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      return { year, month, day, hours, minutes, seconds, dateKey };
+    } catch {
+      // Fallback to numeric offset calculation
+    }
+  }
+
+  const localMs = date.getTime() + tzOffsetHours * 3600000;
+  const d = new Date(localMs);
+  const year = d.getUTCFullYear();
+  const month = d.getUTCMonth();
+  const day = d.getUTCDate();
+  const hours = d.getUTCHours();
+  const minutes = d.getUTCMinutes();
+  const seconds = d.getUTCSeconds();
+  const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  return { year, month, day, hours, minutes, seconds, dateKey };
+}
+
+export function calculateSunTimes(
+  targetDate: Date,
+  lat: number,
+  lng: number,
+  tz: number,
+  elevationMeters: number = 0,
+  ianaTimezone?: string
+) {
+  // If targetDate represents the current live instant, extract the observer's exact local civil date
+  const isLive = Math.abs(targetDate.getTime() - Date.now()) < 120000;
+  const civil = isLive
+    ? getCivilDateInLocation(targetDate, tz, ianaTimezone)
+    : { year: targetDate.getFullYear(), month: targetDate.getMonth(), day: targetDate.getDate() };
+
+  const year = civil.year;
+  const month = civil.month;
+  const day = civil.day;
   
   // Approximate noon JD for day calculation
   const baseUtcMs = Date.UTC(year, month, day, 12 - tz, 0, 0);
@@ -1261,21 +1342,25 @@ export function calculatePanchang(
 ): PanchangData {
   const currentTz = resolveTimezoneOffset(targetDate, location);
   const elev = location.elevation ?? elevationMeters;
-  const sunTimes = calculateSunTimes(targetDate, location.latitude, location.longitude, currentTz, elev);
+  const sunTimes = calculateSunTimes(targetDate, location.latitude, location.longitude, currentTz, elev, location.ianaTimezone);
   
   // 1. INSTANTANEOUS MOMENT RESOLUTION (Real-time Clock / Selected Time)
-  const isTodayDate = targetDate.toDateString() === new Date().toDateString();
-  const hasSpecificTime = specificTime !== undefined || targetDate.getHours() !== 0 || targetDate.getMinutes() !== 0;
+  const isLive = !specificTime && Math.abs(targetDate.getTime() - Date.now()) < 120000;
+  const civilDate = isLive
+    ? getCivilDateInLocation(targetDate, currentTz, location.ianaTimezone)
+    : { year: targetDate.getFullYear(), month: targetDate.getMonth(), day: targetDate.getDate() };
+
+  const isTodayDate = isLive || targetDate.toDateString() === new Date().toDateString();
+  const hasSpecificTime = specificTime !== undefined;
   const now = specificTime || (
-    hasSpecificTime
-      ? targetDate
-      : (isTodayDate 
-          ? new Date() 
-          : new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 12, 0, 0))
+    isTodayDate 
+      ? new Date() 
+      : new Date(civilDate.year, civilDate.month, civilDate.day, 12, 0, 0)
   );
 
-  const timeKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}:${now.getMinutes()}`;
-  const targetDayKey = `${targetDate.getFullYear()}-${targetDate.getMonth()}-${targetDate.getDate()}`;
+  const civilNow = getCivilDateInLocation(now, currentTz, location.ianaTimezone);
+  const timeKey = `${civilNow.year}-${civilNow.month}-${civilNow.day}_${civilNow.hours}:${civilNow.minutes}`;
+  const targetDayKey = `${civilDate.year}-${civilDate.month}-${civilDate.day}`;
   const cacheKey = `${targetDayKey}_${timeKey}_${location.latitude.toFixed(2)}_${location.longitude.toFixed(2)}_${elev}`;
   const cached = panchangCalculationCache.get(cacheKey);
   if (cached) return cached;
@@ -1358,11 +1443,11 @@ export function calculatePanchang(
     karanaObj = KARANAS[movableIndex];
   }
 
-  // Vaar (Weekday from sunrise)
-  const dayOfWeek = targetDate.getDay();
+  // Vaar (Weekday from sunrise in observer's civil date)
+  const dayOfWeek = new Date(Date.UTC(civilDate.year, civilDate.month, civilDate.day)).getUTCDay();
   const vaar = VAARS[dayOfWeek];
 
-  const currentMinutes = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  const currentMinutes = civilNow.hours * 60 + civilNow.minutes + civilNow.seconds / 60;
 
   // Ishta Kaal (Ghatis from Sunrise)
   let elapsedMinutesFromSunrise = currentMinutes - sunTimes.sunriseMinutes;
@@ -1655,10 +1740,22 @@ export function calculatePanchang(
 
   const result: PanchangData = {
     date: targetDate,
-    dateString: targetDate.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+    dateString: new Intl.DateTimeFormat('en-GB', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: location.ianaTimezone || 'Asia/Kolkata'
+    }).format(now),
     dayOfWeekName: vaar.name,
     location,
-    timeFormatted: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }),
+    timeFormatted: new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: location.ianaTimezone || 'Asia/Kolkata'
+    }).format(now),
     udayaTithi: {
       index: udayaTithiObj.index,
       name: udayaTithiObj.name,

@@ -20,7 +20,8 @@ import {
   TITHIS,
   formatUtcDateToLocalTime,
   cleanMasaMonthName,
-  formatNormalizedPakshaTithi
+  formatNormalizedPakshaTithi,
+  getCivilDateInLocation
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { usePanchang } from '../../src/hooks/usePanchang';
@@ -41,7 +42,8 @@ import {
   getSavedLocationState,
   requestGpsLocation,
   checkHasMovedSignificantly,
-  persistLocationState
+  persistLocationState,
+  LocationSource
 } from '../../src/lib/location-service';
 import { formatLastUpdatedTime } from '../../src/lib/panchang-cache';
 import { getHolidayAndEclipseDetails } from '../../src/lib/eclipses-and-holidays';
@@ -373,16 +375,32 @@ export function HinduPanchangWidget({
       }
     }
 
-    // Re-check location on app open if user moved > 50 km or changed timezone
-    if (saved?.source === 'gps' && typeof navigator !== 'undefined' && 'geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const moved = checkHasMovedSignificantly(
-            saved.location,
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          if (moved) {
+    // Auto-detect or refresh GPS location:
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      if (saved?.source === 'gps') {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const moved = checkHasMovedSignificantly(
+              saved.location,
+              pos.coords.latitude,
+              pos.coords.longitude
+            );
+            if (moved) {
+              requestGpsLocation().then((res) => {
+                if (res.success && res.location) {
+                  setSelectedLocation(res.location);
+                  setObserver(res.location);
+                  setLocationSource('gps');
+                }
+              });
+            }
+          },
+          () => {},
+          { timeout: 8000, maximumAge: 300000 }
+        );
+      } else if (typeof navigator.permissions !== 'undefined' && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+          if (status.state === 'granted') {
             requestGpsLocation().then((res) => {
               if (res.success && res.location) {
                 setSelectedLocation(res.location);
@@ -391,12 +409,26 @@ export function HinduPanchangWidget({
               }
             });
           }
-        },
-        () => {},
-        { timeout: 8000, maximumAge: 300000 }
-      );
+        }).catch(() => {});
+      }
     }
   }, [initialLocation, isCityPage, setObserver]);
+
+  // Listen to global location changes (e.g. from CitySearchModal or NotificationSettingsModal)
+  useEffect(() => {
+    const handleLocationChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ location: LocationCoordinates; source?: LocationSource }>;
+      if (customEvent.detail?.location) {
+        setSelectedLocation(customEvent.detail.location);
+        setObserver(customEvent.detail.location);
+        if (customEvent.detail.source) {
+          setLocationSource(customEvent.detail.source);
+        }
+      }
+    };
+    window.addEventListener('locationchange', handleLocationChange);
+    return () => window.removeEventListener('locationchange', handleLocationChange);
+  }, [setObserver]);
 
   // Periodic update of "Last updated" indicator every 30 seconds with strict clearInterval cleanup
   useEffect(() => {
@@ -556,14 +588,12 @@ export function HinduPanchangWidget({
     return findNextAuspiciousMuhurat(targetInstant, selectedLocation);
   }, [todayMuhurat.isAuspiciousDay, targetDayKey, selectedLocation]);
 
-  // Formatted date string for native date input (YYYY-MM-DD)
+  // Formatted date string for native date input (YYYY-MM-DD) anchored to observer's local civil date
   const selectedDateYyyyMmDd = useMemo(() => {
-    const d = selectedDate;
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }, [selectedDate]);
+    const d = isLiveMode ? targetInstant : selectedDate;
+    const civil = getCivilDateInLocation(d, observer.tzOffset, observer.timezone);
+    return civil.dateKey;
+  }, [isLiveMode, targetInstant, selectedDate, observer.tzOffset, observer.timezone]);
 
   // Actions wired directly to SSOT
   const handlePrevDay = prevDay;
@@ -691,6 +721,11 @@ export function HinduPanchangWidget({
                 }}
                 className="pl-7 pr-6 py-1.5 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-[11px] sm:text-xs font-semibold text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate"
               >
+                {locationSource === 'gps' && !ALL_LOCATIONS.some((l) => l.name === selectedLocation.name) && (
+                  <option value={selectedLocation.name} className="bg-slate-900 text-emerald-300 font-bold">
+                    📍 {selectedLocation.name}
+                  </option>
+                )}
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
                     {loc.name} ({loc.country})

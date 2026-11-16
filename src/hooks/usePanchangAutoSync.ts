@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   LocationCoordinates,
   PanchangData,
-  calculatePanchang
+  calculatePanchang,
+  getCivilDateInLocation
 } from '../lib/vedic-astronomy';
 import {
   DailyTithiResolution,
@@ -96,19 +97,18 @@ export function usePanchangAutoSync({
     }
   }, [isLiveMode, customDate]);
 
-  // Stable civil day key: changes ONLY when crossing midnight or when customDate changes
+  // Stable civil day key: changes ONLY when crossing midnight in observer location or when customDate changes
   // Extracts day primitives so the 1-second clock tick does NOT change this key
   const civilDayKey = useMemo(() => {
     const d = isLiveMode ? currentTime : (customDate || currentTime);
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const civil = getCivilDateInLocation(d, location.timezone, location.ianaTimezone);
+    return civil.dateKey;
   }, [
     isLiveMode,
-    isLiveMode ? currentTime.getFullYear() : undefined,
-    isLiveMode ? currentTime.getMonth() : undefined,
-    isLiveMode ? currentTime.getDate() : undefined,
-    customDate ? customDate.getFullYear() : undefined,
-    customDate ? customDate.getMonth() : undefined,
-    customDate ? customDate.getDate() : undefined
+    currentTime,
+    customDate,
+    location.timezone,
+    location.ianaTimezone
   ]);
 
   // Heavy astronomical calculation (DECOUPLED from 1-second tick)

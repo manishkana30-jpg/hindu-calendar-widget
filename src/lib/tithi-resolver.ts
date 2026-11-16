@@ -7,7 +7,7 @@
  * 4. Sub-second boundary start and end timestamps
  */
 
-import { LocationCoordinates, resolveTimezoneOffset, TITHIS } from './vedic-astronomy';
+import { LocationCoordinates, resolveTimezoneOffset, TITHIS, getCivilDateInLocation } from './vedic-astronomy';
 import {
   getJulianDay,
   getElongationAngle,
@@ -150,10 +150,15 @@ export function resolveDailyTithi(
 ): DailyTithiResolution {
   const tz = resolveTimezoneOffset(targetDate, location);
 
-  // 1. Calculate topocentric sunrises for Yesterday, Today, and Tomorrow
-  const year = targetDate.getFullYear();
-  const month = targetDate.getMonth();
-  const day = targetDate.getDate();
+  // 1. Calculate topocentric sunrises for Yesterday, Today, and Tomorrow in observer's civil date
+  const isLive = !specificTime && Math.abs(targetDate.getTime() - Date.now()) < 120000;
+  const civil = isLive
+    ? getCivilDateInLocation(targetDate, tz, location.ianaTimezone)
+    : { year: targetDate.getFullYear(), month: targetDate.getMonth(), day: targetDate.getDate() };
+
+  const year = civil.year;
+  const month = civil.month;
+  const day = civil.day;
 
   const todaySun = calculateSunTimesWithRefraction(
     new Date(year, month, day, 12, 0, 0),
@@ -180,7 +185,7 @@ export function resolveDailyTithi(
   );
 
   // 2. Determine exact instantaneous observation time
-  const isTodayDate = targetDate.toDateString() === new Date().toDateString();
+  const isTodayDate = isLive || targetDate.toDateString() === new Date().toDateString();
   const observationTime =
     specificTime ||
     (isTodayDate

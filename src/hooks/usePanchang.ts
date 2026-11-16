@@ -8,7 +8,8 @@ import {
   TITHIS,
   formatUtcDateToLocalTime,
   resolveTimezoneOffset,
-  ChoghadiyaSlot
+  ChoghadiyaSlot,
+  getCivilDateInLocation
 } from '../lib/vedic-astronomy';
 import {
   DailyTithiResolution
@@ -346,15 +347,14 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
   // Date anchor key to decouple offset, observer, and daily observances from 1-second ticks
   const targetDayKey = useMemo(() => {
     const d = isLiveMode ? liveTime : selectedDate;
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const civil = getCivilDateInLocation(d, observerLocation.timezone, ianaTz);
+    return civil.dateKey;
   }, [
     isLiveMode,
-    isLiveMode ? liveTime.getFullYear() : undefined,
-    isLiveMode ? liveTime.getMonth() : undefined,
-    isLiveMode ? liveTime.getDate() : undefined,
-    selectedDate ? selectedDate.getFullYear() : undefined,
-    selectedDate ? selectedDate.getMonth() : undefined,
-    selectedDate ? selectedDate.getDate() : undefined
+    liveTime,
+    selectedDate,
+    observerLocation.timezone,
+    ianaTz
   ]);
 
   const tzOffset = useMemo(
@@ -633,20 +633,18 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
   const prevDay = useCallback(() => {
     setIsLiveModeState(false);
     setSelectedDateState((prev) => {
-      const next = new Date(prev);
-      next.setDate(next.getDate() - 1);
-      return next;
+      const civil = getCivilDateInLocation(prev, tzOffset, ianaTz);
+      return new Date(civil.year, civil.month, civil.day - 1, 12, 0, 0);
     });
-  }, []);
+  }, [tzOffset, ianaTz]);
 
   const nextDay = useCallback(() => {
     setIsLiveModeState(false);
     setSelectedDateState((prev) => {
-      const next = new Date(prev);
-      next.setDate(next.getDate() + 1);
-      return next;
+      const civil = getCivilDateInLocation(prev, tzOffset, ianaTz);
+      return new Date(civil.year, civil.month, civil.day + 1, 12, 0, 0);
     });
-  }, []);
+  }, [tzOffset, ianaTz]);
 
   const setDateFromInput = useCallback((dateStr: string) => {
     if (!dateStr) return;
