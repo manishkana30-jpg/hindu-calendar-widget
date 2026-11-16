@@ -995,12 +995,30 @@ export const MAJOR_HINDU_FESTIVALS: VedicFestivalDefinition[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. FESTIVAL MATCHING ENGINE (FOR ANY SPECIFIC DATE)
 // ─────────────────────────────────────────────────────────────────────────────
+const festivalForDateCache = new Map<string, ActiveFestivalResult>();
+const MAX_FESTIVAL_CACHE_SIZE = 256;
+
 export function getFestivalForDate(
   targetDate: Date,
   location: LocationCoordinates,
   options?: DharmashastraEngineOptions
 ): ActiveFestivalResult {
-  return determineFestivalForDate(targetDate, location, options, MAJOR_HINDU_FESTIVALS);
+  const dateKey = `${targetDate.getFullYear()}-${targetDate.getMonth() + 1}-${targetDate.getDate()}`;
+  const locKey = `${location.latitude.toFixed(2)}_${location.longitude.toFixed(2)}`;
+  const optKey = options ? (options.sampradaya || 'smarta') : 'def';
+  const cacheKey = `${dateKey}|${locKey}|${optKey}`;
+
+  const cached = festivalForDateCache.get(cacheKey);
+  if (cached) return cached;
+
+  const result = determineFestivalForDate(targetDate, location, options, MAJOR_HINDU_FESTIVALS);
+
+  if (festivalForDateCache.size >= MAX_FESTIVAL_CACHE_SIZE) {
+    const oldestKey = festivalForDateCache.keys().next().value;
+    if (oldestKey) festivalForDateCache.delete(oldestKey);
+  }
+  festivalForDateCache.set(cacheKey, result);
+  return result;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1074,6 +1092,9 @@ export function findUpcomingMajorFestival(
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. FORWARD SCANNER: LIST MULTIPLE UPCOMING FESTIVALS (FOR MODAL)
 // ─────────────────────────────────────────────────────────────────────────────
+const upcomingFestivalsCache = new Map<string, UpcomingFestivalResult[]>();
+const MAX_UPCOMING_CACHE_SIZE = 128;
+
 export function getUpcomingFestivalsList(
   fromDate: Date,
   location: LocationCoordinates,
@@ -1082,6 +1103,16 @@ export function getUpcomingFestivalsList(
   options?: DharmashastraEngineOptions,
   includeToday: boolean = false
 ): UpcomingFestivalResult[] {
+  const dateKey = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+  const locKey = `${location.latitude.toFixed(2)}_${location.longitude.toFixed(2)}`;
+  const optKey = options ? (options.sampradaya || 'smarta') : 'def';
+  const cacheKey = `${dateKey}|${locKey}|${count}|${maxDays}|${includeToday ? 1 : 0}|${optKey}`;
+
+  const cached = upcomingFestivalsCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const results: UpcomingFestivalResult[] = [];
   const baseMidnight = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
 
@@ -1139,6 +1170,12 @@ export function getUpcomingFestivalsList(
       });
     }
   }
+
+  if (upcomingFestivalsCache.size >= MAX_UPCOMING_CACHE_SIZE) {
+    const oldestKey = upcomingFestivalsCache.keys().next().value;
+    if (oldestKey) upcomingFestivalsCache.delete(oldestKey);
+  }
+  upcomingFestivalsCache.set(cacheKey, results);
 
   return results;
 }

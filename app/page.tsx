@@ -170,18 +170,18 @@ export default async function LandingPage() {
             Detailed scriptural dates, fasting guidelines, and exact Parana (fast-breaking) intervals for all major Sanatana Dharma observances:
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {Object.values(VRAT_DEFINITIONS).map((vrat) => (
               <Link
                 key={vrat.slug}
                 href={`/vrat/${vrat.slug}`}
-                className="p-2.5 rounded-xl bg-[#1a0e05]/70 hover:bg-[#2a1708] border border-amber-500/25 hover:border-amber-400/60 text-xs text-neutral-200 hover:text-amber-200 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all block truncate"
+                className="p-3 rounded-xl bg-[#1a0e05]/70 hover:bg-[#2a1708] border border-amber-500/25 hover:border-amber-400/60 text-xs text-neutral-200 hover:text-amber-200 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all flex flex-col justify-between"
               >
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span>{vrat.icon}</span>
-                  <span className="font-bold truncate">{vrat.name}</span>
+                <div className="flex items-start gap-1.5 mb-1">
+                  <span className="text-base shrink-0 select-none">{vrat.icon}</span>
+                  <span className="font-bold leading-snug break-words">{vrat.name}</span>
                 </div>
-                <div className="text-[10px] text-amber-300/70 font-devanagari truncate">{vrat.hindiName}</div>
+                <div className="text-[10px] text-amber-300/80 font-devanagari mt-auto">{vrat.hindiName}</div>
               </Link>
             ))}
           </div>
@@ -205,18 +205,18 @@ export default async function LandingPage() {
             Plan major life milestones with verified planetary alignment, favorable Nakshatra and Tithi combinations:
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Object.values(MUHURAT_CATEGORIES).map((muhurat) => (
               <Link
                 key={muhurat.slug}
                 href={`/muhurat/${muhurat.slug}`}
-                className="p-3 rounded-xl bg-[#031c13]/70 hover:bg-[#062c1e] border border-emerald-500/25 hover:border-emerald-400/60 text-xs text-neutral-200 hover:text-emerald-200 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all block"
+                className="p-3.5 rounded-xl bg-[#031c13]/70 hover:bg-[#062c1e] border border-emerald-500/25 hover:border-emerald-400/60 text-xs text-neutral-200 hover:text-emerald-200 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex flex-col justify-between"
               >
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span>{muhurat.icon}</span>
-                  <span className="font-bold truncate">{muhurat.name}</span>
+                <div className="flex items-start gap-2 mb-1.5">
+                  <span className="text-base shrink-0 select-none">{muhurat.icon}</span>
+                  <span className="font-bold leading-snug break-words">{muhurat.name}</span>
                 </div>
-                <div className="text-[10px] text-emerald-300/70 font-devanagari truncate">{muhurat.hindiName}</div>
+                <div className="text-[11px] text-emerald-300/80 font-devanagari mt-auto">{muhurat.hindiName}</div>
               </Link>
             ))}
           </div>

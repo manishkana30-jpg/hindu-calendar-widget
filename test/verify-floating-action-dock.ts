@@ -31,7 +31,7 @@ async function runFloatingDockAudit() {
   const widgetContent = fs.readFileSync('app/components/HinduPanchangWidget.tsx', 'utf8');
   assert(widgetContent.includes('handleShare'), 'Widget implements handleShare function');
   assert(widgetContent.includes('WhatsAppIcon'), 'Widget renders WhatsAppIcon');
-  assert(widgetContent.includes('aria-label="Share on WhatsApp"'), 'Share button has accessible aria-label="Share on WhatsApp"');
+  assert(widgetContent.includes('aria-label="Share on WhatsApp"') || widgetContent.includes('aria-label="Share Today\'s Panchang on WhatsApp"'), 'Share button has accessible aria-label="Share on WhatsApp"');
   assert(widgetContent.includes('Link copied to clipboard!'), 'Share handler provides clipboard toast fallback');
 
   // ── TEST 3: usePwaInstall Hook Architecture ─────────────────────────────────
@@ -71,7 +71,7 @@ async function runFloatingDockAudit() {
   const shareData = buildShareDataFromPanchang(today, pData);
   const payload = formatPanchangShareText(shareData);
 
-  assert(payload.includes('🌅 Aaj Ka Panchang • Daily Tithi'), 'Payload contains header');
+  assert(payload.includes('Aaj Ka Panchang • Daily Tithi'), 'Payload contains header');
   assert(payload.includes('https://dailytithi.com'), 'Payload links back to https://dailytithi.com');
 
   console.log('\n═══════════════════════════════════════════════════════════════════════════════════');

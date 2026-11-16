@@ -30,9 +30,17 @@ import { configureWebPush } from './vapid-config';
 export const DEFAULT_ADMIN_SECRET = 'panchang-admin-secret-2026';
 
 export function verifyAdminKey(providedKey: string | null | undefined): boolean {
-  const expectedKey = process.env.ADMIN_SECRET_KEY || DEFAULT_ADMIN_SECRET;
   if (!providedKey) return false;
-  return providedKey.trim() === expectedKey.trim();
+  const isProduction = process.env.NODE_ENV === 'production';
+  const expectedKey = process.env.ADMIN_SECRET_KEY;
+  if (isProduction) {
+    if (!expectedKey) {
+      console.error('[SECURITY CRITICAL] ADMIN_SECRET_KEY is not defined in production environment.');
+      return false;
+    }
+    return providedKey.trim() === expectedKey.trim();
+  }
+  return providedKey.trim() === (expectedKey || DEFAULT_ADMIN_SECRET).trim();
 }
 
 /**

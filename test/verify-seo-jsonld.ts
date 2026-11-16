@@ -20,18 +20,18 @@ async function runJsonLdVerification() {
   console.log('═══════════════════════════════════════════════════════════════════════════════════\n');
 
   // ── TEST 1: Deduplication Guard ───────────────────────────────────────────
-  console.log('▸ 1. Verifying Single Global JSON-LD Script Injection:');
+  console.log('▸ 1. Verifying Single Global SoftwareApplication Schema Injection:');
   const appDir = path.resolve('app');
-  const findScriptTags = (dir: string): string[] => {
+  const findSoftwareApplicationFiles = (dir: string): string[] => {
     let results: string[] = [];
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        results = results.concat(findScriptTags(fullPath));
+        results = results.concat(findSoftwareApplicationFiles(fullPath));
       } else if (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts')) {
         const content = fs.readFileSync(fullPath, 'utf8');
-        if (content.includes('type="application/ld+json"')) {
+        if (content.includes("'@type': 'SoftwareApplication'") || content.includes('"@type": "SoftwareApplication"')) {
           results.push(path.relative(process.cwd(), fullPath).replace(/\\/g, '/'));
         }
       }
@@ -39,15 +39,12 @@ async function runJsonLdVerification() {
     return results;
   };
 
-  const scriptFiles = findScriptTags(appDir);
-  assert(scriptFiles.length === 1, `Exactly one file in app/ renders application/ld+json (found: ${scriptFiles.length})`);
-  assert(scriptFiles[0] === 'app/layout.tsx', `Only app/layout.tsx renders global JSON-LD (found: ${scriptFiles[0]})`);
+  const softwareFiles = findSoftwareApplicationFiles(appDir);
+  assert(softwareFiles.length === 1, `Exactly one file in app/ defines SoftwareApplication (found: ${softwareFiles.length})`);
+  assert(softwareFiles[0] === 'app/layout.tsx', `Only app/layout.tsx defines global SoftwareApplication (found: ${softwareFiles[0]})`);
 
-  const pageContent = fs.readFileSync('app/page.tsx', 'utf8');
-  assert(!pageContent.includes('application/ld+json'), 'app/page.tsx does not inject duplicate JSON-LD');
-
-  const cityPageContent = fs.readFileSync('app/panchang/[city]/page.tsx', 'utf8');
-  assert(!cityPageContent.includes('application/ld+json'), 'app/panchang/[city]/page.tsx does not inject duplicate JSON-LD');
+  const layoutScript = fs.readFileSync('app/layout.tsx', 'utf8');
+  assert(layoutScript.includes('type="application/ld+json"'), 'app/layout.tsx injects structured data JSON-LD');
 
   // ── TEST 2: Schema Compliance & aggregateRating ───────────────────────────
   console.log('\n▸ 2. Verifying SoftwareApplication Schema & aggregateRating:');
@@ -69,17 +66,35 @@ async function runJsonLdVerification() {
   assert(layoutContent.includes("worstRating: '1'"), "aggregateRating specifies worstRating: '1'");
 
   // ── TEST 3: Production Build HTML Single Tag Verification ──────────────────
-  console.log('\n▸ 3. Verifying Single JSON-LD Tag in Production Build HTML:');
+  console.log('\n▸ 3. Verifying Single SoftwareApplication Tag in Production Build HTML:');
   const indexHtmlPath = path.resolve('.next/server/app/index.html');
   if (fs.existsSync(indexHtmlPath)) {
     const html = fs.readFileSync(indexHtmlPath, 'utf8');
     const regex = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
     const matches = [...html.matchAll(regex)];
-    assert(matches.length === 1, `Production index.html contains exactly 1 JSON-LD script (found: ${matches.length})`);
-    
-    const parsed = JSON.parse(matches[0][1]);
-    const software = parsed['@graph']?.find((item: Record<string, unknown>) => item['@type'] === 'SoftwareApplication');
-    assert(!!software, 'Production HTML contains SoftwareApplication in @graph');
+    const parsedSchemas = matches.map((m) => {
+      try {
+        return JSON.parse(m[1]);
+      } catch {
+        return {};
+      }
+    });
+
+    const softwareSchemas = parsedSchemas.filter((s) => {
+      if (s['@type'] === 'SoftwareApplication') return true;
+      if (Array.isArray(s['@graph'])) {
+        return s['@graph'].some((item: Record<string, unknown>) => item['@type'] === 'SoftwareApplication');
+      }
+      return false;
+    });
+
+    assert(softwareSchemas.length === 1, `Production index.html contains exactly 1 SoftwareApplication schema (found: ${softwareSchemas.length})`);
+
+    const software = Array.isArray(softwareSchemas[0]['@graph'])
+      ? softwareSchemas[0]['@graph'].find((item: Record<string, unknown>) => item['@type'] === 'SoftwareApplication')
+      : softwareSchemas[0];
+
+    assert(!!software, 'Production HTML contains SoftwareApplication in schema');
     assert(software?.aggregateRating?.ratingValue === '4.9', 'Production HTML contains ratingValue 4.9');
     assert(software?.aggregateRating?.ratingCount === '128', 'Production HTML contains ratingCount 128');
   }

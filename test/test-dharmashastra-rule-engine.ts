@@ -35,7 +35,7 @@ if (ekadashiDay) {
 }
 
 // Find a Pradosh in Nov 2026
-const pradoshDay = daysNov2026.find(d => d.udayaTithi.index === 13 || d.udayaTithi.index === 28 || (d.festival && d.festival.toLowerCase().includes('pradosh')));
+const pradoshDay = daysNov2026.find(d => (d.festival && d.festival.toLowerCase().includes('pradosh')) || d.udayaTithi.index === 13);
 if (pradoshDay) {
   const pradoshRuleEn = resolveDharmaShastraRule(pradoshDay, 'en', tEn);
   console.log('Pradosh Rule (En):', pradoshRuleEn.fullRule);
