@@ -15,6 +15,7 @@ import {
 } from '@/src/lib/seo-schemas';
 import { AdSlot } from '@/app/components/AdSlot';
 import { Footer } from '@/src/components/Footer';
+import { WhatsAppIcon } from '@/app/components/WhatsAppShareButton';
 
 export const revalidate = 3600; // 1 hour ISR revalidation
 
@@ -225,69 +226,167 @@ export default async function MuhuratHubPage({ params }: PageProps) {
 
         {/* ── 12-Month Calendar of Auspicious Dates ── */}
         <section className="my-8">
-          <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+          <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
             <div className="flex items-center gap-2 text-white">
               <Calendar size={20} className="text-amber-400" />
-              <h2 className="text-xl sm:text-2xl font-bold">
+              <h2 className="text-xl sm:text-2xl font-bold font-outfit">
                 12-Month Calendar for {muhurat.name} ({currentYear})
               </h2>
             </div>
-            <span className="text-xs text-neutral-400 font-mono">
-              Filtered for Rahu Kaal &amp; Bhadra Avoidance
+            <span className="text-xs text-emerald-400 font-mono bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+              ✓ Filtered for Rahu Kaal &amp; Bhadra
             </span>
+          </div>
+
+          {/* Quick Month Jump Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-6 scrollbar-thin">
+            {calendarMonths.map((grp) => (
+              <a
+                key={grp.monthNumber}
+                href={`#month-${grp.monthNumber}`}
+                className="px-3 py-1.5 rounded-xl bg-[#0e1629] hover:bg-[#16233f] border border-[#1e2d4f] hover:border-amber-500/40 text-xs font-semibold text-neutral-300 hover:text-white transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 shadow-sm active:scale-95"
+              >
+                <span>{grp.monthName.split(' ')[0]}</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">
+                  {grp.auspiciousDays.length}
+                </span>
+              </a>
+            ))}
           </div>
 
           <div className="space-y-6">
             {calendarMonths.map((group) => (
-              <div key={group.monthNumber} className="rounded-2xl border border-[#1e2d4f] bg-[#090e1a]/90 shadow-xl overflow-hidden">
-                <div className="bg-[#0e1629] px-5 py-3 border-b border-[#1e2d4f] flex items-center justify-between">
-                  <h3 className="font-bold text-amber-300 text-sm sm:text-base">
-                    📅 {group.monthName}
-                  </h3>
-                  <span className="text-xs text-neutral-400 font-mono">
-                    {group.auspiciousDays.length} Auspicious Days
+              <div 
+                key={group.monthNumber} 
+                id={`month-${group.monthNumber}`}
+                className="rounded-3xl border border-[#1e2d4f] bg-[#090e1a]/95 shadow-2xl overflow-hidden backdrop-blur-md scroll-mt-24"
+              >
+                <div className="bg-gradient-to-r from-[#0e1629] via-[#101b33] to-[#0e1629] px-5 sm:px-6 py-3.5 border-b border-[#1e2d4f] flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-300 text-sm font-bold shadow-inner">
+                      📅
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-amber-300 text-sm sm:text-base font-outfit tracking-tight">
+                        {group.monthName}
+                      </h3>
+                      <span className="text-[10px] text-neutral-400 font-sans">
+                        Auspicious dates for {muhurat.name}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-amber-300 font-mono font-bold bg-amber-500/15 border border-amber-500/30 px-3 py-1 rounded-full">
+                    {group.auspiciousDays.length} {group.auspiciousDays.length === 1 ? 'Auspicious Day' : 'Auspicious Days'}
                   </span>
                 </div>
 
                 {group.auspiciousDays.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-neutral-500">
+                  <div className="p-8 text-center text-xs text-neutral-500 font-sans">
                     No auspicious dates recommended this month due to astrological restrictions (e.g., Khar Maas, Tara Asta, or Chaturmas).
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs sm:text-sm">
-                      <thead className="bg-[#0b1222] text-neutral-400 font-semibold border-b border-[#162038] text-[10px] sm:text-[11px] uppercase tracking-wider">
+                    <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                      <thead className="bg-[#0b1222] text-neutral-400 font-bold border-b border-[#162038] text-[10px] sm:text-[11px] uppercase tracking-wider font-outfit">
                         <tr>
-                          <th className="py-2.5 px-4">Date</th>
-                          <th className="py-2.5 px-4">Tithi &amp; Nakshatra</th>
-                          <th className="py-2.5 px-4">Shubh Daytime Window</th>
-                          <th className="py-2.5 px-4">Rahu Kaal (Avoid)</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Date &amp; Day</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Tithi &amp; Nakshatra</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Shubh Daytime Windows</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Rahu Kaal (Avoid)</th>
+                          <th className="py-3 px-4 whitespace-nowrap text-right">Share</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#162038]">
-                        {group.auspiciousDays.map((day, dIdx) => (
-                          <tr key={dIdx} className="hover:bg-[#11192e] transition-colors">
-                            <td className="py-3 px-4 font-bold text-white whitespace-nowrap">
-                              {day.dateFormatted}
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="text-neutral-200 font-medium">{day.tithiName}</div>
-                              <div className="text-[11px] text-amber-400/80 font-mono">{day.nakshatraName}</div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="inline-flex items-center gap-1 font-semibold text-emerald-300 bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-500/30 font-mono text-[11px]">
-                                <Clock size={11} className="text-emerald-400" />
-                                <span>{day.bestTimeWindows}</span>
-                              </span>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="inline-flex items-center gap-1 text-rose-300 font-mono text-[11px]">
-                                <ShieldAlert size={11} className="text-rose-400" />
-                                <span>{day.rahuKaal}</span>
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {group.auspiciousDays.map((day, dIdx) => {
+                          const timeSlots = day.bestTimeWindowsList && day.bestTimeWindowsList.length > 0
+                            ? day.bestTimeWindowsList
+                            : day.bestTimeWindows.split(', ').filter(Boolean);
+
+                          const shareText = `🌸 *${muhurat.name} Shubh Muhurat* 🌸\n📅 *Date:* ${day.dateFormatted} (${day.weekday})\n🪷 *Tithi:* ${day.tithiName}\n⭐ *Nakshatra:* ${day.nakshatraName}\n⏰ *Shubh Timings:* ${day.bestTimeWindows}\n⚠️ *Rahu Kaal (Avoid):* ${day.rahuKaal}\n📍 *Calculated for:* New Delhi NCR\n🔗 https://dailytithi.com/muhurat/${muhurat.slug}`;
+                          const shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+
+                          return (
+                            <tr key={dIdx} className="hover:bg-[#11192e] transition-colors group">
+                              {/* 1. Date & Day Calendar Tile */}
+                              <td className="py-3.5 px-4 whitespace-nowrap">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-11 h-11 rounded-2xl flex flex-col items-center justify-center font-mono bg-[#11192e] text-white border border-[#233152] shadow-md group-hover:border-amber-500/50 group-hover:bg-[#15203a] transition-all shrink-0">
+                                    <span className="text-sm font-extrabold leading-none text-white">{String(day.dayNumber).padStart(2, '0')}</span>
+                                    <span className="text-[9px] font-bold text-amber-400 uppercase mt-0.5 tracking-wider">{day.weekdayShort || day.weekday.slice(0, 3)}</span>
+                                  </div>
+                                  <div>
+                                    <div className="text-xs sm:text-sm font-bold text-white font-sans tracking-tight">
+                                      {day.monthShort || group.monthName.split(' ')[0]} {group.year}
+                                    </div>
+                                    <div className="text-[11px] text-neutral-400 font-medium">
+                                      {day.weekday}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+
+                              {/* 2. Tithi & Nakshatra */}
+                              <td className="py-3.5 px-4">
+                                <div className="font-bold text-white font-devanagari text-xs sm:text-sm leading-snug">
+                                  {day.tithiName}
+                                </div>
+                                <div className="text-[11px] text-amber-400/90 font-mono mt-0.5">
+                                  ⭐ {day.nakshatraName}
+                                </div>
+                                {day.specialYogas && day.specialYogas.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1.5">
+                                    {day.specialYogas.map((yoga, yIdx) => (
+                                      <span
+                                        key={yIdx}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-200 border border-amber-500/40 text-[10px] font-extrabold tracking-tight shadow-sm"
+                                      >
+                                        <span>✨</span>
+                                        <span>{yoga}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+
+                              {/* 3. Shubh Daytime Windows (Each slot is its own cleanly formatted pill) */}
+                              <td className="py-3.5 px-4">
+                                <div className="flex flex-wrap items-center gap-1.5 max-w-sm">
+                                  {timeSlots.map((slot, sIdx) => (
+                                    <span
+                                      key={sIdx}
+                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 text-emerald-200 border border-emerald-500/35 font-mono text-[11px] font-semibold tracking-tight shadow-sm whitespace-nowrap hover:bg-emerald-900/80 transition-colors"
+                                    >
+                                      <Clock size={11} className="text-emerald-400 shrink-0" />
+                                      <span>{slot}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+
+                              {/* 4. Rahu Kaal Avoidance */}
+                              <td className="py-3.5 px-4 whitespace-nowrap">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-950/40 text-rose-300 border border-rose-500/30 font-mono text-[11px] whitespace-nowrap">
+                                  <ShieldAlert size={12} className="text-rose-400 shrink-0" />
+                                  <span>{day.rahuKaal}</span>
+                                </span>
+                              </td>
+
+                              {/* 5. WhatsApp Share Action */}
+                              <td className="py-3.5 px-4 whitespace-nowrap text-right">
+                                <a
+                                  href={shareUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Share this Muhurat on WhatsApp"
+                                  aria-label="Share this Muhurat date on WhatsApp"
+                                  className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
+                                >
+                                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

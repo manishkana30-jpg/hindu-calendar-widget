@@ -16,6 +16,7 @@ import {
 } from '@/src/lib/seo-schemas';
 import { AdSlot } from '@/app/components/AdSlot';
 import { Footer } from '@/src/components/Footer';
+import { WhatsAppIcon } from '@/app/components/WhatsAppShareButton';
 
 export const revalidate = 3600; // 1 hour ISR revalidation
 
@@ -218,43 +219,82 @@ export default async function VratHubPage({ params }: PageProps) {
             </span>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-[#1e2d4f] bg-[#090e1a]/90 shadow-xl">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-[#0e1629] text-neutral-400 font-semibold border-b border-[#1e2d4f] text-[11px] uppercase tracking-wider">
+          <div className="overflow-x-auto rounded-3xl border border-[#1e2d4f] bg-[#090e1a]/95 shadow-2xl backdrop-blur-md">
+            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+              <thead className="bg-[#0e1629] text-neutral-400 font-bold border-b border-[#1e2d4f] text-[10px] sm:text-[11px] uppercase tracking-wider font-outfit">
                 <tr>
-                  <th className="py-3 px-4">Festival / Vrat</th>
-                  <th className="py-3 px-4">Date &amp; Day</th>
-                  <th className="py-3 px-4">Tithi / Paksha</th>
-                  <th className="py-3 px-4">Parana Time Window</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Date &amp; Day</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Festival / Vrat</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Tithi / Paksha</th>
+                  <th className="py-3 px-4 whitespace-nowrap">Parana Fast-Breaking Window</th>
+                  <th className="py-3 px-4 whitespace-nowrap text-right">Share</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#162038]">
-                {upcomingDates.map((item, index) => (
-                  <tr key={index} className="hover:bg-[#11192e] transition-colors">
-                    <td className="py-3 px-4 font-bold text-white">
-                      <div>{item.name}</div>
-                      {item.hindiName && (
-                        <div className="text-[11px] text-amber-400/80 font-devanagari">{item.hindiName}</div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-neutral-300">
-                      <div className="font-semibold">{item.dateFormatted}</div>
-                      <div className="text-[11px] text-neutral-400">{item.weekday}</div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="inline-block px-2 py-0.5 rounded bg-[#16233d] border border-[#23355c] text-[11px] text-orange-300 font-mono">
-                        {item.tithiName}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="font-semibold text-emerald-300 flex items-center gap-1.5">
-                        <Clock size={12} className="text-emerald-400 shrink-0" />
-                        <span>{item.paranaTime}</span>
-                      </div>
-                      <div className="text-[10px] text-neutral-400 max-w-xs">{item.paranaDescription}</div>
-                    </td>
-                  </tr>
-                ))}
+                {upcomingDates.map((item, index) => {
+                  const shareText = `🌸 *${item.name} (${vrat.name})* 🌸\n📅 *Date:* ${item.dateFormatted} (${item.weekday})\n🪷 *Tithi:* ${item.tithiName}\n⏰ *Parana Time:* ${item.paranaTime}\nℹ️ ${item.paranaDescription}\n📍 *Calculated for:* New Delhi NCR\n🔗 https://dailytithi.com/vrat/${vrat.slug}`;
+                  const shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+
+                  return (
+                    <tr key={index} className="hover:bg-[#11192e] transition-colors group">
+                      {/* 1. Date & Day Calendar Tile */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl flex flex-col items-center justify-center font-mono bg-[#11192e] text-white border border-[#233152] shadow-md group-hover:border-amber-500/50 group-hover:bg-[#15203a] transition-all shrink-0">
+                            <span className="text-sm font-extrabold leading-none text-white">{item.date.getDate()}</span>
+                            <span className="text-[9px] font-bold text-amber-400 uppercase mt-0.5 tracking-wider">{item.weekday.slice(0, 3)}</span>
+                          </div>
+                          <div>
+                            <div className="text-xs sm:text-sm font-bold text-white font-sans tracking-tight">
+                              {item.dateFormatted}
+                            </div>
+                            <div className="text-[11px] text-neutral-400 font-medium">
+                              {item.weekday}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* 2. Festival / Vrat */}
+                      <td className="py-3.5 px-4 font-bold text-white">
+                        <div className="text-xs sm:text-sm leading-snug">{item.name}</div>
+                        {item.hindiName && (
+                          <div className="text-[11px] text-amber-400/90 font-devanagari mt-0.5">{item.hindiName}</div>
+                        )}
+                      </td>
+
+                      {/* 3. Tithi / Paksha */}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="inline-block px-2.5 py-1 rounded-lg bg-[#16233d] border border-[#23355c] text-[11px] text-orange-300 font-mono font-medium shadow-sm">
+                          {item.tithiName}
+                        </span>
+                      </td>
+
+                      {/* 4. Parana Time Window (Clean badge without awkward text wrap) */}
+                      <td className="py-3.5 px-4">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 text-emerald-200 border border-emerald-500/35 font-mono text-[11px] font-semibold whitespace-nowrap shadow-sm mb-1">
+                          <Clock size={11} className="text-emerald-400 shrink-0" />
+                          <span>{item.paranaTime}</span>
+                        </div>
+                        <div className="text-[10px] text-neutral-400 max-w-xs leading-relaxed">{item.paranaDescription}</div>
+                      </td>
+
+                      {/* 5. WhatsApp Share Action */}
+                      <td className="py-3.5 px-4 whitespace-nowrap text-right">
+                        <a
+                          href={shareUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Share on WhatsApp"
+                          aria-label="Share this Vrat date on WhatsApp"
+                          className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 transition-all hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5" />
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

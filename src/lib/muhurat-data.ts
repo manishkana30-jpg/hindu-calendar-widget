@@ -207,9 +207,13 @@ export interface AuspiciousMonthDay {
   date: Date;
   dateFormatted: string;
   weekday: string;
+  weekdayShort?: string;
+  monthShort?: string;
+  year?: number;
   tithiName: string;
   nakshatraName: string;
   bestTimeWindows: string;
+  bestTimeWindowsList?: string[];
   rahuKaal: string;
   abhijit: string;
   specialYogas: string[];
@@ -256,14 +260,22 @@ export function get12MonthMuhuratCalendar(
     for (const d of days) {
       const matchesCategory = d.auspiciousActivities.some(a => a.category === targetCategory);
       if (matchesCategory || (d.isAuspiciousDay && !d.isRiktaTithi && !d.isAmavasya && !d.isBhadra)) {
+        const timeWindowsList = d.bestTimeWindowsString !== '—'
+          ? d.bestTimeWindowsString.split(', ').filter(Boolean)
+          : (d.abhijitString ? [d.abhijitString] : []);
+
         auspiciousDays.push({
           dayNumber: d.dayNumber,
           date: d.date,
           dateFormatted: `${d.weekdayShort}, ${d.dayNumber} ${monthDate.toLocaleDateString('en-US', { month: 'short' })} ${startYear}`,
           weekday: d.weekdayLong,
+          weekdayShort: d.weekdayShort,
+          monthShort: monthDate.toLocaleDateString('en-US', { month: 'short' }),
+          year: startYear,
           tithiName: d.tithiName,
           nakshatraName: d.nakshatraName,
           bestTimeWindows: d.bestTimeWindowsString !== '—' ? d.bestTimeWindowsString : d.abhijitString,
+          bestTimeWindowsList: timeWindowsList,
           rahuKaal: d.rahuKaalString,
           abhijit: d.abhijitString,
           specialYogas: d.specialYogas
