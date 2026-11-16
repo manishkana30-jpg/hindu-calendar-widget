@@ -1,57 +1,17 @@
 /**
- * Persistent Push Subscription Storage
+ * Persistent Push Subscription Storage Bridge
  * 
- * Supports:
- * 1. Vercel KV (if configured in production)
- * 2. Shared Cloud Object Store (zero-credential fallback that persists across all serverless lambda instances)
- * 3. In-memory Set (fast local cache)
+ * Unified with Supabase PostgreSQL + KV Store + In-Memory Fallback.
+ * Completely eliminates obsolete external mock store (api.restful-api.dev).
  */
 
 import type webpush from 'web-push';
-
-// Lightweight KV REST client to avoid heavy @vercel/kv dependency
-const kv = {
-  smembers: async (key: string): Promise<any[]> => {
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
-    if (!url || !token) return [];
-    try {
-      const res = await fetch(`${url}/smembers/${key}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      return Array.isArray(data?.result) ? data.result : [];
-    } catch {
-      return [];
-    }
-  },
-  srem: async (key: string, member: any): Promise<void> => {
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
-    if (!url || !token) return;
-    try {
-      await fetch(`${url}/srem/${key}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(member)
-      });
-    } catch {}
-  },
-  sadd: async (key: string, member: any): Promise<void> => {
-    const url = process.env.KV_REST_API_URL;
-    const token = process.env.KV_REST_API_TOKEN;
-    if (!url || !token) return;
-    try {
-      await fetch(`${url}/sadd/${key}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(member)
-      });
-    } catch {}
-  }
-};
-
-const SHARED_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a0d71c0bc80fb2';
+import {
+  getAllSubscriptions as getAllUnifiedSubscriptions,
+  upsertSubscription,
+  deleteSubscription,
+  PushSubscriptionRecord
+} from '../push/subscription-store';
 
 export interface UserNotificationPreferences {
   dailyNotification: boolean;
@@ -179,10 +139,10 @@ export async function getAllSubscriptions(): Promise<string[]> {
 }
 
 /**
- * Returns all parsed StoredSubscriptionRecords.
+ * Returns all parsed StoredSubscriptionRecords, prioritizing Supabase & unified KV.
  */
 export async function getAllSubscriptionRecords(): Promise<StoredSubscriptionRecord[]> {
-  const recordsMap = new Map<string, StoredSubscriptionRecord>(); // endpoint -> record
+  const recordsMap = new Map<string, StoredSubscriptionRecord>();
 
   // 1. In-memory pool
   const memPool = getMemoryPool();
@@ -193,44 +153,49 @@ export async function getAllSubscriptionRecords(): Promise<StoredSubscriptionRec
     }
   }
 
-  // 2. Vercel KV (if configured)
-  const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-  if (isKvConfigured) {
-    try {
-      const kvSubs = await kv.smembers('push_subscriptions');
-      if (Array.isArray(kvSubs)) {
-        for (const item of kvSubs) {
-          const rec = normalizeSubscriptionRecord(item);
-          if (rec?.subscription?.endpoint) {
-            recordsMap.set(rec.subscription.endpoint, rec);
-          }
-        }
-      }
-    } catch (kvErr) {
-      console.warn('Vercel KV smembers error:', kvErr);
-    }
-  }
-
-  // 3. Shared Persistent Object Store
+  // 2. Query unified store (Supabase PostgreSQL + KV)
   try {
-    const res = await fetch(SHARED_STORE_URL, {
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store'
-    });
-    if (res.ok) {
-      const body = await res.json();
-      const list = body?.data?.subscriptions;
-      if (Array.isArray(list)) {
-        for (const item of list) {
-          const rec = normalizeSubscriptionRecord(item);
-          if (rec?.subscription?.endpoint) {
-            recordsMap.set(rec.subscription.endpoint, rec);
-          }
-        }
+    const unifiedSubs = await getAllUnifiedSubscriptions();
+    for (const sub of unifiedSubs) {
+      if (sub.endpoint && !recordsMap.has(sub.endpoint)) {
+        recordsMap.set(sub.endpoint, {
+          subscription: {
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: sub.keys.p256dh,
+              auth: sub.keys.auth
+            }
+          } as unknown as webpush.PushSubscription,
+          location: sub.location ? {
+            latitude: sub.location.latitude,
+            longitude: sub.location.longitude,
+            timezone: sub.location.timezone,
+            ianaTimezone: sub.location.ianaTimezone,
+            name: sub.location.name,
+            source: 'gps'
+          } : undefined,
+          preferences: {
+            dailyNotification: sub.preferences?.dailyNotification !== false,
+            notificationTime: sub.preferences?.notificationTime || 'sunrise',
+            alertOnTithiChange: Boolean(sub.preferences?.alertOnTithiChange),
+            autoUpdate: sub.preferences?.autoUpdate !== false,
+            wifiOnly: Boolean(sub.preferences?.wifiOnly),
+            sound: sub.preferences?.sound !== false,
+            vibration: sub.preferences?.vibration !== false,
+            quietHoursEnabled: Boolean(sub.preferences?.quietHoursEnabled),
+            quietHoursStart: sub.preferences?.quietHoursStart || '22:00',
+            quietHoursEnd: sub.preferences?.quietHoursEnd || '06:00'
+          },
+          lastNotifiedDailyDate: sub.lastDailyDateNotified,
+          lastNotifiedTithiIndex: sub.lastTithiIndexNotified,
+          lastNotifiedTithiTime: sub.lastTithiNotifiedAt,
+          createdAt: sub.createdAt,
+          updatedAt: sub.lastValidated
+        });
       }
     }
-  } catch (storeErr) {
-    console.warn('Shared store fetch warning:', storeErr);
+  } catch (err) {
+    console.warn('[SubscriptionBridge] Unified fetch notice:', err);
   }
 
   return Array.from(recordsMap.values());
@@ -251,45 +216,28 @@ export async function saveSubscription(
 
   // 1. Save to memory pool
   const memPool = getMemoryPool();
-  // Clear any existing matching endpoint
   for (const s of Array.from(memPool)) {
     if (s.includes(endpoint)) memPool.delete(s);
   }
   memPool.add(subStr);
 
-  // 2. Save to Vercel KV if available
-  const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-  if (isKvConfigured) {
-    try {
-      const all: (string | object)[] = await kv.smembers('push_subscriptions');
-      for (const item of all) {
-        const s = typeof item === 'string' ? item : JSON.stringify(item);
-        if (s.includes(endpoint)) {
-          await kv.srem('push_subscriptions', item);
-        }
-      }
-      await kv.sadd('push_subscriptions', subStr);
-    } catch (kvErr) {
-      console.warn('Vercel KV save error:', kvErr);
-    }
-  }
-
-  // 3. Save to Shared Persistent Object Store
+  // 2. Persistent save to unified Supabase / KV store
   try {
-    const current = await getAllSubscriptionRecords();
-    const updatedList = current.filter(r => r.subscription.endpoint !== endpoint);
-    updatedList.push(rec);
-
-    await fetch(SHARED_STORE_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'vedic_panchang_push_subscriptions',
-        data: { subscriptions: updatedList }
-      })
-    });
-  } catch (storeErr) {
-    console.warn('Shared store update warning:', storeErr);
+    const rawKeys = (rec.subscription as unknown as { keys?: { p256dh?: string; auth?: string } }).keys || {};
+    if (rawKeys.p256dh && rawKeys.auth) {
+      await upsertSubscription({
+        endpoint,
+        keys: {
+          p256dh: rawKeys.p256dh,
+          auth: rawKeys.auth
+        },
+        timezone: rec.location?.ianaTimezone || 'Asia/Kolkata',
+        location: rec.location,
+        preferences: rec.preferences
+      });
+    }
+  } catch (err) {
+    console.warn('[SubscriptionBridge] Save notice:', err);
   }
 }
 
@@ -335,36 +283,10 @@ export async function removeSubscription(endpoint: string): Promise<void> {
     }
   }
 
-  // 2. Remove from Vercel KV
-  const isKvConfigured = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-  if (isKvConfigured) {
-    try {
-      const all: (string | object)[] = await kv.smembers('push_subscriptions');
-      for (const item of all) {
-        const s = typeof item === 'string' ? item : JSON.stringify(item);
-        if (s.includes(endpoint)) {
-          await kv.srem('push_subscriptions', item);
-        }
-      }
-    } catch (kvErr) {
-      console.warn('Vercel KV srem error:', kvErr);
-    }
-  }
-
-  // 3. Remove from Shared Persistent Store
+  // 2. Remove from unified persistent store (Supabase + KV)
   try {
-    const current = await getAllSubscriptionRecords();
-    const filtered = current.filter(r => r.subscription.endpoint !== endpoint);
-
-    await fetch(SHARED_STORE_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'vedic_panchang_push_subscriptions',
-        data: { subscriptions: filtered }
-      })
-    });
-  } catch (storeErr) {
-    console.warn('Shared store remove warning:', storeErr);
+    await deleteSubscription(endpoint);
+  } catch (err) {
+    console.warn('[SubscriptionBridge] Remove notice:', err);
   }
 }

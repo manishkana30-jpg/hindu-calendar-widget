@@ -14,13 +14,12 @@ export function getSupabaseAdmin(): SupabaseClient | null {
     process.env.SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL;
 
-  // Support common variations of the service role key name
+  // Support common variations of the server-side service role key name
   const serviceKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_SERVICE_ROLE ||
     process.env.SUPABASE_SERVICE_KEY ||
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+    process.env.SUPABASE_SECRET_KEY;
 
   if (!url || !serviceKey) {
     return null;
