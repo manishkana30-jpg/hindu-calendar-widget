@@ -102,3 +102,124 @@ export function getCityBySlug(slug: string): CityData | undefined {
 export function getAllCitySlugs(): string[] {
   return CITIES.map((c) => c.slug);
 }
+
+export const CITY_CODE_MAP: Record<string, string> = {
+  // Top Indian Metros
+  'new delhi': 'DEL',
+  'delhi': 'DEL',
+  'mumbai': 'BOM',
+  'bengaluru': 'BLR',
+  'bangalore': 'BLR',
+  'hyderabad': 'HYD',
+  'ahmedabad': 'AMD',
+  'chennai': 'MAA',
+  'madras': 'MAA',
+  'kolkata': 'CCU',
+  'calcutta': 'CCU',
+  'pune': 'PNQ',
+  'jaipur': 'JAI',
+
+  // High-Volume Cultural, Sacred & Tier-1/2 Indian Cities
+  'ghaziabad': 'GHZ',
+  'noida': 'NOI',
+  'varanasi': 'VNS',
+  'varanasi (kashi)': 'VNS',
+  'kashi': 'VNS',
+  'lucknow': 'LKO',
+  'kanpur': 'KNP',
+  'patna': 'PAT',
+  'chandigarh': 'CHD',
+  'indore': 'IDR',
+  'ujjain': 'UJN',
+  'ayodhya': 'AYD',
+  'haridwar': 'HRD',
+  'mathura': 'MTR',
+  'surat': 'SRT',
+  'nagpur': 'NAG',
+  'guwahati': 'GAU',
+  'kochi': 'COK',
+  'prayagraj': 'PRG',
+  'allahabad': 'PRG',
+  'agra': 'AGR',
+  'bhopal': 'BPL',
+  'vadodara': 'BDQ',
+  'visakhapatnam': 'VTZ',
+  'ludhiana': 'LUH',
+  'nashik': 'NSK',
+  'faridabad': 'FDB',
+  'meerut': 'MUT',
+  'rajkot': 'RAJ',
+  'amritsar': 'ASR',
+  'ranchi': 'RNC',
+  'coimbatore': 'CJB',
+  'jabalpur': 'JBP',
+  'gwalior': 'GWL',
+  'vijayawada': 'VGA',
+  'jodhpur': 'JDH',
+  'madurai': 'IXM',
+  'raipur': 'RPR',
+  'kota': 'KOT',
+  'mysuru': 'MYS',
+  'mysore': 'MYS',
+  'dehradun': 'DED',
+  'rishikesh': 'RSH',
+  'shimla': 'SML',
+  'tirupati': 'TIR',
+  'bhubaneswar': 'BBI',
+  'puri': 'PRI',
+  'jammu': 'JAM',
+  'srinagar': 'SRN',
+  'thiruvananthapuram': 'TRV',
+  'trivandrum': 'TRV',
+
+  // Global Vedic & Diaspora Metros
+  'kathmandu': 'KTM',
+  'london': 'LON',
+  'new york': 'NYK',
+  'nyc': 'NYK',
+  'toronto': 'TOR',
+  'san francisco': 'SFO',
+  'dubai': 'DXB',
+  'singapore': 'SIN',
+  'sydney': 'SYD',
+};
+
+export function getCityCode(cityName: string): string {
+  if (!cityName) return 'LOC';
+  // Strip annotations like "(GPS)", ", Uttar Pradesh", ", India", etc.
+  const cleaned = cityName
+    .replace(/\s*\([^)]*\)/g, '')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+
+  if (CITY_CODE_MAP[cleaned]) {
+    return CITY_CODE_MAP[cleaned];
+  }
+
+  // Check prefix / partial match
+  for (const [key, code] of Object.entries(CITY_CODE_MAP)) {
+    if (cleaned.startsWith(key) || key.startsWith(cleaned)) {
+      return code;
+    }
+  }
+
+  // Multi-word fallback (e.g., "New York" -> "NYK")
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    const w1 = words[0][0];
+    const w2 = words[1].slice(0, 2);
+    return (w1 + w2).toUpperCase();
+  }
+
+  // Single word algorithmic fallback (e.g. "Ghaziabad" -> "GHZ")
+  const letters = cleaned.replace(/[^a-z]/g, '');
+  if (letters.length <= 3) return letters.toUpperCase();
+
+  const consonants = letters.slice(1).replace(/[aeiou]/g, '');
+  if (consonants.length >= 2) {
+    return (letters[0] + consonants.slice(0, 2)).toUpperCase();
+  }
+
+  return letters.slice(0, 3).toUpperCase();
+}

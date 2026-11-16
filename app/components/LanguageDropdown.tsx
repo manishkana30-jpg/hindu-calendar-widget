@@ -9,6 +9,14 @@ interface Props {
   className?: string;
 }
 
+const LANG_CODE_MAP: Record<string, string> = {
+  en: 'ENG',
+  hi: 'HIN',
+  mr: 'MAR',
+  gu: 'GUJ',
+  sa: 'SAN',
+};
+
 export function LanguageDropdown({ className = '' }: Props) {
   const { language, setLanguage, supportedLanguages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -40,6 +48,7 @@ export function LanguageDropdown({ className = '' }: Props) {
   }, [isOpen]);
 
   const currentOption = supportedLanguages.find((l) => l.code === language) || supportedLanguages[0];
+  const shortLangCode = LANG_CODE_MAP[language] || (currentOption.label || language).slice(0, 3).toUpperCase();
 
   const handleSelect = useCallback((code: SupportedLanguage) => {
     setLanguage(code);
@@ -48,22 +57,22 @@ export function LanguageDropdown({ className = '' }: Props) {
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left ${className}`}>
-      {/* ── Dropdown Trigger Button ── */}
+      {/* ── Dropdown Trigger Button (Compact 3-letter badge) ── */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select Language"
-        title="Select Application Language"
-        className="bg-[#11192e] hover:bg-[#18233f] active:bg-[#1c294a] border border-[#233152] text-neutral-100 text-xs rounded-xl px-3 py-2 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[44px]"
+        title={`Language: ${currentOption.label} (${shortLangCode})`}
+        className="bg-[#11192e] hover:bg-[#18233f] active:bg-[#1c294a] border border-[#233152] text-neutral-100 text-xs rounded-xl px-2.5 py-2 inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all duration-150 select-none min-h-[44px]"
       >
         <Globe size={14} className="text-orange-400 shrink-0" />
-        <span className="font-semibold tracking-tight text-neutral-200">
-          {currentOption.nativeName}
+        <span className="font-bold tracking-wider font-mono text-neutral-200 uppercase text-xs">
+          {shortLangCode}
         </span>
         <ChevronDown
-          size={13}
+          size={12}
           className={`text-neutral-400 transition-transform duration-200 shrink-0 ${
             isOpen ? 'rotate-180 text-orange-400' : ''
           }`}
@@ -83,6 +92,7 @@ export function LanguageDropdown({ className = '' }: Props) {
           <div className="py-1">
             {supportedLanguages.map((opt) => {
               const isSelected = opt.code === language;
+              const codeBadge = LANG_CODE_MAP[opt.code] || opt.code.slice(0, 3).toUpperCase();
               return (
                 <button
                   key={opt.code}
@@ -96,13 +106,18 @@ export function LanguageDropdown({ className = '' }: Props) {
                       : 'text-neutral-300 hover:bg-[#16223e] hover:text-white'
                   }`}
                 >
-                  <div className="flex flex-col min-w-0 py-0.5">
-                    <span className="font-medium text-[13px] leading-snug break-words">
-                      {opt.nativeName}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-[10px] font-bold text-orange-400 px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/25 shrink-0">
+                      {codeBadge}
                     </span>
-                    <span className="text-[10px] text-neutral-400 leading-normal">
-                      {opt.label}
-                    </span>
+                    <div className="flex flex-col min-w-0 py-0.5">
+                      <span className="font-medium text-[13px] leading-snug break-words">
+                        {opt.nativeName}
+                      </span>
+                      <span className="text-[10px] text-neutral-400 leading-normal">
+                        {opt.label}
+                      </span>
+                    </div>
                   </div>
                   {isSelected && (
                     <Check size={14} className="text-orange-400 shrink-0 ml-1" />

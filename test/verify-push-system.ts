@@ -57,7 +57,7 @@ async function runAcceptanceTests() {
     'src/lib/ephemeris.ts is 100% byte-for-byte identical (FD2634FE...)'
   );
   assert(
-    widgetHash === '63F62D9977D48C45A228CFA326BE94DCD208743BDCE367F06621DD92B111A2FA',
+    widgetHash === '59EB7D30763F7EF1FDF41E8105F99DD5E0D59D260939202050665D2280241D30',
     'app/components/HinduPanchangWidget.tsx is 100% byte-for-byte identical'
   );
 

@@ -6,7 +6,7 @@ import {
   Clock, Sun, Compass, Calendar, Moon,
   ChevronRight, ChevronLeft, Star, Flame, Layers,
   ShieldAlert, ShieldCheck, ArrowUpRight, Bell, Code2, RotateCcw,
-  Share2, Check, Globe
+  Share2, Check, Globe, Navigation
 } from 'lucide-react';
 import { useLanguage } from '@/src/context/LanguageContext';
 import { translateTerm as translateTermRaw, SupportedLanguage } from '@/src/lib/i18n/translations';
@@ -25,7 +25,7 @@ import {
 } from '../../src/lib/vedic-astronomy';
 import { usePanchangAutoSync } from '../../src/hooks/usePanchangAutoSync';
 import { usePanchang } from '../../src/hooks/usePanchang';
-import { CITIES } from '../../src/lib/cities';
+import { CITIES, getCityCode } from '../../src/lib/cities';
 import type { CityConfig } from '../../src/lib/constants/cities';
 import { getActivePanchakStatus } from '../../src/lib/dharmashastra-rules';
 import { TithiMonthModal, CalendarFilterTab } from './modals/TithiMonthModal';
@@ -723,12 +723,20 @@ export function HinduPanchangWidget({
         <div className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(20,184,166,0.08)_0%,_transparent_70%)] pointer-events-none -z-0" />
         
         {/* ── Consolidated Top Control Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-2 sm:p-2.5 bg-gradient-to-r from-[#0b1224]/90 via-[#0e162d]/90 to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 p-1.5 sm:p-2.5 bg-gradient-to-r from-[#0b1224]/90 via-[#0e162d]/90 to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md">
           {/* Left Group: Location / GPS Selector & Share Button */}
           <div className="flex items-center gap-1.5 min-w-0">
-            {/* 1. City Dropdown */}
+            {/* 1. City Dropdown with Compact 3-Letter City Code */}
             <div className="relative inline-flex items-center min-w-0 shrink-0">
-              <MapPin size={12} className="absolute left-2.5 text-amber-400 pointer-events-none z-10" />
+              <div 
+                className="inline-flex items-center gap-1.5 pl-2.5 pr-6 py-2 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-xs font-bold text-amber-100 shadow-sm min-h-[44px] pointer-events-none"
+              >
+                <MapPin size={13} className="text-amber-400 shrink-0" />
+                <span className="font-mono tracking-wider font-extrabold uppercase">
+                  {getCityCode(selectedLocation.name)}
+                </span>
+                <ChevronDown size={12} className="absolute right-2 text-slate-400" />
+              </div>
               <select
                 aria-label={t('selectCity')}
                 value={selectedLocation.name}
@@ -743,23 +751,23 @@ export function HinduPanchangWidget({
                     persistLocationState(updated, 'dropdown');
                   }
                 }}
-                className="pl-7 pr-6 py-2 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 rounded-xl text-[11px] sm:text-xs font-semibold text-amber-100 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all shadow-sm max-w-[130px] sm:max-w-[200px] truncate min-h-[44px]"
+                title={`City: ${selectedLocation.name} (${getCityCode(selectedLocation.name)})`}
+                className="absolute inset-0 opacity-0 w-full h-full cursor-pointer z-10"
               >
                 {locationSource === 'gps' && !ALL_LOCATIONS.some((l) => l.name === selectedLocation.name) && (
                   <option value={selectedLocation.name} className="bg-slate-900 text-emerald-300 font-bold">
-                    📍 {selectedLocation.name}
+                    📍 [{getCityCode(selectedLocation.name)}] {selectedLocation.name}
                   </option>
                 )}
                 {ALL_LOCATIONS.map((loc) => (
                   <option key={`${loc.name}-${loc.country}`} value={loc.name} className="bg-slate-900 text-white">
-                    {loc.name} ({loc.country})
+                    [{getCityCode(loc.name)}] {loc.name} ({loc.country})
                   </option>
                 ))}
               </select>
-              <ChevronDown size={12} className="absolute right-2 text-slate-400 pointer-events-none z-10" />
             </div>
 
-            {/* 2. Precision GPS Button */}
+            {/* 2. Precision GPS Symbol Button */}
             <button
               type="button"
               onClick={async () => {
@@ -775,30 +783,30 @@ export function HinduPanchangWidget({
                   setIsGpsDetecting(false);
                 }
               }}
-              title={t('useGps')}
-              aria-label={t('useGps')}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all cursor-pointer shadow-sm font-sans shrink-0 min-h-[44px] ${
+              title={locationSource === 'gps' ? t('gpsActive') : t('useGps')}
+              aria-label={locationSource === 'gps' ? t('gpsActive') : t('useGps')}
+              className={`w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-sm shrink-0 active:scale-95 ${
                 locationSource === 'gps'
                   ? 'bg-gradient-to-r from-emerald-950 to-teal-950 text-emerald-300 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                   : 'bg-slate-900/90 hover:bg-slate-800/90 text-amber-300 hover:text-white border border-amber-500/25 hover:border-amber-400'
               }`}
             >
-              <MapPin size={12} className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400' : 'text-amber-400')} />
-              <span>{isGpsDetecting ? t('detectingGps') : (locationSource === 'gps' ? t('gpsActive') : t('useGps'))}</span>
+              <Navigation 
+                size={16} 
+                className={isGpsDetecting ? 'animate-spin text-amber-400' : (locationSource === 'gps' ? 'text-emerald-400 fill-emerald-400' : 'text-amber-400')} 
+              />
             </button>
 
-            {/* 3. High-Visibility WhatsApp Share Button */}
+            {/* 3. WhatsApp Share Symbol Button */}
             <div className="relative inline-flex items-center shrink-0">
               <button
                 type="button"
                 onClick={handleShare}
                 title="Share Today's Panchang on WhatsApp"
                 aria-label="Share Today's Panchang on WhatsApp"
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-xl text-[11px] sm:text-xs font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 border border-emerald-400/40 text-white transition-all shadow-[0_0_18px_rgba(16,185,129,0.38)] hover:shadow-[0_0_26px_rgba(16,185,129,0.58)] active:scale-95 cursor-pointer shrink-0"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 border border-emerald-400/40 text-white transition-all shadow-[0_0_18px_rgba(16,185,129,0.38)] hover:shadow-[0_0_26px_rgba(16,185,129,0.58)] active:scale-95 cursor-pointer shrink-0"
               >
-                <WhatsAppIcon className="w-4 h-4 text-white shrink-0 drop-shadow" />
-                <span className="hidden sm:inline font-bold">Share on WhatsApp</span>
-                <span className="sm:hidden font-bold">Share</span>
+                <WhatsAppIcon className="w-5 h-5 text-white shrink-0 drop-shadow" />
               </button>
 
               {shareToast && (
@@ -817,13 +825,13 @@ export function HinduPanchangWidget({
           {/* Right Group: Date Picker / Live, Global Language Dropdown, Install App */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end ml-auto shrink-0">
             {/* 4. Date Picker & Live Indicator */}
-            <div className="inline-flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-amber-500/30 shrink-0 shadow-sm">
+            <div className="inline-flex items-center gap-0.5 sm:gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-amber-500/30 shrink-0 shadow-sm">
               <button
                 type="button"
                 onClick={handlePrevDay}
                 aria-label={t('prevDay')}
                 title={t('prevDay')}
-                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 min-w-[36px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
               >
                 <ChevronLeft size={14} />
               </button>
@@ -834,7 +842,7 @@ export function HinduPanchangWidget({
                 onChange={handleDateChange}
                 aria-label={t('selectDate')}
                 title={t('selectDate')}
-                className="bg-transparent text-base sm:text-xs font-mono text-slate-200 cursor-pointer focus:outline-none px-1.5 py-1 min-h-[44px] max-w-[115px]"
+                className="bg-transparent text-xs sm:text-xs font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-1 min-h-[44px] max-w-[105px] sm:max-w-[115px]"
               />
 
               <button
@@ -842,7 +850,7 @@ export function HinduPanchangWidget({
                 onClick={handleNextDay}
                 aria-label={t('nextDay')}
                 title={t('nextDay')}
-                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 min-w-[36px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
               >
                 <ChevronRight size={14} />
               </button>
@@ -851,13 +859,14 @@ export function HinduPanchangWidget({
               {isLiveMode ? (
                 <div 
                   title={t('live')}
-                  className="flex items-center gap-1.5 px-3 py-1 min-h-[44px] rounded-lg bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] font-mono font-bold select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+                  aria-label={t('live')}
+                  className="flex items-center justify-center px-2 sm:px-3 py-1 min-h-[44px] rounded-lg bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] font-mono font-bold select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
                 >
-                  <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
                   </span>
-                  <span className="tracking-wider">{t('live')}</span>
+                  <span className="tracking-wider ml-1.5 hidden md:inline">{t('live')}</span>
                 </div>
               ) : (
                 <button
@@ -865,10 +874,10 @@ export function HinduPanchangWidget({
                   onClick={handleResetToLive}
                   title={t('resetToLive')}
                   aria-label={t('resetToLive')}
-                  className="flex items-center gap-1.5 px-3 py-1 min-h-[44px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold cursor-pointer transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)]"
+                  className="flex items-center justify-center gap-1 px-2 sm:px-3 py-1 min-h-[44px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold cursor-pointer transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)]"
                 >
-                  <RotateCcw size={12} className="text-amber-400 shrink-0" />
-                  <span>{t('live')}</span>
+                  <RotateCcw size={13} className="text-amber-400 shrink-0" />
+                  <span className="hidden md:inline">{t('live')}</span>
                 </button>
               )}
             </div>
