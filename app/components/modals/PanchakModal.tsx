@@ -53,7 +53,7 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
     >
-      <div className="relative w-full sm:max-w-5xl h-auto max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
+      <div className="relative w-full sm:max-w-5xl h-[85dvh] sm:h-auto max-h-[85dvh] bg-[#090e1a] border border-[#233152] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans">
         
         {/* Header */}
         <div className="p-4 sm:p-6 bg-gradient-to-r from-[#11192e] via-[#0e1629] to-[#11192e] border-b border-[#1e2942] flex items-center justify-between shrink-0">
@@ -213,7 +213,7 @@ export function PanchakModal({ isOpen, onClose, location }: Props) {
               </div>
             </div>
 
-            <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1e2942] bg-[#0c1222]">
+            <div className="relative w-full overflow-x-auto overscroll-contain touch-pan-x touch-pan-y [-webkit-overflow-scrolling:touch] rounded-2xl border border-[#1e2942] bg-[#0c1222]">
               <table className="min-w-[620px] sm:min-w-full text-left text-xs">
                 <thead className="bg-[#11192e] text-neutral-300 border-b border-[#1e2942]">
                   <tr>
