@@ -718,9 +718,9 @@ export function HinduPanchangWidget({
         <div className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-[radial-gradient(circle,_rgba(20,184,166,0.08)_0%,_transparent_70%)] pointer-events-none -z-0" />
         
         {/* ── Consolidated Top Control Bar ── */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 p-1.5 sm:p-2.5 bg-gradient-to-r from-[#0b1224]/90 via-[#0e162d]/90 to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 p-1.5 sm:p-2 bg-gradient-to-r from-[#0b1224]/90 via-[#0e162d]/90 to-[#0b1224]/90 backdrop-blur-xl rounded-2xl border border-amber-500/25 text-xs relative z-30 mb-2.5 shadow-md w-full overflow-x-auto no-scrollbar">
           {/* Left Group: Location / GPS Selector & Share Button */}
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 shrink-0">
             {/* 1. City Dropdown with Compact 3-Letter City Code */}
             <div className="relative inline-flex items-center min-w-0 shrink-0">
               <div 
@@ -817,8 +817,8 @@ export function HinduPanchangWidget({
             </div>
           </div>
 
-          {/* Right Group: Calendar Symbol Button, Live Mode Indicator, Global Language Dropdown, Install App */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end ml-auto shrink-0">
+          {/* Right Group: Calendar Symbol Button, Reset to Live, Global Language Dropdown, Install App */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
             {/* 4. Calendar Symbol Button (Opens Monthly Grid Calendar Modal) */}
             <button
               type="button"
@@ -830,19 +830,8 @@ export function HinduPanchangWidget({
               <Calendar size={18} className="text-amber-400 shrink-0" />
             </button>
 
-            {/* Live Status Symbol / Reset Button */}
-            {isLiveMode ? (
-              <div 
-                title={t('live')}
-                aria-label={t('live')}
-                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-              >
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
-                </span>
-              </div>
-            ) : (
+            {/* Reset to Live Button (only visible when viewing a custom non-live date) */}
+            {!isLiveMode && (
               <button
                 type="button"
                 onClick={handleResetToLive}

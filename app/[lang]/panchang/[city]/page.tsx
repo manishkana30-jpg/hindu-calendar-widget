@@ -256,9 +256,18 @@ export default async function RegionalCityPanchangPage({ params }: PageProps) {
                 🕉️
               </Link>
               <div className="min-w-0">
-                <span className="text-xs sm:text-base font-extrabold tracking-tight text-white block leading-snug truncate">
-                  {localizedCity} {lang === 'hi' ? 'आज का पंचांग' : lang === 'mr' ? 'आजचे पंचांग' : 'આજનું પંચાંગ'}
-                </span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs sm:text-base font-extrabold tracking-tight text-white block leading-snug truncate">
+                    {localizedCity} {lang === 'hi' ? 'आज का पंचांग' : lang === 'mr' ? 'आजचे पंचांग' : 'આજનું પંચાંગ'}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[9px] font-mono font-bold select-none shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.35)]">
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                    </span>
+                    <span>LIVE</span>
+                  </span>
+                </div>
                 <span className="text-[9px] sm:text-[10px] text-orange-400 font-mono tracking-wider uppercase block truncate">
                   {city.state ? `${city.state}, ` : ''}India • Vedic Astrometry
                 </span>
