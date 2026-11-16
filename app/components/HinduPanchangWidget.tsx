@@ -612,7 +612,7 @@ export function HinduPanchangWidget({
     return findNextAuspiciousMuhurat(targetInstant, selectedLocation);
   }, [todayMuhurat.isAuspiciousDay, targetDayKey, selectedLocation]);
 
-  // Formatted date string for native date input (YYYY-MM-DD) anchored to observer's local civil date
+  // Formatted date string anchored to observer's local civil date (YYYY-MM-DD)
   const selectedDateYyyyMmDd = useMemo(() => {
     const d = isLiveMode ? targetInstant : selectedDate;
     const civil = getCivilDateInLocation(d, observer.tzOffset, observer.timezone);
@@ -620,11 +620,6 @@ export function HinduPanchangWidget({
   }, [isLiveMode, targetInstant, selectedDate, observer.tzOffset, observer.timezone]);
 
   // Actions wired directly to SSOT
-  const handlePrevDay = prevDay;
-  const handleNextDay = nextDay;
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDateFromInput(e.target.value);
-  };
   const handleResetToLive = resetToLive;
 
   // Native Web Share API with clipboard fallback & WhatsApp direct link
@@ -802,8 +797,8 @@ export function HinduPanchangWidget({
               <button
                 type="button"
                 onClick={handleShare}
-                title="Share Today's Panchang on WhatsApp"
-                aria-label="Share Today's Panchang on WhatsApp"
+                title="Share on WhatsApp"
+                aria-label="Share on WhatsApp"
                 className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 border border-emerald-400/40 text-white transition-all shadow-[0_0_18px_rgba(16,185,129,0.38)] hover:shadow-[0_0_26px_rgba(16,185,129,0.58)] active:scale-95 cursor-pointer shrink-0"
               >
                 <WhatsAppIcon className="w-5 h-5 text-white shrink-0 drop-shadow" />
@@ -822,65 +817,42 @@ export function HinduPanchangWidget({
             </div>
           </div>
 
-          {/* Right Group: Date Picker / Live, Global Language Dropdown, Install App */}
+          {/* Right Group: Calendar Symbol Button, Live Mode Indicator, Global Language Dropdown, Install App */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end ml-auto shrink-0">
-            {/* 4. Date Picker & Live Indicator */}
-            <div className="inline-flex items-center gap-0.5 sm:gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-amber-500/30 shrink-0 shadow-sm">
+            {/* 4. Calendar Symbol Button (Opens Monthly Grid Calendar Modal) */}
+            <button
+              type="button"
+              onClick={() => setIsGregorianCalendarModalOpen(true)}
+              title={`${t('tapGregorianCalendar') || 'Open Monthly Calendar Grid'} (${selectedDateYyyyMmDd})`}
+              aria-label={`${t('tapGregorianCalendar') || 'Open Monthly Calendar Grid'} (${selectedDateYyyyMmDd})`}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/30 hover:border-amber-400 text-amber-300 hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer shrink-0"
+            >
+              <Calendar size={18} className="text-amber-400 shrink-0" />
+            </button>
+
+            {/* Live Status Symbol / Reset Button */}
+            {isLiveMode ? (
+              <div 
+                title={t('live')}
+                aria-label={t('live')}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+              >
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                </span>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={handlePrevDay}
-                aria-label={t('prevDay')}
-                title={t('prevDay')}
-                className="p-1.5 sm:p-2 min-w-[36px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+                onClick={handleResetToLive}
+                title={t('resetToLive')}
+                aria-label={t('resetToLive')}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)] cursor-pointer active:scale-95"
               >
-                <ChevronLeft size={14} />
+                <RotateCcw size={16} className="text-amber-400 shrink-0" />
               </button>
-
-              <input
-                type="date"
-                value={selectedDateYyyyMmDd}
-                onChange={handleDateChange}
-                aria-label={t('selectDate')}
-                title={t('selectDate')}
-                className="bg-transparent text-xs sm:text-xs font-mono text-slate-200 cursor-pointer focus:outline-none px-1 py-1 min-h-[44px] max-w-[105px] sm:max-w-[115px]"
-              />
-
-              <button
-                type="button"
-                onClick={handleNextDay}
-                aria-label={t('nextDay')}
-                title={t('nextDay')}
-                className="p-1.5 sm:p-2 min-w-[36px] sm:min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                <ChevronRight size={14} />
-              </button>
-
-              {/* Live Status Pill / Reset Button */}
-              {isLiveMode ? (
-                <div 
-                  title={t('live')}
-                  aria-label={t('live')}
-                  className="flex items-center justify-center px-2 sm:px-3 py-1 min-h-[44px] rounded-lg bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] font-mono font-bold select-none shrink-0 shadow-[0_0_12px_rgba(16,185,129,0.4)]"
-                >
-                  <span className="relative flex h-2.5 w-2.5 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
-                  </span>
-                  <span className="tracking-wider ml-1.5 hidden md:inline">{t('live')}</span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleResetToLive}
-                  title={t('resetToLive')}
-                  aria-label={t('resetToLive')}
-                  className="flex items-center justify-center gap-1 px-2 sm:px-3 py-1 min-h-[44px] rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-[10px] font-bold cursor-pointer transition-all shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.25)]"
-                >
-                  <RotateCcw size={13} className="text-amber-400 shrink-0" />
-                  <span className="hidden md:inline">{t('live')}</span>
-                </button>
-              )}
-            </div>
+            )}
 
             {/* 5. Global Language Dropdown */}
             <LanguageDropdown />
