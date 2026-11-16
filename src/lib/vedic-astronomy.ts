@@ -1847,7 +1847,7 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const targetDate = new Date(year, month, d, 6, 0, 0);
+    const targetDate = new Date(year, month, d, 12, 0, 0);
     const tz = resolveTimezoneOffset(targetDate, location);
     const sunTimes = calculateSunTimes(targetDate, location.latitude, location.longitude, tz);
     
@@ -1956,7 +1956,7 @@ export function getMonthVedicCalendar(year: number, month: number, location: Loc
   }
 
   // Detect Kshaya (skipped) and Vriddhi (repeated) Tithis across the month
-  const prevMonthDate = new Date(year, month, 0, 6, 0, 0);
+  const prevMonthDate = new Date(year, month, 0, 12, 0, 0);
   const prevMonthTz = resolveTimezoneOffset(prevMonthDate, location);
   const prevMonthSun = calculateSunTimes(prevMonthDate, location.latitude, location.longitude, prevMonthTz);
   const prevMonthElongation = getElongationAngle(getJulianDay(prevMonthSun.sunriseDate));

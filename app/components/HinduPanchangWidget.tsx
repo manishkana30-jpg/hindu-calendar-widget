@@ -1042,6 +1042,14 @@ export function HinduPanchangWidget({
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {panchang.isPreSunrise && (
+                      <span
+                        title={isHindi ? `सूर्योदय पूर्व • आज का सूर्योदय: ${panchang.sunrise}` : `Pre-Sunrise • Today's Sunrise: ${panchang.sunrise}`}
+                        className="px-2 py-0.5 rounded-full bg-sky-950/80 text-sky-200 border border-sky-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-[0_0_10px_rgba(14,165,233,0.3)]"
+                      >
+                        {isHindi ? 'सूर्योदय पूर्व' : 'Pre-Dawn'}
+                      </span>
+                    )}
                     {tithiResolution.isVriddhi && (
                       <span className="px-2 py-0.5 rounded-full bg-purple-950/80 text-purple-200 border border-purple-500/50 text-[8px] font-extrabold font-outfit uppercase shadow-[0_0_10px_rgba(168,85,247,0.3)]">
                         {translateTerm('Vriddhi', language)}
@@ -1815,6 +1823,7 @@ export function HinduPanchangWidget({
       <PanchakModal
         isOpen={isPanchakModalOpen}
         onClose={() => setIsPanchakModalOpen(false)}
+        location={selectedLocation}
       />
 
       {/* ── Monthly Day-Wise Shubh Karya Muhurat Modal ── */}

@@ -244,7 +244,7 @@ export function calculateMonthlyMuhurat(
   const items: DayMuhuratItem[] = [];
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const targetDate = new Date(year, month - 1, d, 6, 0, 0);
+    const targetDate = new Date(year, month - 1, d, 12, 0, 0);
     const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const dayOfWeek = targetDate.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
     const weekdayShort = targetDate.toLocaleDateString('en-US', { weekday: 'short' });

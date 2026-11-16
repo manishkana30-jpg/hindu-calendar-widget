@@ -217,7 +217,7 @@ export function computeDailyMorningNotification(
   }
 
   // 2. Panchak window between S1 and S2 (active at S1 or starting mid-day before S2)
-  const panchakAtS1 = getActivePanchakStatus(S1);
+  const panchakAtS1 = getActivePanchakStatus(S1, ianaTz);
   let dayPanchak: { type?: string; startTimestamp?: number; endTimestamp?: number; auspiciousness?: string } | null = null;
 
   if (panchakAtS1.isActive && panchakAtS1.panchak) {

@@ -185,7 +185,7 @@ export function resolveDailyTithi(
     specificTime ||
     (isTodayDate
       ? new Date()
-      : new Date(year, month, day, targetDate.getHours() || 6, targetDate.getMinutes() || 0, 0));
+      : new Date(year, month, day, 12, 0, 0));
 
   // 3. Evaluate Instantaneous Tithi at observation time
   const instJd = getJulianDay(observationTime);
@@ -261,8 +261,8 @@ export function resolveMonthlyTithis(
   const resolutions: DailyTithiResolution[] = [];
 
   for (let d = 1; d <= daysInMonth; d++) {
-    // Evaluate calendar view at 06:00 local time (representing the day's standard civil view)
-    const curDate = new Date(year, month, d, 6, 0, 0);
+    // Evaluate calendar view at 12:00 midday (representing the day's standard civil observation)
+    const curDate = new Date(year, month, d, 12, 0, 0);
     const res = resolveDailyTithi(curDate, location, curDate, elevationMeters);
     resolutions.push(res);
   }

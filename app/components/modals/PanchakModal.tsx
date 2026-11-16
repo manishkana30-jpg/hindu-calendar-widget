@@ -3,14 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShieldAlert, BookOpen, Calendar, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { generatePanchaksForYear, getActivePanchakStatus } from '../../../src/lib/dharmashastra-rules';
+import { LocationCoordinates } from '../../../src/lib/vedic-astronomy';
 import { useLanguage } from '../../../src/context/LanguageContext';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  location?: LocationCoordinates;
 }
 
-export function PanchakModal({ isOpen, onClose }: Props) {
+export function PanchakModal({ isOpen, onClose, location }: Props) {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const { language } = useLanguage();
   const isHindi = language === 'hi';
@@ -39,8 +41,8 @@ export function PanchakModal({ isOpen, onClose }: Props) {
 
   if (!isOpen) return null;
 
-  const panchakStatus = getActivePanchakStatus();
-  const yearPanchaks = generatePanchaksForYear(selectedYear);
+  const panchakStatus = getActivePanchakStatus(new Date(), location?.ianaTimezone);
+  const yearPanchaks = generatePanchaksForYear(selectedYear, location?.ianaTimezone);
 
   return (
     <div 

@@ -455,7 +455,7 @@ export function getMonthlyHolidays(
   const list: MonthHolidayItem[] = [];
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const dayDate = new Date(year, month - 1, d, 6, 0, 0);
+    const dayDate = new Date(year, month - 1, d, 12, 0, 0);
     const dateKey = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const weekdayShort = dayDate.toLocaleDateString('en-US', { weekday: 'short' });
     const dateFormatted = `${String(d).padStart(2, '0')} ${dayDate.toLocaleDateString('en-US', { month: 'short' })}`;

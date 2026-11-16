@@ -137,9 +137,16 @@ export function FiveLimbsModal({ isOpen, onClose, panchang, initialLimb = 'tithi
                     <Moon size={12} className="text-amber-400" />
                     Limb 1 • Tithi (Lunar Phase Degree)
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/20 border border-amber-500/40 text-amber-300 uppercase">
-                    {tithi.paksha} Paksha
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {panchang.isPreSunrise && (
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-500/20 border border-sky-500/40 text-sky-300 uppercase">
+                        Pre-Dawn
+                      </span>
+                    )}
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/20 border border-amber-500/40 text-amber-300 uppercase">
+                      {tithi.paksha} Paksha
+                    </span>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold text-white font-serif font-devanagari">
                   {tithi.name}

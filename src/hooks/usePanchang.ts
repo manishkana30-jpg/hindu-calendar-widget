@@ -651,7 +651,7 @@ export function usePanchang(options: UsePanchangOptions = {}): PanchangState {
   const setDateFromInput = useCallback((dateStr: string) => {
     if (!dateStr) return;
     const [y, m, d] = dateStr.split('-').map(Number);
-    const newDate = new Date(y, m - 1, d, 6, 0, 0);
+    const newDate = new Date(y, m - 1, d, 12, 0, 0);
     setIsLiveModeState(false);
     setSelectedDateState(newDate);
   }, []);
