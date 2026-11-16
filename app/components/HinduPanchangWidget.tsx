@@ -538,6 +538,30 @@ export function HinduPanchangWidget({
   const nextTithiIndex = (((panchang.udayaTithi?.index || panchang.tithi.index || 1) % 30) + 1);
   const shortNextTithi = formatShortenedTithi(nextTithiIndex, language, nextTithiName);
 
+  // Visual Tithi percentage elapsed & day-transition status for Card 2
+  const tithiProgressPercent = useMemo(() => {
+    const raw = tithiResolution?.instantaneousTithi?.percentageElapsed 
+      ?? panchang?.instantaneousTithi?.completionPercent 
+      ?? panchang?.tithi?.completionPercent 
+      ?? 0;
+    return Math.min(100, Math.max(0, Math.round(raw)));
+  }, [tithiResolution, panchang]);
+
+  const tithiStatusLabel = useMemo(() => {
+    if (isPreSunrise) {
+      return isHindi ? 'सूर्योदय से पूर्व' : 'Pre-Dawn';
+    }
+    const isTransitioned = Boolean(
+      panchang.instantaneousTithi?.name && 
+      panchang.udayaTithi?.name && 
+      panchang.instantaneousTithi.name !== panchang.udayaTithi.name
+    );
+    if (isTransitioned) {
+      return isHindi ? 'नूतन तिथि सक्रिय' : 'Next Tithi Active';
+    }
+    return `${isHindi ? 'समाप्त' : 'Ends'} ${currentTithiEndTime}`;
+  }, [isPreSunrise, isHindi, panchang, currentTithiEndTime]);
+
   // Chronological upcoming festivals list for compact list view (memoized by civil date & location)
   const upcomingFestivalsList = useMemo(() => {
     return getUpcomingFestivalsList(targetInstant, selectedLocation, 1, 90);
@@ -1122,6 +1146,28 @@ export function HinduPanchangWidget({
                   <span className="font-extrabold text-white tracking-tight whitespace-nowrap text-xs leading-snug">
                     {currentTithiEndTime}
                   </span>
+                </div>
+
+                {/* Visual Tithi Progress & Day-Transition Timeline */}
+                <div className="space-y-1 pt-1 min-w-0" title={`${shortenedTithi} • ${tithiProgressPercent}% ${isHindi ? 'पूर्ण' : 'elapsed'}`}>
+                  <div className="flex items-center justify-between text-[10px] font-medium min-w-0">
+                    <span className="text-amber-300 font-sans flex items-center gap-1 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                      <span className="text-[10px]">{isHindi ? 'तिथि प्रगति' : 'Elapsed'}:</span>
+                      <span className="font-bold font-mono text-white text-[10px]">{tithiProgressPercent}%</span>
+                    </span>
+                    <span className="text-amber-200/80 font-mono text-[9px] truncate ml-1">
+                      {tithiStatusLabel}
+                    </span>
+                  </div>
+
+                  {/* Progress Bar Track */}
+                  <div className="w-full h-1.5 rounded-full bg-[#141b2d] overflow-hidden p-0.5 border border-amber-500/25 relative shadow-inner">
+                    <div 
+                      className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 transition-all duration-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]"
+                      style={{ width: `${Math.min(100, Math.max(3, tithiProgressPercent))}%` }}
+                    />
+                  </div>
                 </div>
               </div>
 
