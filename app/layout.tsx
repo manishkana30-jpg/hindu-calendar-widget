@@ -98,64 +98,84 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLdSchema = {
+const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
     {
-      '@type': 'WebPage',
-      '@id': 'https://dailytithi.com/#webpage',
-      url: 'https://dailytithi.com/',
-      name: "Daily Tithi | Live Hindu Calendar, Panchang & Muhurat",
-      description: "Accurate Vedic Panchang, today's Udaya Tithi, dynamic Choghadiya Muhurat, and Vikram Samvat calendar powered by high-precision Swiss Ephemeris.",
-      isPartOf: {
-        '@type': 'WebSite',
-        '@id': 'https://dailytithi.com/#website',
-        name: 'Daily Tithi',
-        url: 'https://dailytithi.com/'
+      '@type': 'Organization',
+      '@id': 'https://dailytithi.com/#organization',
+      name: 'Daily Tithi',
+      alternateName: 'DailyTithi.com',
+      url: 'https://dailytithi.com',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': 'https://dailytithi.com/#logo',
+        url: 'https://dailytithi.com/icons/icon-512x512.png',
+        contentUrl: 'https://dailytithi.com/icons/icon-512x512.png',
+        width: 512,
+        height: 512,
+        caption: 'Daily Tithi',
       },
-      about: {
-        '@type': 'Thing',
-        name: 'Vedic Astrometry and Hindu Panchang System'
-      },
-      author: {
-        '@type': 'Organization',
-        name: 'Daily Tithi Research Team'
-      },
-      breadcrumb: {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: 'https://dailytithi.com/'
-          }
-        ]
-      }
+      description:
+        'A Vedic Panchang and astronomical Hindu calendar platform providing city-specific Tithi, Rahu Kaal, Choghadiya, and Shubh Muhurat timings based on Swiss Ephemeris and Dharma Shastra rules.',
+      sameAs: [
+        'https://github.com/manishkana30-jpg',
+        'https://github.com/manishkana30-jpg/hindu-calendar-widget',
+        'https://peerlist.io/kannamanish95',
+        'https://dev.to/manishkana30jpg',
+        'https://www.saashub.com/daily-tithi',
+        // 'https://www.indiehackers.com/product/daily-tithi',
+        // 'https://alternativeto.net/software/daily-tithi/',
+        // 'https://www.producthunt.com/products/daily-tithi',
+      ],
     },
     {
-      '@type': 'SoftwareApplication',
-      '@id': 'https://dailytithi.com/#software',
+      '@type': 'WebSite',
+      '@id': 'https://dailytithi.com/#website',
+      url: 'https://dailytithi.com',
       name: 'Daily Tithi',
-      url: 'https://dailytithi.com/',
-      applicationCategory: 'LifestyleApplication',
-      operatingSystem: 'All (Web, Android, iOS, Windows, macOS)',
-      browserRequirements: 'Modern browser with JavaScript support. Functions 100% offline.',
+      inLanguage: ['en', 'hi'],
+      publisher: { '@id': 'https://dailytithi.com/#organization' },
+    },
+    {
+      '@type': 'WebApplication',
+      '@id': 'https://dailytithi.com/#webapp',
+      name: 'Daily Tithi',
+      url: 'https://dailytithi.com',
+      applicationCategory: ['LifestyleApplication', 'ReferenceApplication'],
+      operatingSystem: 'All',
+      inLanguage: ['en', 'hi'],
+      isAccessibleForFree: true,
+      featureList: [
+        'City-specific Sunrise and Sunset adjusted Tithi end-times',
+        'Live Rahu Kaal, Yamaganda, Gulika Kaal, and Abhijit Muhurat',
+        'Day and Night Choghadiya timing tables',
+        'Dharma Shastra rules for Ekadashi and Vrat Parana windows',
+        'Bilingual English and Hindi interface',
+      ],
       offers: {
         '@type': 'Offer',
         price: '0',
-        priceCurrency: 'USD'
+        priceCurrency: 'INR',
       },
-      description: 'Real-time Vedic astrometry dashboard delivering live Ghati/Pala timekeeping, Udaya Tithi, dynamic Choghadiya Muhurats, Panchak tracking, and Dharmashastra-compliant festival calculations with offline PWA capabilities.',
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        ratingCount: '128',
-        bestRating: '5',
-        worstRating: '1'
-      }
-    }
-  ]
+      subjectOf: { '@id': 'https://dailytithi.com/#demo-video' },
+      publisher: { '@id': 'https://dailytithi.com/#organization' },
+      creator: { '@id': 'https://dailytithi.com/#organization' },
+    },
+    {
+      '@type': 'VideoObject',
+      '@id': 'https://dailytithi.com/#demo-video',
+      name: 'Daily Tithi — Real-Time Sunrise-Adjusted Vedic Panchang & Muhurat Demo',
+      description:
+        'Mobile demo of Daily Tithi showing real-time sunrise-adjusted Panchang, city selection, Rahu Kaal, Day & Night Choghadiya, and Shubh Muhurat in English and Hindi.',
+      thumbnailUrl: 'https://i.ytimg.com/vi/DyYrWrXm18M/hqdefault.jpg',
+      uploadDate: '2026-11-18',
+      duration: 'PT11S',
+      contentUrl: 'https://www.youtube.com/watch?v=DyYrWrXm18M',
+      embedUrl: 'https://www.youtube.com/embed/DyYrWrXm18M',
+      publisher: { '@id': 'https://dailytithi.com/#organization' },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -179,10 +199,6 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500;600;700;800&display=swap"
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
-        />
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
             (function(c,l,a,r,i,t,y){
@@ -201,6 +217,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${outfit.variable} ${plusJakarta.variable} ${spaceGrotesk.variable} font-sans bg-neutral-950 text-neutral-100 antialiased min-h-dvh w-full max-w-full overflow-x-hidden touch-pan-y selection:bg-orange-500/30 selection:text-orange-200 pb-[env(safe-area-inset-bottom)]`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+          }}
+        />
         <LanguageProvider>
           <Suspense fallback={null}>
             <NotificationNavigationHandler />
