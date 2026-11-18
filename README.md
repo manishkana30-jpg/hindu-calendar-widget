@@ -36,3 +36,9 @@ Live Production Web App: [https://dailytithi.com/](https://dailytithi.com/)
 - **Framework**: Next.js 15 (App Router) + React 19 + TypeScript
 - **Styling**: Tailwind CSS + Lucide Icons
 - **Deployment**: Vercel
+
+  # Vedic Panchang & Tithi Reference
+Live sunrise-adjusted Hindu calendar calculations based on Swiss Ephemeris and Dharma Shastra rules:
+- **Live Panchang & Rahu Kaal:** [DailyTithi.com](https://dailytithi.com)
+- **Ekadashi & Vrat Dates:** [Upcoming Vrat Calendar](https://dailytithi.com/vrat/ekadashi-vrat)
+- **Griha Pravesh & Shubh Muhurat:** [2026 Muhurat Finder](https://dailytithi.com/muhurat/griha-pravesh)
